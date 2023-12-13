@@ -6,13 +6,25 @@
   home.stateVersion = "23.11";
 
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-25.9.0"
+  ];
+
   home.packages = with pkgs; [
     vim
     vscode
     git
     firefox
-    # obsidian
+    vlc
+    obsidian
+    efibootmgr
   ];
+
+  programs.git = {
+    enable = true;
+    userName = "shifu-dev";
+    userEmail = "csingh8476@gmail.com";
+  };
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
