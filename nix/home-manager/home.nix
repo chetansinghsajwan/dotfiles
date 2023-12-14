@@ -5,6 +5,8 @@
   home.homeDirectory = "/home/chetan";
   home.stateVersion = "23.11";
 
+  imports = [ ./gnome.nix ];
+
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.permittedInsecurePackages = [
     "electron-25.9.0"
@@ -18,6 +20,7 @@
     vlc
     obsidian
     efibootmgr
+    jellyfin
   ];
 
   programs.git = {
