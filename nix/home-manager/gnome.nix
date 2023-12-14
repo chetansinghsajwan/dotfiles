@@ -13,6 +13,10 @@
     gnomeExtensions.sound-output-device-chooser
     gnomeExtensions.space-bar
 
+    gnome.gnome-boxes
+
+    gnome-extension-manager
+
     # for gsconnect
     openssl
   ];

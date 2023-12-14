@@ -21,6 +21,11 @@
     obsidian
     efibootmgr
     jellyfin
+    bitwarden
+    bottles
+    protonvpn-gui
+    protonvpn-cli
+    spotify
   ];
 
   programs.git = {
