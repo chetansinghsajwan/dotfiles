@@ -5,17 +5,15 @@
   };
 
   home.packages = with pkgs; [
+    gnome.dconf-editor
+    gnome.gnome-boxes
+    gnome-extension-manager
+
     gnomeExtensions.gsconnect
     gnomeExtensions.blur-my-shell
     gnomeExtensions.user-themes
-    gnomeExtensions.tray-icons-reloaded
     gnomeExtensions.vitals
     gnomeExtensions.sound-output-device-chooser
-    gnomeExtensions.space-bar
-
-    gnome.gnome-boxes
-
-    gnome-extension-manager
 
     # for gsconnect
     openssl
@@ -29,10 +27,8 @@
         "gsconnect@andyholmes.github.io"
         "blur-my-shell@aunetx"
         "user-theme@gnome-shell-extensions.gcampax.github.com"
-        "trayIconsReloaded@selfmade.pl"
         "Vitals@CoreCoding.com"
         "sound-output-device-chooser@kgshank.net"
-        "space-bar@luchrioh"
       ];
     };
 
@@ -40,6 +36,12 @@
       color-scheme = "prefer-dark";
       enable-hot-corners = false;
     };
+
+    "org/gnome/desktop/peripherals/touchpad" = {
+      tap-to-click = true;
+      two-finger-scrolling-enabled = true;
+    };
+
 
     "org/gnome/desktop/background" = {
       # picture-uri = "file://../../wallpapers/gnome-default-light.png";
