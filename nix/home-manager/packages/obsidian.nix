@@ -1,12 +1,10 @@
 { config, pkgs, ... }:
 {
     home.packages = [
-        pkgs.git
+        pkgs.obsidian
     ];
 
-    programs.git = {
-        enable = true;
-        userName = "shifu-dev";
-        userEmail = "csingh8476@gmail.com";
-    };
+    nixpkgs.config.permittedInsecurePackages = [
+        "electron-25.9.0"
+    ];
 }
