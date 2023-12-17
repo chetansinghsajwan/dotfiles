@@ -7,6 +7,7 @@
     home.stateVersion = "23.11";
 
     imports = [
+        ./core.nix
         env/gnome.nix
         packages/git.nix
         packages/obsidian.nix
@@ -19,7 +20,6 @@
         firefox
         vlc
         obsidian
-        efibootmgr
         jellyfin
         bitwarden
         bottles
