@@ -54,7 +54,8 @@
             visibleName = "custom";
             default = true;
             cursorShape = "ibeam";
-            font = "Monospace 13";
+            font = "Monospace 14";
+            audibleBell = false;
         };
     };
 

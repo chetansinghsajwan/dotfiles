@@ -16,6 +16,7 @@
     nixpkgs.config.allowUnfree = true;
     home.packages = with pkgs; [
         vim
+	gh
         vscode
         firefox
         vlc
