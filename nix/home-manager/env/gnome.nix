@@ -6,6 +6,27 @@
 
     home.packages = with pkgs; [
         gnome.dconf-editor
+        gnome.eog
+        gnome.gpaste
+        gnome.devhelp
+        gnome.nautilus
+        gnome.gnome-logs
+        gnome.gnome-shell
+        gnome.gnome-notes
+        gnome.file-roller
+        gnome.gnome-tweaks
+        gnome.gnome-clocks
+        gnome.gnome-autoar
+        gnome.gnome-session
+        gnome.gnome-nettool
+        gnome.gnome-calendar
+        gnome.gnome-bluetooth
+        gnome.gnome-screenshot
+        gnome.gnome-calculator
+        gnome.gnome-font-viewer
+        gnome.gnome-backgrounds
+        gnome.gnome-disk-utility
+        gnome.gnome-power-manager
         gnome.gnome-terminal
         gnome.gnome-boxes
         gnome-extension-manager
