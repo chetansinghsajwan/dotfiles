@@ -4,6 +4,10 @@
         enable = true;
     };
 
+    imports = [
+        ../packages/gnome-terminal.nix
+    ];
+
     home.packages = with pkgs; [
         gnome.dconf-editor
         gnome.eog
@@ -27,7 +31,6 @@
         gnome.gnome-backgrounds
         gnome.gnome-disk-utility
         gnome.gnome-power-manager
-        gnome.gnome-terminal
         gnome.gnome-boxes
         gnome-extension-manager
 
@@ -40,24 +43,6 @@
         # for gsconnect
         openssl
     ];
-
-    programs.gnome-terminal = {
-        enable = true;
-        showMenubar = false;
-
-        profile."b1dcc9dd-5262-4d8d-a863-c897e6d979b9" = {
-            visibleName = "default";
-            default = false;
-        };
-
-        profile."1f9b272d-225c-474f-9e70-326fa579639d" = {
-            visibleName = "custom";
-            default = true;
-            cursorShape = "ibeam";
-            font = "Monospace 14";
-            audibleBell = false;
-        };
-    };
 
     dconf.settings = {
         "org/gnome/shell" = {
