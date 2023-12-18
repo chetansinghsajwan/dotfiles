@@ -8,15 +8,15 @@
 
     imports = [
         ./core.nix
-        env/gnome.nix
-        packages/git.nix
-        packages/obsidian.nix
+        ./env/gnome.nix
+        ./packages/git.nix
+        ./packages/obsidian.nix
     ];
 
     nixpkgs.config.allowUnfree = true;
     home.packages = with pkgs; [
         vim
-	gh
+        gh
         vscode
         firefox
         vlc
