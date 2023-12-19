@@ -5,37 +5,39 @@ in
 {
     home.packages = [ pkgs.gnome.gnome-terminal ];
 
-    dconf.settings."org/gnome/terminal/legacy" = {
-        "default-show-menubar" = false;
-    };
+    dconf.settings = {
+        "org/gnome/terminal/legacy" = {
+            "default-show-menubar" = false;
+        };
 
-    dconf.settings."org/gnome/terminal/legacy/profiles:" = {
-        default = profile-custom;
-        list = [
-            profile-custom
-            profile-default
-        ];
-    };
+        "org/gnome/terminal/legacy/profiles:" = {
+            default = profile-custom;
+            list = [
+                profile-custom
+                profile-default
+            ];
+        };
 
-    dconf.settings."org/gnome/terminal/legacy/profiles:/:${profile-custom}" = {
-        "visible-name" = "custom";
-        "audible-bell" = false;
-        "backspace-binding" = "ascii-delete";
-        "cursor-blink-mode" = "system";
-        "cursor-shape" = "ibeam";
-        "default-size-columns" = 120;
-        "delete-binding" = "delete-sequence";
-        "font" = "Monospace 14";
-        "login-shell" = false;
-        "scroll-on-output" = true;
-        "scrollback-lines" = 10000;
-        "scrollbar-policy" = "always";
-        "use-custom-command" = false;
-        "use-system-font" = false;
-        "use-theme-colors" = true;
-    };
+        "org/gnome/terminal/legacy/profiles:/:${profile-custom}" = {
+            "visible-name" = "custom";
+            "audible-bell" = false;
+            "backspace-binding" = "ascii-delete";
+            "cursor-blink-mode" = "system";
+            "cursor-shape" = "ibeam";
+            "default-size-columns" = 120;
+            "delete-binding" = "delete-sequence";
+            "font" = "Monospace 14";
+            "login-shell" = false;
+            "scroll-on-output" = true;
+            "scrollback-lines" = 10000;
+            "scrollbar-policy" = "always";
+            "use-custom-command" = false;
+            "use-system-font" = false;
+            "use-theme-colors" = true;
+        };
 
-    dconf.settings."org/gnome/terminal/legacy/profiles:/:${profile-default}" = {
-        "visible-name" = "default";
+        "org/gnome/terminal/legacy/profiles:/:${profile-default}" = {
+            "visible-name" = "default";
+        };
     };
 }
