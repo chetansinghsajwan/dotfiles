@@ -27,5 +27,6 @@
         protonvpn-gui
         protonvpn-cli
         spotify
+        cascadia-code
     ];
 }
