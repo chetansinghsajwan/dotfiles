@@ -11,6 +11,7 @@
         ./env/gnome.nix
         ./packages/git.nix
         ./packages/obsidian.nix
+        ./packages/vlc.nix
     ];
 
     nixpkgs.config.allowUnfree = true;
@@ -19,7 +20,6 @@
         gh
         vscode
         firefox
-        vlc
         obsidian
         jellyfin
         bitwarden
