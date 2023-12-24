@@ -7,6 +7,7 @@
     imports = [
         ../packages/gnome-terminal.nix
         ../packages/gnome-text-editor.nix
+        ../packages/epiphany.nix
     ];
 
     home.packages = with pkgs; [
