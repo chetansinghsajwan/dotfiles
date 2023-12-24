@@ -6,6 +6,7 @@
 
     imports = [
         ../packages/gnome-terminal.nix
+        ../packages/gnome-text-editor.nix
     ];
 
     home.packages = with pkgs; [
@@ -66,14 +67,5 @@
             tap-to-click = true;
             two-finger-scrolling-enabled = true;
         };
-
-        wallpapers = fetchFromGitHub
-
-        "org/gnome/desktop/background" = {
-            picture-uri = "file://${config.home.homeDirectory}/.config/background.png";
-            # picture-uri-dark = "file://../../wallpapers/gnome-default-dark.png";
-        };
     };
-
-    home.file.".config/background.png".source = "../../../wallpapers/white-fox.png";
 }
