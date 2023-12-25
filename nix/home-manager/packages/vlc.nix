@@ -4,5 +4,5 @@
         pkgs.vlc
     ];
 
-    home.file."${config.home.homeDirectory}/.config/vlc/vlcrc".source = ../../../vlc/vlcrc;
+    home.file."${config.home.homeDirectory}/.config/vlc/vlcrc".source = ./vlcrc;
 }

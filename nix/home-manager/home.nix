@@ -16,7 +16,7 @@
 
     nixpkgs.config.allowUnfree = true;
     home.packages = with pkgs; [
-        vim
+        neovim
         gh
         vscode
         firefox

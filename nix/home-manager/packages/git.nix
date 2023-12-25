@@ -10,7 +10,7 @@
         userEmail = "csingh8476@gmail.com";
 
         extraConfig = {
-            core.editor = "vim";
+            core.editor = "nvim";
             credential.helper = "store";
         };
     };
