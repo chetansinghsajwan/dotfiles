@@ -40,27 +40,31 @@
         openssl
     ];
 
-    dconf.settings = {
-        "org/gnome/shell" = {
-            favorite-apps = [];
-            disable-user-extensions = false;
-            enabled-extensions = [
-                "gsconnect@andyholmes.github.io"
-                "blur-my-shell@aunetx"
-                "user-theme@gnome-shell-extensions.gcampax.github.com"
-                "Vitals@CoreCoding.com"
-                "sound-output-device-chooser@kgshank.net"
-            ];
-        };
+    dconf.settings."org/gnome" =
+    let wallpapers = pkgs.fetchFromGitHub {
+        name = "wallpapers";
+        owner = "shifu-dev";
+        repo = "wallpapers";
+        rev = "dev";
+        hash = "sha256-6oEGkjdwjEBd/85o5WEmppPFl+y0tGWXb2d50DbsnyY=";
+    }; in {
+        "shell/favorite-apps" = [];
+        "shell/disable-user-extensions" = false;
+        "shell/enabled-extensions" = [
+            "gsconnect@andyholmes.github.io"
+            "blur-my-shell@aunetx"
+            "user-theme@gnome-shell-extensions.gcampax.github.com"
+            "Vitals@CoreCoding.com"
+            "sound-output-device-chooser@kgshank.net"
+        ];
 
-        "org/gnome/desktop/interface" = {
-            color-scheme = "prefer-dark";
-            enable-hot-corners = false;
-        };
+        "desktop/interface/color-scheme" = "prefer-dark";
+        "desktop/interface/enable-hot-corners" = false;
 
-        "org/gnome/desktop/peripherals/touchpad" = {
-            tap-to-click = true;
-            two-finger-scrolling-enabled = true;
-        };
+        "desktop/peripherals/touchpad/tap-to-click" = true;
+        "desktop/peripherals/touchpad/two-finger-scrolling-enabled" = true;
+
+        "desktop/background/picture-uri" = "file://${wallpapers}/white-fox.png";
+        "desktop/background/picture-uri-dark" = "file://${wallpapers}/white-fox.png";
     };
 }
