@@ -1,35 +1,22 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, ... }:
-
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    <home-manager/nixos>
+  ];
+
+  nix.settings.experimental-features = [ "nix-command" ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Enable networking
+  # Networking
+  networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
-  # Set your time zone.
+  # Localization
   time.timeZone = "Asia/Kolkata";
-
-  # Select internationalisation properties.
   i18n.defaultLocale = "en_IN";
-
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "en_IN";
     LC_IDENTIFICATION = "en_IN";
@@ -48,6 +35,7 @@
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
+  services.gnome.core-utilities.enable = false;
 
   # Configure keymap in X11
   services.xserver = {
@@ -85,23 +73,17 @@
     isNormalUser = true;
     description = "Chetan Singh";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      firefox
-      thunderbird
-      vim
-      git
-      vscode
-      obsidian
-      bitwarden
-    ];
+    packages = [];
   };
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+  home-manager.useGlobalPkgs = true;
+  home-manager.users.chetan = import ../nix/home-manager/home.nix;
+  
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-25.9.0"
   ];
+
+  environment.systemPackages = with pkgs; [];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
