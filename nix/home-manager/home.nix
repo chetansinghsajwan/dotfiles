@@ -4,7 +4,7 @@
 
     home.username = "chetan";
     home.homeDirectory = "/home/chetan";
-    home.stateVersion = "23.11";
+    home.stateVersion = "23.05";
 
     imports = [
         ./core.nix
@@ -20,7 +20,6 @@
         gh
         vscode
         firefox
-        obsidian
         jellyfin
         bitwarden
         bottles
