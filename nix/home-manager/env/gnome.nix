@@ -59,6 +59,10 @@
             "sound-output-device-chooser@kgshank.net"
         ];
 
+        "shell/app-switcher/current-workspace-only" = true;
+        "mutter/dynamic-workspaces" = true;
+        "mutter/edge-tiling" = true;
+
         "desktop/interface/color-scheme" = "prefer-dark";
         "desktop/interface/enable-hot-corners" = false;
 
