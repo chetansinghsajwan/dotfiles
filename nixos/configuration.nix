@@ -80,7 +80,7 @@
   home-manager.users.chetan = import ../nix/home-manager/home.nix;
   
   nixpkgs.config.permittedInsecurePackages = [
-    "electron-24.8.6"
+    "electron-25.9.0"
   ];
 
   environment.systemPackages = with pkgs; [];

@@ -4,7 +4,7 @@
 
     home.username = "chetan";
     home.homeDirectory = "/home/chetan";
-    home.stateVersion = "23.05";
+    home.stateVersion = "23.11";
 
     imports = [
         ./core.nix
