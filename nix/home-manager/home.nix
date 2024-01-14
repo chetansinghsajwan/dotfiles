@@ -6,6 +6,9 @@
     home.homeDirectory = "/home/chetan";
     home.stateVersion = "23.11";
 
+    nix.package = pkgs.nix;
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
     imports = [
         ./core.nix
         ./env/gnome.nix
