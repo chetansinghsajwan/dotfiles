@@ -12,6 +12,21 @@
         extraConfig = {
             core.editor = "nvim";
             credential.helper = "store";
+
+            advice.pushUpdateRejected = false;
+            advice.pushNonFFCurrent = false;
+            advice.pushNonFFMatching = false;
+            advice.pushAlreadyExists = false;
+            advice.pushFetchFirst = false;
+            advice.pushNeedsForce = false;
+            advice.statusHints = false;
+            advice.statusUoption = false;
+            advice.commitBeforeMerge = false;
+            advice.resolveConflict = false;
+            advice.implicitIdentity = false;
+            advice.detachedHead = false;
+            advice.amWorkDir = false;
+            advice.rmHints = false;
         };
     };
 }

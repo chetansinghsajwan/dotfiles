@@ -19,6 +19,7 @@
 
     nixpkgs.config.allowUnfree = true;
     home.packages = with pkgs; [
+        github-desktop
         neovim
         gh
         vscode
