@@ -15,12 +15,12 @@
         ./packages/git.nix
         ./packages/obsidian.nix
         ./packages/vlc.nix
+	./packages/nvim.nix
     ];
 
     nixpkgs.config.allowUnfree = true;
     home.packages = with pkgs; [
         github-desktop
-        neovim
         gh
         vscode
         firefox
