@@ -48,7 +48,7 @@
         owner = "shifu-dev";
         repo = "wallpapers";
         rev = "dev";
-        hash = "sha256-6oEGkjdwjEBd/85o5WEmppPFl+y0tGWXb2d50DbsnyY=";
+        hash = "sha256-52j39DIAFTAO6QG1YGX1OpuVSUPOqgfh/V8AYelHYYU=";
     }; in {
         "shell/favorite-apps" = [];
         "shell/disable-user-extensions" = false;
