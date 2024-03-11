@@ -6,7 +6,7 @@
     home.homeDirectory = "/home/chetan";
     home.stateVersion = "23.11";
 
-    nix.package = pkgs.nix;
+    # nix.package = pkgs.nix;
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
     imports = [
@@ -15,7 +15,7 @@
         ./packages/git.nix
         ./packages/obsidian.nix
         ./packages/vlc.nix
-	./packages/nvim.nix
+	    ./packages/nvim.nix
     ];
 
     nixpkgs.config.allowUnfree = true;

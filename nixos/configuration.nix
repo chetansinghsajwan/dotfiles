@@ -1,7 +1,10 @@
 { config, pkgs, ... }:
+let
+  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-23.11.tar.gz";
+in
 {
     imports = [
-        <home-manager/nixos>
+        "${home-manager}/nixos"
     ];
 
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -85,6 +88,7 @@
 
     nixpkgs.config.permittedInsecurePackages = [
         "electron-25.9.0"
+        "openssl-1.1.1u"
     ];
 
     environment.systemPackages = with pkgs; [];
