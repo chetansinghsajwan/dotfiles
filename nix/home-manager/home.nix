@@ -24,6 +24,7 @@
 	todoist-electron
         github-desktop
         gh
+        teams-for-linux
         vscode
         firefox
         bitwarden
