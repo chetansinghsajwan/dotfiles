@@ -26,7 +26,6 @@
         gh
         vscode
         firefox
-        jellyfin
         bitwarden
         bottles
         protonvpn-gui

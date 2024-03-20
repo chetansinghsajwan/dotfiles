@@ -12,6 +12,7 @@
 
     home.packages = with pkgs; [
         evince # document viewer
+	loupe # image viewer
 	gnome.gnome-sound-recorder
         gnome.dconf-editor
         gnome.nautilus
