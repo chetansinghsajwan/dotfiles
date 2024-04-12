@@ -2,6 +2,7 @@
 {
     home.packages = [
         pkgs.git
+        pkgs.git-lfs
     ];
 
     programs.git = {
