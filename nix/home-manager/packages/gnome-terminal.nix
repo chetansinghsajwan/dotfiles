@@ -27,13 +27,14 @@ in
             "default-size-columns" = 120;
             "delete-binding" = "delete-sequence";
             "font" = "Monospace 14";
-            "login-shell" = false;
             "scroll-on-output" = true;
             "scrollback-lines" = 10000;
             "scrollbar-policy" = "always";
-            "use-custom-command" = false;
             "use-system-font" = false;
             "use-theme-colors" = true;
+            "login-shell" = true;
+            "use-custom-command" = true;
+            "custom-command" = "zsh";
         };
 
         "org/gnome/terminal/legacy/profiles:/:${profile-default}" = {

@@ -12,6 +12,7 @@
     imports = [
         ./core.nix
         ./env/gnome.nix
+        ./packages/zsh.nix
         ./packages/git.nix
         ./packages/obsidian.nix
         ./packages/vlc.nix
@@ -21,7 +22,7 @@
     nixpkgs.config.allowUnfree = true;
     home.packages = with pkgs; [
         todoist
-	todoist-electron
+        todoist-electron
         github-desktop
         gh
         teams-for-linux
