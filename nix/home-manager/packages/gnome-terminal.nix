@@ -3,7 +3,12 @@ let profile-custom = "1f9b272d-225c-474f-9e70-326fa579639d";
 in
 { pkgs, lib, ... }:
 {
-    home.packages = [ pkgs.gnome.gnome-terminal ];
+    home.packages = with pkgs; [
+        gnome.gnome-terminal
+        cascadia-code
+    ];
+
+    fonts.fontconfig.enable = true;
 
     dconf.settings = {
         "org/gnome/terminal/legacy" = {
@@ -26,7 +31,9 @@ in
             "cursor-shape" = "ibeam";
             "default-size-columns" = 120;
             "delete-binding" = "delete-sequence";
-            "font" = "Monospace 14";
+            "font" = "Cascadia Code 14";
+            "cell-width-scale" = 1.0;
+            "cell-height-scale" = 1.10;
             "scroll-on-output" = true;
             "scrollback-lines" = 10000;
             "scrollbar-policy" = "always";
