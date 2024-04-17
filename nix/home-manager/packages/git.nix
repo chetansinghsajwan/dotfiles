@@ -1,14 +1,16 @@
 { config, pkgs, ... }:
 {
-    home.packages = [
-        pkgs.git
-        pkgs.git-lfs
-    ];
+    home.packages = [ pkgs.git ];
 
     programs.git = {
         enable = true;
         userName = "shifu-dev";
         userEmail = "csingh8476@gmail.com";
+
+        lfs = {
+            enable = true;
+            skipSmudge = false;
+        };
 
         extraConfig = {
             core.editor = "nvim";
