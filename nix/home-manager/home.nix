@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 {
     programs.home-manager.enable = true;
 
@@ -17,6 +17,7 @@
         ./packages/obsidian.nix
         ./packages/vlc.nix
         ./packages/nvim.nix
+        ./packages/nbfc.nix
     ];
 
     nixpkgs.config.allowUnfree = true;
@@ -34,5 +35,9 @@
         protonvpn-cli
         spotify
         cascadia-code
+
+        nixpkgs-fmt
+        unityhub
+        dotnet-sdk_8
     ];
 }
