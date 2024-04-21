@@ -1,10 +1,7 @@
-{ config, pkgs, ... }:
-let
-  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-23.11.tar.gz";
-in
+inputs:
 {
     imports = [
-        "${home-manager}/nixos"
+        /etc/nixos/hardware-configuration.nix
     ];
 
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -41,9 +38,9 @@ in
     services.gnome.core-utilities.enable = false;
 
     # Configure keymap in X11
-    services.xserver = {
+    services.xserver.xkb = {
         layout = "us";
-        xkbVariant = "";
+        variant = "";
     };
 
     # Enable CUPS to print documents.
@@ -83,15 +80,10 @@ in
         packages = [];
     };
 
-    home-manager.useGlobalPkgs = true;
-    home-manager.users.chetan = import ../nix/home-manager/home.nix;
-
     nixpkgs.config.permittedInsecurePackages = [
         "electron-25.9.0"
         "openssl-1.1.1u"
     ];
-
-    environment.systemPackages = with pkgs; [];
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
