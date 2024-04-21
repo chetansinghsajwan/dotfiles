@@ -1,7 +1,7 @@
 inputs:
 {
     imports = [
-        /etc/nixos/hardware-configuration.nix
+        ./hardware-configuration.nix
     ];
 
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
