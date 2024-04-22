@@ -17,7 +17,7 @@
         ./packages/obsidian.nix
         ./packages/vlc.nix
         ./packages/nvim.nix
-        ./packages/nbfc.nix
+        # ./packages/nbfc.nix
     ];
 
     nixpkgs.config.allowUnfree = true;
@@ -36,6 +36,11 @@
         spotify
         cascadia-code
 
+        (google-fonts.override { fonts = [
+                "Roboto Mono"
+                "Ubuntu Mono"
+                "JetBrains Mono"
+            ]; })
         nixpkgs-fmt
         unityhub
         dotnet-sdk_8
