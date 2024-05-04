@@ -12,14 +12,25 @@
 
     home.packages = with pkgs; [
         evince # document viewer
-	loupe # image viewer
-	gnome.gnome-sound-recorder
+        loupe # image viewer
+        snapshot # camera
+        baobab # disk usage analyzer
+        apostrophe # markdown editor
+        amberol # music
+        gnome-connections
+        gnome-console
+        gnome.gnome-sound-recorder
         gnome.dconf-editor
         gnome.nautilus
         gnome.gnome-logs
         gnome.gnome-shell
         gnome.file-roller
+        gnome.gnome-music
+        gnome.gnome-maps
+        gnome.gnome-system-monitor
+        gnome.gnome-weather
         gnome.gnome-tweaks
+        gnome.gnome-contacts
         gnome.gnome-clocks
         gnome.gnome-autoar
         gnome.gnome-session
