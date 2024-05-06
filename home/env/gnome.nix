@@ -16,9 +16,7 @@
         snapshot # camera
         baobab # disk usage analyzer
         apostrophe # markdown editor
-        amberol # music
         gnome-connections
-        gnome-console
         gnome.gnome-sound-recorder
         gnome.dconf-editor
         gnome.nautilus

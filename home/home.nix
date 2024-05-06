@@ -46,5 +46,6 @@
         dotnet-sdk_8
         google-chrome
         curtail
+        libreoffice
     ];
 }

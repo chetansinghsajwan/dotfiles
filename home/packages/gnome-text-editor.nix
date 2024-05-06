@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 {
     home.packages = [
         pkgs.gnome-text-editor
@@ -19,11 +19,11 @@
         "show-line-numbers" = true;
         "show-map" = true;
         "show-right-margin" = true;
-        "right-margin-position" = 80;
-        "spellcheck" = true;
+        "right-margin-position" = 100;
+        "spellcheck" = false;
         "style-scheme" = "classic-dark";
         "style-variant" = "follow";
-        "tab-width" = 4;
-        "wrap-text" = true;
+        "tab-width" = lib.hm.gvariant.mkUint32 4;
+        "wrap-text" = false;
     };
 }
