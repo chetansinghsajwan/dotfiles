@@ -17,7 +17,6 @@
         ./packages/obsidian.nix
         ./packages/vlc.nix
         ./packages/nvim.nix
-        # ./packages/nbfc.nix
     ];
 
     nixpkgs.config.allowUnfree = true;
@@ -34,13 +33,7 @@
         protonvpn-gui
         protonvpn-cli
         spotify
-        cascadia-code
-
-        (google-fonts.override { fonts = [
-                "Roboto Mono"
-                "Ubuntu Mono"
-                "JetBrains Mono"
-            ]; })
+        nerdfonts
         nixpkgs-fmt
         unityhub
         dotnet-sdk_8
