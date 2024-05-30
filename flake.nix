@@ -11,7 +11,7 @@
     };
 
     outputs = { self, nixpkgs, home-manager }: {
-        nixosConfigurations.nixos = import ./hosts/honor-magicbook-15/host.nix {
+        nixosConfigurations.nixos = import ./hosts/workstation/host.nix {
             inherit nixpkgs;
             inherit home-manager;
         };
