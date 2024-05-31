@@ -8,12 +8,14 @@
             url = "github:nix-community/home-manager/master";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+
+        nbfc-linux = {
+            url = "github:nbfc-linux/nbfc-linux";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
     };
 
-    outputs = { self, nixpkgs, home-manager }: {
-        nixosConfigurations.nixos = import ./hosts/workstation/host.nix {
-            inherit nixpkgs;
-            inherit home-manager;
-        };
+    outputs = inputs: {
+        nixosConfigurations.nixos = import ./hosts/workstation/host.nix inputs;
     };
 }

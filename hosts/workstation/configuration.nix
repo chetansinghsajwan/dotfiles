@@ -1,7 +1,8 @@
 inputs:
 {
     imports = [
-        ./hardware-configuration.nix
+        ./hardware-configuration-an515-54.nix
+        ./nbfc.nix
     ];
 
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
