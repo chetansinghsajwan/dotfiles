@@ -41,7 +41,6 @@
         curtail
         libreoffice
         thunderbird
-        planify
     ];
 
     xdg = {
