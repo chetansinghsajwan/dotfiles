@@ -40,5 +40,7 @@
         google-chrome
         curtail
         libreoffice
+        thunderbird
+        planify
     ];
 }
