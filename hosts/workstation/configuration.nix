@@ -4,6 +4,8 @@ inputs:
         ./hardware-configuration.nix
     ];
 
+    home-manager.backupFileExtension = "bak";
+
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
     # Bootloader.
