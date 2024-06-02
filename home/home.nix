@@ -35,8 +35,6 @@
         spotify
         nerdfonts
         nixpkgs-fmt
-        unityhub
-        dotnet-sdk_8
         google-chrome
         curtail
         libreoffice
