@@ -11,6 +11,7 @@
     ];
 
     home.packages = with pkgs; [
+        amberol # music app
         evince # document viewer
         loupe # image viewer
         snapshot # camera
@@ -76,7 +77,7 @@
 
         "desktop/interface/color-scheme" = "prefer-dark";
         "desktop/interface/enable-hot-corners" = false;
-	"desktop/interface/show-battery-percentage" = true;
+	    "desktop/interface/show-battery-percentage" = true;
 
         "desktop/peripherals/touchpad/tap-to-click" = true;
         "desktop/peripherals/touchpad/two-finger-scrolling-enabled" = true;

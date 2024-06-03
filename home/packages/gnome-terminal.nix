@@ -1,6 +1,3 @@
-let profile-custom = "1f9b272d-225c-474f-9e70-326fa579639d";
-    profile-default = "b1dcc9dd-5262-4d8d-a863-c897e6d979b9";
-in
 { pkgs, lib, ... }:
 {
     home.packages = with pkgs; [
@@ -10,20 +7,25 @@ in
 
     fonts.fontconfig.enable = true;
 
-    dconf.settings = {
+    dconf.settings =
+    let
+        profileCustom = "1f9b272d-225c-474f-9e70-326fa579639d";
+        profileDefault = "b1dcc9dd-5262-4d8d-a863-c897e6d979b9";
+    in
+    {
         "org/gnome/terminal/legacy" = {
             "default-show-menubar" = false;
         };
 
         "org/gnome/terminal/legacy/profiles:" = {
-            default = profile-custom;
+            default = profileCustom;
             list = [
-                profile-custom
-                profile-default
+                profileCustom
+                profileDefault
             ];
         };
 
-        "org/gnome/terminal/legacy/profiles:/:${profile-custom}" = {
+        "org/gnome/terminal/legacy/profiles:/:${profileCustom}" = {
             "visible-name" = "custom";
             "audible-bell" = false;
             "backspace-binding" = "ascii-delete";
@@ -31,7 +33,7 @@ in
             "cursor-shape" = "ibeam";
             "default-size-columns" = 120;
             "delete-binding" = "delete-sequence";
-            "font" = "Cascadia Code 14";
+            "font" = "JetBrainsMono Nerd Font Mono 15";
             "cell-width-scale" = 1.0;
             "cell-height-scale" = 1.10;
             "scroll-on-output" = true;
@@ -44,7 +46,7 @@ in
             "custom-command" = "zsh";
         };
 
-        "org/gnome/terminal/legacy/profiles:/:${profile-default}" = {
+        "org/gnome/terminal/legacy/profiles:/:${profileDefault}" = {
             "visible-name" = "default";
         };
     };

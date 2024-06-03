@@ -39,6 +39,7 @@
         curtail
         libreoffice
         thunderbird
+        youtube-dl
     ];
 
     xdg = {
@@ -59,6 +60,42 @@
             publicShare = "${homeDir}/public";
             templates = "${homeDir}/templates";
             videos = "${homeDir}/videos";
+        };
+
+        mimeApps =
+            let
+                filesApp = "org.gnome.Nautilus.desktop";
+                audioApp = "io.bassi.Amberol.desktop";
+                videoApp = "vlc.desktop";
+                imageApp = "org.gnome.Loupe.desktop";
+                textApp = "org.gnome.TextEditor.desktop";
+                pdfApp = "org.gnome.Evince.desktop";
+            in
+        {
+            enable = true;
+            defaultApplications =
+            {
+                "application/pdf" = pdfApp;
+
+                "inode/directory" = filesApp;
+
+                "image/png" = imageApp;
+                "image/jpeg" = imageApp;
+                "image/svg" = imageApp;
+                "image/bmp" = imageApp;
+
+                "audio/mpeg" = audioApp;
+                "audio/aac" = audioApp;
+
+                "video/mpeg" = videoApp;
+                "video/mp4" = videoApp;
+                "video/x-msvideo" = videoApp;
+
+                "text/plain" = textApp;
+                "text/md" = textApp;
+                "text/csv" = textApp;
+                "text/html" = textApp;
+            };
         };
     };
 }
