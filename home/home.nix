@@ -17,6 +17,7 @@
         ./packages/obsidian.nix
         ./packages/vlc.nix
         ./packages/nvim.nix
+        ./packages/eza.nix
     ];
 
     nixpkgs.config.allowUnfree = true;
