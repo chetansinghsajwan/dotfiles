@@ -8,6 +8,7 @@
         ../packages/gnome-terminal.nix
         ../packages/gnome-text-editor.nix
         ../packages/epiphany.nix
+        ../packages/dconf-editor.nix
         ./keybindings.nix
     ];
 
@@ -20,7 +21,6 @@
         apostrophe # markdown editor
         gnome-connections
         gnome.gnome-sound-recorder
-        gnome.dconf-editor
         gnome.nautilus
         gnome.gnome-logs
         gnome.gnome-shell
