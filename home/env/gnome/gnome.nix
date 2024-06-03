@@ -1,15 +1,15 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 {
     gtk = {
         enable = true;
     };
 
     imports = [
-        ../packages/gnome-terminal.nix
-        ../packages/gnome-text-editor.nix
-        ../packages/epiphany.nix
-        ../packages/dconf-editor.nix
         ./keybindings.nix
+        ../../packages/gnome-terminal.nix
+        ../../packages/gnome-text-editor.nix
+        ../../packages/epiphany.nix
+        ../../packages/dconf-editor.nix
     ];
 
     home.packages = with pkgs; [

@@ -11,7 +11,7 @@
 
     imports = [
         ./core.nix
-        ./env/gnome.nix
+        ./env/gnome/gnome.nix
         ./packages/zsh.nix
         ./packages/git.nix
         ./packages/obsidian.nix
