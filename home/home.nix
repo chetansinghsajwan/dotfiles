@@ -41,13 +41,13 @@
         libreoffice
         thunderbird
         youtube-dl
+        nil
     ];
 
     xdg = {
         enable = true;
 
-        userDirs =
-        let
+        userDirs = let
             homeDir = config.home.homeDirectory;
         in
         {
@@ -63,19 +63,17 @@
             videos = "${homeDir}/videos";
         };
 
-        mimeApps =
-            let
-                filesApp = "org.gnome.Nautilus.desktop";
-                audioApp = "io.bassi.Amberol.desktop";
-                videoApp = "vlc.desktop";
-                imageApp = "org.gnome.Loupe.desktop";
-                textApp = "org.gnome.TextEditor.desktop";
-                pdfApp = "org.gnome.Evince.desktop";
-            in
+        mimeApps = let
+            filesApp = "org.gnome.Nautilus.desktop";
+            audioApp = "io.bassi.Amberol.desktop";
+            videoApp = "vlc.desktop";
+            imageApp = "org.gnome.Loupe.desktop";
+            textApp = "org.gnome.TextEditor.desktop";
+            pdfApp = "org.gnome.Evince.desktop";
+        in
         {
             enable = true;
-            defaultApplications =
-            {
+            defaultApplications = {
                 "application/pdf" = pdfApp;
 
                 "inode/directory" = filesApp;
