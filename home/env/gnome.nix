@@ -8,6 +8,7 @@
         ../packages/gnome-terminal.nix
         ../packages/gnome-text-editor.nix
         ../packages/epiphany.nix
+        ./keybindings.nix
     ];
 
     home.packages = with pkgs; [
@@ -54,13 +55,16 @@
     ];
 
     dconf.settings."org/gnome" =
-    let wallpapers = pkgs.fetchFromGitHub {
-        name = "wallpapers";
-        owner = "shifu-dev";
-        repo = "wallpapers";
-        rev = "dev";
-        hash = "sha256-52j39DIAFTAO6QG1YGX1OpuVSUPOqgfh/V8AYelHYYU=";
-    }; in {
+    let
+        wallpapers = pkgs.fetchFromGitHub {
+            name = "wallpapers";
+            owner = "shifu-dev";
+            repo = "wallpapers";
+            rev = "dev";
+            hash = "sha256-52j39DIAFTAO6QG1YGX1OpuVSUPOqgfh/V8AYelHYYU=";
+        };
+    in
+    {
         "shell/favorite-apps" = [];
         "shell/disable-user-extensions" = false;
         "shell/enabled-extensions" = [
