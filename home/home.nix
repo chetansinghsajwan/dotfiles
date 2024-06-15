@@ -8,6 +8,7 @@
 
   # nix.package = pkgs.nix;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.config.allowUnfree = true;
 
   imports = [
     ./core.nix
@@ -19,16 +20,15 @@
     ./packages/nvim.nix
     ./packages/eza.nix
     ./packages/vscode.nix
+    ./packages/firefox.nix
   ];
 
-  nixpkgs.config.allowUnfree = true;
   home.packages = with pkgs; [
     todoist
     todoist-electron
     github-desktop
     gh
     teams-for-linux
-    firefox
     bitwarden
     bottles
     protonvpn-gui
