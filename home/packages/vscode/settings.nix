@@ -26,8 +26,7 @@
   # window settings
   window.autoDetectColorScheme = true;
   window.confirmBeforeClose = "keyboardOnly";
-  window.customMenuBarAltFocus = false;
-  window.enableMenuBarMnemonics = false;
+  window.menuBarVisibility = "hidden";
   window.dialogStyle = "custom";
   window.restoreFullscreen = false;
   window.titleBarStyle = "native";
