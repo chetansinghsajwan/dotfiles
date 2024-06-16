@@ -17,7 +17,7 @@
     ./packages/git.nix
     ./packages/obsidian.nix
     ./packages/vlc.nix
-    ./packages/nvim.nix
+    ./packages/neovim.nix
     ./packages/eza.nix
     ./packages/vscode.nix
     ./packages/firefox.nix

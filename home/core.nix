@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 {
-    home.packages = [
-        pkgs.efibootmgr
-    ];
+  home.packages = [
+    pkgs.efibootmgr
+  ];
 }
