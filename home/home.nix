@@ -11,7 +11,6 @@
   nixpkgs.config.allowUnfree = true;
 
   imports = [
-    ./core.nix
     ./env/gnome/gnome.nix
     ./packages/zsh.nix
     ./packages/git.nix
@@ -24,6 +23,7 @@
   ];
 
   home.packages = with pkgs; [
+    efibootmgr
     todoist
     todoist-electron
     github-desktop
