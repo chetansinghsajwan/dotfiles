@@ -2,7 +2,7 @@
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscodium;
+    package = pkgs.vscodium-fhs;
     enableUpdateCheck = false;
     enableExtensionUpdateCheck = false;
     mutableExtensionsDir = false;
@@ -23,6 +23,7 @@
 
     ./vscode/features/clangd.nix
     ./vscode/features/cmake.nix
+    ./vscode/features/lldb.nix
 
     ./vscode/themes/material-icons.nix
     ./vscode/themes/one-dark-pro.nix
