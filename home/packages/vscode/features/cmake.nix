@@ -16,21 +16,33 @@
         ms-vscode.cmake-tools
       ];
 
-      userSettings.cmake = {
-        cmakePath = "${pkgs.cmake}/bin/cmake";
-        sourceDirectory = "\${workspaceFolder}";
-        buildDirectory = buildDir;
-        installPrefix = installDir;
-        autoSelectActiveFolder = true;
-        loadCompileCommands = true;
-        # copyCompileCommands = "${buildDir}/compile_commands.json";
-        configureOnEdit = false;
-        configureOnOpen = false;
-        saveBeforeBuild = true;
-        buildBeforeRun = true;
-        revealLog = "focus";
-        skipConfigureIfCachePresent = true;
-        preferredGenerators = [ "Ninja" "Unix MakeFiles" ];
+      userSettings = {
+        cmake = {
+          cmakePath = "${pkgs.cmake}/bin/cmake";
+          sourceDirectory = "\${workspaceFolder}";
+          buildDirectory = buildDir;
+          installPrefix = installDir;
+          autoSelectActiveFolder = true;
+          loadCompileCommands = true;
+          # copyCompileCommands = "${buildDir}/compile_commands.json";
+          configureOnEdit = false;
+          configureOnOpen = false;
+          saveBeforeBuild = true;
+          buildBeforeRun = true;
+          revealLog = "focus";
+          preferredGenerators = [ "Ninja" "Unix MakeFiles" ];
+        };
+
+        launch = {
+          configurations = [
+            {
+              name = "cmake debug";
+              type = "lldb";
+              request = "launch";
+              program = "\${command:cmake.launchTargetPath}";
+            }
+          ];
+        };
       };
 
       userTasks.tasks = [
