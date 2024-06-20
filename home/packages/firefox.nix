@@ -22,6 +22,10 @@
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
         "browser.aboutConfig.showWarning" = false;
 
+        # disable password management
+        "signon.rememberSignons" = false;
+        "signon.management.page.breach-alerts.enabled" = false;
+
         # so that only the active tab has close button
         "browser.tabs.tabClipWidth" = 999;
 
