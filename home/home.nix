@@ -45,6 +45,8 @@
     thunderbird
     youtube-dl
     tree
+    zed-editor
+    sublime-merge
   ];
 
   xdg = {
