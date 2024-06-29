@@ -34,7 +34,10 @@
     protonvpn-gui
     protonvpn-cli
     spotify
-    nerdfonts
+    (nerdfonts.override { fonts = [
+      "JetBrainsMono"
+      "CascadiaCode"
+    ]; })
     nixpkgs-fmt
     google-chrome
     curtail
