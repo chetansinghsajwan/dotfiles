@@ -18,7 +18,7 @@
     ./packages/vlc.nix
     ./packages/neovim.nix
     ./packages/eza.nix
-    ./packages/vscode.nix
+    # ./packages/vscode.nix
     ./packages/firefox.nix
   ];
 
