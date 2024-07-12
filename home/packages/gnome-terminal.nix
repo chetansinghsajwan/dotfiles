@@ -1,8 +1,7 @@
 { pkgs, lib, ... }:
 {
     home.packages = with pkgs; [
-        gnome.gnome-terminal
-        cascadia-code
+        gnome-terminal
     ];
 
     fonts.fontconfig.enable = true;

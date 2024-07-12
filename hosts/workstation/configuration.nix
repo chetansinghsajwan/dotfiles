@@ -81,8 +81,7 @@ inputs:
     };
 
     nixpkgs.config.permittedInsecurePackages = [
-        "electron-25.9.0"
-        "openssl-1.1.1u"
+        "python3.12-youtube-dl-2021.12.17"
     ];
 
     # Some programs need SUID wrappers, can be configured further or are

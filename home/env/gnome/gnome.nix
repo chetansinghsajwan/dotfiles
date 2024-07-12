@@ -8,7 +8,6 @@
         ./keybindings.nix
         ../../packages/gnome-terminal.nix
         ../../packages/gnome-text-editor.nix
-        ../../packages/epiphany.nix
         ../../packages/dconf-editor.nix
     ];
 
@@ -19,28 +18,28 @@
         snapshot # camera
         baobab # disk usage analyzer
         apostrophe # markdown editor
+        nautilus # file explorer
+        file-roller # ?
         gnome-connections
         gnome.gnome-sound-recorder
-        gnome.nautilus
         gnome.gnome-logs
         gnome.gnome-shell
-        gnome.file-roller
         gnome.gnome-music
         gnome.gnome-maps
-        gnome.gnome-system-monitor
+        gnome-system-monitor
         gnome.gnome-weather
-        gnome.gnome-tweaks
+        gnome-tweaks
         gnome.gnome-contacts
         gnome.gnome-clocks
-        gnome.gnome-autoar
+        gnome-autoar
         gnome.gnome-session
         gnome.gnome-nettool
-        gnome.gnome-calendar
+        gnome-calendar
         gnome.gnome-bluetooth
-        gnome.gnome-screenshot
-        gnome.gnome-calculator
-        gnome.gnome-font-viewer
-        gnome.gnome-disk-utility
+        gnome-screenshot
+        gnome-calculator
+        gnome-font-viewer
+        gnome-disk-utility
         gnome.gnome-boxes
         gnome-extension-manager
 
