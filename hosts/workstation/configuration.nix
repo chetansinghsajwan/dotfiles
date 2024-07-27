@@ -5,7 +5,6 @@ inputs:
     ];
 
     nix.optimise.automatic = true;
-    nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
     # Bootloader.
     boot.loader.systemd-boot.enable = true;
@@ -71,8 +70,6 @@ inputs:
     # Enable touchpad support (enabled default in most desktopManager).
     # services.xserver.libinput.enable = true;
 
-    nixpkgs.config.allowUnfree = true;
-
     # Define a user account. Don't forget to set a password with ‘passwd’.
     users.users.chetan = {
         isNormalUser = true;
@@ -80,10 +77,6 @@ inputs:
         extraGroups = [ "networkmanager" "wheel" ];
         packages = [];
     };
-
-    nixpkgs.config.permittedInsecurePackages = [
-        "python3.12-youtube-dl-2021.12.17"
-    ];
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.

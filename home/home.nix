@@ -6,9 +6,10 @@
   home.homeDirectory = "/home/chetan";
   home.stateVersion = "23.11";
 
-  # nix.package = pkgs.nix;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [
+    "python3.12-youtube-dl-2021.12.17"
+  ];
 
   imports = [
     ./env/gnome/gnome.nix
@@ -18,7 +19,6 @@
     ./packages/vlc.nix
     ./packages/neovim.nix
     ./packages/eza.nix
-    # ./packages/vscode.nix
     ./packages/firefox.nix
   ];
 
@@ -36,7 +36,6 @@
     spotify
     (nerdfonts.override { fonts = [
       "JetBrainsMono"
-      "CascadiaCode"
     ]; })
     nixpkgs-fmt
     google-chrome
