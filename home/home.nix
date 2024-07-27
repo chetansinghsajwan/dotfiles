@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, nur, ... }:
 {
   programs.home-manager.enable = true;
 
@@ -6,9 +6,14 @@
   home.homeDirectory = "/home/chetan";
   home.stateVersion = "23.11";
 
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.permittedInsecurePackages = [
     "python3.12-youtube-dl-2021.12.17"
+  ];
+
+  nixpkgs.overlays = [
+    nur.overlay
   ];
 
   imports = [

@@ -1,4 +1,7 @@
-{ firefox-extensions, ... }:
+{ pkgs, ... }:
+let
+    firefox-addons = pkgs.nur.repos.rycee.firefox-addons;
+in
 {
   programs.firefox = {
     enable = true;
@@ -50,11 +53,11 @@
         "extensions.pocket.enabled" = false;
       };
 
-      extensions = with firefox-extensions; [
+      extensions = with firefox-addons; [
         bitwarden
         ublock-origin
         darkreader
-        # wikiwand-wikipedia-modernized
+        wikiwand-wikipedia-modernized
       ];
     };
   };
