@@ -48,6 +48,7 @@
         gnomeExtensions.user-themes
         gnomeExtensions.vitals
         gnomeExtensions.sound-output-device-chooser
+	    gnomeExtensions.fuzzy-app-search
 
         # for gsconnect
         openssl
@@ -72,6 +73,7 @@
             "user-theme@gnome-shell-extensions.gcampax.github.com"
             "Vitals@CoreCoding.com"
             "sound-output-device-chooser@kgshank.net"
+            "gnome-fuzzy-app-search@gnome-shell-extensions.Czarlie.gitlab.com"
         ];
 
         "shell/app-switcher/current-workspace-only" = true;
