@@ -29,6 +29,15 @@ inputs:
         LC_TIME = "en_IN";
     };
 
+    # Enable virtualisation
+    virtualisation.docker = {
+        enable = true;
+        rootless = {
+            enable = true;
+            setSocketVariable = true;
+        };
+    };
+
     # Enable the X11 windowing system.
     services.xserver.enable = true;
 
@@ -73,7 +82,7 @@ inputs:
     users.users.chetan = {
         isNormalUser = true;
         description = "Chetan Singh";
-        extraGroups = [ "networkmanager" "wheel" ];
+        extraGroups = [ "networkmanager" "wheel" "docker" ];
         packages = [];
     };
 
