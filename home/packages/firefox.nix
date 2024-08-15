@@ -72,6 +72,15 @@ in
                         }];
                         definedAliases = [ "@yt" ];
                     };
+                    "youtube-music" = {
+                        urls = [{
+                            template = "https://music.youtube.com/search";
+                            params = [
+                                { name = "q"; value = "{searchTerms}"; }
+                            ];
+                        }];
+                        definedAliases = [ "@ytm" ];
+                    };
                     "nixpkgs" = {
                         urls = [{
                             template = "https://search.nixos.org/packages";
@@ -81,7 +90,7 @@ in
                             ];
                         }];
                         icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-                        definedAliases = [ "@nixp" ];
+                        definedAliases = [ "@np" ];
                     };
                     "nixwiki" = {
                         urls = [{
@@ -92,7 +101,7 @@ in
                         }];
                         iconUpdateURL = "https://nixos.wiki/favicon.png";
                         updateInterval = 24 * 60 * 60 * 1000;
-                        definedAliases = [ "@nixw" ];
+                        definedAliases = [ "@nw" ];
                     };
                 };
             };
