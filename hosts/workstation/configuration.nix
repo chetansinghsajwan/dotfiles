@@ -1,4 +1,4 @@
-inputs:
+{ pkgs, ...}@inputs:
 {
     imports = [
         ./hardware-configuration.nix
@@ -84,6 +84,11 @@ inputs:
         description = "Chetan Singh";
         extraGroups = [ "networkmanager" "wheel" "docker" ];
         packages = [];
+    };
+
+    programs.kdeconnect = {
+        enable = true;
+        package = pkgs.gnomeExtensions.gsconnect;
     };
 
     # Some programs need SUID wrappers, can be configured further or are
