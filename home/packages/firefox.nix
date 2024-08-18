@@ -15,7 +15,8 @@ in
                 "browser.tabs.closeWindowWithLastTab" = false;
                 "browser.tabs.tabmanager.enabled" = true;
                 "browser.tabs.warnOnClose" = true;
-                "browser.tabs.inTitlebar" = true;
+                "browser.tabs.inTitlebar" = false;
+                "browser.tabs.tabmanager.enabled" = false;
                 "browser.startup.homepage" = "about:home";
                 "browser.startup.firstrunSkipsHomepage" = false;
                 "browser.toolbars.bookmarks.visibility" = "never";
