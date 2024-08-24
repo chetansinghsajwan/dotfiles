@@ -10,4 +10,8 @@
        vim.o.shiftwidth = 4
     '';
   };
+
+  home.shellAliases = {
+    nv = "nvim";
+  };
 }
