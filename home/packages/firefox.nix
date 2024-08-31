@@ -99,6 +99,15 @@ in
                         }];
                         definedAliases = [ "@no" ];
                     };
+                    "nixflakes" = {
+                        urls = [{
+                            template = "https://search.nixos.org/flakes";
+                            params = [
+                                { name = "query"; value = "{searchTerms}"; }
+                            ];
+                        }];
+                        definedAliases = [ "@nf" ];
+                    };
                     "nixwiki" = {
                         urls = [{
                             template = "https://nixos.wiki/index.php";
@@ -134,6 +143,12 @@ in
                             ];
                         }];
                         definedAliases = [ "@gl" ];
+                    };
+                    "spotify" = {
+                        urls = [{
+                            template = "https://open.spotify.com/search/{searchTerms}";
+                        }];
+                        definedAliases = [ "@sp" ];
                     };
                 };
             };
