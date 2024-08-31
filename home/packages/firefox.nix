@@ -13,7 +13,6 @@ in
 
             settings = {
                 "browser.tabs.closeWindowWithLastTab" = false;
-                "browser.tabs.tabmanager.enabled" = true;
                 "browser.tabs.warnOnClose" = true;
                 "browser.tabs.inTitlebar" = false;
                 "browser.tabs.tabmanager.enabled" = false;
@@ -86,12 +85,19 @@ in
                         urls = [{
                             template = "https://search.nixos.org/packages";
                             params = [
-                                { name = "type"; value = "packages"; }
                                 { name = "query"; value = "{searchTerms}"; }
                             ];
                         }];
-                        icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                         definedAliases = [ "@np" ];
+                    };
+                    "nixopts" = {
+                        urls = [{
+                            template = "https://search.nixos.org/options";
+                            params = [
+                                { name = "query"; value = "{searchTerms}"; }
+                            ];
+                        }];
+                        definedAliases = [ "@no" ];
                     };
                     "nixwiki" = {
                         urls = [{
@@ -100,9 +106,16 @@ in
                                 { name = "search"; value = "{searchTerms}"; }
                             ];
                         }];
-                        iconUpdateURL = "https://nixos.wiki/favicon.png";
-                        updateInterval = 24 * 60 * 60 * 1000;
                         definedAliases = [ "@nw" ];
+                    };
+                    "home-manager" = {
+                        urls = [{
+                            template = "https://home-manager-options.extranix.com";
+                            params = [
+                                { name = "query"; value = "{searchTerms}"; }
+                            ];
+                        }];
+                        definedAliases = [ "@hm" ];
                     };
                 };
             };
