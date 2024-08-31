@@ -117,6 +117,24 @@ in
                         }];
                         definedAliases = [ "@hm" ];
                     };
+                    "github" = {
+                        urls = [{
+                            template = "https://github.com/search";
+                            params = [
+                                { name = "q"; value = "{searchTerms}"; }
+                            ];
+                        }];
+                        definedAliases = [ "@gh" ];
+                    };
+                    "gitlab" = {
+                        urls = [{
+                            template = "https://gitlab.com/search";
+                            params = [
+                                { name = "search"; value = "{searchTerms}"; }
+                            ];
+                        }];
+                        definedAliases = [ "@gl" ];
+                    };
                 };
             };
 
