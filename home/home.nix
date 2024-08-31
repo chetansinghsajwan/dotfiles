@@ -73,6 +73,7 @@
         videos = "${homeDir}/videos";
       };
 
+    configFile."mimeapps.list".force = true;
     mimeApps =
       let
         filesApp = "org.gnome.Nautilus.desktop";
