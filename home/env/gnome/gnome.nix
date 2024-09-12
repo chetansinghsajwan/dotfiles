@@ -21,26 +21,26 @@
         nautilus # file explorer
         file-roller # ?
         gnome-connections
-        gnome.gnome-sound-recorder
-        gnome.gnome-logs
-        gnome.gnome-shell
-        gnome.gnome-music
-        gnome.gnome-maps
+        gnome-sound-recorder
+        gnome-logs
+        gnome-shell
+        gnome-music
+        gnome-maps
         gnome-system-monitor
-        gnome.gnome-weather
+        gnome-weather
         gnome-tweaks
-        gnome.gnome-contacts
-        gnome.gnome-clocks
+        gnome-contacts
+        gnome-clocks
         gnome-autoar
-        gnome.gnome-session
-        gnome.gnome-nettool
+        gnome-session
+        gnome-nettool
         gnome-calendar
-        gnome.gnome-bluetooth
+        gnome-bluetooth
         gnome-screenshot
         gnome-calculator
         gnome-font-viewer
         gnome-disk-utility
-        gnome.gnome-boxes
+        gnome-boxes
         gnome-extension-manager
 
         gnomeExtensions.gsconnect
