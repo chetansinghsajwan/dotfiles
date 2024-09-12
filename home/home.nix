@@ -25,6 +25,7 @@
     ./packages/neovim.nix
     ./packages/eza.nix
     ./packages/firefox.nix
+    ./packages/vscode.nix
   ];
 
   home.packages = with pkgs; [
