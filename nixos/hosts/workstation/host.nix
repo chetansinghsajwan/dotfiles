@@ -12,7 +12,7 @@
         inherit vscode-extensions;
       };
 
-      home-manager.users.chetan.imports = [ ../../home/home.nix ];
+      home-manager.users.chetan.imports = [ ../../home-manager/home.nix ];
     }
   ];
 }
