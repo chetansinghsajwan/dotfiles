@@ -1,0 +1,36 @@
+[alias]
+  cm = commit
+  co = checkout
+  br = branch
+  st = status
+  sreset = reset --soft
+  hreset = reset --hard
+  ammend = commit --amend --all --no-edit
+  df = diff --color --color-words --abbrev
+  lg = log --color --oneline --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit
+
+[core]
+  editor = vi
+  autocrlf = false
+
+[init]
+	defaultBranch = main
+
+[credential]
+  helper = store
+
+[push]
+	default = current
+
+[pull]
+  ff = only
+
+[url "git@github.com:"]
+	insteadOf = "gh:"
+
+[user]
+  name = chetansinghsajwan
+  email = 76040441+chetansinghsajwan@users.noreply.github.com
+
+[protocol]
+	version = 2
