@@ -2,8 +2,8 @@
 {
   programs.home-manager.enable = true;
 
-  home.username = "chetan";
-  home.homeDirectory = "/home/chetan";
+  home.username = "chetansinghsajwan";
+  home.homeDirectory = "/home/chetansinghsajwan";
   home.stateVersion = "23.11";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];

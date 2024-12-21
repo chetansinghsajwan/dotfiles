@@ -79,9 +79,9 @@
     # services.xserver.libinput.enable = true;
 
     # Define a user account. Don't forget to set a password with ‘passwd’.
-    users.users.chetan = {
+    users.users.chetansinghsajwan = {
         isNormalUser = true;
-        description = "Chetan Singh";
+        description = "Chetan Singh Sajwan";
         extraGroups = [ "networkmanager" "wheel" "docker" ];
         packages = [];
     };
