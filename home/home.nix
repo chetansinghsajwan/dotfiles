@@ -40,7 +40,6 @@
     protonvpn-gui
     protonvpn-cli
     spotify
-    nerd-fonts.jetbrains-mono
     nixpkgs-fmt
     google-chrome
     curtail
@@ -50,6 +49,10 @@
     tree
     zed-editor
     sublime-merge
+
+    # fonts
+    nerd-fonts.jetbrains-mono
+    poppins
   ];
 
   xdg = {
