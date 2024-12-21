@@ -13,7 +13,7 @@
   ];
 
   nixpkgs.overlays = [
-    nur.overlay
+    nur.overlays.default
   ];
 
   imports = [
@@ -40,9 +40,7 @@
     protonvpn-gui
     protonvpn-cli
     spotify
-    (nerdfonts.override { fonts = [
-      "JetBrainsMono"
-    ]; })
+    nerd-fonts.jetbrains-mono
     nixpkgs-fmt
     google-chrome
     curtail
