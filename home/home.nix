@@ -30,24 +30,19 @@
 
   home.packages = with pkgs; [
     efibootmgr
-    todoist
     todoist-electron
-    github-desktop
     gh
     teams-for-linux
     bitwarden
     bottles
     protonvpn-gui
     protonvpn-cli
-    spotify
     nixpkgs-fmt
     google-chrome
     curtail
     libreoffice
-    thunderbird
     youtube-dl
     tree
-    zed-editor
     sublime-merge
 
     # fonts
