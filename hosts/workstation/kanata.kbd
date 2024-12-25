@@ -1,0 +1,57 @@
+(defcfg
+  process-unmapped-keys yes
+  ;; log-layer-changes yes
+)
+
+(defvar
+  tap-time 200
+  hold-time 300
+)
+
+(defsrc
+  q w e r t y u i o p
+  a s d f g h j k l ;
+  z x c v b n m , . /
+)
+
+(defalias
+  alt (tap-hold $tap-time $hold-time a lalt)
+  sft (tap-hold $tap-time $hold-time s lsft)
+  ctl (tap-hold $tap-time $hold-time d lctl)
+  sup (tap-hold $tap-time $hold-time f lmet)
+  sym (tap-hold $tap-time $hold-time v (layer-toggle sym))
+  nav (tap-hold $tap-time $hold-time e (layer-toggle nav))
+  num (tap-hold $tap-time $hold-time c (layer-toggle num))
+)
+
+(deflayermap main
+  a @alt
+  s @sft
+  d @ctl
+  f @sup
+  v @sym
+  e @nav
+  c @num
+)
+
+(deflayermap nav
+  i up
+  j left
+  k down
+  l right
+)
+
+(deflayermap sym)
+
+(deflayermap num
+  n 1
+  m 2
+  , 3
+  j 4
+  k 5
+  l 6
+  u 7
+  i 8
+  o 9
+  b 0
+)
