@@ -1,6 +1,5 @@
 (defcfg
   process-unmapped-keys yes
-  ;; log-layer-changes yes
 )
 
 (defvar
@@ -14,44 +13,42 @@
   z x c v b n m , . /
 )
 
-(defalias
-  alt (tap-hold $tap-time $hold-time a lalt)
-  sft (tap-hold $tap-time $hold-time s lsft)
-  ctl (tap-hold $tap-time $hold-time d lctl)
-  sup (tap-hold $tap-time $hold-time f lmet)
-  sym (tap-hold $tap-time $hold-time v (layer-toggle sym))
-  nav (tap-hold $tap-time $hold-time e (layer-toggle nav))
-  num (tap-hold $tap-time $hold-time c (layer-toggle num))
-)
-
 (deflayermap main
-  a @alt
-  s @sft
-  d @ctl
-  f @sup
-  v @sym
-  e @nav
-  c @num
+  a (tap-hold $tap-time $hold-time a lalt)
+  s (tap-hold $tap-time $hold-time s lshift)
+  d (tap-hold $tap-time $hold-time d lctrl)
+  f (tap-hold $tap-time $hold-time f lmeta)
+  j (tap-hold $tap-time $hold-time j lmeta)
+  k (tap-hold $tap-time $hold-time k lctrl)
+  l (tap-hold $tap-time $hold-time l lshift)
+  ; (tap-hold $tap-time $hold-time ; lalt)
+  e (tap-hold $tap-time $hold-time e (layer-toggle sym))
+  i (tap-hold $tap-time $hold-time i (layer-toggle sym))
+  r (tap-hold $tap-time $hold-time r (layer-toggle num))
+  c (tap-hold $tap-time $hold-time c (layer-toggle fun))
+  v (tap-hold $tap-time $hold-time v (layer-toggle nav))
 )
 
-(deflayermap nav
-  i up
-  j left
-  k down
-  l right
+(deflayer nav
+  _ _ _ _ _ tab  bspc del  esc   _
+  _ _ _ _ _ left down up   right ret
+  _ _ _ _ _ home pgdn pgup end   _
 )
 
-(deflayermap sym)
+(deflayer sym
+  S-1  `    '    S-'  S-3   S-\  S-9  S-0  S-,  S-.
+  S-8  =    -    S--  S-4   ;    {    }    /    \
+  S-`  S-=  ,    .    S-2   S-7  [    ]    S-;  S-/
+)
 
-(deflayermap num
-  n 1
-  m 2
-  , 3
-  j 4
-  k 5
-  l 6
-  u 7
-  i 8
-  o 9
-  b 0
+(deflayer num
+  _ _ _ _ _ _ 7 8 9 _
+  _ _ _ _ _ 0 4 5 6 _
+  _ _ _ _ _ _ 1 2 3 _
+)
+
+(deflayer fun
+  _ _ _ _ _ _ f7 f8 f9 f12
+  _ _ _ _ _ _ f4 f5 f6 f11
+  _ _ _ _ _ _ f1 f2 f3 f10
 )
