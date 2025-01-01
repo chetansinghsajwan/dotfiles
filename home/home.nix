@@ -46,8 +46,12 @@
     sublime-merge
 
     # fonts
-    nerd-fonts.jetbrains-mono
     poppins
+    (nerdfonts.override {
+      fonts = [
+        "JetBrainsMono"
+      ];
+    })
   ];
 
   xdg = {
