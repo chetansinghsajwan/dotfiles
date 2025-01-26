@@ -11,44 +11,37 @@
   q w e r t y u i o p
   a s d f g h j k l ;
   z x c v b n m , . /
+  spc
 )
 
-(deflayermap main
-  a (tap-hold $tap-time $hold-time a lalt)
-  s (tap-hold $tap-time $hold-time s lshift)
-  d (tap-hold $tap-time $hold-time d lctrl)
-  f (tap-hold $tap-time $hold-time f lmeta)
-  j (tap-hold $tap-time $hold-time j lmeta)
-  k (tap-hold $tap-time $hold-time k lctrl)
-  l (tap-hold $tap-time $hold-time l lshift)
-  ; (tap-hold $tap-time $hold-time ; lalt)
-  e (tap-hold $tap-time $hold-time e (layer-toggle sym))
-  i (tap-hold $tap-time $hold-time i (layer-toggle sym))
-  r (tap-hold $tap-time $hold-time r (layer-toggle num))
-  c (tap-hold $tap-time $hold-time c (layer-toggle fun))
-  v (tap-hold $tap-time $hold-time v (layer-toggle nav))
+(deflayermap insert
+  caps (layer-switch normal)
 )
 
-(deflayer nav
-  _ _ _ _ _ tab  bspc del  esc   _
-  _ _ _ _ _ left down up   right ret
-  _ _ _ _ _ home pgdn pgup end   _
+(deflayer normal
+  _    _      (layer-toggle sym) (layer-toggle num) _    tab  bspc del  esc   _
+  lalt lshift lctrl              lmeta              _    left down up   right ret
+  _    _      (layer-toggle fun) _                  _    home pgdn pgup end   _
+  (layer-switch insert)
 )
 
 (deflayer sym
   S-1  `    '    S-'  S-3   S-\  S-9  S-0  S-,  S-.
   S-8  =    -    S--  S-4   ;    {    }    /    \
   S-`  S-=  ,    .    S-2   S-7  [    ]    S-;  S-/
+  _
 )
 
 (deflayer num
   _ _ _ _ _ _ 7 8 9 _
   _ _ _ _ _ 0 4 5 6 _
   _ _ _ _ _ _ 1 2 3 _
+  _
 )
 
 (deflayer fun
   _ _ _ _ _ _ f7 f8 f9 f12
   _ _ _ _ _ _ f4 f5 f6 f11
   _ _ _ _ _ _ f1 f2 f3 f10
+  _
 )
