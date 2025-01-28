@@ -32,7 +32,7 @@
             "cursor-shape" = "ibeam";
             "default-size-columns" = 120;
             "delete-binding" = "delete-sequence";
-            "font" = "JetBrainsMono Nerd Font Mono 15";
+            "font" = "JetBrains Mono 15";
             "cell-width-scale" = 1.0;
             "cell-height-scale" = 1.10;
             "scroll-on-output" = true;

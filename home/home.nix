@@ -48,6 +48,7 @@
 
     # fonts
     poppins
+    jetbrains-mono
     nerd-fonts.jetbrains-mono
   ];
 
