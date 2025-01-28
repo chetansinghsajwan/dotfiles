@@ -44,6 +44,7 @@
     youtube-dl
     tree
     sublime-merge
+    exfat
 
     # fonts
     poppins
