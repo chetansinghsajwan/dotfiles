@@ -50,6 +50,7 @@
     podman-tui
     podman-desktop
     pods
+    ghostty
 
     # fonts
     poppins
