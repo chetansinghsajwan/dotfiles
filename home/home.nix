@@ -26,6 +26,7 @@
     ./packages/eza.nix
     ./packages/firefox.nix
     ./packages/vscode.nix
+    ./packages/ghostty.nix
   ];
 
   home.packages = with pkgs; [
@@ -50,7 +51,6 @@
     podman-tui
     podman-desktop
     pods
-    ghostty
 
     # fonts
     poppins
