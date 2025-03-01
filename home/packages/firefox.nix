@@ -153,7 +153,7 @@ in
                 };
             };
 
-            extensions = with firefox-addons; [
+            extensions.packages = with firefox-addons; [
                 bitwarden
                 ublock-origin
                 darkreader
