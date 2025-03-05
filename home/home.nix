@@ -46,11 +46,6 @@
     tree
     sublime-merge
     exfat
-    podman
-    podman-compose
-    podman-tui
-    podman-desktop
-    pods
 
     # fonts
     poppins
