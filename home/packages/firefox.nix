@@ -56,13 +56,13 @@ in
 
             search = {
                 force = true;
-                default = "Google";
-                privateDefault = "Google";
+                default = "google";
+                privateDefault = "google";
 
                 engines = {
-                    "Bing".metaData.hidden = true;
-                    "Google".metaData.alias = "@g";
-                    "Wikipedia (en)".metaData.alias = "@wiki";
+                    "bing".metaData.hidden = true;
+                    "google".metaData.alias = "@g";
+                    "wikipedia".metaData.alias = "@wiki";
                     "youtube" = {
                         urls = [{
                             template = "https://www.youtube.com/results";
