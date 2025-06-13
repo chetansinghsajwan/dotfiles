@@ -31,10 +31,7 @@
 
   home.packages = with pkgs; [
     efibootmgr
-    todoist-electron
     gh
-    teams-for-linux
-    bitwarden
     bottles
     protonvpn-gui
     protonvpn-cli
