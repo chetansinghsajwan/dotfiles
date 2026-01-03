@@ -36,7 +36,6 @@
     protonvpn-gui
     proton-vpn-cli
     nixpkgs-fmt
-    google-chrome
     curtail
     libreoffice
     yt-dlp
