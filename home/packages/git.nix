@@ -12,7 +12,7 @@
       skipSmudge = false;
     };
 
-    extraConfig = {
+    settings = {
       core.editor = "nvim";
       credential.helper = "store";
       init.defaultBranch = "main";

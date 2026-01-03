@@ -34,12 +34,12 @@
     gh
     bottles
     protonvpn-gui
-    protonvpn-cli
+    proton-vpn-cli
     nixpkgs-fmt
     google-chrome
     curtail
     libreoffice
-    youtube-dl
+    yt-dlp
     tree
     sublime-merge
     exfat
