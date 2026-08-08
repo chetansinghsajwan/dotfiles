@@ -1,0 +1,51 @@
+[include]
+	path = ~/.gitconfig.local
+
+[init]
+	defaultBranch = main
+
+[user]
+	name = Chetan Singh Sajwan
+	email = 76040441+chetansinghsajwan@users.noreply.github.com
+
+[credential]
+	helper = /usr/local/bin/git-credential-manager
+
+[core]
+	editor = nvim
+
+[push]
+	autoSetupRemote = true
+
+[pull]
+	ff = only
+	rebase = true
+
+[url "git@github.com:"]
+	insteadOf = gh:
+
+[alias]
+	lg = log --color --oneline --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit
+	br = branch
+	sw = switch
+	co = checkout
+	rt = restore
+	rs = reset
+	rss = reset --soft
+	rsm = reset --mixed
+	rsh = reset --hard
+	cm = commit
+	ca = commit --amend --no-edit
+	st = status
+	wt = worktree
+	fc = fetch
+	rb = rebase
+	rbp = rebase --pull
+	ps = push
+	psf = push --force
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
