@@ -1,12 +1,25 @@
-{ config, pkgs, nur, ... }:
+{ config, pkgs, nur, lib, userConfig ? { }, isLinux ? false, ... }:
+let
+  cfgBase = import ./config;
+  cfg = cfgBase // {
+    user = cfgBase.user // userConfig;
+  };
+
+  # Conditionally import features based on preferences
+  featuresImports = with cfg.preferences.features; [
+    ./modules/features/base.nix
+  ] ++ (if dev then [ ./modules/features/dev.nix ] else [ ])
+    ++ (if gui && isLinux then [ ./modules/features/gui.nix ] else [ ])
+    ++ (if gaming && isLinux then [ ./modules/features/gaming.nix ] else [ ]);
+in
 {
   programs.home-manager.enable = true;
 
-  home.username = "chetansinghsajwan";
-  home.homeDirectory = "/home/chetansinghsajwan";
-  home.stateVersion = "23.11";
+  home.username = cfg.user.username;
+  home.homeDirectory = cfg.user.homeDirectory;
+  home.stateVersion = cfg.user.stateVersion;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.enable = false;
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.permittedInsecurePackages = [
     "python3.12-youtube-dl-2021.12.17"
@@ -16,42 +29,22 @@
     nur.overlays.default
   ];
 
-  imports = [
-    ./env/gnome/gnome.nix
-    ./packages/zsh.nix
-    ./packages/git.nix
-    ./packages/obsidian.nix
-    ./packages/vlc.nix
-    ./packages/neovim.nix
-    ./packages/eza.nix
-    ./packages/firefox.nix
-    ./packages/vscode.nix
-    ./packages/ghostty.nix
+  imports = featuresImports ++ lib.optionals isLinux [
+    ./modules/programs/dconf-editor.nix
+    ./modules/programs/nbfc.nix
   ];
 
-  home.packages = with pkgs; [
-    efibootmgr
-    gh
-    bottles
-    protonvpn-gui
-    proton-vpn-cli
-    nixpkgs-fmt
-    curtail
-    libreoffice
-    yt-dlp
-    tree
-    sublime-merge
-    exfat
-
-    # fonts
-    poppins
-    jetbrains-mono
-    nerd-fonts.jetbrains-mono
-  ];
+  home.packages = with pkgs;
+    lib.optionals isLinux [
+      efibootmgr
+      curtail
+      sublime-merge
+      exfat
+    ];
 
   xdg = {
     enable = true;
-
+  } // lib.optionalAttrs isLinux {
     userDirs =
       let
         homeDir = config.home.homeDirectory;
