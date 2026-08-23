@@ -91,6 +91,7 @@
               pkgs.statix
               pkgs.deadnix
               pkgs.nil
+              pkgs.nixd
             ];
           };
         });
