@@ -49,6 +49,20 @@
         vscode-extensions = vscode-extensions.extensions.${darwinSystem};
       };
 
+      # Standalone Home Manager config (non-NixOS/non-darwin machines,
+      # e.g. `home-manager switch --flake .#chetan`)
+      homeConfigurations."chetan" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.${linuxSystem};
+
+        modules = [ ./home/home.nix ];
+
+        extraSpecialArgs = {
+          inherit nur;
+          vscode-extensions = vscode-extensions.extensions.${linuxSystem};
+          isLinux = true;
+        };
+      };
+
       # `nix fmt`
       formatter = forEachSystem (system: treefmtEval.${system}.config.build.wrapper);
 
