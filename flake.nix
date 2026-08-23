@@ -9,6 +9,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -22,7 +27,7 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
   };
 
-  outputs = { self, nixpkgs, nur, home-manager, vscode-extensions, nix-darwin, treefmt-nix }:
+  outputs = { self, nixpkgs, nur, home-manager, vscode-extensions, nix-darwin, treefmt-nix, nixos-wsl }:
     let
       linuxSystem = "x86_64-linux";
       darwinSystem = "aarch64-darwin";
@@ -47,6 +52,11 @@
         inherit home-manager;
         inherit nix-darwin;
         vscode-extensions = vscode-extensions.extensions.${darwinSystem};
+      };
+
+      nixosConfigurations.wsl = import ./hosts/wsl {
+        inherit nixpkgs nur home-manager nixos-wsl;
+        vscode-extensions = vscode-extensions.extensions.${linuxSystem};
       };
 
       # Standalone Home Manager config (non-NixOS/non-darwin machines,
