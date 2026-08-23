@@ -18,12 +18,20 @@
       url = "github:nix-community/nix-vscode-extensions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    treefmt-nix.url = "github:numtide/treefmt-nix";
   };
 
-  outputs = { self, nixpkgs, nur, home-manager, vscode-extensions, nix-darwin }:
+  outputs = { self, nixpkgs, nur, home-manager, vscode-extensions, nix-darwin, treefmt-nix }:
     let
       linuxSystem = "x86_64-linux";
       darwinSystem = "aarch64-darwin";
+
+      forEachSystem = f: nixpkgs.lib.genAttrs [ linuxSystem darwinSystem ] f;
+
+      treefmtEval = forEachSystem (system:
+        treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} ./treefmt.nix
+      );
     in
     {
       nixosConfigurations.nixos = import ./hosts/workstation/host.nix {
@@ -40,5 +48,27 @@
         inherit nix-darwin;
         vscode-extensions = vscode-extensions.extensions.${darwinSystem};
       };
+
+      # `nix fmt`
+      formatter = forEachSystem (system: treefmtEval.${system}.config.build.wrapper);
+
+      # `nix flake check` — runs formatter + linters in check mode
+      checks = forEachSystem (system: {
+        formatting = treefmtEval.${system}.config.build.check self;
+      });
+
+      # `nix develop` — gives you nixfmt/statix/deadnix/nil on PATH
+      devShells = forEachSystem (system:
+        let pkgs = nixpkgs.legacyPackages.${system};
+        in {
+          default = pkgs.mkShell {
+            packages = [
+              pkgs.nixfmt
+              pkgs.statix
+              pkgs.deadnix
+              pkgs.nil
+            ];
+          };
+        });
     };
 }
