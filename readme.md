@@ -1,97 +1,25 @@
-### Fedora
+# dotfiles
 
-###### fix for no sound in fedora39
+Nix-based host and Home Manager configs for:
 
-add this line `options snd-intel-dspcfg dsp_driver=1` to `/etc/modprobe.d/alsa.conf`.
+- `hosts/workstation` — NixOS desktop
+- `hosts/macbook-air-m3` — nix-darwin laptop
+- `home/` — shared Home Manager modules and per-user config
 
-### Keyboard Layout
+## Layout
 
-```
-┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-│   │   │   │   │   │   │   │   │   │   │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│   │   │   │   │   │   │   │   │   │   │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│   │   │   │   │   │   │   │   │   │   │
-└───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-```
+- `flake.nix` wires the NixOS and Darwin hosts.
+- `home/config/` holds shared user, theme, and preference defaults.
+- `home/modules/features/` toggles feature groups like dev, GUI, and gaming.
+- `home/modules/programs/` contains app and shell modules.
+- `hosts/*/configuration.nix` keeps system-specific NixOS/Darwin settings.
 
-#### Main Layer
+## Notes
 
-```
-┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-│   │   │SYM│NUM│   │   │   │SYM│   │   │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│ALT│SFT│CTL│SUP│   │   │SUP│CTL│SFT│ALT│
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│   │   │FUN│NAV│   │   │   │   │   │   │
-└───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-```
+- Linux and Darwin Home Manager configs both reuse `home/home.nix`.
+- Shared identity settings live in `home/config/user.nix`.
+- The workstation host is split into `hardware-configuration.nix`, `kanata.nix`, `system.nix`, and `user.nix`.
 
-#### Input Layer
+## Keyboard
 
-```
-┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-│ q │ w │ e │ r │ t │ y │ u │ i │ o │ p │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│ a │ s │ d │ f │ g │ h │ j │ k │ l │ ; │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│ z │ x │ c │ v │ b │ n │ m │ , │ . │ / │
-└───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-```
-
-#### Navigation Layer
-
-```
-┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-│   │   │   │   │   │TAB│BSP│DEL│ESC│   │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│   │   │   │   │   │ L │ D │ U │ R │RET│
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│   │   │   │   │   │HOM│PGD│PGU│END│   │
-└───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-```
-
-#### Symbol Layer
-
-It contains these symbols:
-
-<code>{ } [ ] ( ) < > / \ - _ = ` ' " , . # $ @ ? + ; : & * | ! ~</code>
-
-But not these, because I could not fit them in.
-
-`% ^`
-
-```
-┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-│ ! │ ` │ ' │ " │ # │ | │ ( │ ) │ < │ > │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│ * │ = │ - │ _ │ $ │ ; │ { │ } │ / │ \ │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│ ~ │ + │ , │ . │ @ │ & │ [ │ ] │ : │ ? │
-└───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-```
-
-#### Number Layer
-
-```
-┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-│   │   │   │   │   │   │ 7 │ 8 │ 9 │   │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│   │   │   │   │   │ 0 │ 4 │ 5 │ 6 │   │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│   │   │   │   │   │   │ 1 │ 2 │ 3 │   │
-└───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-```
-
-#### Function Layer
-
-```
-┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-│   │   │   │   │   │   │ 7 │ 8 │ 9 │12 │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│   │   │   │   │   │   │ 4 │ 5 │ 6 │11 │
-├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
-│   │   │   │   │   │   │ 1 │ 2 │ 3 │10 │
-└───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-```
+`hosts/workstation/kanata.kbd` defines the custom layer-based layout.

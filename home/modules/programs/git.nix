@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ ... }:
 {
   programs.git = {
     enable = true;
@@ -19,10 +19,6 @@
       pull.rebase = true;
       protocol.version = 2;
 
-      # user settings from config
-      user.name = "chetansinghsajwan";
-      user.email = "76040441+chetansinghsajwan@users.noreply.github.com";
-
       # url aliases
       url."git@github.com:".insteadOf = "gh:";
 
@@ -33,7 +29,7 @@
       alias.st = "status";
       alias.sreset = "reset --soft";
       alias.hreset = "reset --hard";
-      alias.ammend = "commit --amend --all --no-edit";
+      alias.amend = "commit --amend --all --no-edit";
       alias.df = "diff --color --color-words --abbrev";
       alias.lg = "log --color --oneline --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit";
 

@@ -19,6 +19,9 @@ in
   home.homeDirectory = cfg.user.homeDirectory;
   home.stateVersion = cfg.user.stateVersion;
 
+  programs.git.userName = cfg.user.username;
+  programs.git.userEmail = cfg.user.email;
+
   nix.enable = false;
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.permittedInsecurePackages = [

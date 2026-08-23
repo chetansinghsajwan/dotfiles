@@ -14,8 +14,6 @@ nix-darwin.lib.darwinSystem
         isLinux = false;
         userConfig = {
           username = "kyutoo";
-          name = "kyutoo";
-          email = "76040441+chetansinghsajwan@users.noreply.github.com";
           homeDirectory = "/Users/kyutoo";
           stateVersion = "23.11";
         };
