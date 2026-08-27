@@ -12,4 +12,6 @@
   system.stateVersion = "23.05";
 
   programs.zsh.enable = true;
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 }
