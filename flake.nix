@@ -49,14 +49,14 @@
       );
     in
     {
-      nixosConfigurations.nixos = import ./hosts/workstation/host.nix {
+      nixosConfigurations.nixos = import ./hosts/workstation {
         inherit nixpkgs;
         inherit nur;
         inherit home-manager;
         vscode-extensions = vscode-extensions.extensions.${linuxSystem};
       };
 
-      darwinConfigurations.macbook-air-m3 = import ./hosts/macbook-air-m3/host.nix {
+      darwinConfigurations.macbook-air-m3 = import ./hosts/macbook-air-m3 {
         inherit nixpkgs;
         inherit nur;
         inherit home-manager;
