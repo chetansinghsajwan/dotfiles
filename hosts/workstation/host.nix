@@ -14,7 +14,10 @@
         isLinux = true;
       };
 
-      home-manager.users.chetansinghsajwan.imports = [ ../../home/home.nix ];
+      home-manager.users.chetansinghsajwan.imports = [
+        ../../home/home.nix
+        ../../home/modules/programs/nbfc.nix
+      ];
     }
   ];
 }

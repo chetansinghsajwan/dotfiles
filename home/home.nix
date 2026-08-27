@@ -35,11 +35,10 @@ in
     nur.overlays.default
   ];
 
-  imports = featuresImports ++ lib.optionals isLinux [
-    ./modules/programs/nbfc.nix
-  ] ++ lib.optionals (isLinux && cfg.preferences.features.gui) [
-    ./module/programs/dconf-editor.nix
-  ];
+  imports = featuresImports
+    ++ lib.optionals (isLinux && cfg.preferences.features.gui) [
+      ./module/programs/dconf-editor.nix
+    ];
 
   home.packages = with pkgs;
     lib.optionals isLinux [

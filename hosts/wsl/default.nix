@@ -12,6 +12,12 @@
       home-manager.extraSpecialArgs = {
         inherit nur vscode-extensions;
         isLinux = true;
+        userConfig = {
+          username = "chetansinghsajwan";
+          homeDirectory = "/home/chetansinghsajwan";
+          stateVersion = "23.11";
+        };
+        preferencesOverride = { gui = false; };
       };
       home-manager.users.chetansinghsajwan.imports = [ ../../home/home.nix ];
     }

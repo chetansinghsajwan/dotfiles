@@ -1,9 +1,9 @@
 { pkgs, ... }:
 let
     nbfc-linux = import (
-        pkgs.fetchFromGitHub { 
-            owner = "nbfc-linux"; 
-            repo = "nbfc-linux"; 
+        pkgs.fetchFromGitHub {
+            owner = "nbfc-linux";
+            repo = "nbfc-linux";
             rev = "0.1.15";
             sha256 = "sha256-+xYr2uIxfMaMAaHGvvA+0WPZjwj3wVAc34e1DWsJLqE=";
         }
@@ -26,4 +26,3 @@ in
         };
     };
 }
-

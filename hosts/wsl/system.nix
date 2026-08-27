@@ -10,4 +10,6 @@
 
   networking.hostName = "nixos-wsl";
   system.stateVersion = "23.05";
+
+  programs.zsh.enable = true;
 }
