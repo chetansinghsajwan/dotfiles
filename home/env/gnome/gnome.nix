@@ -6,9 +6,9 @@
 
     imports = [
         ./keybindings.nix
-        ../../packages/gnome-terminal.nix
-        ../../packages/gnome-text-editor.nix
-        ../../packages/dconf-editor.nix
+        ../../modules/programs/gnome-terminal.nix
+        ../../modules/programs/gnome-text-editor.nix
+        ../../modules/programs/dconf-editor.nix
     ];
 
     home.packages = with pkgs; [
@@ -33,7 +33,6 @@
         gnome-clocks
         gnome-autoar
         gnome-session
-        gnome-nettool
         gnome-calendar
         gnome-bluetooth
         gnome-screenshot
@@ -47,7 +46,6 @@
         gnomeExtensions.blur-my-shell
         gnomeExtensions.user-themes
         gnomeExtensions.vitals
-        gnomeExtensions.sound-output-device-chooser
 	    gnomeExtensions.fuzzy-app-search
 
         # for gsconnect

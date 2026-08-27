@@ -6,6 +6,7 @@
     ../programs/gnome-text-editor.nix
     ../programs/obsidian.nix
     ../programs/epiphany.nix
+    ../programs/ghostty.nix
     ../desktop/gnome.nix
   ];
 

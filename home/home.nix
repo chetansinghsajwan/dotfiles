@@ -1,8 +1,11 @@
-{ config, pkgs, nur, lib, userConfig ? { }, isLinux ? false, ... }:
+{ config, pkgs, nur, lib, userConfig ? { }, preferencesOverride ? { }, isLinux ? false, ... }:
 let
   cfgBase = import ./config;
   cfg = cfgBase // {
     user = cfgBase.user // userConfig;
+    preferences = cfgBase.preferences // {
+      features = cfgBase.preferences.features // preferencesOverride;
+    };
   };
 
   # Conditionally import features based on preferences
@@ -19,8 +22,8 @@ in
   home.homeDirectory = cfg.user.homeDirectory;
   home.stateVersion = cfg.user.stateVersion;
 
-  programs.git.userName = cfg.user.username;
-  programs.git.userEmail = cfg.user.email;
+  programs.git.settings.user.name = cfg.user.username;
+  programs.git.settings.user.email = cfg.user.email;
 
   nix.enable = false;
   nixpkgs.config.allowUnfree = true;
@@ -33,8 +36,9 @@ in
   ];
 
   imports = featuresImports ++ lib.optionals isLinux [
-    ./modules/programs/dconf-editor.nix
     ./modules/programs/nbfc.nix
+  ] ++ lib.optionals (isLinux && cfg.preferences.features.gui) [
+    ./module/programs/dconf-editor.nix
   ];
 
   home.packages = with pkgs;
@@ -63,6 +67,7 @@ in
         publicShare = "${homeDir}/public";
         templates = "${homeDir}/templates";
         videos = "${homeDir}/videos";
+        setSessionVariables = false;
       };
 
     configFile."mimeapps.list".force = true;
