@@ -7,7 +7,11 @@ in
     shell = pkgs.zsh;
     isNormalUser = true;
     description = "Chetan Singh Sajwan";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "docker"
+    ];
     packages = [ ];
   };
 }

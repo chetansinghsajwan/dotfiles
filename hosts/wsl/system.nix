@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+_:
 {
   wsl.enable = true;
   wsl.defaultUser = "chetansinghsajwan";
@@ -13,5 +13,8 @@
 
   programs.zsh.enable = true;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 }

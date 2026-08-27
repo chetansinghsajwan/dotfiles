@@ -1,6 +1,8 @@
-{ config, pkgs, lib, ... }:
+{
+  pkgs,
+  ...
+}:
 let
-  cfg = import ../config;
   firefox-addons = pkgs.nur.repos.rycee.firefox-addons;
 in
 {
@@ -65,90 +67,137 @@ in
           "google".metaData.alias = "@g";
           "wikipedia".metaData.alias = "@wiki";
           "youtube" = {
-            urls = [{
-              template = "https://www.youtube.com/results";
-              params = [
-                { name = "search_query"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://www.youtube.com/results";
+                params = [
+                  {
+                    name = "search_query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             definedAliases = [ "@yt" ];
           };
           "youtube-music" = {
-            urls = [{
-              template = "https://music.youtube.com/search";
-              params = [
-                { name = "q"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://music.youtube.com/search";
+                params = [
+                  {
+                    name = "q";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             definedAliases = [ "@ytm" ];
           };
           "nixpkgs" = {
-            urls = [{
-              template = "https://search.nixos.org/packages";
-              params = [
-                { name = "query"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://search.nixos.org/packages";
+                params = [
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             definedAliases = [ "@np" ];
           };
           "nixopts" = {
-            urls = [{
-              template = "https://search.nixos.org/options";
-              params = [
-                { name = "query"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://search.nixos.org/options";
+                params = [
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             definedAliases = [ "@no" ];
           };
           "nixflakes" = {
-            urls = [{
-              template = "https://search.nixos.org/flakes";
-              params = [
-                { name = "query"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://search.nixos.org/flakes";
+                params = [
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             definedAliases = [ "@nf" ];
           };
           "nixwiki" = {
-            urls = [{
-              template = "https://nixos.wiki/index.php";
-              params = [
-                { name = "search"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://nixos.wiki/index.php";
+                params = [
+                  {
+                    name = "search";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             definedAliases = [ "@nw" ];
           };
           "home-manager" = {
-            urls = [{
-              template = "https://home-manager-options.extranix.com";
-              params = [
-                { name = "query"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://home-manager-options.extranix.com";
+                params = [
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             definedAliases = [ "@hm" ];
           };
           "github" = {
-            urls = [{
-              template = "https://github.com/search";
-              params = [
-                { name = "q"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://github.com/search";
+                params = [
+                  {
+                    name = "q";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             definedAliases = [ "@gh" ];
           };
           "gitlab" = {
-            urls = [{
-              template = "https://gitlab.com/search";
-              params = [
-                { name = "search"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://gitlab.com/search";
+                params = [
+                  {
+                    name = "search";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             definedAliases = [ "@gl" ];
           };
           "spotify" = {
-            urls = [{
-              template = "https://open.spotify.com/search/{searchTerms}";
-            }];
+            urls = [
+              {
+                template = "https://open.spotify.com/search/{searchTerms}";
+              }
+            ];
             definedAliases = [ "@sp" ];
           };
         };

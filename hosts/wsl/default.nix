@@ -1,5 +1,12 @@
-{ nixpkgs, nur, home-manager, nixos-wsl, vscode-extensions, ... }: nixpkgs.lib.nixosSystem
 {
+  nixpkgs,
+  nur,
+  home-manager,
+  nixos-wsl,
+  vscode-extensions,
+  ...
+}:
+nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   modules = [
     nixos-wsl.nixosModules.default
@@ -17,7 +24,9 @@
           homeDirectory = "/home/chetansinghsajwan";
           stateVersion = "23.11";
         };
-        preferencesOverride = { gui = false; };
+        preferencesOverride = {
+          gui = false;
+        };
       };
       home-manager.users.chetansinghsajwan.imports = [ ../../home/home.nix ];
     }

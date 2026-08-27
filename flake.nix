@@ -27,15 +27,25 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
   };
 
-  outputs = { self, nixpkgs, nur, home-manager, vscode-extensions, nix-darwin, treefmt-nix, nixos-wsl }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nur,
+      home-manager,
+      vscode-extensions,
+      nix-darwin,
+      treefmt-nix,
+      nixos-wsl,
+    }:
     let
       linuxSystem = "x86_64-linux";
       darwinSystem = "aarch64-darwin";
 
       forEachSystem = f: nixpkgs.lib.genAttrs [ linuxSystem darwinSystem ] f;
 
-      treefmtEval = forEachSystem (system:
-        treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} ./treefmt.nix
+      treefmtEval = forEachSystem (
+        system: treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} ./treefmt.nix
       );
     in
     {
@@ -55,7 +65,12 @@
       };
 
       nixosConfigurations.wsl = import ./hosts/wsl {
-        inherit nixpkgs nur home-manager nixos-wsl;
+        inherit
+          nixpkgs
+          nur
+          home-manager
+          nixos-wsl
+          ;
         vscode-extensions = vscode-extensions.extensions.${linuxSystem};
       };
 
@@ -82,9 +97,12 @@
       });
 
       # `nix develop` — gives you nixfmt/statix/deadnix/nil on PATH
-      devShells = forEachSystem (system:
-        let pkgs = nixpkgs.legacyPackages.${system};
-        in {
+      devShells = forEachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
           default = pkgs.mkShell {
             packages = [
               pkgs.nixfmt
@@ -94,6 +112,7 @@
               pkgs.nixd
             ];
           };
-        });
+        }
+      );
     };
 }

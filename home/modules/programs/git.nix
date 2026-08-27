@@ -1,4 +1,4 @@
-{ ... }:
+_:
 {
   programs.git = {
     enable = true;
@@ -44,33 +44,33 @@
       # aliases
       alias = {
         lg = "log --graph --abbrev-commit --decorate --pretty=format:'%C(bold blue)%h%C(reset) %C(bold green)(%cr)%C(reset) %C(cyan)%cn%C(reset)%C(bold red)%d%C(reset)%n%C(normal)%s%C(reset)'";
-       	lg1 = "lg -1";
-       	lg2 = "lg -2";
-       	lg3 = "lg -3";
-       	lg4 = "lg -4";
-       	lg5 = "lg -5";
-       	lga = "lg --all";
-       	lgf = "log --graph --abbrev-commit --decorate --pretty=format:'%C(bold blue)%h%C(reset) %C(bold green)(%cr)%C(reset) %C(cyan)%cn%C(reset)%C(bold red)%d%C(reset)%n%C(normal)%s%n%n%b%C(reset)'";
-       	lgfa = "lgf --all";
-       	br = "branch";
-       	sw = "switch";
-       	co = "checkout";
-       	rt = "restore";
-       	rs = "reset";
-       	rss = "reset --soft";
-       	rsm = "reset --mixed";
-       	rsh = "reset --hard";
-       	cm = "commit";
-       	ca = "commit --amend --no-edit";
-       	st = "status";
-       	wt = "worktree";
-       	fc = "fetch --prune";
-       	rb = "rebase";
-       	rbp = "rebase --pull";
-       	ps = "push";
-       	psf = "push -f";
-       	wip = "commit -m 'WIP'";
-       	wipa = "commit -m 'WIP' --amend";
+        lg1 = "lg -1";
+        lg2 = "lg -2";
+        lg3 = "lg -3";
+        lg4 = "lg -4";
+        lg5 = "lg -5";
+        lga = "lg --all";
+        lgf = "log --graph --abbrev-commit --decorate --pretty=format:'%C(bold blue)%h%C(reset) %C(bold green)(%cr)%C(reset) %C(cyan)%cn%C(reset)%C(bold red)%d%C(reset)%n%C(normal)%s%n%n%b%C(reset)'";
+        lgfa = "lgf --all";
+        br = "branch";
+        sw = "switch";
+        co = "checkout";
+        rt = "restore";
+        rs = "reset";
+        rss = "reset --soft";
+        rsm = "reset --mixed";
+        rsh = "reset --hard";
+        cm = "commit";
+        ca = "commit --amend --no-edit";
+        st = "status";
+        wt = "worktree";
+        fc = "fetch --prune";
+        rb = "rebase";
+        rbp = "rebase --pull";
+        ps = "push";
+        psf = "push -f";
+        wip = "commit -m 'WIP'";
+        wipa = "commit -m 'WIP' --amend";
         tags = "tag -n1 -l";
         who = "shortlog -sn --no-merges";
         whoami = "!git config --get user.name && git config --get user.email";

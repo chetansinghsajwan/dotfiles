@@ -1,4 +1,4 @@
-{ ... }:
+_:
 {
   dconf.settings."org/gnome/desktop/wm/keybindings" = {
     "activate-window-menu" = [ ];

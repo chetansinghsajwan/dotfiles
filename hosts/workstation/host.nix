@@ -1,5 +1,11 @@
-{ nixpkgs, nur, home-manager, vscode-extensions, ... }: nixpkgs.lib.nixosSystem
 {
+  nixpkgs,
+  nur,
+  home-manager,
+  vscode-extensions,
+  ...
+}:
+nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   modules = [
     ./configuration.nix

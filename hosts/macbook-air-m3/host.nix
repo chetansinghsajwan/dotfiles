@@ -1,6 +1,11 @@
-{ nixpkgs, nur, home-manager, nix-darwin, vscode-extensions, ... }:
-nix-darwin.lib.darwinSystem
 {
+  nur,
+  home-manager,
+  nix-darwin,
+  vscode-extensions,
+  ...
+}:
+nix-darwin.lib.darwinSystem {
   system = "aarch64-darwin";
   modules = [
     ./configuration.nix

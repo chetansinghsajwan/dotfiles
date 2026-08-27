@@ -1,4 +1,13 @@
-{ config, pkgs, nur, lib, userConfig ? { }, preferencesOverride ? { }, isLinux ? false, ... }:
+{
+  config,
+  pkgs,
+  nur,
+  lib,
+  userConfig ? { },
+  preferencesOverride ? { },
+  isLinux ? false,
+  ...
+}:
 let
   cfgBase = import ./config;
   cfg = cfgBase // {
@@ -9,9 +18,12 @@ let
   };
 
   # Conditionally import features based on preferences
-  featuresImports = with cfg.preferences.features; [
-    ./modules/features/base.nix
-  ] ++ (if dev then [ ./modules/features/dev.nix ] else [ ])
+  featuresImports =
+    with cfg.preferences.features;
+    [
+      ./modules/features/base.nix
+    ]
+    ++ (if dev then [ ./modules/features/dev.nix ] else [ ])
     ++ (if gui && isLinux then [ ./modules/features/gui.nix ] else [ ])
     ++ (if gaming && isLinux then [ ./modules/features/gaming.nix ] else [ ]);
 in
@@ -35,12 +47,14 @@ in
     nur.overlays.default
   ];
 
-  imports = featuresImports
+  imports =
+    featuresImports
     ++ lib.optionals (isLinux && cfg.preferences.features.gui) [
       ./module/programs/dconf-editor.nix
     ];
 
-  home.packages = with pkgs;
+  home.packages =
+    with pkgs;
     lib.optionals isLinux [
       efibootmgr
       curtail
@@ -50,7 +64,8 @@ in
 
   xdg = {
     enable = true;
-  } // lib.optionalAttrs isLinux {
+  }
+  // lib.optionalAttrs isLinux {
     userDirs =
       let
         homeDir = config.home.homeDirectory;

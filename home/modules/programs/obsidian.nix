@@ -1,6 +1,6 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 {
-    home.packages = [
-        pkgs.obsidian
-    ];
+  home.packages = [
+    pkgs.obsidian
+  ];
 }

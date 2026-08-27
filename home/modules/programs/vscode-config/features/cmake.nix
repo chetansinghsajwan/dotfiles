@@ -30,7 +30,10 @@
           saveBeforeBuild = true;
           buildBeforeRun = true;
           revealLog = "focus";
-          preferredGenerators = [ "Ninja" "Unix MakeFiles" ];
+          preferredGenerators = [
+            "Ninja"
+            "Unix MakeFiles"
+          ];
         };
 
         launch = {
