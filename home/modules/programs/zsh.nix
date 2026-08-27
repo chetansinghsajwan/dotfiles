@@ -1,20 +1,14 @@
 { config, pkgs, ... }:
 {
+  imports = [
+    ./starship.nix
+  ];
+
   programs.zsh = {
     enable = true;
     dotDir = "${config.xdg.configHome}/zsh";
 
     plugins = [
-      {
-        name = "powerlevel10k";
-        src = pkgs.zsh-powerlevel10k;
-        file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
-      }
-      {
-        name = "powerlevel10k-config";
-        src = ./zsh-p10k-config;
-        file = "config.zsh";
-      }
       {
         name = "syntax-highlighting";
         src = pkgs.zsh-syntax-highlighting;
