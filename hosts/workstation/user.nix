@@ -1,17 +1,9 @@
-{ pkgs, ... }:
-let
-  user = import ../../home/config/user.nix;
-in
+{ config, pkgs, ... }:
 {
-  users.users.${user.username} = {
+  users.users.${config.dotfiles.user.username} = {
+    home = config.dotfiles.user.homeDirectory;
     shell = pkgs.zsh;
     isNormalUser = true;
-    description = "Chetan Singh Sajwan";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "docker"
-    ];
-    packages = [ ];
+    extraGroups = config.dotfiles.system.extraGroups;
   };
 }

@@ -1,5 +1,9 @@
 { pkgs, ... }:
 {
+  imports = [
+    ../../config
+  ];
+
   # Determinate Nix manages the installation; disable nix-darwin's Nix management
   nix.enable = false;
 

@@ -1,15 +1,17 @@
-{ pkgs, ... }:
+{ config, pkgs, lib, ... }:
 {
-  imports = [
-    ../programs/git.nix
-    ../programs/vscode
-  ];
+    imports = [
+      ../programs/git.nix
+      ../programs/vscode
+    ];
 
-  home.packages = with pkgs; [
-    gh
-    cmake
-    lldb
-    clang
-    llvmPackages_18.clang-tools
-  ];
+  config = lib.mkIf config.dotfiles.features.dev {
+    home.packages = with pkgs; [
+      gh
+      cmake
+      lldb
+      clang
+      llvmPackages_18.clang-tools
+    ];
+  };
 }

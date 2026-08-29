@@ -1,16 +1,12 @@
 {
+  config,
   pkgs,
   lib,
   isLinux ? false,
   ...
-}@args:
+}:
 let
-  cfgOverrides = args.cfgOverrides or { };
-  cfg = import ../config {
-    inherit lib;
-    overrides = cfgOverrides;
-  };
-  inherit (cfg) theme;
+  theme = config.dotfiles.theme;
 in
 {
   stylix.enable = true;

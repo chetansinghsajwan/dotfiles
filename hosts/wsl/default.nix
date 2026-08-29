@@ -20,20 +20,19 @@ nixpkgs.lib.nixosSystem {
       home-manager.extraSpecialArgs = {
         inherit nur vscode-extensions;
         isLinux = true;
-        cfgOverrides = {
-          user = {
-            username = "chetansinghsajwan";
-            homeDirectory = "/home/chetansinghsajwan";
-            stateVersion = "23.11";
-          };
-          preferences = {
-            gui = false;
-          };
-        };
       };
+
       home-manager.users.chetansinghsajwan.imports = [
         ../../home/home.nix
+        ../../config
         stylix.homeModules.stylix
+
+        {
+          dotfiles.user.username = "chetansinghsajwan";
+          dotfiles.user.homeDirectory = "/home/chetansinghsajwan";
+          dotfiles.user.stateVersion = "23.11";
+          dotfiles.preferences.gui = false;
+        }
       ];
     }
   ];

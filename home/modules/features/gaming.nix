@@ -1,8 +1,10 @@
-{ pkgs, ... }:
+{ config, pkgs, lib, ... }:
 {
-  home.packages = with pkgs; [
-    bottles
-    proton-vpn-cli
-    protonvpn-gui
-  ];
+  config = lib.mkIf config.dotfiles.features.gaming {
+    home.packages = with pkgs; [
+      bottles
+      proton-vpn-cli
+      protonvpn-gui
+    ];
+  };
 }

@@ -5,23 +5,16 @@
   lib,
   isLinux ? false,
   ...
-}@args:
-let
-  cfgOverrides = args.cfgOverrides or { };
-  cfg = import ./config {
-    inherit lib;
-    overrides = cfgOverrides;
-  };
-in
+}:
 {
   programs.home-manager.enable = true;
 
-  home.username = cfg.user.username;
-  home.homeDirectory = cfg.user.homeDirectory;
-  home.stateVersion = cfg.user.stateVersion;
+  home.username = config.dotfiles.user.username;
+  home.homeDirectory = config.dotfiles.user.homeDirectory;
+  home.stateVersion = config.dotfiles.user.stateVersion;
 
-  programs.git.settings.user.name = cfg.user.username;
-  programs.git.settings.user.email = cfg.user.email;
+  programs.git.settings.user.name = config.dotfiles.user.username;
+  programs.git.settings.user.email = config.dotfiles.user.email;
 
   nix.enable = false;
   nixpkgs.config.allowUnfree = true;
@@ -33,16 +26,14 @@ in
     nur.overlays.default
   ];
 
-  # Conditionally import features based on preferences
-  imports =
-    with cfg.preferences.features;
-    [
-      ./modules/features/base.nix
-      ./modules/stylix.nix
-    ]
-    ++ (if dev then [ ./modules/features/dev.nix ] else [ ])
-    ++ (if gui && isLinux then [ ./modules/features/gui.nix ] else [ ])
-    ++ (if gaming && isLinux then [ ./modules/features/gaming.nix ] else [ ]);
+  imports = [
+    ../config
+    ./modules/stylix.nix
+    ./modules/features/base.nix
+    ./modules/features/dev.nix
+    ./modules/features/gui.nix
+    ./modules/features/gaming.nix
+  ];
 
   home.packages =
     with pkgs;
