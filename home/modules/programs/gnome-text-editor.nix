@@ -25,7 +25,6 @@
     "show-right-margin" = true;
     "right-margin-position" = 100;
     "spellcheck" = false;
-    "style-scheme" = "classic-dark";
     "style-variant" = "follow";
     "tab-width" = lib.hm.gvariant.mkUint32 4;
     "wrap-text" = false;

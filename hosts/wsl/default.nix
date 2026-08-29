@@ -2,6 +2,7 @@
   nixpkgs,
   nur,
   home-manager,
+  stylix,
   nixos-wsl,
   vscode-extensions,
   ...
@@ -19,16 +20,21 @@ nixpkgs.lib.nixosSystem {
       home-manager.extraSpecialArgs = {
         inherit nur vscode-extensions;
         isLinux = true;
-        userConfig = {
-          username = "chetansinghsajwan";
-          homeDirectory = "/home/chetansinghsajwan";
-          stateVersion = "23.11";
-        };
-        preferencesOverride = {
-          gui = false;
+        cfgOverrides = {
+          user = {
+            username = "chetansinghsajwan";
+            homeDirectory = "/home/chetansinghsajwan";
+            stateVersion = "23.11";
+          };
+          preferences = {
+            gui = false;
+          };
         };
       };
-      home-manager.users.chetansinghsajwan.imports = [ ../../home/home.nix ];
+      home-manager.users.chetansinghsajwan.imports = [
+        ../../home/home.nix
+        stylix.homeModules.stylix
+      ];
     }
   ];
 }

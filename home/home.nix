@@ -18,6 +18,7 @@ let
     with cfg.preferences.features;
     [
       ./modules/features/base.nix
+      ./modules/stylix.nix
     ]
     ++ (if dev then [ ./modules/features/dev.nix ] else [ ])
     ++ (if gui && isLinux then [ ./modules/features/gui.nix ] else [ ])

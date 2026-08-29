@@ -3,7 +3,17 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nur.url = "github:nix-community/nur";
+
+    nur = {
+      url = "github:nix-community/nur";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-darwin = {
       url = "github:LnL7/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -32,6 +42,7 @@
       self,
       nixpkgs,
       nur,
+      stylix,
       home-manager,
       vscode-extensions,
       nix-darwin,
@@ -50,17 +61,23 @@
     in
     {
       nixosConfigurations.nixos = import ./hosts/workstation {
-        inherit nixpkgs;
-        inherit nur;
-        inherit home-manager;
+        inherit
+          nixpkgs
+          nur
+          home-manager
+          stylix
+          ;
         vscode-extensions = vscode-extensions.extensions.${linuxSystem};
       };
 
       darwinConfigurations.macbook-air-m3 = import ./hosts/macbook-air-m3 {
-        inherit nixpkgs;
-        inherit nur;
-        inherit home-manager;
-        inherit nix-darwin;
+        inherit
+          nixpkgs
+          nur
+          home-manager
+          stylix
+          nix-darwin
+          ;
         vscode-extensions = vscode-extensions.extensions.${darwinSystem};
       };
 
@@ -69,6 +86,7 @@
           nixpkgs
           nur
           home-manager
+          stylix
           nixos-wsl
           ;
         vscode-extensions = vscode-extensions.extensions.${linuxSystem};
@@ -79,7 +97,10 @@
       homeConfigurations."chetan" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.${linuxSystem};
 
-        modules = [ ./home/home.nix ];
+        modules = [
+          ./home/home.nix
+          stylix.homeModules.stylix
+        ];
 
         extraSpecialArgs = {
           inherit nur;

@@ -14,17 +14,21 @@ nix-darwin.lib.darwinSystem {
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "bak";
       home-manager.extraSpecialArgs = {
-        inherit nur;
-        inherit vscode-extensions;
+        inherit nur vscode-extensions;
         isLinux = false;
-        userConfig = {
-          username = "kyutoo";
-          homeDirectory = "/Users/kyutoo";
-          stateVersion = "23.11";
+        cfgOverrides = {
+          user = {
+            username = "kyutoo";
+            homeDirectory = "/Users/kyutoo";
+            stateVersion = "23.11";
+          };
         };
       };
 
-      home-manager.users.kyutoo.imports = [ ../../home/home.nix ];
+      home-manager.users.kyutoo.imports = [
+        ../../home/home.nix
+        stylix.homeModules.stylix
+      ];
     }
   ];
 }

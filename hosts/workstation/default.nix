@@ -2,6 +2,7 @@
   nixpkgs,
   nur,
   home-manager,
+  stylix,
   vscode-extensions,
   ...
 }:
@@ -22,6 +23,7 @@ nixpkgs.lib.nixosSystem {
 
       home-manager.users.chetansinghsajwan.imports = [
         ../../home/home.nix
+        stylix.homeModules.stylix
         # ../../home/modules/programs/nbfc.nix
       ];
     }
