@@ -12,17 +12,6 @@ let
     inherit lib;
     overrides = cfgOverrides;
   };
-
-  # Conditionally import features based on preferences
-  featuresImports =
-    with cfg.preferences.features;
-    [
-      ./modules/features/base.nix
-      ./modules/stylix.nix
-    ]
-    ++ (if dev then [ ./modules/features/dev.nix ] else [ ])
-    ++ (if gui && isLinux then [ ./modules/features/gui.nix ] else [ ])
-    ++ (if gaming && isLinux then [ ./modules/features/gaming.nix ] else [ ]);
 in
 {
   programs.home-manager.enable = true;
@@ -44,11 +33,16 @@ in
     nur.overlays.default
   ];
 
+  # Conditionally import features based on preferences
   imports =
-    featuresImports
-    ++ lib.optionals (isLinux && cfg.preferences.features.gui) [
-      ./modules/programs/dconf-editor.nix
-    ];
+    with cfg.preferences.features;
+    [
+      ./modules/features/base.nix
+      ./modules/stylix.nix
+    ]
+    ++ (if dev then [ ./modules/features/dev.nix ] else [ ])
+    ++ (if gui && isLinux then [ ./modules/features/gui.nix ] else [ ])
+    ++ (if gaming && isLinux then [ ./modules/features/gaming.nix ] else [ ]);
 
   home.packages =
     with pkgs;
