@@ -3,19 +3,12 @@
   pkgs,
   nur,
   lib,
-  userConfig ? { },
-  preferencesOverride ? { },
   isLinux ? false,
   ...
-}:
+}@args:
 let
-  cfgBase = import ./config;
-  cfg = cfgBase // {
-    user = cfgBase.user // userConfig;
-    preferences = cfgBase.preferences // {
-      features = cfgBase.preferences.features // preferencesOverride;
-    };
-  };
+  cfgOverrides = args.cfgOverrides or {};
+  cfg = import ./config { lib = lib; overrides = cfgOverrides; };
 
   # Conditionally import features based on preferences
   featuresImports =
@@ -47,14 +40,18 @@ in
     nur.overlays.default
   ];
 
-  imports =
-    featuresImports
+  imports = featuresImports
     ++ lib.optionals (isLinux && cfg.preferences.features.gui) [
-      ./module/programs/dconf-editor.nix
+      ./modules/programs/dconf-editor.nix
     ];
 
   home.packages =
-    with pkgs;
+    with pkgs; [
+      github-copilot-cli
+      gemini-cli
+      codex
+      claude-code
+    ] ++
     lib.optionals isLinux [
       efibootmgr
       curtail

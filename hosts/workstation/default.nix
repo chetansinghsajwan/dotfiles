@@ -22,7 +22,7 @@ nixpkgs.lib.nixosSystem {
 
       home-manager.users.chetansinghsajwan.imports = [
         ../../home/home.nix
-        ../../home/modules/programs/nbfc.nix
+        # ../../home/modules/programs/nbfc.nix
       ];
     }
   ];
