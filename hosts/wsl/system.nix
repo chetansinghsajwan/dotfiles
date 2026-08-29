@@ -1,5 +1,4 @@
-_:
-{
+_: {
   wsl.enable = true;
   wsl.defaultUser = "chetansinghsajwan";
 

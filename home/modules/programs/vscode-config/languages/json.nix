@@ -1,5 +1,4 @@
-_:
-{
+_: {
   programs.vscode = {
     userSettings = {
       "json.format.enable" = true;

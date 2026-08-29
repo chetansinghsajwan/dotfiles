@@ -1,5 +1,4 @@
-_:
-{
+_: {
   programs.vscode.userSettings = {
     # Enable/disable autoclosing of HTML tags.
     html.autoClosingTags = true;

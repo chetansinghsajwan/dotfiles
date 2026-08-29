@@ -1,4 +1,7 @@
-{ lib, overrides ? {} }:
+{
+  lib,
+  overrides ? { },
+}:
 lib.recursiveUpdate {
   user = import ./user.nix;
   theme = import ./theme.nix;
