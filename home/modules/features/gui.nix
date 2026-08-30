@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  isLinux ? false,
   ...
 }:
 {
@@ -12,8 +13,8 @@
     ../programs/obsidian.nix
     ../programs/epiphany.nix
     ../programs/ghostty.nix
-    ../desktop/gnome.nix
-  ];
+  ]
+  ++ lib.optionals isLinux [../desktop/gnome.nix];
 
   config = lib.mkIf config.dotfiles.features.gui {
 

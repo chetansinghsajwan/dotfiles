@@ -1,4 +1,4 @@
-_: {
+{ config, ... }: {
   programs.git = {
     enable = true;
 
@@ -14,6 +14,11 @@ _: {
     settings = {
       init.defaultBranch = "main";
       protocol.version = 2;
+
+      user = {
+        name = config.dotfiles.user.username;
+        email = config.dotfiles.user.email;
+      };
 
       core = {
         editor = "nvim";

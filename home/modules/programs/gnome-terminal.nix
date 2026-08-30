@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   home.packages = with pkgs; [
     gnome-terminal
@@ -42,7 +42,7 @@
         "use-theme-colors" = true;
         "login-shell" = true;
         "use-custom-command" = true;
-        "custom-command" = "zsh";
+        "custom-command" = ${config.dotfiles.shell.program};
       };
 
       "org/gnome/terminal/legacy/profiles:/:${profileDefault}" = {

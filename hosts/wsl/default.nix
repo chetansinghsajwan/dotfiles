@@ -31,7 +31,7 @@ nixpkgs.lib.nixosSystem {
           dotfiles.user.username = "chetansinghsajwan";
           dotfiles.user.homeDirectory = "/home/chetansinghsajwan";
           dotfiles.user.stateVersion = "23.11";
-          dotfiles.preferences.gui = false;
+          dotfiles.features.gui = false;
         }
       ];
     }

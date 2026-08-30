@@ -9,18 +9,8 @@
 {
   programs.home-manager.enable = true;
 
-  home.username = config.dotfiles.user.username;
-  home.homeDirectory = config.dotfiles.user.homeDirectory;
-  home.stateVersion = config.dotfiles.user.stateVersion;
-
-  programs.git.settings.user.name = config.dotfiles.user.username;
-  programs.git.settings.user.email = config.dotfiles.user.email;
-
   nix.enable = false;
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.permittedInsecurePackages = [
-    "python3.12-youtube-dl-2021.12.17"
-  ];
 
   nixpkgs.overlays = [
     nur.overlays.default
@@ -34,6 +24,10 @@
     ./modules/features/gui.nix
     ./modules/features/gaming.nix
   ];
+
+  home.username = config.dotfiles.user.username;
+  home.homeDirectory = config.dotfiles.user.homeDirectory;
+  home.stateVersion = config.dotfiles.user.stateVersion;
 
   home.packages =
     with pkgs;

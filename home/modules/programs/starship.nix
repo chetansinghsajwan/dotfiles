@@ -1,6 +1,6 @@
-_: {
+{ config, ... }: {
   programs.starship = {
-    enable = true;
+    enable = config.dotfiles.shell.theme == "starship";
     enableZshIntegration = true;
     enableBashIntegration = true;
     enableFishIntegration = true;
