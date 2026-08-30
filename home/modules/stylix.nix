@@ -7,40 +7,43 @@ let
   theme = config.dotfiles.theme;
 in
 {
-  stylix.enable = true;
-  stylix.polarity = "dark";
-  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/onedark.yaml";
+  stylix = {
+    enable = true;
+    autoEnable = false;
+    polarity = "dark";
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/onedark.yaml";
 
-  stylix.fonts = {
-    monospace = {
-      package = pkgs.jetbrains-mono;
-      name = "JetBrains Mono";
+    fonts = {
+      monospace = {
+        package = pkgs.jetbrains-mono;
+        name = "JetBrains Mono";
+      };
+      sansSerif = {
+        package = pkgs.poppins;
+        name = theme.fonts.sans;
+      };
+      serif = {
+        package = pkgs.poppins;
+        name = theme.fonts.sans;
+      };
+      sizes = {
+        applications = theme.fonts.size;
+        terminal = 15;
+        desktop = theme.fonts.size;
+        popups = theme.fonts.size;
+      };
     };
-    sansSerif = {
-      package = pkgs.poppins;
-      name = theme.fonts.sans;
-    };
-    serif = {
-      package = pkgs.poppins;
-      name = theme.fonts.sans;
-    };
-    sizes = {
-      applications = theme.fonts.size;
-      terminal = 15;
-      desktop = theme.fonts.size;
-      popups = theme.fonts.size;
-    };
-  };
 
-  stylix.opacity.terminal = 0.95;
-  stylix.cursor.name = "Adwaita";
-  stylix.cursor.package = pkgs.adwaita-icon-theme;
-  stylix.cursor.size = 24;
+    opacity.terminal = 0.95;
+    cursor.name = "Adwaita";
+    cursor.package = pkgs.adwaita-icon-theme;
+    cursor.size = 24;
 
-  stylix.targets = {
-    gnome.enable = config.dotfiles.desktop.gnome.enable;
-    gtk.enable = config.dotfiles.desktop.gnome.enable;
-    firefox.enable = config.programs.firefox.enable;
-    firefox.profileNames = [ "default" ];
+    targets = {
+      gnome.enable = config.dotfiles.desktop.gnome.enable;
+      gtk.enable = config.dotfiles.desktop.gnome.enable;
+      firefox.enable = config.programs.firefox.enable;
+      firefox.profileNames = [ "default" ];
+    };
   };
 }
