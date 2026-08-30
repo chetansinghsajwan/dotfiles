@@ -109,13 +109,12 @@ in
         type = types.enum [
           "zsh"
           "fish"
-          "nu"
+          "nushell"
         ];
         default = "zsh";
       };
       theme = mkOption {
         type = types.enum [
-          "powerlevel10k"
           "starship"
         ];
         default = "starship";

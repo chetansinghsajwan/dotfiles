@@ -5,7 +5,7 @@
   ];
 
   programs.zsh = {
-    enable = true;
+    enable = config.dotfiles.shell.program == "zsh";
     dotDir = "${config.xdg.configHome}/zsh";
 
     plugins = [
