@@ -105,4 +105,6 @@
       };
     };
   };
+
+  programs.delta.enableGitIntegration = true;
 }
