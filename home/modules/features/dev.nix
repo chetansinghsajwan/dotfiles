@@ -1,9 +1,14 @@
-{ config, pkgs, lib, ... }:
 {
-    imports = [
-      ../programs/git.nix
-      ../programs/vscode
-    ];
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
+  imports = [
+    ../programs/git.nix
+    ../programs/vscode
+  ];
 
   config = lib.mkIf config.dotfiles.features.dev {
     home.packages = with pkgs; [
