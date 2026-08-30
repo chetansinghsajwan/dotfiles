@@ -2,9 +2,11 @@
   config,
   pkgs,
   lib,
-  isLinux ? false,
   ...
 }:
+let
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
+in
 {
   imports = [
     ../programs/firefox.nix
@@ -13,8 +15,7 @@
     ../programs/obsidian.nix
     ../programs/epiphany.nix
     ../programs/ghostty.nix
-  ]
-  ++ lib.optionals isLinux [../desktop/gnome.nix];
+    ../desktop/gnome.nix ];
 
   config = lib.mkIf config.dotfiles.features.gui {
 

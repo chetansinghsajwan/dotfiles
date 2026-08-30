@@ -18,7 +18,6 @@ nixpkgs.lib.nixosSystem {
       home-manager.extraSpecialArgs = {
         inherit nur;
         inherit vscode-extensions;
-        isLinux = true;
       };
 
       home-manager.users.chetansinghsajwan.imports = [

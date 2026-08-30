@@ -105,7 +105,6 @@
         extraSpecialArgs = {
           inherit nur;
           vscode-extensions = vscode-extensions.extensions.${linuxSystem};
-          isLinux = true;
         };
       };
 

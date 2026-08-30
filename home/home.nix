@@ -3,9 +3,11 @@
   pkgs,
   nur,
   lib,
-  isLinux ? false,
   ...
 }:
+let
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
+in
 {
   programs.home-manager.enable = true;
 

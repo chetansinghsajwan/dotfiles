@@ -2,11 +2,11 @@
   config,
   pkgs,
   lib,
-  isLinux ? false,
   ...
 }:
 let
   theme = config.dotfiles.theme;
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
 in
 {
   stylix.enable = true;

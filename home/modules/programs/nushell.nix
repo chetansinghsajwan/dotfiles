@@ -1,5 +1,5 @@
 { config, ... }: {
-    programs.nushell = {
-        enable = config.dotfiles.shell.program == "nushell";
-    };
+  programs.nushell = {
+    enable = config.dotfiles.shell.program == "nushell";
+  };
 }

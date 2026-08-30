@@ -1,5 +1,5 @@
 { config, ... }: {
-    programs.fish = {
-        enable = config.dotfiles.shell.program == "fish";
-    };
+  programs.fish = {
+    enable = config.dotfiles.shell.program == "fish";
+  };
 }

@@ -42,7 +42,7 @@
         "use-theme-colors" = true;
         "login-shell" = true;
         "use-custom-command" = true;
-        "custom-command" = ${config.dotfiles.shell.program};
+        "custom-command" = config.dotfiles.shell.program;
       };
 
       "org/gnome/terminal/legacy/profiles:/:${profileDefault}" = {

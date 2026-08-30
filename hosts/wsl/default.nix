@@ -19,7 +19,6 @@ nixpkgs.lib.nixosSystem {
       home-manager.backupFileExtension = "bak";
       home-manager.extraSpecialArgs = {
         inherit nur vscode-extensions;
-        isLinux = true;
       };
 
       home-manager.users.chetansinghsajwan.imports = [

@@ -17,7 +17,6 @@ nix-darwin.lib.darwinSystem {
       home-manager.backupFileExtension = "bak";
       home-manager.extraSpecialArgs = {
         inherit nur vscode-extensions;
-        isLinux = false;
       };
 
       home-manager.users.kyutoo.imports = [
