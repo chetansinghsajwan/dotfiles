@@ -1,5 +1,10 @@
-{ config, pkgs, ... }:
 {
+  config,
+  pkgs,
+  localLib,
+  ...
+}:
+localLib.mkToggleModule config "gnome-terminal" {
   home.packages = with pkgs; [
     gnome-terminal
   ];

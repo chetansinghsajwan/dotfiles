@@ -1,9 +1,11 @@
 {
+  config,
   pkgs,
   lib,
+  localLib,
   ...
 }:
-{
+localLib.mkToggleModule config "gnome-text-editor" {
   home.packages = [
     pkgs.gnome-text-editor
     pkgs.cascadia-code

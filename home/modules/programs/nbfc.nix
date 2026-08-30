@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  config,
+  pkgs,
+  localLib,
+  ...
+}:
 let
   nbfc-linux = import (
     pkgs.fetchFromGitHub {
@@ -10,7 +15,7 @@ let
   );
   command = "bin/nbfc_service --config-file '/home/${config.dotfiles.user.username}/.config/nbfc.json'";
 in
-{
+localLib.mkToggleModule config "nbfc-linux" {
   home.packages = [ nbfc-linux ];
 
   systemd.user.services.nbfc_service = {

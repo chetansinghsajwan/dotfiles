@@ -3,6 +3,7 @@
   pkgs,
   nur,
   lib,
+  localLib,
   ...
 }:
 let
@@ -21,11 +22,9 @@ in
   imports = [
     ../config
     ./modules/stylix.nix
-    ./modules/features/base.nix
-    ./modules/features/dev.nix
-    ./modules/features/gui.nix
-    ./modules/features/gaming.nix
-  ];
+  ]
+  ++ localLib.importDir ./modules/features
+  ++ localLib.importDir ./modules/programs;
 
   home.username = config.dotfiles.user.username;
   home.homeDirectory = config.dotfiles.user.homeDirectory;
@@ -38,13 +37,45 @@ in
       antigravity-cli
       codex
       claude-code
+      yt-dlp
+      tree
+      curl
+      gh
+      git-lfs
+      nixpkgs-fmt
+      poppins
+      jetbrains-mono
+      nerd-fonts.jetbrains-mono
     ]
     ++ lib.optionals isLinux [
       efibootmgr
       curtail
-      sublime-merge
       exfat
     ];
+
+  dotfiles.programs = {
+    tldr.enable = true;
+  };
+
+  programs = {
+    zsh.enable = config.dotfiles.shell.program == "zsh";
+    fish.enable = config.dotfiles.shell.program == "fish";
+    nushell.enable = config.dotfiles.shell.program == "nushell";
+
+    starship.enable = config.dotfiles.shell.theme == "starship";
+
+    git.enable = true;
+    neovim.enable = true;
+    atuin.enable = true;
+    btop.enable = true;
+    eza.enable = true;
+    fzf.enable = true;
+    lazydocker.enable = true;
+    lazygit.enable = true;
+    superfile.enable = true;
+    yazi.enable = true;
+    zoxide.enable = true;
+  };
 
   xdg = {
     enable = true;

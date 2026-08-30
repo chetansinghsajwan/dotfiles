@@ -82,28 +82,6 @@ in
       };
     };
 
-    programs = {
-      firefox.enable = mkOption {
-        type = types.bool;
-        default = true;
-      };
-      vscode.enable = mkOption {
-        type = types.bool;
-        default = true;
-      };
-      gnomeDesktop.enable = mkOption {
-        type = types.bool;
-        default = true;
-      };
-      terminal = mkOption {
-        type = types.enum [
-          "ghostty"
-          "gnome-terminal"
-        ];
-        default = "ghostty";
-      };
-    };
-
     shell = {
       program = mkOption {
         type = types.enum [
@@ -127,6 +105,15 @@ in
         type = types.listOf types.str;
         default = [ ];
         description = "Extra groups for the system user, set per-host.";
+      };
+    };
+
+    desktop = {
+      gnome = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+        };
       };
     };
   };

@@ -1,13 +1,26 @@
-{ pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+let
+  enableGnome = config.dotfiles.desktop.gnome.enable;
+in
 {
   imports = [
     ./keybindings.nix
-    ../../modules/programs/gnome-terminal.nix
-    ../../modules/programs/gnome-text-editor.nix
-    ../../modules/programs/dconf-editor.nix
   ];
 
-  config = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+  config = lib.mkIf enableGnome {
+
+    dotfiles.programs = {
+      gnome-terminal.enable = true;
+      gnome-text-editor.enable = true;
+      dconf-editor.enable = true;
+      epiphany.enable = true;
+    };
+
     gtk = {
       enable = true;
     };
@@ -51,9 +64,6 @@
 
       # for gsconnect
       openssl
-
-      # fonts
-      poppins
     ];
 
     dconf.settings."org/gnome" =

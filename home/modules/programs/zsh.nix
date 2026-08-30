@@ -1,13 +1,6 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 {
-  imports = [
-    ./starship.nix
-  ];
-
   programs.zsh = {
-    enable = config.dotfiles.shell.program == "zsh";
-    dotDir = "${config.xdg.configHome}/zsh";
-
     plugins = [
       {
         name = "syntax-highlighting";

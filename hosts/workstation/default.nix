@@ -4,6 +4,7 @@
   home-manager,
   stylix,
   vscode-extensions,
+  localLib,
   ...
 }:
 nixpkgs.lib.nixosSystem {
@@ -16,8 +17,7 @@ nixpkgs.lib.nixosSystem {
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "bak";
       home-manager.extraSpecialArgs = {
-        inherit nur;
-        inherit vscode-extensions;
+        inherit nur vscode-extensions localLib;
       };
 
       home-manager.users.chetansinghsajwan.imports = [

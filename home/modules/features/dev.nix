@@ -4,15 +4,12 @@
   lib,
   ...
 }:
+let
+  enableDev = config.dotfiles.features.dev;
+in
 {
-  imports = [
-    ../programs/git.nix
-    ../programs/vscode
-  ];
-
-  config = lib.mkIf config.dotfiles.features.dev {
+  config = lib.mkIf enableDev {
     home.packages = with pkgs; [
-      gh
       cmake
       lldb
       clang

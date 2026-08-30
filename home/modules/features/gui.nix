@@ -6,26 +6,29 @@
 }:
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
+  enableGui = config.dotfiles.features.gui;
 in
 {
   imports = [
-    ../programs/firefox.nix
-    ../programs/vlc.nix
-    ../programs/gnome-text-editor.nix
-    ../programs/obsidian.nix
-    ../programs/epiphany.nix
-    ../programs/ghostty.nix
-    ../desktop/gnome.nix ];
+    ../desktop/gnome
+  ];
 
-  config = lib.mkIf config.dotfiles.features.gui {
+  config = lib.mkIf enableGui {
+    dotfiles.desktop.gnome.enable = isLinux;
+
+    dotfiles.programs = {
+      libreoffice.enable = true;
+      vlc.enable = true;
+    };
+
+    programs = {
+      firefox.enable = true;
+      obsidian.enable = true;
+      ghostty.enable = true;
+    };
 
     home.packages = with pkgs; [
-      libreoffice
-      yt-dlp
-      # fonts
-      poppins
-      jetbrains-mono
-      nerd-fonts.jetbrains-mono
+      sublime-merge
     ];
   };
 }

@@ -1,6 +1,5 @@
 _: {
   programs.eza = {
-    enable = true;
     enableZshIntegration = true;
     extraOptions = [
       "--git"

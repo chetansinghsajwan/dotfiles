@@ -58,6 +58,8 @@
       treefmtEval = forEachSystem (
         system: treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} ./treefmt.nix
       );
+
+      localLib = import ./lib { inherit (nixpkgs) lib; };
     in
     {
       nixosConfigurations.nixos = import ./hosts/workstation {
@@ -66,6 +68,7 @@
           nur
           home-manager
           stylix
+          localLib
           ;
         vscode-extensions = vscode-extensions.extensions.${linuxSystem};
       };
@@ -77,6 +80,7 @@
           home-manager
           stylix
           nix-darwin
+          localLib
           ;
         vscode-extensions = vscode-extensions.extensions.${darwinSystem};
       };
@@ -88,6 +92,7 @@
           home-manager
           stylix
           nixos-wsl
+          localLib
           ;
         vscode-extensions = vscode-extensions.extensions.${linuxSystem};
       };
@@ -103,7 +108,7 @@
         ];
 
         extraSpecialArgs = {
-          inherit nur;
+          inherit nur localLib;
           vscode-extensions = vscode-extensions.extensions.${linuxSystem};
         };
       };

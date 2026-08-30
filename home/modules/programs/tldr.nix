@@ -1,3 +1,9 @@
-{ pkgs, ... }: {
-  home.packages = [ pkgs.tlrc ];
+{
+  config,
+  pkgs,
+  localLib,
+  ...
+}:
+localLib.mkToggleModule config "tldr" {
+  home.packages = with pkgs; [ tlrc ];
 }

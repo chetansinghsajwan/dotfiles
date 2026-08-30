@@ -1,12 +1,10 @@
 {
   config,
   pkgs,
-  lib,
   ...
 }:
 let
   theme = config.dotfiles.theme;
-  isLinux = pkgs.stdenv.hostPlatform.isLinux;
 in
 {
   stylix.enable = true;
@@ -39,9 +37,10 @@ in
   stylix.cursor.package = pkgs.adwaita-icon-theme;
   stylix.cursor.size = 24;
 
-  stylix.targets = lib.mkIf isLinux {
-    gnome.enable = true;
-    gtk.enable = true;
+  stylix.targets = {
+    gnome.enable = config.dotfiles.desktop.gnome.enable;
+    gtk.enable = config.dotfiles.desktop.gnome.enable;
+    firefox.enable = config.programs.firefox.enable;
     firefox.profileNames = [ "default" ];
   };
 }

@@ -1,5 +1,10 @@
 # dotfiles
 
+## TODO
+
+- [ ] Use font config everywhere
+- [ ] Create config for wallaper
+
 Nix-based host and Home Manager configs for:
 
 - `hosts/workstation` — NixOS desktop

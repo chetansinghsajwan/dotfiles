@@ -1,7 +1,5 @@
 { config, ... }: {
   programs.git = {
-    enable = true;
-
     delta = {
       enable = true;
       options.navigate = true;
@@ -71,6 +69,7 @@
         rsh = "reset --hard";
         cm = "commit";
         ca = "commit --amend --no-edit";
+        caa = "ca --all";
         st = "status";
         wt = "worktree";
         fc = "fetch --prune";

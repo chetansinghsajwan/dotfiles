@@ -1,3 +1,5 @@
+_: { }
+
 # { pkgs, ... }:
 # {
 #   programs.vscode = {
@@ -15,8 +17,6 @@
 #   imports = [
 #     ./languages/cpp.nix
 #     ./languages/c.nix
-#     ./languages/csharp.nix
-#     ./languages/md.nix
 #     ./languages/html.nix
 #     ./languages/json.nix
 #     ./languages/nix.nix
@@ -30,10 +30,3 @@
 #     ./themes/github.nix
 #   ];
 # }
-
-{ pkgs, ... }:
-{
-  home.packages = with pkgs; [
-    vscode
-  ];
-}

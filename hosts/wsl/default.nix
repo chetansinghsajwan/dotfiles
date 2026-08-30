@@ -5,8 +5,12 @@
   stylix,
   nixos-wsl,
   vscode-extensions,
+  localLib,
   ...
 }:
+let
+  lib = nixpkgs.lib;
+in
 nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   modules = [
@@ -18,7 +22,7 @@ nixpkgs.lib.nixosSystem {
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "bak";
       home-manager.extraSpecialArgs = {
-        inherit nur vscode-extensions;
+        inherit nur vscode-extensions localLib;
       };
 
       home-manager.users.chetansinghsajwan.imports = [
@@ -27,10 +31,8 @@ nixpkgs.lib.nixosSystem {
         stylix.homeModules.stylix
 
         {
-          dotfiles.user.username = "chetansinghsajwan";
-          dotfiles.user.homeDirectory = "/home/chetansinghsajwan";
-          dotfiles.user.stateVersion = "23.11";
-          dotfiles.features.gui = false;
+          dotfiles.features.gui = lib.mkForce false;
+          dotfiles.desktop.gnome.enable = lib.mkForce false;
         }
       ];
     }
