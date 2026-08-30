@@ -39,7 +39,7 @@
     with pkgs;
     [
       github-copilot-cli
-      gemini-cli
+      antigravity-cli
       codex
       claude-code
     ]
