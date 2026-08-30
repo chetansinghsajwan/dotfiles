@@ -2,6 +2,11 @@
   programs.git = {
     enable = true;
 
+    delta = {
+      enable = true;
+      options.navigate = true;
+    };
+
     includes = [
       { path = "~/.gitconfig.local"; }
     ];
