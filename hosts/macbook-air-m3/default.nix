@@ -28,7 +28,6 @@ nix-darwin.lib.darwinSystem {
         # host-specific overrides
         {
           dotfiles.user.username = "kyutoo";
-          dotfiles.user.homeDirectory = "/Users/kyutoo";
         }
       ];
     }

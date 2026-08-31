@@ -31,9 +31,9 @@ in
     username = config.dotfiles.user.username;
     homeDirectory =
       if isDarwin then
-        "/Users/${config.dotfiles.user.username}"
+        "/Users/${config.dotfiles.user.homeDir}"
       else
-        "/home/${config.dotfiles.user.username}";
+        "/home/${config.dotfiles.user.homeDir}";
     stateVersion = config.dotfiles.user.stateVersion;
 
     shellAliases = {
