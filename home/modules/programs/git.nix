@@ -1,11 +1,6 @@
 { config, pkgs, lib, ... }: {
   config = lib.mkIf config.programs.git.enable {
     programs.git = {
-      delta = {
-        enable = true;
-        options.navigate = true;
-      };
-
       includes = [
         { path = "~/.gitconfig.local"; }
       ];
@@ -115,7 +110,13 @@
       };
     };
 
-    programs.delta.enableGitIntegration = true;
+    programs.delta = {
+      enable = true;
+      enableGitIntegration = true;
+      options = {
+        navigate = true;
+      };
+    };
 
     home = {
       packages = with pkgs; [

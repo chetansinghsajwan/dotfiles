@@ -4,5 +4,6 @@
     enableFishIntegration = config.dotfiles.shell.program == "fish";
     enableNushellIntegration = config.dotfiles.shell.program == "nushell";
     settings.style = "compact";
+    flags = [ "--disable-ctrl-r" ];
   };
 }

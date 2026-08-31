@@ -1,6 +1,8 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   programs.zsh = {
+    dotDir = "${config.xdg.configHome}/zsh";
+
     plugins = [
       {
         name = "syntax-highlighting";
