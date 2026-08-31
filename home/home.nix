@@ -27,36 +27,44 @@ in
   ++ localLib.importDir ./modules/features
   ++ localLib.importDir ./modules/programs;
 
-  home.username = config.dotfiles.user.username;
-  home.homeDirectory =
-    if isDarwin then
-      "/Users/${config.dotfiles.user.username}"
-    else
-      "/home/${config.dotfiles.user.username}";
-  home.stateVersion = config.dotfiles.user.stateVersion;
+  home = {
+    username = config.dotfiles.user.username;
+    homeDirectory =
+      if isDarwin then
+        "/Users/${config.dotfiles.user.username}"
+      else
+        "/home/${config.dotfiles.user.username}";
+    stateVersion = config.dotfiles.user.stateVersion;
 
-  home.packages =
-    with pkgs;
-    [
-      github-copilot-cli
-      antigravity-cli
-      codex
-      claude-code
-      yt-dlp
-      tree
-      curl
-      gh
-      git-lfs
-      nixpkgs-fmt
-      poppins
-      jetbrains-mono
-      nerd-fonts.jetbrains-mono
-    ]
-    ++ lib.optionals isLinux [
-      efibootmgr
-      curtail
-      exfat
-    ];
+    shellAliases = {
+      cl = "clear";
+      ".." = "cd ..";
+      "..." = "cd ../..";
+    };
+
+    packages =
+      with pkgs;
+      [
+        github-copilot-cli
+        antigravity-cli
+        codex
+        claude-code
+        yt-dlp
+        tree
+        curl
+        gh
+        git-lfs
+        nixpkgs-fmt
+        poppins
+        jetbrains-mono
+        nerd-fonts.jetbrains-mono
+      ]
+      ++ lib.optionals isLinux [
+        efibootmgr
+        curtail
+        exfat
+      ];
+  };
 
   dotfiles.programs = {
     tldr.enable = true;
