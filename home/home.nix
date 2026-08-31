@@ -58,6 +58,7 @@ in
         poppins
         jetbrains-mono
         nerd-fonts.jetbrains-mono
+        devbox
       ]
       ++ lib.optionals isLinux [
         efibootmgr
@@ -88,6 +89,7 @@ in
     superfile.enable = true;
     yazi.enable = true;
     zoxide.enable = true;
+    direnv.enable = true;
   };
 
   xdg = {

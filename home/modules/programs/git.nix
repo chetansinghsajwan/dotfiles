@@ -1,4 +1,10 @@
-{ config, pkgs, lib, osConfig, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  osConfig,
+  ...
+}:
 let
   isWSL = osConfig.wsl.enable;
 in
@@ -28,10 +34,14 @@ in
         credential = {
           helper = "${pkgs.git-credential-manager}/bin/git-credential-manager";
           credentialStore =
-            if pkgs.stdenv.hostPlatform.isDarwin then "keychain"
-            else if config.dotfiles.desktop.gnome.enable then "secretservice"
-            else if isWSL then "gpg"
-            else "cache";
+            if pkgs.stdenv.hostPlatform.isDarwin then
+              "keychain"
+            else if config.dotfiles.desktop.gnome.enable then
+              "secretservice"
+            else if isWSL then
+              "gpg"
+            else
+              "cache";
         };
 
         user = {
