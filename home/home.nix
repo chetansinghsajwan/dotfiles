@@ -8,6 +8,7 @@
 }:
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
+  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 in
 {
   programs.home-manager.enable = true;
@@ -27,7 +28,11 @@ in
   ++ localLib.importDir ./modules/programs;
 
   home.username = config.dotfiles.user.username;
-  home.homeDirectory = config.dotfiles.user.homeDirectory;
+  home.homeDirectory =
+    if isDarwin then
+      "/Users/${config.dotfiles.user.username}"
+    else
+      "/home/${config.dotfiles.user.username}";
   home.stateVersion = config.dotfiles.user.stateVersion;
 
   home.packages =

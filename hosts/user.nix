@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 {
   users.users.${config.dotfiles.user.username} = {
-    home = config.dotfiles.user.homeDirectory;
+    home = "/home/${config.dotfiles.user.homeDir}";
     shell = pkgs.${config.dotfiles.shell.program};
     isNormalUser = true;
     extraGroups = config.dotfiles.system.extraGroups;

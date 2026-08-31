@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ config, lib, ... }:
 let
   inherit (lib) mkOption types;
 in
@@ -6,25 +6,41 @@ in
   options.dotfiles = {
 
     user = {
+      displayName = mkOption {
+        type = types.str;
+        default = "Chetan Singh Sajwan";
+      };
+
       username = mkOption {
         type = types.str;
         default = "chetansinghsajwan";
-        description = "Primary OS/HM username.";
       };
 
       email = mkOption {
         type = types.str;
-        default = "76040441+chetansinghsajwan@users.noreply.github.com";
+        default = "chetansinghsajwan@gmail.com";
       };
 
-      homeDirectory = mkOption {
+      noreplyEmail = mkOption {
         type = types.str;
-        default = "/home/chetansinghsajwan";
+        default = config.dotfiles.user.email;
+      };
+
+      homeDir = mkOption {
+        type = types.str;
+        default = config.dotfiles.user.username;
       };
 
       stateVersion = mkOption {
         type = types.str;
         default = "23.11";
+      };
+
+      git = {
+        email = mkOption {
+          type = types.str;
+          default = "76040441+chetansinghsajwan@users.noreply.github.com";
+        };
       };
     };
 

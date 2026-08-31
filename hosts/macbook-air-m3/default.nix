@@ -29,7 +29,6 @@ nix-darwin.lib.darwinSystem {
         {
           dotfiles.user.username = "kyutoo";
           dotfiles.user.homeDirectory = "/Users/kyutoo";
-          dotfiles.user.stateVersion = "23.11";
         }
       ];
     }

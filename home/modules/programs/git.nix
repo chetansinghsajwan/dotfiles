@@ -19,8 +19,8 @@
       protocol.version = 2;
 
       user = {
-        name = config.dotfiles.user.username;
-        email = config.dotfiles.user.email;
+        name = config.dotfiles.user.displayName;
+        email = config.dotfiles.user.git.email;
       };
 
       core = {
