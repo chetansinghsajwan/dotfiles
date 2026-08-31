@@ -1,4 +1,8 @@
-{ config, pkgs, lib, ... }: {
+{ config, pkgs, lib, osConfig, ... }:
+let
+  isWSL = osConfig.wsl.enable;
+in
+{
   config = lib.mkIf config.programs.git.enable {
     programs.git = {
       includes = [
@@ -11,6 +15,13 @@
       };
 
       settings = {
+
+        "credential \"https://dev.azure.com\"" = {
+          useHttpPath = true;
+        };
+
+        credential.azreposCredentialType = "pat";
+
         init.defaultBranch = "main";
         protocol.version = 2;
 
@@ -19,6 +30,7 @@
           credentialStore =
             if pkgs.stdenv.hostPlatform.isDarwin then "keychain"
             else if config.dotfiles.desktop.gnome.enable then "secretservice"
+            else if isWSL then "gpg"
             else "cache";
         };
 
@@ -124,6 +136,18 @@
       ];
 
       shellAliases.gcm = "git-credential-manager";
+    };
+
+    programs.gpg.enable = isWSL;
+    programs.password-store = {
+      enable = isWSL;
+      settings = { };
+    };
+
+    services.gpg-agent = lib.mkIf isWSL {
+      enable = true;
+      enableSshSupport = false;
+      pinentry.package = pkgs.pinentry-curses;
     };
   };
 }
