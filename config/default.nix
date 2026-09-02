@@ -122,6 +122,12 @@ in
         default = [ ];
         description = "Extra groups for the system user, set per-host.";
       };
+
+      isWsl = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether the system is running under WSL.";
+      };
     };
 
     desktop = {
