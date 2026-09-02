@@ -19,6 +19,6 @@ in
 
     programs = {
       vscode.enable = enableGui;
-    }
+    };
   };
 }

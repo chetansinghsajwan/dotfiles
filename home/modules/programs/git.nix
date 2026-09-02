@@ -101,6 +101,15 @@ in
           ca = "commit --amend --no-edit";
           caa = "ca --all";
           m = "merge";
+          mc = "merge --continue";
+          ma = "merge --abort";
+          mo = "merge -X ours";
+          mt = "merge -X theirs";
+          sm = "submodule";
+          smi = "submodule init";
+          sma = "submodule add";
+          smu = "submodule update";
+          sms = "submodule status";
           st = "status";
           wt = "worktree";
           fc = "fetch --prune";
