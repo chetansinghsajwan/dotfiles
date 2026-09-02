@@ -19,6 +19,7 @@ in
 
     programs = {
       vscode.enable = enableGui;
+      zed-editor.enable = enableGui;
     };
   };
 }
