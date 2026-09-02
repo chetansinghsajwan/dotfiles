@@ -85,7 +85,11 @@ in
           lga = "lg --all";
           lgf = "log --graph --abbrev-commit --decorate --pretty=format:'%C(bold blue)%h%C(reset) %C(bold green)(%cr)%C(reset) %C(cyan)%cn%C(reset)%C(bold red)%d%C(reset)%n%C(normal)%s%n%n%b%C(reset)'";
           lgfa = "lgf --all";
-          br = "branch";
+          b = "branch";
+          bd = "branch -d";
+          bD = "branch -D";
+          bm = "branch -m";
+          bda = "!f() { git branch -D \"$1\"; git push origin --delete \"$1\"; }; f";
           sw = "switch";
           co = "checkout";
           rt = "restore";
@@ -96,6 +100,7 @@ in
           cm = "commit";
           ca = "commit --amend --no-edit";
           caa = "ca --all";
+          m = "merge";
           st = "status";
           wt = "worktree";
           fc = "fetch --prune";
