@@ -6,6 +6,7 @@
 }:
 let
   enableDev = config.dotfiles.features.dev;
+  enableGui = config.dotfiles.features.gui;
 in
 {
   config = lib.mkIf enableDev {
@@ -15,5 +16,9 @@ in
       clang
       llvmPackages_18.clang-tools
     ];
+
+    programs = {
+      vscode.enable = enableGui;
+    }
   };
 }

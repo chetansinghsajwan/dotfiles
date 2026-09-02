@@ -1,5 +1,9 @@
 { pkgs, ... }:
 {
+  dotfiles.system.extraGroups = [
+    "wheel"
+  ];
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
