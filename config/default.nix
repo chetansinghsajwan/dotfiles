@@ -67,7 +67,7 @@ in
       fonts = {
         mono = mkOption {
           type = types.str;
-          default = "JetBrains Mono";
+          default = "JetBrains Mono Nerd Font";
         };
         sans = mkOption {
           type = types.str;

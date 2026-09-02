@@ -11,12 +11,12 @@ in
     enable = true;
     autoEnable = false;
     polarity = "dark";
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/onedark.yaml";
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/ayu-dark.yaml";
 
     fonts = {
       monospace = {
-        package = pkgs.jetbrains-mono;
-        name = "JetBrains Mono";
+        package = pkgs.nerdfonts.jetbrains-mono;
+        name = theme.fonts.mono;
       };
       sansSerif = {
         package = pkgs.poppins;
