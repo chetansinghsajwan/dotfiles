@@ -102,7 +102,7 @@ in
           rb = "rebase";
           rbp = "rebase --pull";
           ps = "push";
-          psf = "push -f";
+          psf = "push --force-with-lease";
           wip = "commit -m 'WIP'";
           wipa = "commit -m 'WIP' --amend";
           tags = "tag -n1 -l";
