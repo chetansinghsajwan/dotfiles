@@ -1,6 +1,5 @@
 { config, pkgs, ... }:
 let
-  isLinux = pkgs.stdenv.hostPlatform.isLinux;
   isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 in
 {

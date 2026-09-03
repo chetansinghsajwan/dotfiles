@@ -7,43 +7,47 @@ let
   theme = config.dotfiles.theme;
 in
 {
+  fonts.fontconfig.enable = true;
+
   stylix = {
     enable = true;
     autoEnable = false;
     polarity = "dark";
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/ayu-dark.yaml";
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/${theme.name}.yaml";
 
     fonts = {
       monospace = {
-        package = pkgs.nerdfonts.jetbrains-mono;
-        name = theme.fonts.mono;
+        package = theme.fonts.mono.pkg;
+        name = theme.fonts.mono.name;
       };
       sansSerif = {
-        package = pkgs.poppins;
-        name = theme.fonts.sans;
+        package = theme.fonts.sans.pkg;
+        name = theme.fonts.sans.name;
       };
       serif = {
-        package = pkgs.poppins;
-        name = theme.fonts.sans;
+        package = theme.fonts.serif.pkg;
+        name = theme.fonts.serif.name;
       };
       sizes = {
-        applications = theme.fonts.size;
-        terminal = 15;
-        desktop = theme.fonts.size;
-        popups = theme.fonts.size;
+        applications = theme.fonts.sizes.applications;
+        terminal = theme.fonts.sizes.terminal;
+        desktop = theme.fonts.sizes.desktop;
+        popups = theme.fonts.sizes.popups;
       };
     };
 
     opacity.terminal = 0.95;
-    cursor.name = "Adwaita";
-    cursor.package = pkgs.adwaita-icon-theme;
-    cursor.size = 24;
+    cursor.name = theme.cursor.theme.name;
+    cursor.package = theme.cursor.theme.pkg;
+    cursor.size = theme.cursor.theme.size;
 
     targets = {
       gnome.enable = config.dotfiles.desktop.gnome.enable;
       gtk.enable = config.dotfiles.desktop.gnome.enable;
       firefox.enable = config.programs.firefox.enable;
       firefox.profileNames = [ "default" ];
+      ghostty.enable = config.programs.ghostty.enable;
+      vscode.enable = config.programs.vscode.enable;
     };
   };
 }

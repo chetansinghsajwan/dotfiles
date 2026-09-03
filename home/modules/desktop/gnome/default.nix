@@ -95,9 +95,6 @@ in
         "desktop/interface/color-scheme" = "prefer-dark";
         "desktop/interface/enable-hot-corners" = false;
         "desktop/interface/show-battery-percentage" = true;
-        "desktop/interface/font-name" = "Poppins 11";
-        "desktop/interface/document-font-name" = "Poppins 11";
-        "desktop/interface/monospace-font-name" = "JetBrainsMono Nerd Font 10";
 
         "desktop/peripherals/touchpad/tap-to-click" = true;
         "desktop/peripherals/touchpad/two-finger-scrolling-enabled" = true;

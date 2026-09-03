@@ -16,7 +16,6 @@ localLib.mkToggleModule config "vlc" {
     qt-system-tray=0
     qt-video-autoresize=0
     qt-privacy-ask=0
-    freetype-font=Noto Sans
     aout=any
     audio-filter=normvol
     snapshot-path=images/vlc/screenshots

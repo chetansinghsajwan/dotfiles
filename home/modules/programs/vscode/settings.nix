@@ -9,9 +9,7 @@
   editor.dragAndDrop = false;
   editor.find.addExtraSpaceOnTop = false;
   editor.find.seedSearchStringFromSelection = "never";
-  editor.fontFamily = "JetBrainsMono Nerd Font";
   editor.fontLigatures = true;
-  editor.fontSize = 15;
   editor.fontWeight = "normal";
   editor.formatOnSave = true;
   editor.insertSpaces = true;
@@ -57,8 +55,6 @@
   terminal.integrated.cursorWidth = 2;
   terminal.integrated.defaultProfile.linux = "zsh";
   terminal.integrated.defaultProfile.osx = "zsh";
-  terminal.integrated.fontFamily = "JetBrainsMono Nerd Font";
-  terminal.integrated.fontSize = 15;
   terminal.integrated.hideOnStartup = "never";
   terminal.integrated.tabs.enabled = false;
 
@@ -66,8 +62,6 @@
   output.smartScroll.enabled = true;
 
   # debug settings
-  debug.console.fontFamily = "JetBrainsMono Nerd Font";
-  debug.console.fontSize = 14;
   debug.toolBarLocation = "docked";
 
   # extension settings

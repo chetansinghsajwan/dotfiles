@@ -56,8 +56,6 @@ in
         git-lfs
         nixpkgs-fmt
         poppins
-        jetbrains-mono
-        nerd-fonts.jetbrains-mono
         devbox
       ]
       ++ lib.optionals isLinux [

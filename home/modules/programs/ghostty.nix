@@ -11,8 +11,6 @@
       window-decoration = "none";
       window-padding-x = 8;
       window-padding-y = 8;
-      theme = "Atom";
-      font-size = 16;
     };
   };
 }

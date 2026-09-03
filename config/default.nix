@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   inherit (lib) mkOption types;
 in
@@ -45,37 +50,76 @@ in
     };
 
     theme = {
-      colors = {
-        primary = mkOption {
-          type = types.str;
-          default = "#282c34";
-        };
-        background = mkOption {
-          type = types.str;
-          default = "#1e1e1e";
-        };
-        foreground = mkOption {
-          type = types.str;
-          default = "#abb2bf";
-        };
-        accent = mkOption {
-          type = types.str;
-          default = "#61afef";
+      name = mkOption {
+        type = types.str;
+        default = "ayu-dark";
+      };
+
+      cursor = {
+        theme = {
+          name = mkOption {
+            type = types.str;
+            default = "Adwaita";
+          };
+          pkg = mkOption {
+            type = types.package;
+            default = pkgs.adwaita-icon-theme;
+          };
+          size = mkOption {
+            type = types.int;
+            default = 24;
+          };
         };
       };
 
       fonts = {
-        mono = mkOption {
-          type = types.str;
-          default = "JetBrains Mono Nerd Font";
+        mono = {
+          name = mkOption {
+            type = types.str;
+            default = "JetBrains Mono Nerd Font";
+          };
+          pkg = mkOption {
+            type = types.package;
+            default = pkgs.nerdfonts.jetbrains-mono;
+          };
         };
-        sans = mkOption {
-          type = types.str;
-          default = "Poppins";
+        sans = {
+          name = mkOption {
+            type = types.str;
+            default = "Poppins";
+          };
+          pkg = mkOption {
+            type = types.package;
+            default = pkgs.poppins;
+          };
         };
-        size = mkOption {
-          type = types.int;
-          default = 11;
+        serif = {
+          name = mkOption {
+            type = types.str;
+            default = "Poppins";
+          };
+          pkg = mkOption {
+            type = types.package;
+            default = pkgs.poppins;
+          };
+        };
+        sizes = {
+          applications = mkOption {
+            type = types.int;
+            default = 11;
+          };
+          terminal = mkOption {
+            type = types.int;
+            default = 11;
+          };
+          desktop = mkOption {
+            type = types.int;
+            default = 11;
+          };
+          popups = mkOption {
+            type = types.int;
+            default = 11;
+          };
         };
       };
     };

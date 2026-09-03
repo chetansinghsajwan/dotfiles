@@ -8,7 +8,7 @@
   ...
 }:
 let
-  lib = nixpkgs.lib;
+  inherit (nixpkgs) lib;
 in
 nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";

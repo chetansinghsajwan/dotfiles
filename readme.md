@@ -2,7 +2,6 @@
 
 ## TODO
 
-- [ ] Use font config everywhere
 - [ ] Create config for wallaper
 - [ ] Configure copilot
 - [ ] Configure claude

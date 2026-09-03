@@ -8,13 +8,10 @@
 localLib.mkToggleModule config "gnome-text-editor" {
   home.packages = [
     pkgs.gnome-text-editor
-    pkgs.cascadia-code
   ];
 
   dconf.settings."org/gnome/TextEditor" = {
     "auto-indent" = true;
-    "use-system-font" = false;
-    "custom-font" = "Cascadia Code PL 14";
     "highlight-current-line" = true;
     "highlight-matching-brackets" = true;
     "indent-style" = "space";

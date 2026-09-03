@@ -9,8 +9,6 @@ localLib.mkToggleModule config "gnome-terminal" {
     gnome-terminal
   ];
 
-  fonts.fontconfig.enable = true;
-
   dconf.settings =
     let
       profileCustom = "1f9b272d-225c-474f-9e70-326fa579639d";
@@ -37,13 +35,11 @@ localLib.mkToggleModule config "gnome-terminal" {
         "cursor-shape" = "ibeam";
         "default-size-columns" = 120;
         "delete-binding" = "delete-sequence";
-        "font" = "JetBrains Mono 15";
         "cell-width-scale" = 1.0;
         "cell-height-scale" = 1.10;
         "scroll-on-output" = true;
         "scrollback-lines" = 10000;
         "scrollbar-policy" = "always";
-        "use-system-font" = false;
         "use-theme-colors" = true;
         "login-shell" = true;
         "use-custom-command" = true;
