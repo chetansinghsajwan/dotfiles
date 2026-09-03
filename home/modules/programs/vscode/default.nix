@@ -1,18 +1,14 @@
-_: { }
+{ pkgs, ... }:
+{
+  programs.vscode = {
+    enableUpdateCheck = false;
+    enableExtensionUpdateCheck = false;
+    mutableExtensionsDir = true;
 
-# { pkgs, ... }:
-# {
-#   programs.vscode = {
-#     enable = true;
-#     package = pkgs.vscodium-fhs;
-#     enableUpdateCheck = false;
-#     enableExtensionUpdateCheck = false;
-#     mutableExtensionsDir = false;
-
-#     userSettings = import ./settings.nix;
-#     userTasks = import ./tasks.nix;
-#     keybindings = import ./keybindings.nix;
-#   };
+    userSettings = import ./settings.nix;
+    userTasks = import ./tasks.nix;
+    keybindings = import ./keybindings.nix;
+  };
 
 #   imports = [
 #     ./languages/cpp.nix
@@ -29,4 +25,4 @@ _: { }
 #     ./themes/one-dark-pro.nix
 #     ./themes/github.nix
 #   ];
-# }
+}
