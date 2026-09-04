@@ -326,8 +326,7 @@
         "nixpkgs": "nixpkgs",
         "nur": "nur",
         "stylix": "stylix",
-        "treefmt-nix": "treefmt-nix",
-        "vscode-extensions": "vscode-extensions"
+        "treefmt-nix": "treefmt-nix"
       }
     },
     "stylix": {
@@ -458,26 +457,6 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "type": "github"
-      }
-    },
-    "vscode-extensions": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1788065549,
-        "narHash": "sha256-G1VfPb5NiYJPxvM9dGa+PTHvjA4KLyToZqLEgqsTtGc=",
-        "owner": "nix-community",
-        "repo": "nix-vscode-extensions",
-        "rev": "85020fae40e7c7f11b2ae4555d0f356e71087cee",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "nix-vscode-extensions",
         "type": "github"
       }
     }

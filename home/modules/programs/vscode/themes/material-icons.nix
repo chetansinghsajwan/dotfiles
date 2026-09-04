@@ -1,12 +1,11 @@
-{ vscode-extensions, ... }:
-{
+{ pkgs, ... }: {
   programs.vscode = {
-    extensions = with vscode-extensions.vscode-marketplace; [
+    extensions = with pkgs.vscode-extensions; [
       pkief.material-icon-theme
     ];
 
     userSettings = {
-      workbench.iconTheme = "material-icon-theme";
+      "workbench.iconTheme" = "material-icon-theme";
     };
   };
 }

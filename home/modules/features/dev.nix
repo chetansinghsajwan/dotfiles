@@ -11,10 +11,10 @@ in
 {
   config = lib.mkIf enableDev {
     home.packages = with pkgs; [
-      cmake
-      lldb
-      clang
-      llvmPackages_18.clang-tools
+      # cmake
+      # lldb
+      # clang
+      # llvmPackages_18.clang-tools
     ];
 
     programs = {

@@ -29,11 +29,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    vscode-extensions = {
-      url = "github:nix-community/nix-vscode-extensions";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     treefmt-nix.url = "github:numtide/treefmt-nix";
   };
 
@@ -44,7 +39,6 @@
       nur,
       stylix,
       home-manager,
-      vscode-extensions,
       nix-darwin,
       treefmt-nix,
       nixos-wsl,
@@ -70,7 +64,6 @@
           stylix
           localLib
           ;
-        vscode-extensions = vscode-extensions.extensions.${linuxSystem};
       };
 
       darwinConfigurations.macbook-air-m3 = import ./hosts/macbook-air-m3 {
@@ -82,7 +75,6 @@
           nix-darwin
           localLib
           ;
-        vscode-extensions = vscode-extensions.extensions.${darwinSystem};
       };
 
       nixosConfigurations.wsl = import ./hosts/wsl {
@@ -94,7 +86,6 @@
           nixos-wsl
           localLib
           ;
-        vscode-extensions = vscode-extensions.extensions.${linuxSystem};
       };
 
       # Standalone Home Manager config (non-NixOS/non-darwin machines,
@@ -109,7 +100,6 @@
 
         extraSpecialArgs = {
           inherit nur localLib;
-          vscode-extensions = vscode-extensions.extensions.${linuxSystem};
         };
       };
 

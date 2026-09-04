@@ -1,28 +1,16 @@
-{ pkgs, ... }:
+{ localLib, ... }:
 {
   programs.vscode = {
-    enableUpdateCheck = false;
-    enableExtensionUpdateCheck = false;
-    mutableExtensionsDir = true;
-
-    userSettings = import ./settings.nix;
-    userTasks = import ./tasks.nix;
-    keybindings = import ./keybindings.nix;
+    mutableExtensionsDir = false;
+    profiles.default = {
+      enableUpdateCheck = false;
+      enableExtensionUpdateCheck = false;
+    };
   };
 
-#   imports = [
-#     ./languages/cpp.nix
-#     ./languages/c.nix
-#     ./languages/html.nix
-#     ./languages/json.nix
-#     ./languages/nix.nix
-
-#     ./features/clangd.nix
-#     ./features/cmake.nix
-#     ./features/lldb.nix
-
-#     ./themes/material-icons.nix
-#     ./themes/one-dark-pro.nix
-#     ./themes/github.nix
-#   ];
+  imports =
+    localLib.importDir ./modules
+    ++ localLib.importDir ./languages
+    ++ localLib.importDir ./themes
+    ++ localLib.importDir ./features;
 }

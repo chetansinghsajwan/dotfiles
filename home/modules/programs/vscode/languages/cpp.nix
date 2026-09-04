@@ -1,7 +1,7 @@
 _: {
   programs.vscode = {
     userSettings = {
-      files.associations = {
+      "files.associations" = {
         "*.cppm" = "cpp";
         "*.cppi" = "cpp";
       };

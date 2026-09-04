@@ -2,7 +2,6 @@
   nur,
   home-manager,
   nix-darwin,
-  vscode-extensions,
   stylix,
   mkToggleModule,
   ...
@@ -17,7 +16,7 @@ nix-darwin.lib.darwinSystem {
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "bak";
       home-manager.extraSpecialArgs = {
-        inherit nur vscode-extensions mkToggleModule;
+        inherit nur mkToggleModule;
       };
 
       home-manager.users.kyutoo.imports = [

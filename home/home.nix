@@ -23,6 +23,7 @@ in
   imports = [
     ../config
     ./modules/stylix.nix
+    ./modules/programs/vscode
   ]
   ++ localLib.importDir ./modules/features
   ++ localLib.importDir ./modules/programs;
