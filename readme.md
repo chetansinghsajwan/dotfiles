@@ -2,9 +2,6 @@
 
 ## TODO
 
-- [ ] Configure copilot
-- [ ] Configure claude
-- [ ] Configure antigravity cli
 - [ ] Refactor hosts
 - [ ] Redesign kanata
 - [ ] Write proper readme
