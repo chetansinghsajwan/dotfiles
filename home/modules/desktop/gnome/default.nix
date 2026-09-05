@@ -33,6 +33,7 @@ in
       baobab # disk usage analyzer
       apostrophe # markdown editor
       nautilus # file explorer
+      curtail # image compressor
       file-roller # ?
       gnome-connections
       gnome-sound-recorder

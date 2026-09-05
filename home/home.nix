@@ -51,18 +51,12 @@ in
         antigravity-cli
         codex
         claude-code
-        yt-dlp
         tree
         curl
-        gh
-        git-lfs
-        nixpkgs-fmt
-        poppins
         devbox
       ]
       ++ lib.optionals isLinux [
         efibootmgr
-        curtail
         exfat
       ];
   };
@@ -78,7 +72,10 @@ in
 
     starship.enable = config.dotfiles.shell.theme == "starship";
 
+    nh.enable = true;
     git.enable = true;
+    gh.enable = true;
+    yt-dlp.enable = true;
     neovim.enable = true;
     atuin.enable = true;
     btop.enable = true;

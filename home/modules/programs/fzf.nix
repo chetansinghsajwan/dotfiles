@@ -12,21 +12,21 @@
       "--scheme path"
     ];
 
-    fileWidgetOptions = [
+    fileWidget.options = [
       "--preview 'bat --color=always --line-range :50 {} 2>/dev/null || ls -lah {}'"
       "--bind 'ctrl-d:preview-page-down,ctrl-u:preview-page-up'"
       "--bind 'ctrl-/:toggle-preview'"
     ];
 
-    changeDirWidgetOptions = [
+    changeDirWidget.options = [
       "--preview 'tree -C {} 2>/dev/null | head -100'"
     ];
 
-    historyWidgetOptions = [
+    historyWidget.options = [
       "--preview 'echo {}'"
       "--preview-window down:3:wrap"
-      "--tiebreak=index"         # on equal score, prefer most recent (bottom of history)
-      "--no-sort"                # preserve chronological order fzf receives from shell
+      "--tiebreak=index" # on equal score, prefer most recent (bottom of history)
+      "--no-sort" # preserve chronological order fzf receives from shell
     ];
   };
 
