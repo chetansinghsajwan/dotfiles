@@ -24,6 +24,7 @@ in
     ../config
     ./modules/stylix.nix
     ./modules/programs/vscode
+    ./modules/programs/zed
   ]
   ++ localLib.importDir ./modules/features
   ++ localLib.importDir ./modules/programs;

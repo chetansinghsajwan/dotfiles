@@ -5,7 +5,6 @@
 - [ ] Configure copilot
 - [ ] Configure claude
 - [ ] Configure antigravity cli
-- [ ] Configure zed
 - [ ] Refactor hosts
 - [ ] Redesign kanata
 - [ ] Write proper readme
