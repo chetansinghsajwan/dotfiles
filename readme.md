@@ -6,7 +6,6 @@
 - [ ] Configure copilot
 - [ ] Configure claude
 - [ ] Configure antigravity cli
-- [ ] Configure vscode
 - [ ] Configure zed
 - [ ] Refactor hosts
 - [ ] Redesign kanata

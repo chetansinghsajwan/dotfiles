@@ -110,6 +110,12 @@ let
     # Files settings
     # ----------------------------------------------------------------------------------------------
 
+    # Controls the auto-save behavior of files
+    "files.autoSave" = "afterDelay";
+
+    # The delay (in milliseconds) before auto-saving a file
+    "files.autoSaveDelay" = 1000;
+
     # When enabled, will attempt to guess the character set encoding when opening files
     "files.trimFinalNewlines" = true;
 
