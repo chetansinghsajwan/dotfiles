@@ -80,7 +80,7 @@ in
           };
           pkg = mkOption {
             type = types.package;
-            default = pkgs.nerdfonts.jetbrains-mono;
+            default = pkgs.nerd-fonts.jetbrains-mono;
           };
         };
         sans = {

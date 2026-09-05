@@ -11,7 +11,6 @@
 - [ ] Redesign kanata
 - [ ] Write proper readme
 - [ ] Add agents.md
-- [ ] Configure ghostty
 - [ ] Add hyprland
 - [ ] Configure fzf
 - [ ] Resolve btop requiring UTF8 on wsl
