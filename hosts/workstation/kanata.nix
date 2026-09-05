@@ -1,6 +1,6 @@
 _: {
-  services.kanata = {
-    enable = true;
-    keyboards.main.configFile = ./kanata.kbd;
-  };
+  # services.kanata = {
+  #   enable = true;
+  #   keyboards.main.configFile = ./kanata.kbd;
+  # };
 }

@@ -59,6 +59,7 @@ in
         nixpkgs-fmt
         poppins
         devbox
+        kanata
       ]
       ++ lib.optionals isLinux [
         efibootmgr
