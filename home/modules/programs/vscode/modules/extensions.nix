@@ -1,6 +1,6 @@
 { pkgs, ... }: {
-  programs.vscode ={
-    extensions= with pkgs.vscode-extensions; [
+  programs.vscode = {
+    extensions = with pkgs.vscode-extensions; [
       mhutchie.git-graph # Git graph
       ms-azuretools.vscode-containers # Container Tools by Microsoft
       ms-vscode-remote.remote-containers # Dev containers by Microsoft
