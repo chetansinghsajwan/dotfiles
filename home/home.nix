@@ -51,6 +51,7 @@ in
         tree
         curl
         devbox
+        kanata
       ]
       ++ lib.optionals isLinux [
         efibootmgr
