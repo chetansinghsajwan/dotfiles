@@ -6,6 +6,13 @@
 }:
 let
   inherit (lib) mkOption types;
+  wallpapers = pkgs.fetchFromGitHub {
+    name = "wallpapers";
+    owner = config.dotfiles.user.username;
+    repo = "wallpapers";
+    rev = "dev";
+    hash = "sha256-52j39DIAFTAO6QG1YGX1OpuVSUPOqgfh/V8AYelHYYU=";
+  };
 in
 {
   options.dotfiles = {
@@ -53,6 +60,11 @@ in
       name = mkOption {
         type = types.str;
         default = "ayu-dark";
+      };
+
+      wallpaper = mkOption {
+        type = types.str;
+        default = "${wallpapers}/white-fox.png";
       };
 
       cursor = {

@@ -14,6 +14,7 @@ in
   stylix = {
     enable = true;
     polarity = "dark";
+    image = theme.wallpaper;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/${theme.name}.yaml";
 
     fonts = {

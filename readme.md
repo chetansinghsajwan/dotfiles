@@ -2,7 +2,6 @@
 
 ## TODO
 
-- [ ] Create config for wallaper
 - [ ] Configure copilot
 - [ ] Configure claude
 - [ ] Configure antigravity cli
