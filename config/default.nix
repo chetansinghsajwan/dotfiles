@@ -121,6 +121,10 @@ in
             default = 11;
           };
         };
+        rawFontScale = mkOption {
+          type = types.float;
+          default = 1.33;
+        };
       };
     };
 

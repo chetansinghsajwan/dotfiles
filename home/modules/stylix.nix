@@ -5,13 +5,14 @@
 }:
 let
   theme = config.dotfiles.theme;
+  rawFontScale = theme.fonts.rawFontScale;
+  isWsl = config.dotfiles.system.isWsl;
 in
 {
   fonts.fontconfig.enable = true;
 
   stylix = {
     enable = true;
-    autoEnable = false;
     polarity = "dark";
     base16Scheme = "${pkgs.base16-schemes}/share/themes/${theme.name}.yaml";
 
@@ -42,12 +43,29 @@ in
     cursor.size = theme.cursor.theme.size;
 
     targets = {
-      gnome.enable = config.dotfiles.desktop.gnome.enable;
-      gtk.enable = config.dotfiles.desktop.gnome.enable;
-      firefox.enable = config.programs.firefox.enable;
-      firefox.profileNames = [ "default" ];
-      ghostty.enable = config.programs.ghostty.enable;
-      vscode.enable = config.programs.vscode.enable;
+      gnome.enable = !isWsl;
+      gtk.enable = !isWsl;
+    };
+
+    targets = {
+      ghostty = {
+        fonts.override = {
+          sizes = {
+            terminal = config.stylix.fonts.sizes.terminal * rawFontScale;
+          };
+        };
+      };
+
+      zed = {
+        fonts.override = {
+          sizes = {
+            applications = config.stylix.fonts.sizes.applications * rawFontScale * .92;
+            terminal = config.stylix.fonts.sizes.terminal * rawFontScale;
+            desktop = config.stylix.fonts.sizes.desktop * rawFontScale;
+            popups = config.stylix.fonts.sizes.popups * rawFontScale;
+          };
+        };
+      };
     };
   };
 }
