@@ -5,6 +5,7 @@
 }:
 let
   firefox-addons = pkgs.nur.repos.rycee.firefox-addons;
+  defaultProfile = "default";
 in
 {
   programs.firefox = {
@@ -12,7 +13,7 @@ in
 
     profiles.default = {
       id = 0;
-      name = "default";
+      name = defaultProfile;
       isDefault = true;
 
       settings = {
@@ -211,5 +212,9 @@ in
         wikiwand-wikipedia-modernized
       ];
     };
+  };
+
+  stylix.targets.firefox = {
+    profileNames = [ defaultProfile ];
   };
 }

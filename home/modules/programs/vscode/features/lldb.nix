@@ -10,7 +10,7 @@
       lldb_19
     ];
 
-    programs.vscode = {
+    programs.vscode.profiles.default = {
       extensions = with pkgs.vscode-extensions; [
         llvm-vs-code-extensions.lldb-dap
       ];

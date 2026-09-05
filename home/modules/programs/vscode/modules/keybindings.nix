@@ -1,5 +1,5 @@
 _: {
-  programs.vscode.keybindings = [
+  programs.vscode.profiles.default.keybindings = [
     {
       args = {
         text = "_";

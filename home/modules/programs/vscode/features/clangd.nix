@@ -13,7 +13,7 @@ in
       clang-tools
     ];
 
-    programs.vscode = {
+    programs.vscode.profiles.default = {
       extensions = with pkgs.vscode-extensions; [
         llvm-vs-code-extensions.vscode-clangd
       ];

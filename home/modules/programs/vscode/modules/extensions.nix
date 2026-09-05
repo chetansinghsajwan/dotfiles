@@ -1,5 +1,5 @@
 { pkgs, ... }: {
-  programs.vscode = {
+  programs.vscode.profiles.default = {
     extensions = with pkgs.vscode-extensions; [
       mhutchie.git-graph # Git graph
       ms-azuretools.vscode-containers # Container Tools by Microsoft

@@ -11,7 +11,7 @@
       ninja
     ];
 
-    programs.vscode =
+    programs.vscode.profiles.default =
       let
         buildDir = "\${workspaceFolder}/build";
         installDir = "\${workspaceFolder}/install";

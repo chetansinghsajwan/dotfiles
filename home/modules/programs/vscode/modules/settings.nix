@@ -214,7 +214,7 @@ let
   };
 in
 {
-  programs.vscode.userSettings = userSettings // {
+  programs.vscode.profiles.default.userSettings = userSettings // {
     # Automatically generated list of all settings to apply across profiles
     "workbench.settings.applyToAllProfiles" = flattenAttrs "" userSettings;
   };
