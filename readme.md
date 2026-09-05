@@ -10,5 +10,4 @@
 - [ ] Write proper readme
 - [ ] Add agents.md
 - [ ] Add hyprland
-- [ ] Configure fzf
 - [ ] Resolve btop requiring UTF8 on wsl
