@@ -15,6 +15,13 @@ in
         "$mod" = "SUPER";
         "$alt" = "ALT";
 
+        input = {
+          touchpad = {
+            natural_scroll = true;   # set true if you WANT inverted (natural/Mac-style)
+          };
+          natural_scroll = true;     # for mouse wheel
+        };
+
         monitor = [ ",preferred,auto,1" ];
 
         exec-once = [
