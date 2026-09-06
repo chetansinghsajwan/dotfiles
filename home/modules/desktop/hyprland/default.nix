@@ -6,11 +6,30 @@ in
   imports = [
     ./waybar.nix
     ./wofi.nix
+    ./hyprpaper.nix
+    ./hypridle.nix
+    ./hyprlock.nix
   ];
 
   config = lib.mkIf enableHyprland {
+    programs.waybar.enable = true;
+    programs.wofi.enable = true;
+    programs.hyprlock.enable = true;
+
+    services.hyprpaper.enable = true;
+    services.hypridle.enable = true;
+
+    home.packages = with pkgs; [
+      grim
+      slurp
+      wl-clipboard
+      brightnessctl
+      wireplumber
+    ];
+
     wayland.windowManager.hyprland = {
       enable = true;
+      configType = "hyprlang";
       settings = {
         "$mod" = "SUPER";
         "$alt" = "ALT";
@@ -150,24 +169,5 @@ in
         ];
       };
     };
-
-    programs.waybar.enable = true;
-    programs.wofi.enable = true;
-
-    services.hyprpaper.enable = true;
-    services.hypridle.enable = true;
-
-    home.packages = with pkgs; [
-      hyprlock
-      grim
-      slurp
-      wl-clipboard
-      brightnessctl
-      wireplumber
-    ];
-
-    stylix.targets.hyprland.enable = true;
-    stylix.targets.waybar.enable = true;
-    stylix.targets.wofi.enable = true;
   };
 }
