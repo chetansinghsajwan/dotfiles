@@ -11,3 +11,4 @@
 - [ ] Add agents.md
 - [ ] Add hyprland
 - [ ] Resolve btop requiring UTF8 on wsl
+- [ ] Add gitignore
