@@ -197,6 +197,12 @@ in
           default = false;
         };
       };
+      hyprland = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+        };
+      };
     };
   };
 }

@@ -4,6 +4,7 @@ _: {
     extraOptions = [
       "--git"
       "--icons"
+      "always"
     ];
   };
 }

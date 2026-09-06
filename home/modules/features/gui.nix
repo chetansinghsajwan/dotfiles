@@ -11,10 +11,11 @@ in
 {
   imports = [
     ../desktop/gnome
+    ../desktop/hyprland
   ];
 
   config = lib.mkIf enableGui {
-    dotfiles.desktop.gnome.enable = isLinux;
+    dotfiles.desktop.hyprland.enable = isLinux;
 
     dotfiles.programs = {
       libreoffice.enable = true;

@@ -1,8 +1,10 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   dotfiles.system.extraGroups = [
     "wheel"
   ];
+
+  programs.hyprland.enable = config.dotfiles.desktop.hyprland.enable;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;

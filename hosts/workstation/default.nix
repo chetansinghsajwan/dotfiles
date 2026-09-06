@@ -26,7 +26,7 @@ nixpkgs.lib.nixosSystem {
         {
           dotfiles.features.dev = lib.mkForce true;
           dotfiles.features.gui = lib.mkForce true;
-          dotfiles.desktop.gnome.enable = lib.mkForce true;
+          dotfiles.desktop.hyprland.enable = lib.mkForce true;
         }
 
         ../../home/home.nix
