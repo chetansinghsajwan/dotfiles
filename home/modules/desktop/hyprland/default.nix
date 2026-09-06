@@ -5,6 +5,7 @@ in
 {
   imports = [
     ./waybar.nix
+    ./wofi.nix
   ];
 
   config = lib.mkIf enableHyprland {
