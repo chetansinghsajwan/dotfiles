@@ -7,6 +7,8 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 - [ ] Refactor hosts
 - [ ] Redesign kanata
+- [ ] Fix WSL home manager activation failure
+- [ ] Disable vscode settings sync
 
 ## Machines
 
