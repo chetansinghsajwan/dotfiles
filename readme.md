@@ -5,13 +5,8 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 ## TODO
 
-- [ ] Configure copilot
-- [ ] Configure claude
-- [ ] Configure antigravity cli
 - [ ] Refactor hosts
 - [ ] Redesign kanata
-- [ ] Resolve btop requiring UTF8 on wsl
-- [ ] Add gitignore
 
 ## Machines
 
