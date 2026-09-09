@@ -1,9 +1,9 @@
 { config, lib, ... }:
 let
-  enableHyprland = config.dotfiles.desktop.hyprland.enable;
+  enable = config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
 in
 {
-  config = lib.mkIf enableHyprland {
+  config = lib.mkIf enable {
     programs.waybar = {
       settings = [
         {

@@ -202,6 +202,14 @@ in
           type = types.bool;
           default = false;
         };
+
+        shell = mkOption {
+          type = types.enum [
+            "custom"
+          ];
+          default = "custom";
+          description = "Which desktop shell ecosystem to use on top of Hyprland.";
+        };
       };
     };
   };
