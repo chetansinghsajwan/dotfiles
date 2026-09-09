@@ -206,8 +206,9 @@ in
         shell = mkOption {
           type = types.enum [
             "custom"
+            "caelestia"
           ];
-          default = "custom";
+          default = "caelestia";
           description = "Which desktop shell ecosystem to use on top of Hyprland.";
         };
       };

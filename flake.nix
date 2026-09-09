@@ -30,6 +30,11 @@
     };
 
     treefmt-nix.url = "github:numtide/treefmt-nix";
+
+    caelestia-shell = {
+      url = "github:caelestia-dots/shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -42,6 +47,7 @@
       nix-darwin,
       treefmt-nix,
       nixos-wsl,
+      caelestia-shell,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -63,6 +69,7 @@
           home-manager
           stylix
           localLib
+          caelestia-shell
           ;
       };
 
@@ -99,7 +106,7 @@
         ];
 
         extraSpecialArgs = {
-          inherit nur localLib;
+          inherit nur localLib caelestia-shell;
         };
       };
 

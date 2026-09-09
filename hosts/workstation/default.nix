@@ -4,6 +4,7 @@
   home-manager,
   stylix,
   localLib,
+  caelestia-shell,
   ...
 }:
 let
@@ -19,7 +20,7 @@ nixpkgs.lib.nixosSystem {
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "bak";
       home-manager.extraSpecialArgs = {
-        inherit nur localLib;
+        inherit nur localLib caelestia-shell;
       };
 
       home-manager.users.chetansinghsajwan.imports = [

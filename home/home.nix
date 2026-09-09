@@ -4,6 +4,7 @@
   nur,
   lib,
   localLib,
+  caelestia-shell ? null,
   ...
 }:
 let
@@ -27,7 +28,10 @@ in
     ./modules/programs/zed
   ]
   ++ localLib.importDir ./modules/features
-  ++ localLib.importDir ./modules/programs;
+  ++ localLib.importDir ./modules/programs
+  ++ lib.optionals (caelestia-shell != null) [
+    caelestia-shell.homeManagerModules.default
+  ];
 
   home = {
     username = config.dotfiles.user.username;
