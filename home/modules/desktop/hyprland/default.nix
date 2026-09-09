@@ -93,6 +93,7 @@ in
           "$mod, C, exec, code"
           "$mod, E, exec, nautilus"
           "$mod, B, exec, firefox"
+          "$mod, L, exec, hyprlock"
 
           # Window management
           "$mod, Q, killactive"
@@ -140,7 +141,7 @@ in
           "$shift, Print, exec, grim ~/pictures/screenshot-$(date +%s).png"
 
           # Search (wofi)
-          "$mod, D, exec, wofi --show drun"
+          "$mod, SPACE, exec, wofi --show drun"
         ];
 
         binde = [
