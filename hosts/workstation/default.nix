@@ -13,7 +13,23 @@ in
 nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   modules = [
-    ./configuration.nix
+    {
+      dotfiles.desktop.hyprland.enable = true;
+      dotfiles.system.displayManager = "sddm";
+      dotfiles.system.extraGroups = [
+        "wheel"
+      ];
+    }
+
+    {
+      imports = [
+        ../../config
+        ../shared.nix
+        ./hardware-configuration.nix
+        ./kanata.nix
+        ./system.nix
+      ];
+    }
 
     home-manager.nixosModules.home-manager
     {

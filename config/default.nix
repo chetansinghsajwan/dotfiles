@@ -188,6 +188,12 @@ in
         default = false;
         description = "Whether the system is running under WSL.";
       };
+
+      displayManager = mkOption {
+        type = types.enum [ "gdm" "sddm" ];
+        default = "sddm";
+        description = "Display manager to use.";
+      };
     };
 
     desktop = {

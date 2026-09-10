@@ -1,10 +1,9 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
+let
+  enableGdm = config.dotfiles.system.displayManager == "gdm";
+  enableSddm = config.dotfiles.system.displayManager == "sddm";
+in
 {
-  dotfiles.system.extraGroups = [
-    "wheel"
-  ];
-
-  dotfiles.desktop.hyprland.enable = true;
   programs.hyprland.enable = true;
 
   boot.loader.systemd-boot.enable = true;
@@ -53,9 +52,15 @@
   };
 
   services.xserver.enable = true;
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
+
+  # GDM
+  services.displayManager.gdm.enable = enableGdm;
+  services.desktopManager.gnome.enable = enableGdm;
   services.gnome.core-apps.enable = false;
+
+  # SDDM
+  services.displayManager.sddm.enable = enableSddm;
+  services.displayManager.sddm.wayland.enable = enableSddm;
 
   services.xserver.xkb = {
     layout = "us";
