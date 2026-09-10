@@ -86,6 +86,7 @@ in
       "desktop/interface/color-scheme" = "prefer-dark";
       "desktop/interface/enable-hot-corners" = false;
       "desktop/interface/show-battery-percentage" = true;
+      "desktop/interface/text-scaling-factor" = 1.0;
 
       "desktop/peripherals/touchpad/tap-to-click" = true;
       "desktop/peripherals/touchpad/two-finger-scrolling-enabled" = true;
