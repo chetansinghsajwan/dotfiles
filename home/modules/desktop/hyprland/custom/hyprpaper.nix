@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
-  enable = config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
+  enable =
+    config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
   wallpaper = config.dotfiles.theme.wallpaper;
 in
 {

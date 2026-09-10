@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
-  enable = config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
+  enable =
+    config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
 in
 {
   config = lib.mkIf enable {
@@ -11,9 +12,17 @@ in
           position = "top";
           height = 30;
 
-          modules-left = [ "hyprland/workspaces" "hyprland/window" ];
+          modules-left = [
+            "hyprland/workspaces"
+            "hyprland/window"
+          ];
           modules-center = [ "clock" ];
-          modules-right = [ "pulseaudio" "backlight" "battery" "tray" ];
+          modules-right = [
+            "pulseaudio"
+            "backlight"
+            "battery"
+            "tray"
+          ];
 
           "hyprland/workspaces" = {
             format = "{name}";
@@ -44,7 +53,11 @@ in
               phone = "";
               portable = "";
               car = "";
-              default = [ "" "" "" ];
+              default = [
+                ""
+                ""
+                ""
+              ];
             };
             scroll-step = 1;
             on-click = "pavucontrol";
@@ -52,14 +65,29 @@ in
 
           backlight = {
             format = "{icon} {percent}%";
-            format-icons = [ "󰃞" "󰃟" "󰃠" ];
+            format-icons = [
+              "󰃞"
+              "󰃟"
+              "󰃠"
+            ];
             scroll-step = 1;
           };
 
           battery = {
             format = "{icon} {capacity}%";
             format-charging = "󰂄 {capacity}%";
-            format-icons = [ "󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" ];
+            format-icons = [
+              "󰂎"
+              "󰁺"
+              "󰁻"
+              "󰁼"
+              "󰁽"
+              "󰁾"
+              "󰁿"
+              "󰂀"
+              "󰂁"
+              "󰂂"
+            ];
           };
 
           tray = {

@@ -190,7 +190,10 @@ in
       };
 
       displayManager = mkOption {
-        type = types.enum [ "gdm" "sddm" ];
+        type = types.enum [
+          "gdm"
+          "sddm"
+        ];
         default = "sddm";
         description = "Display manager to use.";
       };

@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
-  enable = config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "caelestia";
+  enable =
+    config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "caelestia";
 in
 {
   config = lib.mkIf enable {

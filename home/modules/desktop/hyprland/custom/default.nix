@@ -1,6 +1,12 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
-  enable = config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
+  enable =
+    config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
 in
 {
   imports = [
@@ -36,9 +42,9 @@ in
 
         input = {
           touchpad = {
-            natural_scroll = true;   # set true if you WANT inverted (natural/Mac-style)
+            natural_scroll = true; # set true if you WANT inverted (natural/Mac-style)
           };
-          natural_scroll = true;     # for mouse wheel
+          natural_scroll = true; # for mouse wheel
         };
 
         monitor = [ ",preferred,auto,1" ];
