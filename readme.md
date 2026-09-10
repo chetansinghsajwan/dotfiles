@@ -9,15 +9,29 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 - [ ] Redesign kanata
 - [ ] Fix WSL home manager activation failure
 - [ ] Disable vscode settings sync
+- [ ] Configure hyprland caelestia
+  - [ ] Setup dynamic theme from wallpaper
+- [ ] Configure fzf
+  - [ ] Review fzf shortcuts. Ex, Ctrl+T
+  - [ ] File picker (ctrl+t) should ignore ignored files. Ex, gitignore
+  - [ ] Hide preview when selecting history
+  - [ ] Review other options
+- [ ] Review bat
+  - [ ] Review alternatives
+  - [ ] Review configuration for syntax highlighting
+- [ ] Review delta
+  - [ ] Review alternatives
+  - [ ] Review configuration for syntax highlighting
+- [ ] Look for cd alternatives
 
 ## Machines
 
-| Flake output                                       | Host                    | System           |
-| --------------------------------------------------- | ----------------------- | ----------------- |
-| `nixosConfigurations.nixos`                          | `hosts/workstation`     | `x86_64-linux`     |
-| `nixosConfigurations.wsl`                            | `hosts/wsl`              | `x86_64-linux`     |
-| `darwinConfigurations.macbook-air-m3`                | `hosts/macbook-air-m3`   | `aarch64-darwin`   |
-| `homeConfigurations.chetan`                          | standalone Home Manager | `x86_64-linux`     |
+| Flake output                                         | Host                     | System            |
+| ---------------------------------------------------- | ------------------------ | ----------------- |
+| `nixosConfigurations.nixos`                          | `hosts/workstation`      | `x86_64-linux`    |
+| `nixosConfigurations.wsl`                            | `hosts/wsl`              | `x86_64-linux`    |
+| `darwinConfigurations.macbook-air-m3`                | `hosts/macbook-air-m3`   | `aarch64-darwin`  |
+| `homeConfigurations.chetan`                          | standalone Home Manager  | `x86_64-linux`    |
 
 ## Layout
 
