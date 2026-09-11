@@ -1,4 +1,4 @@
-_:
+{ config, ... }:
 let
   # Helper function to flatten nested attribute sets into dot-notation keys
   # Example: {a.b.c = 1; d = 2} -> ["a.b.c" "d"]
@@ -130,13 +130,13 @@ let
     "terminal.integrated.cursorStyle" = "line";
 
     # The default profile on Windows
-    "terminal.integrated.defaultProfile.windows" = "git-bash";
+    "terminal.integrated.defaultProfile.windows" = config.dotfiles.shell.program;
 
     # The default profile on Linux
-    "terminal.integrated.defaultProfile.linux" = "fish";
+    "terminal.integrated.defaultProfile.linux" = config.dotfiles.shell.program;
 
     # The default profile on macOS
-    "terminal.integrated.defaultProfile.osx" = "zsh";
+    "terminal.integrated.defaultProfile.osx" = config.dotfiles.shell.program;
 
     # Show the tabs of open terminal instances
     "terminal.integrated.tabs.enabled" = true;
