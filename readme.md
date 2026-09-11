@@ -9,6 +9,7 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 - [ ] Redesign kanata
 - [ ] Fix WSL home manager activation failure
 - [ ] Disable vscode settings sync
+- [ ] Add display manager for hyprland
 - [ ] Configure hyprland caelestia
   - [ ] Setup dynamic theme from wallpaper
 - [ ] Configure fzf
