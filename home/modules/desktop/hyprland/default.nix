@@ -1,6 +1,15 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   enable = config.dotfiles.desktop.hyprland.enable;
+  defaultTerminal = config.dotfiles.terminal.default;
+  hyprlandConfig = lib.replaceStrings [ "__DEFAULT_TERMINAL__" ] [ defaultTerminal ] (
+    builtins.readFile ./hyprland.lua
+  );
 in
 {
   imports = [
@@ -16,7 +25,7 @@ in
     wayland.windowManager.hyprland = {
       enable = true;
       configType = "lua";
-      extraConfig = builtins.readFile ./hyprland.lua;
+      extraConfig = lib.mkBefore hyprlandConfig;
     };
   };
 }

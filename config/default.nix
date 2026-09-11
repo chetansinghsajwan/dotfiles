@@ -222,5 +222,14 @@ in
         };
       };
     };
+
+    terminal = {
+      default = mkOption {
+        type = types.enum [
+          "ghostty"
+        ];
+        default = "ghostty";
+      };
+    };
   };
 }

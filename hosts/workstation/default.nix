@@ -15,7 +15,7 @@ nixpkgs.lib.nixosSystem {
   modules = [
     {
       dotfiles.desktop.hyprland.enable = true;
-      dotfiles.system.displayManager = "sddm";
+      dotfiles.system.displayManager = "gdm";
       dotfiles.system.extraGroups = [
         "wheel"
       ];

@@ -6,6 +6,7 @@ local right = "L"
 local window_resize_step = 15
 local brightness_step = 5
 local volume_step = 5
+local defaultTerminal = "__DEFAULT_TERMINAL__"
 
 hl.config({
   general = {
@@ -78,3 +79,5 @@ hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ to
 -- Brightness
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set +" .. brightness_step .. "%"))
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set " .. brightness_step .. "%-"))
+
+hl.bind(mod .. " + period", hl.dsp.exec_cmd(defaultTerminal))
