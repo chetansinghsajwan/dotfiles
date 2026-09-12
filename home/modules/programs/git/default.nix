@@ -1,17 +1,26 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
+{ config
+, pkgs
+, lib
+, ...
 }:
 let
   isWSL = config.dotfiles.system.isWsl;
+  shScript = ".config/git/git.sh";
+  localConfig = "~/.config/git/local-config";
 in
 {
   config = lib.mkIf config.programs.git.enable {
+
+    home.file."${shScript}".source = ./git.sh;
+    programs.bash.initExtra = "source ~/${shScript}";
+    programs.zsh.initContent = "source ~/${shScript}";
+
+    programs.fzf.enable = true;
+    programs.tmux.enable = true;
+
     programs.git = {
       includes = [
-        { path = "~/.gitconfig.local"; }
+        { path = localConfig; }
       ];
 
       lfs = {
