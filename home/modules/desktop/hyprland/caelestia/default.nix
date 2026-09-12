@@ -5,7 +5,8 @@
 }@inputs:
 let
   caelestia-shell = inputs.caelestia-shell or null;
-  enable = caelestia-shell != null
+  enable =
+    caelestia-shell != null
     && config.dotfiles.desktop.hyprland.enable
     && config.dotfiles.desktop.hyprland.shell == "caelestia";
 in

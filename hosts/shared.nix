@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
@@ -20,9 +25,15 @@ in
 
   programs = {
     ${config.dotfiles.shell.program}.enable = true;
-  } // (if isLinux then {
-    nix-ld.enable = true;
-  } else {});
+  }
+  // (
+    if isLinux then
+      {
+        nix-ld.enable = true;
+      }
+    else
+      { }
+  );
 
   nix.settings.experimental-features = [
     "nix-command"

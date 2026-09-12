@@ -7,7 +7,6 @@
 let
   theme = config.dotfiles.theme;
   rawFontScale = theme.fonts.rawFontScale;
-  isWsl = config.dotfiles.system.isWsl;
   isLinux = config.dotfiles.system.isLinux;
 in
 {
