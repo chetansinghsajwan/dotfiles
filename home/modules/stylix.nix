@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -7,6 +8,7 @@ let
   theme = config.dotfiles.theme;
   rawFontScale = theme.fonts.rawFontScale;
   isWsl = config.dotfiles.system.isWsl;
+  isLinux = config.dotfiles.system.isLinux;
 in
 {
   fonts.fontconfig.enable = true;
@@ -39,14 +41,6 @@ in
     };
 
     opacity.terminal = 0.95;
-    cursor.name = theme.cursor.theme.name;
-    cursor.package = theme.cursor.theme.pkg;
-    cursor.size = theme.cursor.theme.size;
-
-    targets = {
-      gnome.enable = !isWsl;
-      gtk.enable = !isWsl;
-    };
 
     targets = {
       ghostty = {
@@ -68,5 +62,10 @@ in
         };
       };
     };
+  }
+  // lib.optionalAttrs isLinux {
+    cursor.name = theme.cursor.theme.name;
+    cursor.package = theme.cursor.theme.pkg;
+    cursor.size = theme.cursor.theme.size;
   };
 }

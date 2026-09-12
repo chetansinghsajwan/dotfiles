@@ -3,7 +3,7 @@
   home-manager,
   nix-darwin,
   stylix,
-  mkToggleModule,
+  localLib,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -16,17 +16,19 @@ nix-darwin.lib.darwinSystem {
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "bak";
       home-manager.extraSpecialArgs = {
-        inherit nur mkToggleModule;
+        inherit nur localLib;
+        isDarwin = true;
       };
 
       home-manager.users.kyutoo.imports = [
         ../../home/home.nix
-        ../../config
         stylix.homeModules.stylix
 
         # host-specific overrides
         {
           dotfiles.user.username = "kyutoo";
+          dotfiles.theme.fonts.rawFontScale = 1.0;
+          dotfiles.system.isDarwin = true;
         }
       ];
     }

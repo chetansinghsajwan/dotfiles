@@ -1,19 +1,20 @@
 {
   config,
   lib,
-  caelestia-shell ? null,
   ...
-}:
+}@inputs:
 let
-  enable =
-    config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "caelestia";
+  caelestia-shell = inputs.caelestia-shell or null;
+  enable = caelestia-shell != null
+    && config.dotfiles.desktop.hyprland.enable
+    && config.dotfiles.desktop.hyprland.shell == "caelestia";
 in
 {
-  imports = lib.optionals (caelestia-shell != null) [
+  imports = lib.optionals enable [
     caelestia-shell.homeManagerModules.default
   ];
 
-  config = lib.mkIf enable {
+  config = lib.optionalAttrs enable {
     programs.caelestia = {
       enable = true;
       cli.enable = true;

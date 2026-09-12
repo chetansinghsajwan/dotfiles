@@ -18,8 +18,8 @@ in
     dotfiles.desktop.hyprland.enable = isLinux;
 
     dotfiles.programs = {
-      libreoffice.enable = true;
-      vlc.enable = true;
+      libreoffice.enable = isLinux;
+      vlc.enable = isLinux;
     };
 
     programs = {
@@ -27,9 +27,5 @@ in
       obsidian.enable = true;
       ghostty.enable = true;
     };
-
-    home.packages = with pkgs; [
-      sublime-merge
-    ];
   };
 }

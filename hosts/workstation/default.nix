@@ -19,6 +19,7 @@ nixpkgs.lib.nixosSystem {
       dotfiles.system.extraGroups = [
         "wheel"
       ];
+      dotfiles.system.isLinux = true;
     }
 
     {
@@ -44,6 +45,7 @@ nixpkgs.lib.nixosSystem {
           dotfiles.features.dev = lib.mkForce true;
           dotfiles.features.gui = lib.mkForce true;
           dotfiles.desktop.hyprland.enable = lib.mkForce true;
+          dotfiles.theme.fonts.rawFontScale = 1.33;
         }
 
         ../../home/home.nix

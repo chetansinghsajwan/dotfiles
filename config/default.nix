@@ -135,7 +135,7 @@ in
         };
         rawFontScale = mkOption {
           type = types.float;
-          default = 1.33;
+          default = 1.0;
         };
       };
     };
@@ -187,6 +187,18 @@ in
         type = types.bool;
         default = false;
         description = "Whether the system is running under WSL.";
+      };
+
+      isLinux = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether the system is a Linux system.";
+      };
+
+      isDarwin = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether the system is a macOS (Darwin) system.";
       };
 
       displayManager = mkOption {
