@@ -3,8 +3,6 @@
   pkgs,
   nur,
   lib,
-  localLib,
-  caelestia-shell ? null,
   ...
 }:
 let
@@ -24,13 +22,9 @@ in
   imports = [
     ../config
     ./modules/stylix.nix
-    ./modules/programs/vscode
-    ./modules/programs/zed
-  ]
-  ++ localLib.importDir ./modules/features
-  ++ localLib.importDir ./modules/programs
-  ++ lib.optionals (caelestia-shell != null) [
-    caelestia-shell.homeManagerModules.default
+    ./modules/programs
+    ./modules/features
+    ./modules/desktop
   ];
 
   home = {

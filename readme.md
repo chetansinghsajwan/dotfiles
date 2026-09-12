@@ -24,6 +24,8 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
   - [ ] Review alternatives
   - [ ] Review configuration for syntax highlighting
 - [ ] Look for cd alternatives
+- [ ] Checkout tools for manual
+- [ ] Read fzf https://github.com/junegunn/fzf/blob/master/ADVANCED.md and examples
 
 ## Machines
 

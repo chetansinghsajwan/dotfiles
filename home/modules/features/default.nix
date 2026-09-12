@@ -1,0 +1,3 @@
+{ localLib, ... }: {
+  imports = localLib.importDir ./.;
+}
