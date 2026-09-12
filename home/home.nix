@@ -70,6 +70,7 @@ in
 
     starship.enable = config.dotfiles.shell.theme == "starship";
 
+    zellij.enable = true;
     nh.enable = true;
     git.enable = true;
     gh.enable = true;
