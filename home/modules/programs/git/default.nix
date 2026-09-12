@@ -1,8 +1,7 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
+{ config
+, pkgs
+, lib
+, ...
 }:
 let
   isWSL = config.dotfiles.system.isWsl;
@@ -12,12 +11,17 @@ in
 {
   config = lib.mkIf config.programs.git.enable {
 
-    home.file."${shScript}".source = ./git.sh;
-    programs.bash.initExtra = "source ~/${shScript}";
-    programs.zsh.initContent = "source ~/${shScript}";
+    home.file = {
+      "${shScript}".source = ./git.sh;
+    };
+    programs.bash.initExtra = ''
+      source ~/${shScript}
+    '';
+    programs.zsh.initContent = ''
+      source ~/${shScript}
+    '';
 
     programs.fzf.enable = true;
-    programs.tmux.enable = true;
 
     programs.git = {
       includes = [

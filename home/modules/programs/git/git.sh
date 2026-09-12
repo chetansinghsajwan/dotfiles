@@ -1,45 +1,81 @@
-function g() {
-    __git_$1
+# Fuzzy git pickers built on the __fzf wrapper from the fzf module (always
+# available here since programs.git.enable forces programs.fzf.enable on).
+
+# fgl - fuzzy git log (commits)
+function fgl() {
+    # Tracks which preview (full diff vs stat) is active across ctrl-g presses;
+    # fzf has no native "toggle-preview-command" action, only change-preview.
+    local preview_state
+    preview_state=$(mktemp)
+    echo 0 > "$preview_state"
+
+    local preview0="git show --color=always {1}"
+    local preview1="git show --color=always --stat {1}"
+
+    local preview_toggle_bind="ctrl-g:transform:if [ \"\$(cat '$preview_state')\" = 0 ]; then printf 1 > '$preview_state'; echo 'change-preview($preview1)'; else printf 0 > '$preview_state'; echo 'change-preview($preview0)'; fi"
+
+    git log --oneline --color=always | __fzf \
+        --label "Git Commits" \
+        -- \
+        --ansi \
+        --preview "$preview0" \
+        --bind "$preview_toggle_bind"
+
+    rm -f "$preview_state"
 }
 
-# # fbr - checkout git branch
-# gbr() {
-#   local branches branch
-#   branches=$(git --no-pager branch -vv) &&
-#   branch=$(echo "$branches" | fzf +m) &&
-#   git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
-# }
-
-# # fbr - checkout git branch (including remote branches)
-__git_br() {
-  local branches branch
-  branches=$(git branch --all | grep -v HEAD) &&
-  branch=$(echo "$branches" |
-           fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+# fgb - fuzzy git branch
+function fgb() {
+    git branch --all --color=always | sed 's/^..//' | \
+        __fzf --label "Git Branches" -- \
+        --ansi \
+        --preview 'git log --oneline --color=always {1} | head -50'
 }
 
-# # fbr - checkout git branch (including remote branches), sorted by most recent commit, limit 30 last branches
-# gbr() {
-#   local branches branch
-#   branches=$(git for-each-ref --count=30 --sort=-committerdate refs/heads/ --format="%(refname:short)") &&
-#   branch=$(echo "$branches" |
-#            fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-#   git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
-# }
+# fgt - fuzzy git tag
+function fgt() {
+    git tag --color=always | \
+        __fzf --label "Git Tags" -- \
+        --ansi \
+        --preview 'git log --oneline --color=always {1} | head -50'
+}
 
-# fco_preview - checkout git branch/tag, with a preview showing the commits between the tag/branch and HEAD
-__git_co() {
-  local tags branches target
-  branches=$(
-    git --no-pager branch --all \
-      --format="%(if)%(HEAD)%(then)%(else)%(if:equals=HEAD)%(refname:strip=3)%(then)%(else)%1B[0;34;1mbranch%09%1B[m%(refname:short)%(end)%(end)" \
-    | sed '/^$/d') || return
-  tags=$(
-    git --no-pager tag | awk '{print "\x1b[35;1mtag\x1b[m\t" $1}') || return
-  target=$(
-    (echo "$branches"; echo "$tags") |
-    fzf --no-hscroll --no-multi -n 2 \
-        --ansi --preview="git --no-pager log -150 --pretty=format:%s '..{2}'") || return
-  git checkout $(awk '{print $2}' <<<"$target" )
+# fgs - fuzzy git stash
+function fgs() {
+    git stash list --color=always | __fzf \
+        --label "Git Stashes" \
+        -- \
+        --ansi \
+        --preview 's={1}; git stash show -p --color=always "${s%:}"'
+}
+
+# fgst - fuzzy git status
+function fgst() {
+    git -c color.status=always status --short | __fzf \
+        --label "Git Status" \
+        -- \
+        --ansi \
+        --preview 'git diff --color=always HEAD -- {2}'
+}
+
+# fglf - fuzzy git log for a chosen file
+function fglf() {
+    local file
+    file=$(rg --files | __fzf --label "Pick File" --no-multi)
+    [[ -z "$file" ]] && return
+
+    git log --oneline --color=always --follow -- "$file" | __fzf \
+        --label "Log: $file" \
+        -- \
+        --ansi \
+        --preview "git show --color=always {1} -- '$file'"
+}
+
+# fgr - fuzzy git reflog
+function fgr() {
+    git reflog --color=always | __fzf \
+        --label "Git Reflog" \
+        -- \
+        --ansi \
+        --preview 'git show --color=always {1}'
 }

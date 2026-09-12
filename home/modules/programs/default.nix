@@ -3,6 +3,7 @@
     ./vscode
     ./zed
     ./git
+    ./fzf
   ]
   ++ (localLib.importDir ./.);
 }
