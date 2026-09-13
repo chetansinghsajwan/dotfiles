@@ -11,20 +11,22 @@ let
     && config.dotfiles.desktop.hyprland.shell == "caelestia";
 in
 {
-  imports = lib.optionals enable [
+  imports = lib.optionals (caelestia-shell != null) [
     caelestia-shell.homeManagerModules.default
   ];
 
-  config = lib.optionalAttrs enable {
-    programs.caelestia = {
-      enable = true;
-      cli.enable = true;
-    };
+  config = lib.optionalAttrs (caelestia-shell != null) (
+    lib.mkIf enable {
+      programs.caelestia = {
+        enable = true;
+        cli.enable = true;
+      };
 
-    wayland.windowManager.hyprland = {
-      extraConfig = lib.mkAfter ''
-        hl.bind(mod .. " + SPACE", hl.dsp.global("caelestia:launcher"))
-      '';
-    };
-  };
+      wayland.windowManager.hyprland = {
+        extraConfig = lib.mkAfter ''
+          hl.bind(mod .. " + SPACE", hl.dsp.global("caelestia:launcher"))
+        '';
+      };
+    }
+  );
 }
