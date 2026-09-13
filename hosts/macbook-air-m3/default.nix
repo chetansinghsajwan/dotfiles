@@ -15,6 +15,7 @@ nix-darwin.lib.darwinSystem {
     {
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "bak";
+      home-manager.overwriteBackup = true;
       home-manager.extraSpecialArgs = {
         inherit nur localLib;
         isDarwin = true;
