@@ -1,31 +1,33 @@
-{ config
-, pkgs
-, lib
-, ...
+{
+  config,
+  pkgs,
+  lib,
+  ...
 }:
 let
   isWSL = config.dotfiles.system.isWsl;
-  shScript = ".config/git/git.sh";
-  localConfig = "~/.config/git/local-config";
 in
 {
   config = lib.mkIf config.programs.git.enable {
 
     home.file = {
-      "${shScript}".source = ./git.sh;
+      ".config/git/git.sh".source = ./git.sh;
+      ".config/git/git.zsh".source = ./git.zsh;
     };
     programs.bash.initExtra = ''
-      source ~/${shScript}
+      source ~/.config/git/git.sh
     '';
+    # git.zsh (ZLE widgets/bindkey) is zsh-only, so it isn't sourced into bash.
     programs.zsh.initContent = ''
-      source ~/${shScript}
+      source ~/.config/git/git.sh
+      source ~/.config/git/git.zsh
     '';
 
     programs.fzf.enable = true;
 
     programs.git = {
       includes = [
-        { path = localConfig; }
+        { path = "~/.config/git/local-config"; }
       ];
 
       lfs = {
