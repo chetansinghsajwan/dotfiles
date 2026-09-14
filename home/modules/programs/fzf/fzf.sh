@@ -53,8 +53,8 @@ function ff() {
     mode_state=$(mktemp)
     echo "$start_mode" > "$mode_state"
 
-    local files_cmd="rg --files"
-    local dirs_cmd="fd --type d"
+    local files_cmd="fd --type f --type l"
+    local dirs_cmd="fd --type d --type l"
     local file_preview="bat --color=always --line-range :50 --style=numbers {}"
     local dir_preview="eza -lah --color=always --icons=always --git {}"
     local preview_cmd="if [ \"\$(cat '$mode_state')\" = 1 ]; then $dir_preview; else $file_preview; fi"
