@@ -42,7 +42,14 @@ function __fzf() {
 # ff - fuzzy file search
 function ff() {
     local start_mode=0
-    [[ "$1" == "-d" || "$1" == "--dirs" ]] && start_mode=1
+    local search_dir="."
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -d|--dirs) start_mode=1; shift ;;
+            *) search_dir="$1"; shift ;;
+        esac
+    done
 
     # Tracks which search mode (files vs dirs) is active across ctrl-d presses;
     # fzf has no native "toggle-search-mode" action, so we reload the list and
@@ -53,10 +60,10 @@ function ff() {
     mode_state=$(mktemp)
     echo "$start_mode" > "$mode_state"
 
-    local files_cmd="fd --type f --type l"
-    local dirs_cmd="fd --type d --type l"
-    local file_preview="bat --color=always --line-range :50 --style=numbers {}"
-    local dir_preview="eza -lah --color=always --icons=always --git {}"
+    local files_cmd="fd --type f --type l --base-directory '$search_dir'"
+    local dirs_cmd="fd --type d --type l --base-directory '$search_dir'"
+    local file_preview="bat --color=always --line-range :50 --style=numbers '$search_dir'/{}"
+    local dir_preview="eza -lah --color=always --icons=always --git '$search_dir'/{}"
     local preview_cmd="if [ \"\$(cat '$mode_state')\" = 1 ]; then $dir_preview; else $file_preview; fi"
 
     local mode_toggle_bind="ctrl-d:transform:if [ \"\$(cat '$mode_state')\" = 0 ]; then printf 1 > '$mode_state'; echo 'reload($dirs_cmd)'; else printf 0 > '$mode_state'; echo 'reload($files_cmd)'; fi"
@@ -69,7 +76,7 @@ function ff() {
         -- \
         --preview "$preview_cmd" \
         --bind "$mode_toggle_bind" \
-        --bind "ctrl-e:become(\${EDITOR:-nvim} {})"
+        --bind "ctrl-e:become(\${EDITOR:-nvim} '$search_dir'/{})"
 
     rm -f "$mode_state"
 }
