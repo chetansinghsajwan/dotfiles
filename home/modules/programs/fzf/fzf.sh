@@ -120,5 +120,7 @@ function fh() {
     # recent run, not its first-ever one.
     sed -E 's/^: [0-9]+:[0-9]+;//' "$histfile" | tac | awk '!seen[$0]++' | __fzf \
         --label "History" \
-        --no-multi
+        --no-multi \
+        -- \
+        --scheme history
 }
