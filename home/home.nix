@@ -74,6 +74,7 @@ in
     git.enable = true;
     gitui.enable = true;
     gh.enable = true;
+    fd.enable = true;
     yt-dlp.enable = true;
     neovim.enable = true;
     btop.enable = true;

@@ -17,6 +17,7 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
   - [ ] File picker (ctrl+t) should ignore ignored files. Ex, gitignore
   - [ ] Hide preview when selecting history
   - [ ] Review other options
+  - [ ] ff doesn't show symlinks
 - [ ] Review bat
   - [ ] Review alternatives
   - [ ] Review configuration for syntax highlighting
@@ -30,12 +31,12 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 ## Machines
 
-| Flake output                                         | Host                     | System            |
-| ---------------------------------------------------- | ------------------------ | ----------------- |
-| `nixosConfigurations.nixos`                          | `hosts/workstation`      | `x86_64-linux`    |
-| `nixosConfigurations.wsl`                            | `hosts/wsl`              | `x86_64-linux`    |
-| `darwinConfigurations.macbook-air-m3`                | `hosts/macbook-air-m3`   | `aarch64-darwin`  |
-| `homeConfigurations.chetan`                          | standalone Home Manager  | `x86_64-linux`    |
+| Flake output                          | Host                    | System           |
+| ------------------------------------- | ----------------------- | ---------------- |
+| `nixosConfigurations.nixos`           | `hosts/workstation`     | `x86_64-linux`   |
+| `nixosConfigurations.wsl`             | `hosts/wsl`             | `x86_64-linux`   |
+| `darwinConfigurations.macbook-air-m3` | `hosts/macbook-air-m3`  | `aarch64-darwin` |
+| `homeConfigurations.chetan`           | standalone Home Manager | `x86_64-linux`   |
 
 ## Layout
 

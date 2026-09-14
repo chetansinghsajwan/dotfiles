@@ -1,6 +1,7 @@
 { config, lib, ... }: {
   config = lib.mkIf config.programs.fzf.enable {
     programs.bat.enable = true;
+    programs.fd.enable = true;
     programs.ripgrep.enable = true;
     programs.zellij.enable = true;
 

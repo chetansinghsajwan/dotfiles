@@ -1,7 +1,6 @@
-{
-  config,
-  localLib,
-  ...
+{ config
+, localLib
+, ...
 }:
 {
   imports = [
@@ -19,7 +18,7 @@
       format_on_save = "on";
       auto_update = false;
       confirm_quit = true;
-      tab_size = 4;
+      # tab_size = 4;
       remove_trailing_whitespace_on_save = true;
       ensure_final_newline_on_save = true;
       git.inline_blame.enabled = true;

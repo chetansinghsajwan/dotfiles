@@ -41,6 +41,9 @@ function __fzf() {
 
 # ff - fuzzy file search
 function ff() {
+    local start_mode=0
+    [[ "$1" == "-d" || "$1" == "--dirs" ]] && start_mode=1
+
     # Tracks which search mode (files vs dirs) is active across ctrl-d presses;
     # fzf has no native "toggle-search-mode" action, so we reload the list and
     # let a mode-aware --preview command pick the right previewer at render time.
@@ -48,17 +51,20 @@ function ff() {
     # against the stale pre-reload selection instead of the new item.)
     local mode_state
     mode_state=$(mktemp)
-    echo 0 > "$mode_state"
+    echo "$start_mode" > "$mode_state"
 
     local files_cmd="rg --files"
-    local dirs_cmd="find . -mindepth 1 -type d"
+    local dirs_cmd="fd --type d"
     local file_preview="bat --color=always --line-range :50 --style=numbers {}"
     local dir_preview="eza -lah --color=always --icons=always --git {}"
     local preview_cmd="if [ \"\$(cat '$mode_state')\" = 1 ]; then $dir_preview; else $file_preview; fi"
 
     local mode_toggle_bind="ctrl-d:transform:if [ \"\$(cat '$mode_state')\" = 0 ]; then printf 1 > '$mode_state'; echo 'reload($dirs_cmd)'; else printf 0 > '$mode_state'; echo 'reload($files_cmd)'; fi"
 
-    eval "$files_cmd" | __fzf \
+    local init_cmd="$files_cmd"
+    [[ "$start_mode" -eq 1 ]] && init_cmd="$dirs_cmd"
+
+    eval "$init_cmd" | __fzf \
         --label "Files" \
         -- \
         --preview "$preview_cmd" \
