@@ -1,9 +1,8 @@
-{
-  config,
-  pkgs,
-  nur,
-  lib,
-  ...
+{ config
+, pkgs
+, nur
+, lib
+, ...
 }:
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
@@ -77,7 +76,6 @@ in
     gh.enable = true;
     yt-dlp.enable = true;
     neovim.enable = true;
-    atuin.enable = true;
     btop.enable = true;
     eza.enable = true;
     fzf.enable = true;
@@ -85,7 +83,6 @@ in
     lazygit.enable = true;
     superfile.enable = true;
     yazi.enable = true;
-    zoxide.enable = true;
     direnv.enable = true;
   };
 
