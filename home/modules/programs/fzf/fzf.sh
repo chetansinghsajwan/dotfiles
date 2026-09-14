@@ -81,6 +81,36 @@ function ff() {
     rm -f "$mode_state"
 }
 
+# fs - fuzzy text search (live ripgrep across file contents)
+function fs() {
+    local search_dir="."
+    [[ -n "$1" ]] && search_dir="$1"
+
+    # "." would make rg print a "./" prefix on every path (same issue ff hit
+    # with find/fd), so only pass a path arg when searching outside pwd.
+    local rg_cmd="rg --column --line-number --no-heading --color=always --smart-case --"
+    if [[ "$search_dir" != "." ]]; then
+        rg_cmd="$rg_cmd {q} '$search_dir'"
+    else
+        rg_cmd="$rg_cmd {q}"
+    fi
+
+    # --disabled hands filtering to rg (reloaded on every keystroke) instead
+    # of fzf's own fuzzy matcher, since rg is doing real regex search here.
+    : | __fzf \
+        --label "Text Search" \
+        --no-multi \
+        -- \
+        --ansi \
+        --disabled \
+        --delimiter : \
+        --bind "start:reload:$rg_cmd" \
+        --bind "change:reload:sleep 0.1; $rg_cmd || true" \
+        --preview 'bat --color=always --highlight-line {2} {1}' \
+        --preview-window 'right:60%:noborder:+{2}-5' \
+        --bind "ctrl-e:become(\${EDITOR:-nvim} +{2} {1})"
+}
+
 # fp - fuzzy process search
 function fp() {
     ps -eo pid,ppid,user,pcpu,pmem,etime,comm --sort=-pcpu | __fzf \

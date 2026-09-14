@@ -45,6 +45,7 @@ __fzf_menu_dispatch() {
         "fgst  git status"
         "fglf  git log (file)"
         "fgr   git reflog"
+        "fs    text search"
         "fp    process"
         "fe    env"
         "fssh  ssh host"
@@ -67,6 +68,7 @@ __fzf_menu_dispatch() {
         fgst\ *) fgst ;;
         fglf\ *) fglf ;;
         fgr\ *)  fgr ;;
+        fs\ *)   fs ;;
         fp\ *)   fp ;;
         fe\ *)   fe ;;
         fssh\ *) fssh ;;
