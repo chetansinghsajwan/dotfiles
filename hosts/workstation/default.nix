@@ -26,9 +26,9 @@ nixpkgs.lib.nixosSystem {
       imports = [
         ../../config
         ../shared.nix
-        ./hardware-configuration.nix
-        ./kanata.nix
         ./system.nix
+        ./hardware.nix
+        ../kanata
       ];
     }
 

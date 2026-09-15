@@ -9,7 +9,7 @@
 nix-darwin.lib.darwinSystem {
   system = "aarch64-darwin";
   modules = [
-    ./configuration.nix
+    ./system.nix
 
     home-manager.darwinModules.home-manager
     {
