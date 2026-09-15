@@ -5,15 +5,10 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 ## TODO
 
-- [ ] Refactor hosts
 - [ ] Redesign kanata
-- [ ] Disable vscode settings sync
 - [ ] Add display manager for hyprland
 - [ ] Configure hyprland caelestia
   - [ ] Setup dynamic theme from wallpaper
-- [ ] Write fzf functions for:
-  - [ ] manual
-  - [ ] journal
 - [ ] Configure lazygit (checked for alternatives, no other good)
 
 ## Machines
