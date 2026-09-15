@@ -59,7 +59,6 @@ in
   };
 
   dotfiles.programs = {
-    tldr.enable = true;
     docker.enable = true;
     batman.enable = true;
   };
@@ -87,6 +86,7 @@ in
     superfile.enable = true;
     yazi.enable = true;
     direnv.enable = true;
+    tealdeer.enable = true;
   };
 
   xdg = {
