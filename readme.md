@@ -7,8 +7,6 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 - [ ] Redesign kanata
 - [ ] Add display manager for hyprland
-- [ ] Configure hyprland caelestia
-  - [ ] Setup dynamic theme from wallpaper
 - [ ] Configure lazygit (checked for alternatives, no other good)
 
 ## Machines
