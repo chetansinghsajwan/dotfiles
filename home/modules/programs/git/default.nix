@@ -1,8 +1,7 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
+{ config
+, pkgs
+, lib
+, ...
 }:
 let
   isWSL = config.dotfiles.system.isWsl;
@@ -172,14 +171,6 @@ in
       };
     };
 
-    programs.delta = {
-      enable = true;
-      enableGitIntegration = true;
-      options = {
-        navigate = true;
-      };
-    };
-
     home = {
       packages = with pkgs; [
         git-credential-manager
@@ -188,10 +179,14 @@ in
       shellAliases.gcm = "git-credential-manager";
     };
 
-    programs.gpg.enable = isWSL;
-    programs.password-store = {
-      enable = isWSL;
-      settings = { };
+    programs = {
+      delta.enable = true;
+      gpg.enable = isWSL;
+
+      password-store = {
+        enable = isWSL;
+        settings = { };
+      };
     };
 
     services.gpg-agent = lib.mkIf isWSL {
