@@ -62,7 +62,7 @@
       localLib = import ./lib { inherit (nixpkgs) lib; };
     in
     {
-      nixosConfigurations.nixos = import ./hosts/workstation {
+      nixosConfigurations.nixos = import ./hosts/nixos {
         inherit
           nixpkgs
           nur

@@ -92,7 +92,7 @@ in
   };
 
   # Desktop-independent kdeconnect: works the same whether GNOME or Hyprland
-  # is running. GNOME additionally gets GSConnect — see hosts/workstation/system.nix.
+  # is running.
   services.kdeconnect = {
     enable = true;
     indicator = true;

@@ -1,7 +1,6 @@
 {
-  # i18n.defaultLocale isn't a declared option under nix-darwin, so this
-  # file is only ever imported by Linux hosts directly — see hosts/shared.nix
-  # for why it can't live there (even gated), unlike time.timeZone.
+  time.timeZone = "Asia/Kolkata";
+
   i18n.defaultLocale = "en_IN";
 
   i18n.extraLocaleSettings = {

@@ -20,7 +20,7 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 | Flake output                          | Host                    | System           |
 | ------------------------------------- | ----------------------- | ---------------- |
-| `nixosConfigurations.nixos`           | `hosts/workstation`     | `x86_64-linux`   |
+| `nixosConfigurations.nixos`           | `hosts/nixos`           | `x86_64-linux`   |
 | `nixosConfigurations.wsl`             | `hosts/wsl`             | `x86_64-linux`   |
 | `darwinConfigurations.macbook-air-m3` | `hosts/macbook-air-m3`  | `aarch64-darwin` |
 | `homeConfigurations.chetan`           | standalone Home Manager | `x86_64-linux`   |
@@ -33,7 +33,7 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 ├── config/                shared `dotfiles.*` options (user, theme, fonts, features)
 ├── hosts/
 │   ├── shared.nix          settings common to all NixOS/darwin hosts
-│   ├── workstation/        NixOS desktop (Hyprland, kanata keyboard remapping)
+│   ├── nixos/              NixOS desktop (Hyprland, kanata keyboard remapping)
 │   ├── wsl/                NixOS on WSL
 │   └── macbook-air-m3/     nix-darwin
 ├── home/
@@ -51,7 +51,7 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 Apply a configuration on the machine it targets:
 
 ```sh
-# NixOS (workstation)
+# NixOS (nixos)
 sudo nixos-rebuild switch --flake .#nixos
 
 # NixOS (WSL)

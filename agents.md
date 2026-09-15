@@ -7,7 +7,7 @@ Guidance for AI coding agents working in this repository.
 A personal, multi-host Nix flake configuration covering NixOS, nix-darwin, and
 standalone Home Manager. It configures three machines:
 
-- `hosts/workstation` — NixOS desktop
+- `hosts/nixos` — NixOS desktop
 - `hosts/wsl` — NixOS on WSL
 - `hosts/macbook-air-m3` — nix-darwin
 - `homeConfigurations."chetan"` — standalone Home Manager (any Linux machine)
@@ -57,7 +57,7 @@ nix develop                     # drops into a shell with nixfmt, statix, deadni
 To evaluate/build a specific host without switching:
 
 ```sh
-nix build .#nixosConfigurations.workstation.config.system.build.toplevel
+nix build .#nixosConfigurations.nixos.config.system.build.toplevel
 nix build .#nixosConfigurations.wsl.config.system.build.toplevel
 nix build .#darwinConfigurations.macbook-air-m3.system
 nix build .#homeConfigurations.chetan.activationPackage

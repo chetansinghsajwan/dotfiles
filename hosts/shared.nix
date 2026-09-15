@@ -41,5 +41,7 @@ in
   nix.optimise.automatic = isLinux;
   nixpkgs.config.allowUnfree = true;
 
-  time.timeZone = lib.mkIf isLinux "Asia/Kolkata";
+  networking = lib.optionalAttrs isLinux {
+    firewall.enable = true;
+  };
 }

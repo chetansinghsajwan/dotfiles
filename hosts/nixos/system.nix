@@ -83,7 +83,5 @@ in
     options snd-intel-dspcfg dsp_driver=1
   '';
 
-  networking.firewall.enable = false;
-
   system.stateVersion = "23.05";
 }
