@@ -26,10 +26,15 @@ function fgl() {
 
 # fgb - fuzzy git branch
 function fgb() {
-    git branch --all --color=always | sed 's/^..//' | \
+    # Branch name yellow, relative commit date green, subject blue - git's
+    # own --color=always default for `git branch` barely colors anything, so
+    # this uses an explicit --format instead (same scheme as junegunn/fzf-git.sh).
+    git branch --all --color=always \
+        --format=$'%(HEAD) %(color:yellow)%(refname:short) %(color:green)(%(committerdate:relative))\t%(color:blue)%(subject)%(color:reset)' | \
+        column -t -s $'\t' | \
         __fzf --label "Git Branches" -- \
         --ansi \
-        --preview 'git log --oneline --color=always {1} | head -50'
+        --preview "git log --oneline --color=always \$(cut -c3- <<< {} | cut -d' ' -f1) | head -50"
 }
 
 # fgt - fuzzy git tag

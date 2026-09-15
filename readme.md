@@ -15,9 +15,6 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 - [ ] Write fzf functions for:
   - [ ] manual
   - [ ] journal
-  - [ ] clipboard
-  - [ ] emoji?
-  - [ ] Checkout fzf git for syntax highlighting
 - [ ] Configure lazygit (checked for alternatives, no other good)
 
 ## Machines
