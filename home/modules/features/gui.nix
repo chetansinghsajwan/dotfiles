@@ -5,7 +5,7 @@
   ...
 }:
 let
-  isLinux = pkgs.stdenv.hostPlatform.isLinux;
+  isLinux = config.dotfiles.system.isLinux;
   enableGui = config.dotfiles.features.gui;
 in
 {

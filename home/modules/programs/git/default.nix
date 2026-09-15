@@ -48,7 +48,7 @@ in
         credential = {
           helper = "${pkgs.git-credential-manager}/bin/git-credential-manager";
           credentialStore =
-            if pkgs.stdenv.hostPlatform.isDarwin then
+            if config.dotfiles.system.isDarwin then
               "keychain"
             else if config.dotfiles.desktop.gnome.enable then
               "secretservice"

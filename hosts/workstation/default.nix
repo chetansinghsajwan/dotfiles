@@ -47,6 +47,7 @@ nixpkgs.lib.nixosSystem {
           dotfiles.features.gui = lib.mkForce true;
           dotfiles.desktop.hyprland.enable = lib.mkForce true;
           dotfiles.theme.fonts.rawFontScale = 1.33;
+          dotfiles.system.isLinux = lib.mkForce true;
         }
 
         ../../home/home.nix

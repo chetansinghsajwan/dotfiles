@@ -103,6 +103,7 @@
         modules = [
           ./home/home.nix
           stylix.homeModules.stylix
+          { dotfiles.system.isLinux = true; }
         ];
 
         extraSpecialArgs = {

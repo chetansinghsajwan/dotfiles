@@ -5,8 +5,8 @@
 , ...
 }:
 let
-  isLinux = pkgs.stdenv.hostPlatform.isLinux;
-  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+  isLinux = config.dotfiles.system.isLinux;
+  isDarwin = config.dotfiles.system.isDarwin;
 in
 {
   programs.home-manager.enable = true;
