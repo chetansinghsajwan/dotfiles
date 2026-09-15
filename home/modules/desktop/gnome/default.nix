@@ -57,21 +57,16 @@ in
       gnome-boxes
       # gnome-extension-manager
 
-      gnomeExtensions.gsconnect
       gnomeExtensions.blur-my-shell
       gnomeExtensions.user-themes
       gnomeExtensions.vitals
       gnomeExtensions.fuzzy-app-search
-
-      # for gsconnect
-      openssl
     ];
 
     dconf.settings."org/gnome" = {
       "shell/favorite-apps" = [ ];
       "shell/disable-user-extensions" = false;
       "shell/enabled-extensions" = [
-        "gsconnect@andyholmes.github.io"
         "blur-my-shell@aunetx"
         "user-theme@gnome-shell-extensions.gcampax.github.com"
         "Vitals@CoreCoding.com"

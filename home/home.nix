@@ -91,6 +91,13 @@ in
     tealdeer.enable = true;
   };
 
+  # Desktop-independent kdeconnect: works the same whether GNOME or Hyprland
+  # is running. GNOME additionally gets GSConnect — see hosts/workstation/system.nix.
+  services.kdeconnect = {
+    enable = true;
+    indicator = true;
+  };
+
   xdg = {
     enable = true;
   }

@@ -1,7 +1,9 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   enableGdm = config.dotfiles.system.displayManager == "gdm";
   enableSddm = config.dotfiles.system.displayManager == "sddm";
+  enableHyprland = config.dotfiles.desktop.hyprland.enable;
+  enableGnome = config.dotfiles.desktop.gnome.enable;
 in
 {
   imports = [
@@ -18,8 +20,6 @@ in
     system.isLinux = true;
     programs.docker.enable = true;
   };
-
-  programs.hyprland.enable = config.dotfiles.desktop.hyprland.enable;
 
   boot.loader = {
     systemd-boot.enable = true;
@@ -52,10 +52,14 @@ in
     };
   };
 
+  # Hyprland
+  programs.hyprland.enable = enableHyprland;
+
+  # Gnome
+  services.desktopManager.gnome.enable = enableGnome;
+
   # GDM
   services.displayManager.gdm.enable = enableGdm;
-  services.desktopManager.gnome.enable = enableGdm;
-  services.gnome.core-apps.enable = false;
 
   # SDDM
   services.displayManager.sddm.enable = enableSddm;
@@ -81,11 +85,6 @@ in
   boot.extraModprobeConfig = ''
     options snd-intel-dspcfg dsp_driver=1
   '';
-
-  programs.kdeconnect = {
-    enable = true;
-    package = pkgs.gnomeExtensions.gsconnect;
-  };
 
   networking.firewall.enable = false;
 
