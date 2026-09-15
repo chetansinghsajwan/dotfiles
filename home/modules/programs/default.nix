@@ -4,6 +4,7 @@
     ./zed
     ./git
     ./fzf
+    ./docker
   ]
   ++ (localLib.importDir ./.);
 }

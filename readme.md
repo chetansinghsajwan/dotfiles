@@ -12,13 +12,19 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 - [ ] Add display manager for hyprland
 - [ ] Configure hyprland caelestia
   - [ ] Setup dynamic theme from wallpaper
+- [ ] Write fzf functions for:
+  - [ ] manual
+  - [ ] journal
+  - [ ] nixpkgs
+  - [ ] clipboard
+  - [ ] emoji?
+  - [ ] Checkout fzf git for syntax highlighting
 - [ ] Review bat
   - [ ] Review alternatives
   - [ ] Review configuration for syntax highlighting
 - [ ] Review delta
   - [ ] Review alternatives
   - [ ] Review configuration for syntax highlighting
-- [ ] Look for cd alternatives
 - [ ] Checkout tools for manual
 - [ ] Configure lazygit (checked for alternatives, no other good)
 

@@ -60,6 +60,7 @@ in
 
   dotfiles.programs = {
     tldr.enable = true;
+    docker.enable = true;
   };
 
   programs = {

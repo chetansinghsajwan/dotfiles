@@ -33,9 +33,6 @@ bindkey '\ec' fzf-cd-widget
 
 # Everything else lives behind one menu instead of claiming more ctrl-key
 # slots — pick the picker, then its result is inserted like the above.
-# Entries are only offered if their function is actually defined, since the
-# git-specific pickers (fgl, fgb, ...) live in the git module and are only
-# sourced when programs.git.enable is on.
 __fzf_menu_dispatch() {
     local -a items=(
         "fgl   git log/commits"
