@@ -5,6 +5,7 @@
     ./git
     ./fzf
     ./docker
+    ./nixpkgs
   ]
   ++ (localLib.importDir ./.);
 }

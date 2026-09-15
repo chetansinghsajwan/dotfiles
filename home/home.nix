@@ -61,6 +61,7 @@ in
   dotfiles.programs = {
     docker.enable = true;
     batman.enable = true;
+    nixpkgs.enable = true;
   };
 
   programs = {
