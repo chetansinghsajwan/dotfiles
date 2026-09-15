@@ -8,6 +8,8 @@ let
   theme = config.dotfiles.theme;
   rawFontScale = theme.fonts.rawFontScale;
   isLinux = config.dotfiles.system.isLinux;
+  enableGui = config.dotfiles.features.gui;
+  enableGnome = config.dotfiles.desktop.gnome.enable;
 in
 {
   fonts.fontconfig.enable = true;
@@ -42,6 +44,14 @@ in
     opacity.terminal = 0.95;
 
     targets = {
+      # These write settings via dconf, which requires a running GNOME/GTK
+      # session bus. Only enable them when a GUI is actually in use, or
+      # activation fails on headless setups (e.g. WSL) with a dbus error.
+      gtk.enable = enableGui;
+      gnome.enable = enableGnome;
+      gnome-text-editor.enable = enableGnome;
+      eog.enable = enableGnome;
+
       ghostty = {
         fonts.override = {
           sizes = {
