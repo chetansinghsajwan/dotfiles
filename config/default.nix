@@ -62,9 +62,15 @@ in
         default = "ayu-dark";
       };
 
+      wallpapersDir = mkOption {
+        type = types.str;
+        default = "${wallpapers}";
+        description = "Directory containing all available wallpapers.";
+      };
+
       wallpaper = mkOption {
         type = types.str;
-        default = "${wallpapers}/white-fox.png";
+        default = "${config.dotfiles.theme.wallpapersDir}/white-fox.png";
       };
 
       cursor = {

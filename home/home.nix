@@ -58,6 +58,15 @@ in
       ];
   };
 
+  # Populate the XDG wallpapers dir with the wallpaper pool, as plain
+  # writable copies so the user can freely add/remove more.
+  home.activation.populateWallpapers = lib.mkIf isLinux (
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      run mkdir -p ${config.xdg.userDirs.extraConfig.WALLPAPERS}
+      run cp -rf ${config.dotfiles.theme.wallpapersDir}/. ${config.xdg.userDirs.extraConfig.WALLPAPERS}/
+    ''
+  );
+
   dotfiles.programs = {
     docker.enable = true;
     batman.enable = true;
@@ -117,6 +126,7 @@ in
         publicShare = "${homeDir}/public";
         templates = "${homeDir}/templates";
         videos = "${homeDir}/videos";
+        extraConfig.WALLPAPERS = "${homeDir}/pictures/wallpapers";
         setSessionVariables = false;
       };
 

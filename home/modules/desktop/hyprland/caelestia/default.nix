@@ -22,7 +22,7 @@ in
         enable = true;
         cli.enable = true;
         settings = {
-          paths.wallpaperDir = "${config.xdg.userDirs.pictures}/wallpapers";
+          paths.wallpaperDir = config.xdg.userDirs.extraConfig.WALLPAPERS;
         };
       };
 
