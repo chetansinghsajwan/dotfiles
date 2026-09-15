@@ -61,6 +61,7 @@ in
   dotfiles.programs = {
     tldr.enable = true;
     docker.enable = true;
+    batman.enable = true;
   };
 
   programs = {
