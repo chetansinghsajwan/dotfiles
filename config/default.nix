@@ -243,5 +243,15 @@ in
         default = "ghostty";
       };
     };
+
+    programs = {
+      docker = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether Docker is enabled — both the system service and home-manager shell integration.";
+        };
+      };
+    };
   };
 }

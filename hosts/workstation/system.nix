@@ -16,6 +16,7 @@ in
     desktop.hyprland.enable = true;
     system.displayManager = "gdm";
     system.isLinux = true;
+    programs.docker.enable = true;
   };
 
   programs.hyprland.enable = config.dotfiles.desktop.hyprland.enable;
@@ -44,7 +45,7 @@ in
   networking.networkmanager.enable = true;
 
   virtualisation.docker = {
-    enable = true;
+    enable = config.dotfiles.programs.docker.enable;
     rootless = {
       enable = true;
       setSocketVariable = true;
