@@ -33,6 +33,7 @@ nixpkgs.lib.nixosSystem {
         ../../home/home.nix
         stylix.homeModules.stylix
         # ../../home/modules/programs/nbfc.nix
+        ../../local.nix
       ];
     })
   ];

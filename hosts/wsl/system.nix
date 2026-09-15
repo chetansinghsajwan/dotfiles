@@ -4,6 +4,7 @@
     ../../config
     ../shared.nix
     ../locale.nix
+    ../../local.nix
   ];
 
   dotfiles = {

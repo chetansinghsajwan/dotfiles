@@ -104,6 +104,7 @@
           ./home/home.nix
           stylix.homeModules.stylix
           { dotfiles.system.isLinux = true; }
+          ./local.nix
         ];
 
         extraSpecialArgs = {

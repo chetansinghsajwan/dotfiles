@@ -33,6 +33,8 @@ nixpkgs.lib.nixosSystem {
           dotfiles.system.isWsl = lib.mkForce true;
           dotfiles.system.isLinux = lib.mkForce true;
         }
+
+        ../../local.nix
       ];
     })
   ];
