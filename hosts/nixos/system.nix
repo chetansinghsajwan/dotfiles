@@ -69,6 +69,8 @@ in
 
     printing.enable = true;
 
+    upower.enable = true;
+
     pulseaudio.enable = false;
     pipewire = {
       enable = true;
