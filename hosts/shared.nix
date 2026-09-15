@@ -5,42 +5,41 @@
   ...
 }:
 let
-  isLinux = config.dotfiles.system.isLinux;
-  isDarwin = config.dotfiles.system.isDarwin;
+  cfg = config.dotfiles;
+  isLinux = cfg.system.isLinux;
+  isDarwin = cfg.system.isDarwin;
 in
 {
-  users.users.${config.dotfiles.user.username} = {
+  users.users.${cfg.user.username} = {
     home =
       if isDarwin then
-        "/Users/${config.dotfiles.user.homeDir}"
+        "/Users/${cfg.user.homeDir}"
       else
-        "/home/${config.dotfiles.user.homeDir}";
+        "/home/${cfg.user.homeDir}";
 
-    shell = pkgs.${config.dotfiles.shell.program};
+    shell = pkgs.${cfg.shell.program};
   }
   // lib.optionalAttrs isLinux {
     isNormalUser = true;
-    extraGroups = config.dotfiles.system.extraGroups;
+    extraGroups = cfg.system.extraGroups;
   };
 
   programs = {
-    ${config.dotfiles.shell.program}.enable = true;
+    ${cfg.shell.program}.enable = true;
   }
-  // (
-    if isLinux then
-      {
-        nix-ld.enable = true;
-      }
-    else
-      { }
-  );
+  // lib.optionalAttrs isLinux {
+    nix-ld.enable = true;
+  };
 
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
   ];
 
+  # nix-darwin manages the Nix install itself, so leave nix.* unmanaged there.
   nix.enable = isLinux;
   nix.optimise.automatic = isLinux;
   nixpkgs.config.allowUnfree = true;
+
+  time.timeZone = lib.mkIf isLinux "Asia/Kolkata";
 }

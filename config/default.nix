@@ -179,7 +179,7 @@ in
     system = {
       extraGroups = mkOption {
         type = types.listOf types.str;
-        default = [ ];
+        default = [ "wheel" ];
         description = "Extra groups for the system user, set per-host.";
       };
 

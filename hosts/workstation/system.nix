@@ -4,12 +4,26 @@ let
   enableSddm = config.dotfiles.system.displayManager == "sddm";
 in
 {
-  programs.hyprland.enable = true;
+  imports = [
+    ../../config
+    ../shared.nix
+    ../locale.nix
+    ../kanata
+    ./hardware.nix
+  ];
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  dotfiles = {
+    desktop.hyprland.enable = true;
+    system.displayManager = "gdm";
+    system.isLinux = true;
+  };
 
-  services.flatpak.enable = true;
+  programs.hyprland.enable = config.dotfiles.desktop.hyprland.enable;
+
+  boot.loader = {
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
+  };
 
   boot.kernelModules = [ "uinput" ];
   hardware.uinput.enable = true;
@@ -29,20 +43,6 @@ in
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
-  time.timeZone = "Asia/Kolkata";
-  i18n.defaultLocale = "en_IN";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_IN";
-    LC_IDENTIFICATION = "en_IN";
-    LC_MEASUREMENT = "en_IN";
-    LC_MONETARY = "en_IN";
-    LC_NAME = "en_IN";
-    LC_NUMERIC = "en_IN";
-    LC_PAPER = "en_IN";
-    LC_TELEPHONE = "en_IN";
-    LC_TIME = "en_IN";
-  };
-
   virtualisation.docker = {
     enable = true;
     rootless = {
@@ -50,8 +50,6 @@ in
       setSocketVariable = true;
     };
   };
-
-  services.xserver.enable = true;
 
   # GDM
   services.displayManager.gdm.enable = enableGdm;
@@ -62,6 +60,7 @@ in
   services.displayManager.sddm.enable = enableSddm;
   services.displayManager.sddm.wayland.enable = enableSddm;
 
+  services.xserver.enable = true;
   services.xserver.xkb = {
     layout = "us";
     variant = "";

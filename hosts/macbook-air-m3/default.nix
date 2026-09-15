@@ -12,16 +12,12 @@ nix-darwin.lib.darwinSystem {
     ./system.nix
 
     home-manager.darwinModules.home-manager
-    {
-      home-manager.useUserPackages = true;
-      home-manager.backupFileExtension = "bak";
-      home-manager.overwriteBackup = true;
-      home-manager.extraSpecialArgs = {
+    (localLib.mkHomeManagerModule {
+      username = "kyutoo";
+      extraSpecialArgs = {
         inherit nur localLib;
-        isDarwin = true;
       };
-
-      home-manager.users.kyutoo.imports = [
+      imports = [
         ../../home/home.nix
         stylix.homeModules.stylix
 
@@ -32,6 +28,6 @@ nix-darwin.lib.darwinSystem {
           dotfiles.system.isDarwin = true;
         }
       ];
-    }
+    })
   ];
 }

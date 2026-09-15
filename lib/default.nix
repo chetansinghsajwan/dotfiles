@@ -1,5 +1,21 @@
 { lib }:
 {
+  # Shared home-manager wiring for a host's default.nix — keeps
+  # useUserPackages/backupFileExtension/etc. from drifting between hosts.
+  mkHomeManagerModule =
+    {
+      username,
+      imports,
+      extraSpecialArgs ? { },
+    }:
+    {
+      home-manager.useUserPackages = true;
+      home-manager.backupFileExtension = "bak";
+      home-manager.overwriteBackup = true;
+      home-manager.extraSpecialArgs = extraSpecialArgs;
+      home-manager.users.${username}.imports = imports;
+    };
+
   mkToggleModule = config: name: body: {
     options.dotfiles.programs.${name}.enable = lib.mkOption {
       type = lib.types.bool;

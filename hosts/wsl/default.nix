@@ -17,17 +17,13 @@ nixpkgs.lib.nixosSystem {
     ./system.nix
 
     home-manager.nixosModules.home-manager
-    {
-      home-manager.useUserPackages = true;
-      home-manager.backupFileExtension = "bak";
-      home-manager.overwriteBackup = true;
-      home-manager.extraSpecialArgs = {
+    (localLib.mkHomeManagerModule {
+      username = "chetansinghsajwan";
+      extraSpecialArgs = {
         inherit nur localLib;
       };
-
-      home-manager.users.chetansinghsajwan.imports = [
+      imports = [
         ../../home/home.nix
-        ../../config
         stylix.homeModules.stylix
 
         {
@@ -38,6 +34,6 @@ nixpkgs.lib.nixosSystem {
           dotfiles.system.isLinux = lib.mkForce true;
         }
       ];
-    }
+    })
   ];
 }

@@ -13,35 +13,15 @@ in
 nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   modules = [
-    {
-      dotfiles.desktop.hyprland.enable = true;
-      dotfiles.system.displayManager = "gdm";
-      dotfiles.system.extraGroups = [
-        "wheel"
-      ];
-      dotfiles.system.isLinux = true;
-    }
-
-    {
-      imports = [
-        ../../config
-        ../shared.nix
-        ./system.nix
-        ./hardware.nix
-        ../kanata
-      ];
-    }
+    ./system.nix
 
     home-manager.nixosModules.home-manager
-    {
-      home-manager.useUserPackages = true;
-      home-manager.backupFileExtension = "bak";
-      home-manager.overwriteBackup = true;
-      home-manager.extraSpecialArgs = {
+    (localLib.mkHomeManagerModule {
+      username = "chetansinghsajwan";
+      extraSpecialArgs = {
         inherit nur localLib caelestia-shell;
       };
-
-      home-manager.users.chetansinghsajwan.imports = [
+      imports = [
         {
           dotfiles.features.dev = lib.mkForce true;
           dotfiles.features.gui = lib.mkForce true;
@@ -54,6 +34,6 @@ nixpkgs.lib.nixosSystem {
         stylix.homeModules.stylix
         # ../../home/modules/programs/nbfc.nix
       ];
-    }
+    })
   ];
 }
