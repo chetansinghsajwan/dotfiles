@@ -27,6 +27,8 @@ nix-darwin.lib.darwinSystem {
           dotfiles.theme.fonts.rawFontScale = 1.0;
           dotfiles.system.isDarwin = true;
         }
+
+        ../../local.nix
       ];
     })
   ];

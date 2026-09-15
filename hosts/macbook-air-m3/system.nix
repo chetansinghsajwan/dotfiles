@@ -3,6 +3,7 @@
   imports = [
     ../../config
     ../shared.nix
+    ../../local.nix
   ];
 
   dotfiles.user.username = "kyutoo";

@@ -12,6 +12,7 @@ in
     ../locale.nix
     ../kanata
     ./hardware.nix
+    ../../local.nix
   ];
 
   dotfiles = {
