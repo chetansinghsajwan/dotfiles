@@ -1,9 +1,8 @@
-{
-  config,
-  pkgs,
-  lib,
-  localLib,
-  ...
+{ config
+, pkgs
+, lib
+, localLib
+, ...
 }:
 localLib.mkToggleModule config "clipboard" {
   home.file = {
@@ -34,8 +33,12 @@ localLib.mkToggleModule config "clipboard" {
   # cliphist only has history to browse once something is actually watching
   # the clipboard and storing it; that requires a running Wayland session,
   # so this is wired into Hyprland's startup rather than run unconditionally.
-  wayland.windowManager.hyprland.settings.exec-once = lib.mkIf config.dotfiles.desktop.hyprland.enable [
-    "wl-paste --type text --watch cliphist store"
-    "wl-paste --type image --watch cliphist store"
-  ];
+  wayland.windowManager.hyprland.extraConfig = lib.mkIf config.dotfiles.desktop.hyprland.enable (
+    lib.mkAfter ''
+      hl.on("hyprland.start", function()
+        hl.exec_cmd("wl-paste --type text --watch cliphist store")
+        hl.exec_cmd("wl-paste --type image --watch cliphist store")
+      end)
+    ''
+  );
 }

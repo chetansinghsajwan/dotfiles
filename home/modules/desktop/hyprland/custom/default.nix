@@ -1,8 +1,7 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
+{ config
+, pkgs
+, lib
+, ...
 }:
 let
   enable =
@@ -35,10 +34,6 @@ in
 
     wayland.windowManager.hyprland = {
       settings = {
-        exec-once = [
-          "waybar"
-          "hypridle"
-        ];
         config = {
           animations = {
             enabled = true;
@@ -53,6 +48,13 @@ in
           };
         };
       };
+
+      extraConfig = lib.mkAfter ''
+        hl.on("hyprland.start", function()
+          hl.exec_cmd("waybar")
+          hl.exec_cmd("hypridle")
+        end)
+      '';
     };
   };
 }
