@@ -55,32 +55,29 @@ in
   # Hyprland
   programs.hyprland.enable = enableHyprland;
 
-  # Gnome
-  services.desktopManager.gnome.enable = enableGnome;
+  services = {
+    # Gnome
+    desktopManager.gnome.enable = enableGnome;
 
-  # GDM
-  services.displayManager.gdm.enable = enableGdm;
+    # GDM
+    displayManager.gdm.enable = enableGdm;
 
-  # SDDM
-  services.displayManager.sddm.enable = enableSddm;
-  services.displayManager.sddm.wayland.enable = enableSddm;
+    # SDDM
+    displayManager.sddm.enable = enableSddm;
+    displayManager.sddm.wayland.enable = enableSddm;
 
-  services.xserver.enable = true;
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
+    printing.enable = true;
+
+    pulseaudio.enable = false;
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+    };
   };
 
-  services.printing.enable = true;
-
-  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
 
   boot.extraModprobeConfig = ''
     options snd-intel-dspcfg dsp_driver=1
