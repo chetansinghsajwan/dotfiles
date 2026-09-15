@@ -62,6 +62,7 @@ in
     docker.enable = true;
     batman.enable = true;
     nixpkgs.enable = true;
+    clipboard.enable = true;
   };
 
   programs = {

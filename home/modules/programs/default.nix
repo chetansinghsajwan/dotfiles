@@ -6,6 +6,7 @@
     ./fzf
     ./docker
     ./nixpkgs
+    ./clipboard
   ]
   ++ (localLib.importDir ./.);
 }
