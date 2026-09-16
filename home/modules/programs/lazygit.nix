@@ -3,6 +3,8 @@ _: {
   programs.lazygit = {
     settings = {
       git = {
+        autoFetch = true;
+
         diffRenderers = [
           {
             # lazygit renders diffs inside its own scrollable panel, so
@@ -16,7 +18,23 @@ _: {
         ];
       };
 
+      os = {
+        copyToClipboardCmd = "wl-copy {{text}}";
+      };
+
       gui = {
+        nerdFontsVersion = "3";
+
+        # Default (2) barely moves the diff per press. lazygit binds
+        # Shift+J/K, Ctrl+u/d, and PgUp/PgDn to the same scroll-main handler
+        # with no way to give them different amounts, so this raises the
+        # shared scroll distance for all of them at once.
+        scrollHeight = 8;
+
+        sidePanelWidth = 0.3;
+        shrinkSidePanelsToContent = false;
+        filterMode = "fuzzy";
+
         # Group panels into tabs (cycle with [ / ]), and let the number jump
         # keys (1-5) cycle through tabs directly, gitui-style, instead of
         # just re-focusing an already-active panel.
@@ -24,8 +42,7 @@ _: {
           [ "status" ]
           [ "files" "worktrees" "submodules" ]
           [ "branches" "remotes" "tags" ]
-          [ "commits" "reflog" ]
-          [ "stash" ]
+          [ "commits" "reflog" "stash" ]
         ];
         switchTabsWithPanelJumpKeys = true;
       };
