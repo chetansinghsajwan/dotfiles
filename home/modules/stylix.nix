@@ -60,6 +60,12 @@ in
         };
       };
 
+      neovim.transparentBackground = {
+        main = true;
+        signColumn = true;
+        numberLine = true;
+      };
+
       zed = {
         fonts.override = {
           sizes = {
