@@ -192,7 +192,10 @@ in
     services.gpg-agent = lib.mkIf isWSL {
       enable = true;
       enableSshSupport = false;
-      pinentry.package = pkgs.pinentry-curses;
+      # pinentry-curses draws on the controlling tty, which collides with
+      # lazygit's own terminal UI (broken input, corrupted redraws). WSLg
+      # provides a display, so use a GUI pinentry that pops its own window.
+      pinentry.package = pkgs.pinentry-qt;
     };
   };
 }
