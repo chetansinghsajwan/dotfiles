@@ -11,7 +11,7 @@ let
     owner = config.dotfiles.user.username;
     repo = "wallpapers";
     rev = "dev";
-    hash = "sha256-52j39DIAFTAO6QG1YGX1OpuVSUPOqgfh/V8AYelHYYU=";
+    hash = "sha256-HKoevYMAEE7kjkEArAmbcJj/tmHq9QHUSRy0aF2zAfk=";
   };
 in
 {
@@ -70,7 +70,7 @@ in
 
       wallpaper = mkOption {
         type = types.str;
-        default = "${config.dotfiles.theme.wallpapersDir}/white-fox.png";
+        default = "${config.dotfiles.theme.wallpapersDir}/car1_ai.jpg";
       };
 
       cursor = {

@@ -5,6 +5,7 @@
 }@inputs:
 let
   caelestia-shell = inputs.caelestia-shell or null;
+  caelestia-cli = lib.getExe' config.programs.caelestia.cli.package "caelestia";
   enable =
     caelestia-shell != null
     && config.dotfiles.desktop.hyprland.enable
@@ -37,8 +38,8 @@ in
       # declared wallpaper by driving its CLI on every activation, same as
       # the FAQ: https://github.com/caelestia-dots/shell#how-do-i-make-my-colour-scheme-change-to-match-my-wallpaper
       home.activation.caelestiaDynamicScheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        run ${lib.getExe' config.programs.caelestia.cli.package "caelestia"} wallpaper -f ${wallpaper}
-        run ${lib.getExe' config.programs.caelestia.cli.package "caelestia"} scheme set -n dynamic
+        run ${caelestia-cli} wallpaper -f ${wallpaper}
+        run ${caelestia-cli} scheme set -n dynamic
       '';
     }
   );
