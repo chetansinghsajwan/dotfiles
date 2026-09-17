@@ -5,6 +5,7 @@
   stylix,
   localLib,
   caelestia-shell,
+  silentSDDM,
   ...
 }:
 let
@@ -14,6 +15,8 @@ nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   modules = [
     ./system.nix
+
+    silentSDDM.nixosModules.default
 
     home-manager.nixosModules.home-manager
     (localLib.mkHomeManagerModule {

@@ -35,6 +35,11 @@
       url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    silentSDDM = {
+      url = "github:uiriansan/SilentSDDM";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -48,6 +53,7 @@
       treefmt-nix,
       nixos-wsl,
       caelestia-shell,
+      silentSDDM,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -70,6 +76,7 @@
           stylix
           localLib
           caelestia-shell
+          silentSDDM
           ;
       };
 

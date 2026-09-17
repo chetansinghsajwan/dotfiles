@@ -17,7 +17,7 @@ in
 
   dotfiles = {
     desktop.hyprland.enable = true;
-    system.displayManager = "gdm";
+    system.displayManager = "sddm";
     system.isLinux = true;
     programs.docker.enable = true;
   };
@@ -78,6 +78,11 @@ in
       alsa.support32Bit = true;
       pulse.enable = true;
     };
+  };
+
+  programs.silentSDDM = {
+    enable = enableSddm;
+    theme = "default";
   };
 
   security.rtkit.enable = true;
