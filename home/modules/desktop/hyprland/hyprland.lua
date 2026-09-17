@@ -71,13 +71,13 @@ hl.bind(mod .. " + ALT + CTRL + " .. down, hl.dsp.window.move({ workspace = "e-1
 hl.bind(mod .. " + ALT + CTRL + " .. up, hl.dsp.window.move({ workspace = "e+1" }))
 hl.bind(mod .. " + ALT + CTRL + N", hl.dsp.window.move({ workspace = "+1" }))
 
--- Volume (media keys, no repeat)
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ " .. volume_step .. "%+"))
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ " .. volume_step .. "%-"))
+-- Volume (media keys, repeat while held)
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ " .. volume_step .. "%+"), { repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ " .. volume_step .. "%-"), { repeating = true })
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"))
 
 -- Brightness
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set +" .. brightness_step .. "%"))
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set " .. brightness_step .. "%-"))
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set +" .. brightness_step .. "%"), { repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set " .. brightness_step .. "%-"), { repeating = true })
 
 hl.bind(mod .. " + period", hl.dsp.exec_cmd(defaultTerminal))
