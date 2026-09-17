@@ -66,6 +66,8 @@ in
         numberLine = true;
       };
 
+      helix.transparent = true;
+
       zed = {
         fonts.override = {
           sizes = {
