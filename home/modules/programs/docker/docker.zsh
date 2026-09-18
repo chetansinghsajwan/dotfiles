@@ -10,18 +10,18 @@
 # sequence continues, so plain alt-d still falls through to kill-word when
 # nothing follows (same trick as fzf.zsh's alt-g menu vs git.zsh's chords).
 
-fzf-docker-ps-widget() { __fzf_insert_widget fdps }
+fzf-docker-ps-widget() { __fzf_insert_widget fdps; }
 zle -N fzf-docker-ps-widget
 bindkey '\edp' fzf-docker-ps-widget
 
-fzf-docker-images-widget() { __fzf_insert_widget fdimg }
+fzf-docker-images-widget() { __fzf_insert_widget fdimg; }
 zle -N fzf-docker-images-widget
 bindkey '\edi' fzf-docker-images-widget
 
-fzf-docker-volumes-widget() { __fzf_insert_widget fdvol }
+fzf-docker-volumes-widget() { __fzf_insert_widget fdvol; }
 zle -N fzf-docker-volumes-widget
 bindkey '\edv' fzf-docker-volumes-widget
 
-fzf-docker-networks-widget() { __fzf_insert_widget fdnet }
+fzf-docker-networks-widget() { __fzf_insert_widget fdnet; }
 zle -N fzf-docker-networks-widget
 bindkey '\edn' fzf-docker-networks-widget

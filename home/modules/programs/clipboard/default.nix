@@ -1,8 +1,9 @@
-{ config
-, pkgs
-, lib
-, localLib
-, ...
+{
+  config,
+  pkgs,
+  lib,
+  localLib,
+  ...
 }:
 localLib.mkToggleModule config "clipboard" {
   home.file = {

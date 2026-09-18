@@ -8,6 +8,7 @@ function fcp() {
     # cliphist decode/delete expect the whole "id<TAB>preview" line as it
     # comes out of `list`, not just the id field - so preview/binds use
     # fzf's whole-line {} placeholder throughout, never {1}.
+    # shellcheck disable=SC2016 # single-quoted: this is fzf's preview command, expanded by fzf itself
     local preview_cmd='f=$(mktemp); cliphist decode {} > "$f" 2>/dev/null; if file -b --mime-type "$f" | grep -q "^text/"; then bat --color=always -l txt "$f"; else file -b "$f"; fi; rm -f "$f"'
 
     cliphist list | __fzf \

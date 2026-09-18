@@ -7,7 +7,7 @@ function fgl() {
     # fzf has no native "toggle-preview-command" action, only change-preview.
     local preview_state
     preview_state=$(mktemp)
-    echo 0 > "$preview_state"
+    echo 0 >"$preview_state"
 
     local preview0="git show --color=always {1}"
     local preview1="git show --color=always --stat {1}"
@@ -30,23 +30,24 @@ function fgb() {
     # own --color=always default for `git branch` barely colors anything, so
     # this uses an explicit --format instead (same scheme as junegunn/fzf-git.sh).
     git branch --all --color=always \
-        --format=$'%(HEAD) %(color:yellow)%(refname:short) %(color:green)(%(committerdate:relative))\t%(color:blue)%(subject)%(color:reset)' | \
-        column -t -s $'\t' | \
+        --format=$'%(HEAD) %(color:yellow)%(refname:short) %(color:green)(%(committerdate:relative))\t%(color:blue)%(subject)%(color:reset)' |
+        column -t -s $'\t' |
         __fzf --label "Git Branches" -- \
-        --ansi \
-        --preview "git log --oneline --color=always \$(cut -c3- <<< {} | cut -d' ' -f1) | head -50"
+            --ansi \
+            --preview "git log --oneline --color=always \$(cut -c3- <<< {} | cut -d' ' -f1) | head -50"
 }
 
 # fgt - fuzzy git tag
 function fgt() {
-    git tag --color=always | \
+    git tag --color=always |
         __fzf --label "Git Tags" -- \
-        --ansi \
-        --preview 'git log --oneline --color=always {1} | head -50'
+            --ansi \
+            --preview 'git log --oneline --color=always {1} | head -50'
 }
 
 # fgs - fuzzy git stash
 function fgs() {
+    # shellcheck disable=SC2016 # single-quoted: this is fzf's preview command, expanded by fzf itself
     git stash list --color=always | __fzf \
         --label "Git Stashes" \
         -- \
@@ -67,7 +68,7 @@ function fgst() {
 function fglf() {
     local file
     file=$(rg --files | __fzf --label "Pick File" --no-multi)
-    [[ -z "$file" ]] && return
+    [[ -z $file ]] && return
 
     git log --oneline --color=always --follow -- "$file" | __fzf \
         --label "Log: $file" \

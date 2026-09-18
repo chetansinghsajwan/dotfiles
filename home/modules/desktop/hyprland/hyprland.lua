@@ -9,32 +9,32 @@ local volume_step = 5
 local defaultTerminal = "__DEFAULT_TERMINAL__"
 
 hl.config({
-  general = {
-    gaps_in = 6,
-    gaps_out = 10,
-  },
-
-  decoration = {
-    rounding = 14,
-  },
-
-  dwindle = {
-    preserve_split = true,
-  },
-
-  input = {
-    natural_scroll = true,
-    touchpad = {
-      natural_scroll = true,
+    general = {
+        gaps_in = 6,
+        gaps_out = 10,
     },
-  },
+
+    decoration = {
+        rounding = 14,
+    },
+
+    dwindle = {
+        preserve_split = true,
+    },
+
+    input = {
+        natural_scroll = true,
+        touchpad = {
+            natural_scroll = true,
+        },
+    },
 })
 
 hl.monitor({
-  output = "",
-  mode = "preferred",
-  position = "auto",
-  scale = 1,
+    output = "",
+    mode = "preferred",
+    position = "auto",
+    scale = 1,
 })
 
 hl.bind(mod .. " + Q", hl.dsp.window.close())
@@ -57,7 +57,7 @@ hl.bind(mod .. " + ALT + " .. right, hl.dsp.window.move({ direction = "right" })
 
 -- Move windows around within the same workspace
 hl.bind(mod .. " + SHIFT + " .. left, hl.dsp.window.resize({ x = -window_resize_step, y = 0, relative = true }))
-hl.bind(mod .. " + SHIFT + " .. down, hl.dsp.window.resize({ x = 0, y= -window_resize_step, relative = true }))
+hl.bind(mod .. " + SHIFT + " .. down, hl.dsp.window.resize({ x = 0, y = -window_resize_step, relative = true }))
 hl.bind(mod .. " + SHIFT + " .. up, hl.dsp.window.resize({ x = 0, y = window_resize_step, relative = true }))
 hl.bind(mod .. " + SHIFT + " .. right, hl.dsp.window.resize({ x = window_resize_step, y = 0, relative = true }))
 
@@ -72,8 +72,16 @@ hl.bind(mod .. " + ALT + CTRL + " .. up, hl.dsp.window.move({ workspace = "e+1" 
 hl.bind(mod .. " + ALT + CTRL + N", hl.dsp.window.move({ workspace = "+1" }))
 
 -- Volume (media keys, repeat while held)
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ " .. volume_step .. "%+"), { repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ " .. volume_step .. "%-"), { repeating = true })
+hl.bind(
+    "XF86AudioRaiseVolume",
+    hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ " .. volume_step .. "%+"),
+    { repeating = true }
+)
+hl.bind(
+    "XF86AudioLowerVolume",
+    hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ " .. volume_step .. "%-"),
+    { repeating = true }
+)
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"))
 
 -- Brightness

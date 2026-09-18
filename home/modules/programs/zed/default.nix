@@ -1,6 +1,7 @@
-{ config
-, localLib
-, ...
+{
+  config,
+  localLib,
+  ...
 }:
 {
   imports = [

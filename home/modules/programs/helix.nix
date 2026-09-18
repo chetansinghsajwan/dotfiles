@@ -1,4 +1,10 @@
-{ config, lib, pkgs, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
   config = lib.mkIf config.programs.helix.enable {
     programs.helix = {
       extraPackages = with pkgs; [
@@ -27,9 +33,18 @@
           indent-guides.render = true;
 
           statusline = {
-            left = [ "mode" "spinner" "file-name" ];
+            left = [
+              "mode"
+              "spinner"
+              "file-name"
+            ];
             center = [ ];
-            right = [ "diagnostics" "selections" "position" "file-encoding" ];
+            right = [
+              "diagnostics"
+              "selections"
+              "position"
+              "file-encoding"
+            ];
           };
         };
       };

@@ -40,9 +40,21 @@ _: {
         # just re-focusing an already-active panel.
         sidePanels = [
           [ "status" ]
-          [ "files" "worktrees" "submodules" ]
-          [ "branches" "remotes" "tags" ]
-          [ "commits" "reflog" "stash" ]
+          [
+            "files"
+            "worktrees"
+            "submodules"
+          ]
+          [
+            "branches"
+            "remotes"
+            "tags"
+          ]
+          [
+            "commits"
+            "reflog"
+            "stash"
+          ]
         ];
         switchTabsWithPanelJumpKeys = true;
       };

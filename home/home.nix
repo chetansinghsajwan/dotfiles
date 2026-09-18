@@ -1,8 +1,9 @@
-{ config
-, pkgs
-, nur
-, lib
-, ...
+{
+  config,
+  pkgs,
+  nur,
+  lib,
+  ...
 }:
 let
   isLinux = config.dotfiles.system.isLinux;

@@ -5,17 +5,17 @@
 __fzf_insert_widget() {
     local result
     result=$("$1")
-    [[ -n "$result" ]] && LBUFFER="${LBUFFER}${result}"
+    [[ -n $result ]] && LBUFFER="${LBUFFER}${result}"
     zle reset-prompt
 }
 
-fzf-file-widget() { __fzf_insert_widget ff }
+fzf-file-widget() { __fzf_insert_widget ff; }
 zle -N fzf-file-widget
 # alt-t, not ctrl-t: zellij's default keymap grabs ctrl-t globally to enter
 # tab mode before it ever reaches the shell.
 bindkey '\et' fzf-file-widget
 
-fzf-history-widget() { __fzf_insert_widget fh }
+fzf-history-widget() { __fzf_insert_widget fh; }
 zle -N fzf-history-widget
 bindkey '^R' fzf-history-widget
 
@@ -25,7 +25,7 @@ bindkey '^R' fzf-history-widget
 fzf-cd-widget() {
     local dir
     dir=$(fd)
-    [[ -n "$dir" ]] && cd -- "$dir"
+    [[ -n $dir ]] && cd -- "$dir"
     zle reset-prompt
 }
 zle -N fzf-cd-widget
@@ -51,28 +51,28 @@ __fzf_menu_dispatch() {
     local item name
     for item in "${items[@]}"; do
         name="${item%% *}"
-        (( $+functions[$name] )) && available+=("$item")
+        (($+functions[$name])) && available+=("$item")
     done
 
     local choice
     choice=$(printf '%s\n' "${available[@]}" | __fzf --label "Fzf Menu" --no-multi)
 
     case "$choice" in
-        fgl\ *)  fgl ;;
-        fgb\ *)  fgb ;;
-        fgt\ *)  fgt ;;
-        fgs\ *)  fgs ;;
-        fgst\ *) fgst ;;
-        fglf\ *) fglf ;;
-        fgr\ *)  fgr ;;
-        fs\ *)   fs ;;
-        fp\ *)   fp ;;
-        fe\ *)   fe ;;
-        fssh\ *) fssh ;;
+    fgl\ *) fgl ;;
+    fgb\ *) fgb ;;
+    fgt\ *) fgt ;;
+    fgs\ *) fgs ;;
+    fgst\ *) fgst ;;
+    fglf\ *) fglf ;;
+    fgr\ *) fgr ;;
+    fs\ *) fs ;;
+    fp\ *) fp ;;
+    fe\ *) fe ;;
+    fssh\ *) fssh ;;
     esac
 }
 
-fzf-menu-widget() { __fzf_insert_widget __fzf_menu_dispatch }
+fzf-menu-widget() { __fzf_insert_widget __fzf_menu_dispatch; }
 zle -N fzf-menu-widget
 # alt-g, not ctrl-g: zellij's default keymap grabs ctrl-g globally to switch
 # to locked mode before it ever reaches the shell.

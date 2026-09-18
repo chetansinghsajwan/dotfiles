@@ -11,11 +11,7 @@ let
 in
 {
   users.users.${cfg.user.username} = {
-    home =
-      if isDarwin then
-        "/Users/${cfg.user.homeDir}"
-      else
-        "/home/${cfg.user.homeDir}";
+    home = if isDarwin then "/Users/${cfg.user.homeDir}" else "/home/${cfg.user.homeDir}";
 
     shell = pkgs.${cfg.shell.program};
   }

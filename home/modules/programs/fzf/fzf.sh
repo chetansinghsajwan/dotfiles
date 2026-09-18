@@ -6,10 +6,19 @@ function __fzf() {
     # Parse named options
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            --label)   label="$2"; shift 2 ;;
-            --no-multi) multi=0; shift ;;
-            --) shift; break ;;   # remaining args passed straight to fzf
-            *) break ;;
+        --label)
+            label="$2"
+            shift 2
+            ;;
+        --no-multi)
+            multi=0
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;; # remaining args passed straight to fzf
+        *) break ;;
         esac
     done
 
@@ -19,7 +28,7 @@ function __fzf() {
     # enter tab mode before it ever reaches fzf.
     local multi_state
     multi_state=$(mktemp)
-    echo "$multi" > "$multi_state"
+    echo "$multi" >"$multi_state"
 
     local multi_toggle_bind="alt-m:transform:if [ \"\$(cat '$multi_state')\" = 1 ]; then printf 0 > '$multi_state'; echo 'change-multi(0)'; else printf 1 > '$multi_state'; echo 'change-multi'; fi"
 
@@ -30,8 +39,8 @@ function __fzf() {
         --bind "$multi_toggle_bind"
     )
 
-    [[ -n "$label" ]] && args+=(--border-label " $label ")
-    [[ "$multi" -eq 1 ]] && args+=(--multi)
+    [[ -n $label ]] && args+=(--border-label " $label ")
+    [[ $multi -eq 1 ]] && args+=(--multi)
 
     # Any leftover args (after --) get appended, allowing overrides/extras
     fzf "${args[@]}" "$@"
@@ -46,8 +55,14 @@ function ff() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -d|--dirs) start_mode=1; shift ;;
-            *) search_dir="$1"; shift ;;
+        -d | --dirs)
+            start_mode=1
+            shift
+            ;;
+        *)
+            search_dir="$1"
+            shift
+            ;;
         esac
     done
 
@@ -58,7 +73,7 @@ function ff() {
     # against the stale pre-reload selection instead of the new item.)
     local mode_state
     mode_state=$(mktemp)
-    echo "$start_mode" > "$mode_state"
+    echo "$start_mode" >"$mode_state"
 
     local files_cmd="fd --type f --type l --base-directory '$search_dir'"
     local dirs_cmd="fd --type d --type l --base-directory '$search_dir'"
@@ -69,7 +84,7 @@ function ff() {
     local mode_toggle_bind="ctrl-d:transform:if [ \"\$(cat '$mode_state')\" = 0 ]; then printf 1 > '$mode_state'; echo 'reload($dirs_cmd)'; else printf 0 > '$mode_state'; echo 'reload($files_cmd)'; fi"
 
     local init_cmd="$files_cmd"
-    [[ "$start_mode" -eq 1 ]] && init_cmd="$dirs_cmd"
+    [[ $start_mode -eq 1 ]] && init_cmd="$dirs_cmd"
 
     eval "$init_cmd" | __fzf \
         --label "Files" \
@@ -84,12 +99,12 @@ function ff() {
 # fs - fuzzy text search (live ripgrep across file contents)
 function fs() {
     local search_dir="."
-    [[ -n "$1" ]] && search_dir="$1"
+    [[ -n $1 ]] && search_dir="$1"
 
     # "." would make rg print a "./" prefix on every path (same issue ff hit
     # with find/fd), so only pass a path arg when searching outside pwd.
     local rg_cmd="rg --column --line-number --no-heading --color=always --smart-case --"
-    if [[ "$search_dir" != "." ]]; then
+    if [[ $search_dir != "." ]]; then
         rg_cmd="$rg_cmd {q} '$search_dir'"
     else
         rg_cmd="$rg_cmd {q}"
@@ -97,6 +112,7 @@ function fs() {
 
     # --disabled hands filtering to rg (reloaded on every keystroke) instead
     # of fzf's own fuzzy matcher, since rg is doing real regex search here.
+    # shellcheck disable=SC2016 # single-quoted: this is fzf's bind action, expanded by fzf itself
     : | __fzf \
         --label "Text Search" \
         --no-multi \
@@ -108,7 +124,7 @@ function fs() {
         --bind "change:reload:sleep 0.1; $rg_cmd || true" \
         --preview 'bat --color=always --highlight-line {2} {1}' \
         --preview-window 'right:60%:noborder:+{2}-5' \
-        --bind "ctrl-e:become(\${EDITOR:-nvim} +{2} {1})"
+        --bind 'ctrl-e:become(${EDITOR:-nvim} +{2} {1})'
 }
 
 # fp - fuzzy process search
@@ -133,7 +149,7 @@ function fe() {
 
 # fssh - fuzzy ssh host search
 function fssh() {
-    awk '/^Host / {for (i=2;i<=NF;i++) if ($i !~ /[*?]/) print $i}' ~/.ssh/config 2>/dev/null | \
+    awk '/^Host / {for (i=2;i<=NF;i++) if ($i !~ /[*?]/) print $i}' ~/.ssh/config 2>/dev/null |
         sort -u | __fzf \
         --label "SSH Hosts" \
         --no-multi \

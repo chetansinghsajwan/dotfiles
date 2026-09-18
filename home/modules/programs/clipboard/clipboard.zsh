@@ -11,6 +11,6 @@
 # enter bind) rather than printing it, so this widget's usual LBUFFER-insert
 # is a no-op - that's intentional, see clipboard.sh.
 
-fzf-clipboard-widget() { __fzf_insert_widget fcp }
+fzf-clipboard-widget() { __fzf_insert_widget fcp; }
 zle -N fzf-clipboard-widget
 bindkey '\ey' fzf-clipboard-widget

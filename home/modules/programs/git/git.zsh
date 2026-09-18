@@ -9,14 +9,14 @@
 # zsh waits up to $KEYTIMEOUT after a complete "\eg" match to see if the
 # sequence continues, so alt-g still opens the menu when nothing follows.
 
-fzf-git-branch-widget() { __fzf_insert_widget fgb }
+fzf-git-branch-widget() { __fzf_insert_widget fgb; }
 zle -N fzf-git-branch-widget
 bindkey '\egb' fzf-git-branch-widget
 
-fzf-git-tag-widget() { __fzf_insert_widget fgt }
+fzf-git-tag-widget() { __fzf_insert_widget fgt; }
 zle -N fzf-git-tag-widget
 bindkey '\egt' fzf-git-tag-widget
 
-fzf-git-log-widget() { __fzf_insert_widget fgl }
+fzf-git-log-widget() { __fzf_insert_widget fgl; }
 zle -N fzf-git-log-widget
 bindkey '\egc' fzf-git-log-widget
