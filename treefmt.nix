@@ -12,4 +12,5 @@ _: {
   programs.stylua.enable = true;
 
   programs.mdformat.enable = true;
+  programs.mdformat.plugins = ps: [ ps.mdformat-gfm ];
 }
