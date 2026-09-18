@@ -14,6 +14,18 @@ _: {
           }
       }
     '';
+
+    # Compact bar merges the tab-bar and status-bar into a single line at the
+    # top, with a blank borderless row inserted after it so content doesn't
+    # sit flush against it.
+    layouts.default = ''
+      layout {
+          pane size=1 borderless=true {
+              plugin location="compact-bar"
+          }
+          pane
+      }
+    '';
   };
 
   home.shellAliases = {
