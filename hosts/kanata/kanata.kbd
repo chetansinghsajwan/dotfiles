@@ -4,7 +4,7 @@
 
 (defvar
   tap-time 200
-  hold-time 300
+  hold-time 200
 )
 
 (defsrc
@@ -15,18 +15,18 @@
 )
 
 (deflayermap main
-  a (tap-hold $tap-time $hold-time a lctrl)
-  s (tap-hold $tap-time $hold-time s lshift)
-  d (tap-hold $tap-time $hold-time d lalt)
-  f (tap-hold $tap-time $hold-time f lmeta)
-  j (tap-hold $tap-time $hold-time j rmeta)
-  k (tap-hold $tap-time $hold-time k ralt)
-  l (tap-hold $tap-time $hold-time l rshift)
-  ; (tap-hold $tap-time $hold-time ; rctrl)
-  e (tap-hold $tap-time $hold-time e (layer-toggle sym))
-  r (tap-hold $tap-time $hold-time r (layer-toggle num))
-  c (tap-hold $tap-time $hold-time c (layer-toggle fun))
-  spc (tap-hold $tap-time $hold-time spc (layer-toggle nav))
+  a (tap-hold-release $tap-time $hold-time a lctrl)
+  s (tap-hold-release $tap-time $hold-time s lshift)
+  d (tap-hold-release $tap-time $hold-time d lalt)
+  f (tap-hold-release $tap-time $hold-time f lmeta)
+  j (tap-hold-release $tap-time $hold-time j rmeta)
+  k (tap-hold-release $tap-time $hold-time k ralt)
+  l (tap-hold-release $tap-time $hold-time l rshift)
+  ; (tap-hold-release $tap-time $hold-time ; rctrl)
+  e (tap-hold-release $tap-time $hold-time e (layer-toggle sym))
+  r (tap-hold-release $tap-time $hold-time r (layer-toggle num))
+  c (tap-hold-release $tap-time $hold-time c (layer-toggle fun))
+  spc (tap-hold-release $tap-time $hold-time spc (layer-toggle nav))
 )
 
 (deflayer nav
