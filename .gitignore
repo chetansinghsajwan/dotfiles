@@ -10,6 +10,12 @@ result-*
 .idea/
 *.swp
 
+# Claude Code local state
+.claude/settings.local.json
+.claude/worktrees/
+.mcp.local.json
+CLAUDE.local.md
+
 # OS cruft
 .DS_Store
 
