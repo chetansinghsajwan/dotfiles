@@ -11,7 +11,6 @@ in
     ../shared.nix
     ../locale.nix
     ../kanata
-    ./hardware.nix
     ../../local.nix
   ];
 
@@ -42,7 +41,6 @@ in
     ];
   };
 
-  networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
   hardware.bluetooth.enable = true;
