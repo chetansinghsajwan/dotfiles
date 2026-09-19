@@ -21,7 +21,9 @@ _: {
     layouts.default = ''
       layout {
           pane size=1 borderless=true {
-              plugin location="compact-bar"
+              plugin location="compact-bar" {
+                  tooltip "?"
+              }
           }
           pane
       }
