@@ -8,11 +8,25 @@
 )
 
 (defsrc
-  q w e r t y u i o p
-  a s d f g h j k l ;
-  z x c v b n m , . /
-        spc
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctrl lmeta lalt      spc      ralt rmeta rctrl
+  ins  home pgup del  end  pgdn
+  up   left down right
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  prtsc scrlck pause
 )
+
+;; Two base layers, toggled live by CapsLock via (layer-switch ...):
+;;   main     - only the keys below (letters/punct row + spc) do anything;
+;;              everything else (number row, physical modifiers, arrows,
+;;              nav cluster, F-keys, etc.) is blocked (XX) so muscle memory
+;;              is forced onto the kanata layers (nav/sym/num/fun).
+;;   fallback - identical letter/punct behavior, but every other key passes
+;;              through untouched. Emergency/testing escape hatch.
+;; The two must be kept in sync for the shared 12 entries below.
 
 (deflayermap main
   a (tap-hold-release $tap-time $hold-time a lctrl)
@@ -27,32 +41,210 @@
   r (tap-hold-release $tap-time $hold-time r (layer-toggle num))
   c (tap-hold-release $tap-time $hold-time c (layer-toggle fun))
   spc (tap-hold-release $tap-time $hold-time spc (layer-toggle nav))
+
+  caps (layer-switch fallback)
+
+  grv XX
+  1 XX
+  2 XX
+  3 XX
+  4 XX
+  5 XX
+  6 XX
+  7 XX
+  8 XX
+  9 XX
+  0 XX
+  - XX
+  = XX
+  bspc XX
+  tab XX
+  [ XX
+  ] XX
+  \ XX
+  ' XX
+  ret XX
+  lsft XX
+  rsft XX
+  lctrl XX
+  lmeta XX
+  lalt XX
+  ralt XX
+  rmeta XX
+  rctrl XX
+  ins XX
+  home XX
+  pgup XX
+  del XX
+  end XX
+  pgdn XX
+  up XX
+  left XX
+  down XX
+  right XX
+  esc XX
+  f1 XX
+  f2 XX
+  f3 XX
+  f4 XX
+  f5 XX
+  f6 XX
+  f7 XX
+  f8 XX
+  f9 XX
+  f10 XX
+  f11 XX
+  f12 XX
+  prtsc XX
+  scrlck XX
+  pause XX
 )
 
-(deflayer nav
-  _ _ _ _ _ tab  bspc del  esc   _
-  _ _ _ _ _ left down up   right ret
-  _ _ _ _ _ home pgdn pgup end   _
-            _
+(deflayermap fallback
+  a (tap-hold-release $tap-time $hold-time a lctrl)
+  s (tap-hold-release $tap-time $hold-time s lshift)
+  d (tap-hold-release $tap-time $hold-time d lalt)
+  f (tap-hold-release $tap-time $hold-time f lmeta)
+  j (tap-hold-release $tap-time $hold-time j rmeta)
+  k (tap-hold-release $tap-time $hold-time k ralt)
+  l (tap-hold-release $tap-time $hold-time l rshift)
+  ; (tap-hold-release $tap-time $hold-time ; rctrl)
+  e (tap-hold-release $tap-time $hold-time e (layer-toggle sym))
+  r (tap-hold-release $tap-time $hold-time r (layer-toggle num))
+  c (tap-hold-release $tap-time $hold-time c (layer-toggle fun))
+  spc (tap-hold-release $tap-time $hold-time spc (layer-toggle nav))
+
+  caps (layer-switch main)
+
+  grv grv
+  1 1
+  2 2
+  3 3
+  4 4
+  5 5
+  6 6
+  7 7
+  8 8
+  9 9
+  0 0
+  - -
+  = =
+  bspc bspc
+  tab tab
+  [ [
+  ] ]
+  \ \
+  ' '
+  ret ret
+  lsft lsft
+  rsft rsft
+  lctrl lctrl
+  lmeta lmeta
+  lalt lalt
+  ralt ralt
+  rmeta rmeta
+  rctrl rctrl
+  ins ins
+  home home
+  pgup pgup
+  del del
+  end end
+  pgdn pgdn
+  up up
+  left left
+  down down
+  right right
+  esc esc
+  f1 f1
+  f2 f2
+  f3 f3
+  f4 f4
+  f5 f5
+  f6 f6
+  f7 f7
+  f8 f8
+  f9 f9
+  f10 f10
+  f11 f11
+  f12 f12
+  prtsc prtsc
+  scrlck scrlck
+  pause pause
 )
 
-(deflayer sym
-  S-1  `    '    S-'  S-3   S-\  S-9  S-0  S-,  S-.
-  S-8  =    -    S--  S-4   ;    {    }    /    \
-  S-`  S-=  ,    .    S-2   S-7  [    ]    S-;  S-/
-                  _
+(deflayermap nav
+  y tab
+  u bspc
+  i del
+  o esc
+  h left
+  j down
+  k up
+  l right
+  ; ret
+  n home
+  m pgdn
+  , pgup
+  . end
 )
 
-(deflayer num
-  _ _ _ _ _ _ 7 8 9 _
-  _ _ _ _ _ 0 4 5 6 _
-  _ _ _ _ _ _ 1 2 3 _
-        _
+(deflayermap sym
+  q S-1
+  w `
+  e '
+  r S-'
+  t S-3
+  y S-\
+  u S-9
+  i S-0
+  o S-,
+  p S-.
+  a S-8
+  s =
+  d -
+  f S--
+  g S-4
+  h ;
+  j {
+  k }
+  l /
+  ; \
+  z S-`
+  x S-=
+  c ,
+  v .
+  b S-2
+  n S-7
+  m [
+  , ]
+  . S-;
+  / S-/
 )
 
-(deflayer fun
-  _ _ _ _ _ _ f7 f8 f9 f12
-  _ _ _ _ _ _ f4 f5 f6 f11
-  _ _ _ _ _ _ f1 f2 f3 f10
-          _
+(deflayermap num
+  u 7
+  i 8
+  o 9
+  h 0
+  j 4
+  k 5
+  l 6
+  m 1
+  , 2
+  . 3
+)
+
+(deflayermap fun
+  u f7
+  i f8
+  o f9
+  p f12
+  j f4
+  k f5
+  l f6
+  ; f11
+  m f1
+  , f2
+  . f3
+  / f10
 )
