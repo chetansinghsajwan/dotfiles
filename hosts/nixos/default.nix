@@ -31,7 +31,7 @@ nixpkgs.lib.nixosSystem {
           dotfiles.desktop.hyprland.enable = lib.mkForce true;
           dotfiles.theme.fonts.rawFontScale = 1.33;
           dotfiles.system.isLinux = lib.mkForce true;
-          dotfiles.programs.kanata-notify.enable = true;
+          dotfiles.programs.kanata-layer-indicator.enable = true;
         }
 
         ../../home/home.nix
