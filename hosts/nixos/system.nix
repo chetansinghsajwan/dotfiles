@@ -45,6 +45,8 @@ in
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
+  hardware.bluetooth.enable = true;
+
   virtualisation.docker = {
     enable = config.dotfiles.programs.docker.enable;
     rootless = {
