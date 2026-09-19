@@ -9,15 +9,16 @@
 nix-darwin.lib.darwinSystem {
   system = "aarch64-darwin";
   modules = [
-    ./system.nix
+    ../macbook-air-m3/system.nix
     {
-      system.primaryUser = "kyutoo";
-      dotfiles.user.username = "kyutoo";
+      networking.hostName = "darwin";
+      system.primaryUser = "chetansinghsajwan";
+      dotfiles.user.username = "chetansinghsajwan";
     }
 
     home-manager.darwinModules.home-manager
     (localLib.mkHomeManagerModule {
-      username = "kyutoo";
+      username = "chetansinghsajwan";
       extraSpecialArgs = {
         inherit nur localLib;
       };
@@ -27,7 +28,7 @@ nix-darwin.lib.darwinSystem {
 
         # host-specific overrides
         {
-          dotfiles.user.username = "kyutoo";
+          dotfiles.user.username = "chetansinghsajwan";
           dotfiles.theme.fonts.rawFontScale = 1.0;
           dotfiles.system.isDarwin = true;
         }

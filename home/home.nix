@@ -104,8 +104,8 @@ in
   };
 
   # Desktop-independent kdeconnect: works the same whether GNOME or Hyprland
-  # is running.
-  services.kdeconnect = {
+  # is running. Linux-only — the module has no Darwin support.
+  services.kdeconnect = lib.mkIf isLinux {
     enable = true;
     indicator = true;
   };

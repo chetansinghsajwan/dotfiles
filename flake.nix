@@ -103,6 +103,17 @@
           ;
       };
 
+      darwinConfigurations.darwin = import ./hosts/darwin {
+        inherit
+          nixpkgs
+          nur
+          home-manager
+          stylix
+          nix-darwin
+          localLib
+          ;
+      };
+
       nixosConfigurations.wsl = import ./hosts/wsl {
         inherit
           nixpkgs
