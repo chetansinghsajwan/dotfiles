@@ -73,7 +73,8 @@ in
     docker.enable = true;
     batman.enable = true;
     nixpkgs.enable = true;
-    clipboard.enable = true;
+    # cliphist/wl-clipboard are Wayland-only, so this has no Darwin support.
+    clipboard.enable = isLinux;
   };
 
   programs = {
