@@ -14,12 +14,16 @@ in
     # enableFishIntegration = config.dotfiles.shell.program == "fish";
     # exitShellOnExit = true;
 
+    # Default tab mode groups h/Left/Up/k -> previous tab, l/Right/Down/j ->
+    # next tab. jk is dropped entirely (kanata handles that now); Up/Down are
+    # reversed relative to the default so Up goes to the next tab.
     extraConfig = ''
       keybinds {
           // Default tab mode binds k -> previous tab, j -> next tab; reverse them.
           tab {
-              bind "j" { GoToPreviousTab; }
-              bind "k" { GoToNextTab; }
+              unbind "j" "k"
+              bind "Up" { GoToNextTab; }
+              bind "Down" { GoToPreviousTab; }
           }
 
           // Ctrl+/ avoids colliding with typing a literal "?" in a pane.
