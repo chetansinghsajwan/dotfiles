@@ -80,6 +80,18 @@
           ;
       };
 
+      nixosConfigurations.honor-m3 = import ./hosts/honor-m3 {
+        inherit
+          nixpkgs
+          nur
+          home-manager
+          stylix
+          localLib
+          caelestia-shell
+          silentSDDM
+          ;
+      };
+
       darwinConfigurations.macbook-air-m3 = import ./hosts/macbook-air-m3 {
         inherit
           nixpkgs

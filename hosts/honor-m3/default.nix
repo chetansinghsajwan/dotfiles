@@ -14,9 +14,9 @@ in
 nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   modules = [
-    ./system.nix
+    ../nixos/system.nix
     ./hardware.nix
-    { networking.hostName = "nixos"; }
+    { networking.hostName = "honor-m3"; }
 
     silentSDDM.nixosModules.default
 
