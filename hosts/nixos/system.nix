@@ -30,9 +30,16 @@ in
   hardware.uinput.enable = true;
   services.udev.extraRules = ''
     KERNEL=="uinput", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
+    # Read-only access to kanata's own virtual output device, scoped to just
+    # that device (not the "input" group, which covers every physical
+    # keyboard/mouse). Used by home/modules/programs/kanata-layer-indicator.nix
+    # to watch which modifiers are currently held.
+    SUBSYSTEM=="input", ATTRS{name}=="kanata", GROUP="kanata-watch", MODE="0640"
   '';
 
   users.groups.uinput = { };
+  users.groups.kanata-watch = { };
+  users.users.${config.dotfiles.user.username}.extraGroups = [ "kanata-watch" ];
 
   systemd.services.kanata-internalKeyboard.serviceConfig = {
     SupplementaryGroups = [
