@@ -24,9 +24,9 @@
 ;;              everything else (number row, physical modifiers, arrows,
 ;;              nav cluster, F-keys, etc.) is blocked (XX) so muscle memory
 ;;              is forced onto the kanata layers (nav/sym/num/fun).
-;;   fallback - identical letter/punct behavior, but every other key passes
-;;              through untouched. Emergency/testing escape hatch.
-;; The two must be kept in sync for the shared 12 entries below.
+;;   fallback - every key, including the home-row mods and layer-toggle
+;;              keys, is identity-mapped to itself: a completely normal,
+;;              unmodified keyboard. Emergency/testing escape hatch.
 
 (deflayermap main
   a (tap-hold-release $tap-time $hold-time a lctrl)
@@ -101,18 +101,18 @@
 )
 
 (deflayermap fallback
-  a (tap-hold-release $tap-time $hold-time a lctrl)
-  s (tap-hold-release $tap-time $hold-time s lshift)
-  d (tap-hold-release $tap-time $hold-time d lalt)
-  f (tap-hold-release $tap-time $hold-time f lmeta)
-  j (tap-hold-release $tap-time $hold-time j rmeta)
-  k (tap-hold-release $tap-time $hold-time k ralt)
-  l (tap-hold-release $tap-time $hold-time l rshift)
-  ; (tap-hold-release $tap-time $hold-time ; rctrl)
-  e (tap-hold-release $tap-time $hold-time e (layer-toggle sym))
-  r (tap-hold-release $tap-time $hold-time r (layer-toggle num))
-  c (tap-hold-release $tap-time $hold-time c (layer-toggle fun))
-  spc (tap-hold-release $tap-time $hold-time spc (layer-toggle nav))
+  a a
+  s s
+  d d
+  f f
+  j j
+  k k
+  l l
+  ; ;
+  e e
+  r r
+  c c
+  spc spc
 
   caps (layer-switch main)
 
