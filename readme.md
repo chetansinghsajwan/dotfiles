@@ -7,6 +7,10 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 - [ ] Redesign kanata
 - [ ] Add display manager for hyprland
+- [ ] Configure yazi
+  - [ ] Make file selections less rounded
+  - [ ] Add line numbers to text previews
+  - [ ] Improve file properties pane
 
 ## Machines
 
