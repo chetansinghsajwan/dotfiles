@@ -24,6 +24,16 @@
       source ~/.config/fzf/fzf.zsh
     '';
 
+    # stylix's fzf target paints bg/bg+ as solid theme colors, which blocks
+    # the terminal's transparency/acrylic for the popup. Override just those
+    # two (via stylix's per-target color-override hook) to fzf's "-1" —
+    # terminal default color — so the popup blends in like the rest of the
+    # terminal, while keeping every other themed color as-is.
+    stylix.targets.fzf.colors.override.withHashtag = {
+      base00 = "-1";
+      base01 = "-1";
+    };
+
     programs.fzf.defaultOptions = [
       "--popup 90%"
       "--border rounded"
