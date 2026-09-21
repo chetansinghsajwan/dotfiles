@@ -28,14 +28,17 @@
       plugin = {
         prepend_previewers = [
           {
+            # pv routes CSV/TSV to tidy-viewer (column-aligned) and
+            # everything else text-like to bat, so this one rule covers
+            # both plain text and tabular data.
             mime = "text/*";
-            run = ''piper -- bat --color=always --style=numbers --paging=never "$1"'';
+            run = ''piper -- pv "$1"'';
           }
           {
             # JSON reports as application/json, not text/*, so it needs its
-            # own rule to pick up bat's line numbers instead of yazi's jq previewer.
+            # own rule to pick up pv/bat's line numbers instead of yazi's jq previewer.
             mime = "application/{json,ndjson}";
-            run = ''piper -- bat --color=always --style=numbers --paging=never "$1"'';
+            run = ''piper -- pv "$1"'';
           }
         ];
 

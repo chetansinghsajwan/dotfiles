@@ -7,6 +7,7 @@
     ./docker
     ./nixpkgs
     ./clipboard
+    ./pv
   ]
   ++ (localLib.importDir ./.);
 }
