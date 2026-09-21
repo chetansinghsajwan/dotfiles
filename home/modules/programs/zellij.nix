@@ -17,6 +17,11 @@ in
     # Default tab mode groups h/Left/Up/k -> previous tab, l/Right/Down/j ->
     # next tab. jk is dropped entirely (kanata handles that now); Up/Down are
     # reversed relative to the default so Up goes to the next tab.
+    #
+    # GoToNextTab/GoToPreviousTab always wrap around at the ends; there's no
+    # config option to stop that as of zellij 0.45.0. A `tab_cycle_wrap false`
+    # option was proposed upstream but is unmerged: see
+    # https://github.com/zellij-org/zellij/pull/4815. Revisit once it lands.
     extraConfig = ''
       keybinds {
           // Default tab mode binds k -> previous tab, j -> next tab; reverse them.

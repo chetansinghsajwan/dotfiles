@@ -38,6 +38,11 @@ _: {
         # Group panels into tabs (cycle with [ / ]), and let the number jump
         # keys (1-5) cycle through tabs directly, gitui-style, instead of
         # just re-focusing an already-active panel.
+        #
+        # Both [ / ] and the jump-key cycling always wrap around at the
+        # ends, with no config option to stop it (as of lazygit 0.64.1).
+        # Maintainers declined to add a toggle when asked upstream:
+        # https://github.com/jesseduffield/lazygit/issues/3789
         sidePanels = [
           [ "status" ]
           [
