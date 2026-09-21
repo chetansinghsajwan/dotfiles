@@ -98,5 +98,5 @@ in
     options snd-intel-dspcfg dsp_driver=1
   '';
 
-  system.stateVersion = "23.05";
+  system.stateVersion = config.dotfiles.system.stateVersion.linux;
 }

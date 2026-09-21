@@ -1,4 +1,4 @@
-{ ... }:
+{ config, ... }:
 {
   imports = [
     ../../config
@@ -7,5 +7,5 @@
   ];
 
   dotfiles.system.isDarwin = true;
-  system.stateVersion = 6;
+  system.stateVersion = config.dotfiles.system.stateVersion.darwin;
 }

@@ -215,6 +215,20 @@ in
         default = "sddm";
         description = "Display manager to use.";
       };
+
+      stateVersion = {
+        linux = mkOption {
+          type = types.str;
+          default = "23.05";
+          description = "system.stateVersion for NixOS hosts.";
+        };
+
+        darwin = mkOption {
+          type = types.int;
+          default = 6;
+          description = "system.stateVersion for nix-darwin hosts.";
+        };
+      };
     };
 
     desktop = {
