@@ -2,6 +2,19 @@ require("full-border"):setup()
 require("bookmarks"):setup()
 require("properties"):setup()
 
+-- Trim the status line to just the mode and position pills — name/size/perm
+-- already live in the properties panel, and the scroll-percent pill is noise.
+for i = #Status._left, 1, -1 do
+	if Status._left[i][1] == "length" or Status._left[i][1] == "name" then
+		table.remove(Status._left, i)
+	end
+end
+for i = #Status._right, 1, -1 do
+	if Status._right[i][1] == "perm" or Status._right[i][1] == "percent" then
+		table.remove(Status._right, i)
+	end
+end
+
 -- Combined "permissions + relative mtime" linemode for the files pane.
 -- Permissions are rendered as three spaced, colorized rwx triplets
 -- (owner in full color, group/other dimmed, special bits highlighted)
