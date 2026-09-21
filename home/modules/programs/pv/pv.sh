@@ -21,7 +21,20 @@ text/csv | text/tab-separated-values) is_tabular=1 ;;
 esac
 
 if [ "$is_tabular" -eq 1 ]; then
-    exec tidy-viewer "$file_path"
+    tv_args=()
+    if [ -n "${h:-}" ]; then
+        # yazi's piper previewer sets $h to the preview pane's visible row
+        # count. Besides -n data rows, tidy-viewer always emits a leading
+        # blank line, a "tv dim:" line, and a header row, plus (when
+        # truncating) a trailing "... with N more rows" line - reserve all
+        # four so the alignment is computed from exactly the rows that will
+        # actually fit and be shown, instead of overflowing and getting cut
+        # off mid-table by piper's own line-count limit.
+        rows=$((h - 4))
+        [ "$rows" -lt 1 ] && rows=1
+        tv_args=(-n "$rows")
+    fi
+    exec tidy-viewer "${tv_args[@]}" "$file_path"
 fi
 
 # file's own "text/binary" call, not the mime type list above, decides
