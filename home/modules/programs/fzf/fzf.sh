@@ -159,9 +159,13 @@ function fssh() {
 
 # fh - fuzzy history search
 function fh() {
-    # Reads $HISTFILE directly instead of `fc -l` — fc only sees the current
-    # shell's in-memory history, which is empty in a non-interactive run.
-    local histfile="${HISTFILE:-$HOME/.zsh_history}"
+    # Reads the history file directly instead of `fc -l` — fc only sees the
+    # current shell's in-memory history, which is empty in a non-interactive
+    # run. The path is substituted in at build time (see default.nix) rather
+    # than read from $HISTFILE here, since $HISTFILE can be unset in some
+    # calling contexts — that silently fell back to a stale ~/.zsh_history
+    # rather than the real, configured history file.
+    local histfile="@histfile@"
     # tac before dedup so the kept copy of a repeated command is its most
     # recent run, not its first-ever one.
     sed -E 's/^: [0-9]+:[0-9]+;//' "$histfile" | tac | awk '!seen[$0]++' | __fzf \

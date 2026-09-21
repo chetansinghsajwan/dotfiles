@@ -6,7 +6,13 @@
     programs.zellij.enable = true;
 
     home.file = {
-      ".config/fzf/fzf.sh".source = ./fzf.sh;
+      # fh's history file path is baked in from the zsh config below instead
+      # of read from $HISTFILE at call time, so it can't silently fall back
+      # to a stale/wrong file in a context where $HISTFILE isn't set.
+      ".config/fzf/fzf.sh".text = builtins.replaceStrings
+        [ "@histfile@" ]
+        [ config.programs.zsh.history.path ]
+        (builtins.readFile ./fzf.sh);
       ".config/fzf/fzf.zsh".source = ./fzf.zsh;
     };
 
