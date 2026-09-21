@@ -19,5 +19,5 @@
   wsl.defaultUser = config.dotfiles.user.username;
 
   networking.hostName = "nixos-wsl";
-  system.stateVersion = "23.05";
+  system.stateVersion = config.dotfiles.system.stateVersion.linux;
 }
