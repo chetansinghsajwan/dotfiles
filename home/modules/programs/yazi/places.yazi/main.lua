@@ -330,7 +330,7 @@ end)
 
 local function setup(state)
     module_state = state
-    state.visible = false
+    state.visible = true
 
     Tab.layout = function(self)
         self._chunks = chunks_for(self._area, state.visible)
@@ -355,14 +355,26 @@ local function setup(state)
     load_bookmarks(state)
     load_recent()
     ps.sub("cd", record_visit)
+
+    -- Visible by default, so it needs its first data population without
+    -- waiting for a toggle keypress. Self-invoke through the plugin entry
+    -- point (same technique yazi's own mount.yazi uses to self-refresh)
+    -- rather than calling compute_favorites/compute_drives directly here -
+    -- setup() runs once during init.lua's own execution, and routing
+    -- through ya.emit("plugin", ...) guarantees this runs in the same
+    -- context a normal keybinding invocation would, not nested inside
+    -- setup()'s.
+    ya.emit("plugin", { "places", "refresh" })
 end
 
 local function entry(_, job)
-    if not (job.args and job.args[1] == "toggle") then
-        return
-    end
+    local action = job.args and job.args[1]
 
-    if toggle_visible() then
+    if action == "toggle" then
+        if toggle_visible() then
+            commit_refresh(compute_favorites(), compute_drives())
+        end
+    elseif action == "refresh" then
         commit_refresh(compute_favorites(), compute_drives())
     end
 end
