@@ -3,16 +3,18 @@
 --- `linemode <mode>` command, which only lets you pick one fixed mode at a
 --- time. The current mode string is itself the state: init.lua names each
 --- combination by joining its active components with "_" in a fixed order
---- (see COMPONENT_ORDER there), so toggling just means parsing that string,
---- flipping one component, and re-joining. Invoke with
+--- (see COMPONENT_ORDER there), so toggling just means parsing that name
+--- back out, flipping one component, and re-joining. Invoke with
 --- `plugin linemode toggle_<perm|owner|size|time>`.
+---
+--- @sync entry
 
 local COMPONENT_ORDER = { "perm", "owner", "size", "time" }
 
-local get_mode = ya.sync(function()
-	return cx.active.pref.linemode
-end)
-
+-- @sync entry runs the whole function in the sync context directly (like
+-- toggle-pane.yazi does for rt.mgr.ratio), so cx is available without a
+-- separate ya.sync() wrapper - this plugin has no setup()/persistent
+-- state table of its own for one to attach to.
 local function entry(_, job)
 	local action = job.args and job.args[1]
 	local toggled = action and action:match("^toggle_(%a+)$")
@@ -21,7 +23,7 @@ local function entry(_, job)
 	end
 
 	local active = {}
-	for part in (get_mode() or ""):gmatch("[^_]+") do
+	for part in (cx.active.pref.linemode or ""):gmatch("[^_]+") do
 		active[part] = true
 	end
 	active[toggled] = not active[toggled]

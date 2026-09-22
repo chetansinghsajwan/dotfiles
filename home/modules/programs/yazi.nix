@@ -40,6 +40,17 @@
         linemode = "perm_time";
       };
 
+      # yazi's own defaults (600x900) cap the cached preview image below
+      # the preview pane's actual pixel area on most displays, so images
+      # render smaller than the pane even though the aspect-ratio-
+      # preserving fit itself is correct. Raise the cap so images can
+      # actually use the space they're given. Requires `ya cache clear`
+      # to apply to already-cached previews.
+      preview = {
+        max_width = 1920;
+        max_height = 1200;
+      };
+
       # yazi's own default open.rules already route text/*, json, and empty
       # files to the "edit" opener (and everything else - binaries, images,
       # archives - elsewhere), so overriding what "edit" runs is enough:
