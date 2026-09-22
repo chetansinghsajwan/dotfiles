@@ -150,7 +150,7 @@ in
       dev = mkOption {
         type = types.bool;
         default = true;
-        description = "Enable dev tools (vscode, git, neovim).";
+        description = "Enable dev tools (vscode, git, helix).";
       };
       gui = mkOption {
         type = types.bool;

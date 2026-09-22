@@ -35,7 +35,7 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 ├── home/
 │   ├── home.nix             Home Manager entry point
 │   └── modules/
-│       ├── programs/        one file per program (git, zsh, neovim, starship, ...)
+│       ├── programs/        one file per program (git, zsh, helix, starship, ...)
 │       ├── features/         optional bundles: dev, gui, gaming
 │       └── desktop/          desktop-environment modules (gnome, hyprland)
 ├── lib/                    shared helper functions

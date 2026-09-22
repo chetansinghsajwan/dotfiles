@@ -7,6 +7,8 @@
 {
   config = lib.mkIf config.programs.helix.enable {
     programs.helix = {
+      defaultEditor = true;
+
       extraPackages = with pkgs; [
         nil
         lua-language-server

@@ -8,6 +8,7 @@
     ./nixpkgs
     ./clipboard
     ./pv
+    ./op
   ]
   ++ (localLib.importDir ./.);
 }

@@ -7,7 +7,7 @@
     enableZshIntegration = config.dotfiles.shell.program == "zsh";
     enableFishIntegration = config.dotfiles.shell.program == "fish";
     installBatSyntax = config.programs.bat.enable;
-    installVimSyntax = config.programs.vim.enable || config.programs.neovim.enable;
+    installVimSyntax = config.programs.vim.enable;
 
     settings = {
       config-file = "?config-local";

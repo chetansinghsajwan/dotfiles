@@ -60,12 +60,6 @@ in
         };
       };
 
-      neovim.transparentBackground = {
-        main = true;
-        signColumn = true;
-        numberLine = true;
-      };
-
       helix.transparent = true;
 
       zed = {

@@ -65,7 +65,7 @@ in
         };
 
         core = {
-          editor = "nvim";
+          editor = "hx";
         };
 
         pull = {

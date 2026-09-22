@@ -91,7 +91,6 @@ in
     gh.enable = true;
     fd.enable = true;
     yt-dlp.enable = true;
-    neovim.enable = true;
     helix.enable = true;
     btop.enable = true;
     eza.enable = true;

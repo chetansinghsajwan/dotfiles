@@ -25,7 +25,7 @@ standalone Home Manager. It configures three machines:
   (e.g. `hardware-configuration.nix`, `kanata.nix`).
 - `hosts/shared.nix` — settings common to all NixOS/darwin hosts.
 - `home/home.nix` — Home Manager entry point.
-- `home/modules/programs/*.nix` — one file per program (git, zsh, neovim,
+- `home/modules/programs/*.nix` — one file per program (git, zsh, helix,
   starship, etc.), each a self-contained Home Manager module.
 - `home/modules/features/*.nix` — optional feature bundles gated by
   `config.dotfiles.features.*` (dev, gui, gaming).
