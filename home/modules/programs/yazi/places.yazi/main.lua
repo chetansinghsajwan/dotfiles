@@ -209,13 +209,17 @@ end
 
 -- ***** Rendering *****
 
+-- Indents entries under their section header, so the header reads as a
+-- title and the entries as a nested list rather than all flush-left.
+local ENTRY_INDENT = "  "
+
 local function section(lines, title, entries, empty_text)
     lines[#lines + 1] = ui.Line(ui.Span(title):fg(DIM):bold())
     if #entries == 0 then
-        lines[#lines + 1] = ui.Line(ui.Span(empty_text or "-"):fg(DIM))
+        lines[#lines + 1] = ui.Line(ui.Span(ENTRY_INDENT .. (empty_text or "-")):fg(DIM))
     else
         for _, entry in ipairs(entries) do
-            lines[#lines + 1] = ui.Line(ui.Span(entry))
+            lines[#lines + 1] = ui.Line(ui.Span(ENTRY_INDENT .. entry))
         end
     end
     lines[#lines + 1] = ui.Line("")
