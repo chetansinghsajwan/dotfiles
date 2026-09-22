@@ -27,6 +27,31 @@
         linemode = "perm_mtime";
       };
 
+      opener = {
+        op = [
+          {
+            run = ''op "$0"'';
+            block = true;
+            desc = "Open";
+          }
+        ];
+      };
+
+      open = {
+        prepend_rules = [
+          {
+            # Same split as the previewer above: op itself routes CSV/TSV to
+            # csvlens and everything else text-like to $EDITOR.
+            mime = "text/*";
+            use = "op";
+          }
+          {
+            mime = "application/{json,ndjson}";
+            use = "op";
+          }
+        ];
+      };
+
       plugin = {
         prepend_previewers = [
           {
