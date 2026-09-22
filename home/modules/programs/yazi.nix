@@ -13,6 +13,7 @@
     plugins = {
       full-border = pkgs.yaziPlugins.full-border;
       bookmarks = pkgs.yaziPlugins.bookmarks;
+      toggle-pane = pkgs.yaziPlugins.toggle-pane;
       properties = ./yazi/properties.yazi;
       places = ./yazi/places.yazi;
       piper = pkgs.yaziPlugins.piper;
@@ -81,14 +82,19 @@
     keymap = {
       mgr.prepend_keymap = [
         {
-          on = [ "m" ];
-          run = "plugin properties toggle";
-          desc = "Toggle the file properties panel";
+          on = [ "p" "p" ];
+          run = "plugin toggle-pane min-preview";
+          desc = "Toggle the preview pane";
         }
         {
-          on = [ "P" ];
+          on = [ "p" "q" ];
           run = "plugin places toggle";
-          desc = "Toggle the places panel (favorites/bookmarks/drives/recents/tabs)";
+          desc = "Toggle the quickbar (favorites/bookmarks/drives/recents/tabs)";
+        }
+        {
+          on = [ "p" "m" ];
+          run = "plugin properties toggle";
+          desc = "Toggle the file metadata panel";
         }
         {
           on = [ "b" "s" ];
