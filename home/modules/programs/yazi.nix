@@ -182,6 +182,23 @@
           desc = "Open help";
         }
 
+        # yazi's default { / } bindings run "tab_swap -1"/"tab_swap 1" - a
+        # raw numeric offset, which clamps at the first/last tab instead
+        # of wrapping (silently does nothing past the ends). Passing the
+        # step as a string ("prev"/"next") instead of a number hits a
+        # different code path in yazi's Step::add that wraps with
+        # rem_euclid, so reordering past either end cycles to the other.
+        {
+          on = [ "{" ];
+          run = "tab_swap prev";
+          desc = "Swap current tab with previous tab";
+        }
+        {
+          on = [ "}" ];
+          run = "tab_swap next";
+          desc = "Swap current tab with next tab";
+        }
+
         # Renames yazi's default "create a new tab" from t t to t n, and
         # adds t q to close the current tab (yazi has no default binding
         # for that specifically - only <C-c>, which also quits if it's
