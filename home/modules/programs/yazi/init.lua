@@ -1,4 +1,36 @@
-require("full-border"):setup()
+-- Reimplements full-border's Tab.build wrapper (padding + outer/inner
+-- border) with one addition: the current pane's border is titled with the
+-- full cwd. full-border itself has no option for this, so this forks its
+-- ~12-line setup rather than fighting it via further monkey-patching -
+-- must run first (in full-border's place), since properties/places below
+-- chain through whatever Tab.build already is and expect this padding to
+-- have already happened by the time they run.
+do
+	local border_type = ui.Border.ROUNDED
+	local old_build = Tab.build
+
+	Tab.build = function(self, ...)
+		local c = self._chunks
+		self._chunks = {
+			c[1]:pad(ui.Pad.y(1)),
+			c[2]:pad(ui.Pad.y(1)),
+			c[3]:pad(ui.Pad.y(1)),
+		}
+
+		local style = th.mgr.border_style
+		self._base = ya.list_merge(self._base or {}, {
+			ui.Border(ui.Edge.ALL)
+				:area(c[2])
+				:type(border_type)
+				:style(style)
+				:title(ui.Line(tostring(self._tab.current.cwd)):align(ui.Align.LEFT)),
+			ui.Border(ui.Edge.ALL):area(self._area):type(border_type):style(style):merge(),
+		})
+
+		old_build(self, ...)
+	end
+end
+
 require("bookmarks"):setup()
 require("properties"):setup()
 -- Must load after properties: its Tab.build wrapper needs to run outermost,
@@ -6,20 +38,6 @@ require("properties"):setup()
 -- already padded and self._children already built by the time it swaps in
 -- the places panel.
 require("places"):setup()
-
--- yazi's header already shows the cwd on the left by default, but via
--- ya.readable_path, which abbreviates $HOME to "~" - show the literal full
--- path instead. Same truncation/flags/styling as the stock Header:cwd,
--- just without the abbreviation step.
-function Header:cwd()
-	local max = self._area.w - self._right_width
-	if max <= 0 then
-		return ""
-	end
-
-	local s = tostring(self._current.cwd) .. self:flags()
-	return ui.Span(ui.truncate(s, { max = max, rtl = true })):style(th.mgr.cwd)
-end
 
 -- Trim the status line to just the mode and position pills — name/size/perm
 -- already live in the properties panel, and the scroll-percent pill is noise.

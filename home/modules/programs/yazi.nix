@@ -11,7 +11,6 @@
     shellWrapperName = "y";
 
     plugins = {
-      full-border = pkgs.yaziPlugins.full-border;
       bookmarks = pkgs.yaziPlugins.bookmarks;
       properties = ./yazi/properties.yazi;
       places = ./yazi/places.yazi;
