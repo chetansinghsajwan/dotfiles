@@ -164,6 +164,11 @@
           run = "plugin bookmarks delete_all";
           desc = "Delete all bookmarks";
         }
+        {
+          on = [ "?" ];
+          run = "help";
+          desc = "Open help";
+        }
       ];
     };
   };
