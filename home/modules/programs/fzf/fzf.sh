@@ -147,6 +147,21 @@ function fe() {
         --preview 'echo {2..} | tr : "\n"'
 }
 
+# fcmd - fuzzy search available commands (builtins, functions, aliases, PATH executables)
+function fcmd() {
+    {
+        if [[ -n $ZSH_VERSION ]]; then
+            print -rl -- "${(@ok)commands}" "${(@ok)functions}" "${(@ok)aliases}" "${(@ok)reswords}"
+        else
+            compgen -c
+        fi
+    } | sort -u | __fzf \
+        --label "Commands" \
+        --no-multi \
+        -- \
+        --preview 'type {1} 2>/dev/null'
+}
+
 # fssh - fuzzy ssh host search
 function fssh() {
     awk '/^Host / {for (i=2;i<=NF;i++) if ($i !~ /[*?]/) print $i}' ~/.ssh/config 2>/dev/null |

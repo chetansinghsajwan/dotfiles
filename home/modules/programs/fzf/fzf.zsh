@@ -45,6 +45,7 @@ __fzf_menu_dispatch() {
         "fs    text search"
         "fp    process"
         "fe    env"
+        "fcmd  command"
         "fssh  ssh host"
     )
     local -a available=()
@@ -68,6 +69,7 @@ __fzf_menu_dispatch() {
     fs\ *) fs ;;
     fp\ *) fp ;;
     fe\ *) fe ;;
+    fcmd\ *) fcmd ;;
     fssh\ *) fssh ;;
     esac
 }
