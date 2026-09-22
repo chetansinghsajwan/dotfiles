@@ -111,7 +111,7 @@ local function is_archive(mime)
 	if not mime then
 		return false
 	end
-	for _, needle in ipairs({ "zip", "tar", "7z", "rar", "gzip", "bzip", "x-xz", "x-lzma" }) do
+	for _, needle in ipairs({ "zip", "tar", "7z", "rar", "gzip", "bzip", "xz", "lzma", "zstd" }) do
 		if mime:find(needle, 1, true) then
 			return true
 		end
@@ -434,9 +434,12 @@ local function setup(state)
 			return
 		end
 
+		-- Fixed height: 1 border + up to 9 content rows (name, perm, owner, size,
+		-- modified, created, links, type, and the optional type-specific row) —
+		-- a percentage split truncates that last row on most terminal sizes.
 		local parts = ui.Layout()
 			:direction(ui.Layout.VERTICAL)
-			:constraints({ ui.Constraint.Percentage(80), ui.Constraint.Percentage(20) })
+			:constraints({ ui.Constraint.Min(0), ui.Constraint.Length(10) })
 			:split(self._chunks[3])
 
 		for i, child in ipairs(self._children) do

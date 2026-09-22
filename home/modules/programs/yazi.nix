@@ -46,7 +46,11 @@
         # Background metadata for the properties panel's type-specific row.
         prepend_fetchers = [
           {
-            mime = "application/{zip,x-tar,x-7z-compressed,gzip,x-gzip,x-bzip,x-bzip2,x-xz,x-rar,x-rar-compressed,vnd.rar}";
+            # yazi's own mime sniffer reports these without the "x-" IANA
+            # prefix (e.g. "application/7z-compressed", not
+            # "application/x-7z-compressed") — both forms are listed since
+            # that's undocumented and could vary by yazi version.
+            mime = "application/{zip,tar,x-tar,7z-compressed,x-7z-compressed,gzip,x-gzip,bzip,bzip2,x-bzip,x-bzip2,xz,x-xz,zstd,rar,x-rar,x-rar-compressed,vnd.rar}";
             run = "properties archive";
             group = "properties-archive";
           }
