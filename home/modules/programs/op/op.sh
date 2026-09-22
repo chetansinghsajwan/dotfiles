@@ -24,10 +24,13 @@ open_text() {
 
     # file's own "text/binary" call, not the mime type list above, decides
     # whether this is editable text - covers text files under any of the
-    # many text/* and application/* mimes (json, yaml, toml, ...).
+    # many text/* and application/* mimes (json, yaml, toml, ...). A
+    # zero-byte file has no content to sample, so file always calls its
+    # encoding "binary" - treat it as text since there's nothing it could
+    # disagree with, and it's normal to open a new empty file to edit.
     local encoding
     encoding=$(file --brief --dereference --mime-encoding -- "$file_path")
-    if [[ "$encoding" != "binary" ]]; then
+    if [[ "$encoding" != "binary" || ! -s "$file_path" ]]; then
         exec "${EDITOR:-hx}" "$file_path"
     fi
 

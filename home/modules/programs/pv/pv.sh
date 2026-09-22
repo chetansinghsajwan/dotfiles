@@ -49,9 +49,12 @@ render_text() {
     # file's own "text/binary" call, not the mime type list above, decides
     # whether bat can handle it - covers text files under any of the many
     # text/* and application/* mimes bat already knows how to syntax-highlight.
+    # A zero-byte file has no content to sample, so file always calls its
+    # encoding "binary" - treat it as text since there's nothing it could
+    # disagree with.
     local encoding
     encoding=$(file --brief --dereference --mime-encoding -- "$file_path")
-    if [[ "$encoding" != "binary" ]]; then
+    if [[ "$encoding" != "binary" || ! -s "$file_path" ]]; then
         exec bat --color=always --style=numbers --paging=never -- "$file_path"
     fi
 

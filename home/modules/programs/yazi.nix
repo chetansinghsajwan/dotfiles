@@ -27,30 +27,23 @@
         linemode = "perm_mtime";
       };
 
-      opener = {
-        op = [
-          {
-            run = ''op "$0"'';
-            block = true;
-            desc = "Open";
-          }
-        ];
-      };
-
-      open = {
-        prepend_rules = [
-          {
-            # Same split as the previewer above: op itself routes CSV/TSV to
-            # csvlens and everything else text-like to $EDITOR.
-            mime = "text/*";
-            use = "op";
-          }
-          {
-            mime = "application/{json,ndjson}";
-            use = "op";
-          }
-        ];
-      };
+      # yazi's own default open.rules already route text/*, json, and empty
+      # files to the "edit" opener (and everything else - binaries, images,
+      # archives - elsewhere), so overriding what "edit" runs is enough:
+      # no need to duplicate that mime matching with custom rules, and
+      # nothing that isn't genuinely text ever reaches op.
+      # %s (not "$0"/"$@" - that's stale docs for an older yazi; the actual
+      # template syntax is %-prefixed and already shell-quotes the path)
+      # expands to the open action's target file(s). Without spread=true,
+      # yazi chunks a multi-file open into one invocation per file, so %s
+      # here is always exactly the single file op expects.
+      opener.edit = [
+        {
+          run = "op %s";
+          block = true;
+          desc = "Edit";
+        }
+      ];
 
       plugin = {
         prepend_previewers = [
