@@ -7,18 +7,60 @@ require("properties"):setup()
 -- the places panel.
 require("places"):setup()
 
--- yazi's header already shows the cwd on the left by default, but via
--- ya.readable_path, which abbreviates $HOME to "~" - show the literal full
--- path instead. Same truncation/flags/styling as the stock Header:cwd,
--- just without the abbreviation step.
-function Header:cwd()
-    local max = self._area.w - self._right_width
-    if max <= 0 then
-        return ""
-    end
+-- Shows the full cwd (not header's abbreviated ~-relative one) as a
+-- wrapping banner above the files list, instead of squeezed into the
+-- header where it'd truncate with an ellipsis - long paths just wrap
+-- onto CWD_BANNER_HEIGHT lines instead of losing the front of the path.
+-- A border :title() can't wrap at all (tried and reverted - see git log),
+-- hence a real Text element carved out of the current pane's own area.
+local CWD_BANNER_HEIGHT = 2
 
-    local s = tostring(self._current.cwd) .. self:flags()
-    return ui.Span(ui.truncate(s, { max = max, rtl = true })):style(th.mgr.cwd)
+CwdBanner = { _id = "current" }
+
+function CwdBanner:new(area, tab)
+    local parts = ui.Layout()
+        :direction(ui.Layout.VERTICAL)
+        :constraints({ ui.Constraint.Length(CWD_BANNER_HEIGHT), ui.Constraint.Min(0) })
+        :split(area)
+
+    return setmetatable({
+        _banner_area = parts[1],
+        _current = Current:new(parts[2], tab),
+        _tab = tab,
+    }, { __index = self })
+end
+
+function CwdBanner:reflow() return { self } end
+
+function CwdBanner:redraw()
+    local banner = ui.Text(tostring(self._tab.current.cwd))
+        :area(self._banner_area)
+        :wrap(ui.Wrap.YES)
+        :style(th.mgr.cwd)
+
+    local rest = self._current:redraw()
+    table.insert(rest, 1, banner)
+    return rest
+end
+
+function CwdBanner:click(event, up) return self._current:click(event, up) end
+function CwdBanner:scroll(event, step) return self._current:scroll(event, step) end
+function CwdBanner:touch(event, step) return self._current:touch(event, step) end
+function CwdBanner:drag(event) return self._current:drag(event) end
+function CwdBanner:drop(event) return self._current:drop(event) end
+
+do
+    local old_build = Tab.build
+    Tab.build = function(self, ...)
+        old_build(self, ...)
+
+        for i, child in ipairs(self._children) do
+            if child._id == "current" then
+                self._children[i] = CwdBanner:new(child._area, self._tab)
+                break
+            end
+        end
+    end
 end
 
 -- Trim the status line to just the mode and position pills — name/size/perm
