@@ -24,7 +24,7 @@ _: {
 
       customCommands = [
         {
-          key = "t";
+          key = "l";
           context = "worktrees";
           description = "Toggle worktree lock";
           # lazygit's worktree model doesn't expose lock state, so this
