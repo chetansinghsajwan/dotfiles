@@ -182,13 +182,13 @@
           desc = "Open help";
         }
 
-        # Replaces yazi's default linemode leader ("m") entirely: rather
-        # than the fixed one-at-a-time modes it offers, this toggles
-        # permissions/owner/size/time independently, combining whichever
+        # Replaces yazi's default linemode leader ("m") entries with
+        # independent toggles for permissions/owner/size/time instead of
+        # the fixed one-at-a-time modes yazi offers, combining whichever
         # are on into one of the linemodes init.lua generates.
         {
           on = [
-            "l"
+            "m"
             "p"
           ];
           run = "plugin linemode toggle_perm";
@@ -196,7 +196,7 @@
         }
         {
           on = [
-            "l"
+            "m"
             "t"
           ];
           run = "plugin linemode toggle_time";
@@ -204,7 +204,7 @@
         }
         {
           on = [
-            "l"
+            "m"
             "o"
           ];
           run = "plugin linemode toggle_owner";
@@ -212,26 +212,15 @@
         }
         {
           on = [
-            "l"
+            "m"
             "s"
           ];
           run = "plugin linemode toggle_size";
           desc = "Toggle size in the linemode";
         }
-        {
-          on = [
-            "m"
-            "s"
-          ];
-          run = "noop";
-        }
-        {
-          on = [
-            "m"
-            "p"
-          ];
-          run = "noop";
-        }
+        # m p/m o/m s are now the real toggles above; only the yazi
+        # defaults not being reused (btime, mtime, none) still need
+        # neutralizing.
         {
           on = [
             "m"
@@ -243,13 +232,6 @@
           on = [
             "m"
             "m"
-          ];
-          run = "noop";
-        }
-        {
-          on = [
-            "m"
-            "o"
           ];
           run = "noop";
         }

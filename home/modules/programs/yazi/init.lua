@@ -6,19 +6,56 @@ require("properties"):setup()
 -- already padded and self._children already built by the time it swaps in
 -- the places panel.
 require("places"):setup()
+-- Gives linemode.yazi's ya.sync() a state table to attach to - without
+-- this it crashes at runtime ("error converting lua nil to table") even
+-- though its entry() never uses the state itself.
+require("linemode"):setup()
 
--- yazi's header already shows the cwd on the left by default, but via
--- ya.readable_path, which abbreviates $HOME to "~" - show the literal full
--- path instead. Same truncation/flags/styling as the stock Header:cwd,
--- just without the abbreviation step.
-function Header:cwd()
-    local max = self._area.w - self._right_width
-    if max <= 0 then
-        return ""
+-- Shows the full cwd (not header's abbreviated ~-relative one) as a
+-- wrapping banner above the files list, instead of squeezed into the
+-- header where it'd truncate with an ellipsis. A border :title() was
+-- tried for this first and reverted because titles can't wrap at all;
+-- replacing the "current" component with a wrapper wasn't a good idea
+-- either (broke the entire UI - blank screen, no error). This instead
+-- shrinks the current chunk before yazi builds it (the same technique
+-- properties.yazi uses to shrink chunk[3] for its own panel) and adds
+-- the banner as an independent sibling child, never touching Current
+-- itself.
+local CWD_BANNER_HEIGHT = 2
+
+CwdBanner = { _id = "cwd_banner" }
+
+function CwdBanner:new(area, tab)
+    return setmetatable({ _area = area, _tab = tab }, { __index = self })
+end
+
+function CwdBanner:reflow() return { self } end
+
+function CwdBanner:redraw()
+    return {
+        ui.Text(tostring(self._tab.current.cwd)):area(self._area):wrap(ui.Wrap.YES):style(th.mgr.cwd),
+    }
+end
+
+function CwdBanner:click(event, up) end
+function CwdBanner:scroll(event, step) end
+function CwdBanner:touch(event, step) end
+
+do
+    local old_build = Tab.build
+    Tab.build = function(self, ...)
+        -- Chunk 1 = parent, 2 = current, 3 = preview (places.yazi/
+        -- properties.yazi rely on this same indexing).
+        local parts = ui.Layout()
+            :direction(ui.Layout.VERTICAL)
+            :constraints({ ui.Constraint.Length(CWD_BANNER_HEIGHT), ui.Constraint.Min(0) })
+            :split(self._chunks[2])
+        self._chunks[2] = parts[2]
+
+        old_build(self, ...)
+
+        table.insert(self._children, CwdBanner:new(parts[1], self._tab))
     end
-
-    local s = tostring(self._current.cwd) .. self:flags()
-    return ui.Span(ui.truncate(s, { max = max, rtl = true })):style(th.mgr.cwd)
 end
 
 -- Trim the status line to just the mode and position pills — name/size/perm
