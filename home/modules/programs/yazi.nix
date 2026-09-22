@@ -1,4 +1,4 @@
-{ config, pkgs, ... }: {
+{ config, lib, pkgs, ... }: {
   home.packages = [
     pkgs._7zz # archive entry/method listing for the properties panel
     pkgs.ffmpeg-headless # ffprobe, for media duration/codec in the properties panel
@@ -20,6 +20,14 @@
     };
 
     initLua = ./yazi/init.lua;
+
+    # Stylix's yazi target (modules/yazi/hm.nix) paints which.mask with a
+    # solid base02 background for legibility. That's an explicit color, not
+    # the terminal's default background, so Ghostty's opacity.terminal only
+    # applies to the rest of the UI - the which-key popup renders as an
+    # opaque box against everything else's translucency. mkForce is needed
+    # since stylix's target sets the same leaf at normal priority too.
+    theme.which.mask = lib.mkForce { };
 
     settings = {
       mgr = {
