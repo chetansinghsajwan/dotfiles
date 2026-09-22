@@ -11,7 +11,7 @@
 
 local DIM = "darkgray"
 local BASE_RATIO = { 0, 3, 6 } -- must match `mgr.ratio` in yazi.nix
-local SIDEBAR_WEIGHT = 2
+local SIDEBAR_WEIGHT = 1
 local RECENT_LIMIT = 8
 
 -- Holds the plugin's persistent sync state once `setup` runs, so the
