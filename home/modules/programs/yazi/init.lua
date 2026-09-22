@@ -141,24 +141,36 @@ end
 
 -- Each render_* returns a plain array of spans (even when it's just one),
 -- so the composer below can always flatten uniformly instead of having to
--- tell "one span" and "an array of spans" apart at runtime.
+-- tell "one span" and "an array of spans" apart at runtime. Every
+-- component pads to a fixed width (right-aligned, like ls -la columns)
+-- so a mode's column stays flush row-to-row instead of jittering with
+-- each file's actual perm string/username/size/time length. perm is
+-- naturally fixed (perm_spans always emits 9 chars + 2 separators,
+-- fallback included); owner/size/time are padded here to match.
 local function render_perm(self)
     return perm_spans(self._file.cha)
 end
 
+-- 20 chars comfortably fits "user:group" for realistic name lengths
+-- without being excessive; genuinely long names just overflow it rather
+-- than get truncated and lose information.
+local OWNER_WIDTH = 20
+
 local function render_owner(self)
     local cha = self._file.cha
-    if not (cha and cha.uid) then
-        return { ui.Span("-"):fg("darkgray") }
+    local text = "-"
+    if cha and cha.uid then
+        local user = ya.user_name and ya.user_name(cha.uid) or tostring(cha.uid)
+        local group = ya.group_name and ya.group_name(cha.gid) or tostring(cha.gid)
+        text = string.format("%s:%s", user, group)
     end
-    local user = ya.user_name and ya.user_name(cha.uid) or tostring(cha.uid)
-    local group = ya.group_name and ya.group_name(cha.gid) or tostring(cha.gid)
-    return { ui.Span(string.format("%s:%s", user, group)):fg("darkgray") }
+    return { ui.Span(string.format("%" .. OWNER_WIDTH .. "s", text)):fg("darkgray") }
 end
 
 local function render_size(self)
     local size = self._file:size()
-    return { ui.Span(size and ya.readable_size(size) or "-"):fg("darkgray") }
+    local text = size and ya.readable_size(size) or "-"
+    return { ui.Span(string.format("%8s", text)):fg("darkgray") }
 end
 
 local function render_time(self)
