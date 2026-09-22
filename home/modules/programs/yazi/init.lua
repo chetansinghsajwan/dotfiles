@@ -17,13 +17,22 @@ require("linemode-toggle"):setup()
 -- Shows the full cwd (not header's abbreviated ~-relative one) as a
 -- wrapping banner above the files list, instead of squeezed into the
 -- header where it'd truncate with an ellipsis. A border :title() was
--- tried for this first and reverted because titles can't wrap at all;
--- replacing the "current" component with a wrapper wasn't a good idea
--- either (broke the entire UI - blank screen, no error). This instead
--- shrinks the current chunk before yazi builds it (the same technique
--- properties.yazi uses to shrink chunk[3] for its own panel) and adds
--- the banner as an independent sibling child, never touching Current
--- itself.
+-- tried for this first and reverted because titles can't wrap at all.
+-- Replacing "current" with a wrapper broke the entire UI (blank
+-- screen). Splitting self._chunks[2] before old_build (like
+-- properties.yazi does for chunk[3]) put the banner *outside*
+-- full-border's border, since full-border draws around whatever
+-- self._chunks[2] already is by the time its own wrapper runs -
+-- shrinking it first meant the border wrapped only the leftover space,
+-- not the banner too.
+--
+-- This instead waits until AFTER old_build, when "current" already has
+-- its real area - the border-padded interior full-border built it
+-- with - and splits THAT, so the banner ends up inside the same
+-- bordered box as the file list. Only current's _area field is
+-- adjusted in place (same instance, not replaced/wrapped - the thing
+-- that broke the UI last time), and the banner is added as an
+-- independent sibling child.
 local CWD_BANNER_HEIGHT = 2
 
 CwdBanner = { _id = "cwd_banner" }
@@ -47,17 +56,20 @@ function CwdBanner:touch(event, step) end
 do
     local old_build = Tab.build
     Tab.build = function(self, ...)
-        -- Chunk 1 = parent, 2 = current, 3 = preview (places.yazi/
-        -- properties.yazi rely on this same indexing).
-        local parts = ui.Layout()
-            :direction(ui.Layout.VERTICAL)
-            :constraints({ ui.Constraint.Length(CWD_BANNER_HEIGHT), ui.Constraint.Min(0) })
-            :split(self._chunks[2])
-        self._chunks[2] = parts[2]
-
         old_build(self, ...)
 
-        table.insert(self._children, CwdBanner:new(parts[1], self._tab))
+        for _, child in ipairs(self._children) do
+            if child._id == "current" then
+                local parts = ui.Layout()
+                    :direction(ui.Layout.VERTICAL)
+                    :constraints({ ui.Constraint.Length(CWD_BANNER_HEIGHT), ui.Constraint.Min(0) })
+                    :split(child._area)
+
+                child._area = parts[2]
+                table.insert(self._children, CwdBanner:new(parts[1], self._tab))
+                break
+            end
+        end
     end
 end
 
