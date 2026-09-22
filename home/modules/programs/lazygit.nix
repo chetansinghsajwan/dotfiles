@@ -22,6 +22,20 @@ _: {
         copyToClipboardCmd = "wl-copy {{text}}";
       };
 
+      customCommands = [
+        {
+          key = "t";
+          context = "worktrees";
+          description = "Toggle worktree lock";
+          # lazygit's worktree model doesn't expose lock state, so this
+          # checks `git worktree list --porcelain` itself and locks or
+          # unlocks the selected worktree accordingly.
+          command = ''sh -c 'p="$1"; if git worktree list --porcelain | awk -v p="$p" "\$0==\"worktree \"p{f=1;next} /^\$/{f=0} f&&/^locked/{print;exit}" | grep -q locked; then git worktree unlock "$p" && echo "Unlocked $p"; else git worktree lock "$p" && echo "Locked $p"; fi' -- {{ .SelectedWorktree.Path | quote }}'';
+          output = "popup";
+          outputTitle = "Worktree lock";
+        }
+      ];
+
       gui = {
         nerdFontsVersion = "3";
 
