@@ -34,10 +34,14 @@ for i = #Status._right, 1, -1 do
     end
 end
 
--- Combined "permissions + relative mtime" linemode for the files pane.
--- Permissions are rendered as three spaced, colorized rwx triplets
--- (owner in full color, group/other dimmed, special bits highlighted)
--- instead of a raw `ls -la` string, and mtime is a relative duration.
+-- Toggleable linemode for the files pane: permissions, owner, size, and
+-- relative mtime, independently switched on/off (see linemode.yazi) and
+-- combined into a single line. Every non-empty subset gets its own
+-- Linemode method, named by joining its active components with "_" in
+-- COMPONENT_ORDER - e.g. perm+time is "perm_time", perm alone is "perm".
+-- Permissions render as three spaced, colorized rwx triplets (owner in
+-- full color, group/other dimmed, special bits highlighted) instead of a
+-- raw `ls -la` string; the rest are single dimmed spans.
 local function perm_span(ch, is_owner)
     if ch == "s" or ch == "S" or ch == "t" or ch == "T" then
         return ui.Span(ch):fg("magenta"):bold()
@@ -95,10 +99,61 @@ local function relative_time(time)
     end
 end
 
-function Linemode:perm_mtime()
-    local spans = perm_spans(self._file.cha)
-    spans[#spans + 1] = ui.Span("  ")
+-- Each render_* returns a plain array of spans (even when it's just one),
+-- so the composer below can always flatten uniformly instead of having to
+-- tell "one span" and "an array of spans" apart at runtime.
+local function render_perm(self)
+    return perm_spans(self._file.cha)
+end
+
+local function render_owner(self)
+    local cha = self._file.cha
+    if not (cha and cha.uid) then
+        return { ui.Span("-"):fg("darkgray") }
+    end
+    local user = ya.user_name and ya.user_name(cha.uid) or tostring(cha.uid)
+    local group = ya.group_name and ya.group_name(cha.gid) or tostring(cha.gid)
+    return { ui.Span(string.format("%s:%s", user, group)):fg("darkgray") }
+end
+
+local function render_size(self)
+    local size = self._file:size()
+    return { ui.Span(size and ya.readable_size(size) or "-"):fg("darkgray") }
+end
+
+local function render_time(self)
     local time = relative_time(self._file.cha and self._file.cha.mtime)
-    spans[#spans + 1] = ui.Span(string.format("%8s", time)):fg("darkgray")
-    return spans
+    return { ui.Span(string.format("%8s", time)):fg("darkgray") }
+end
+
+-- Fixed left-to-right order components appear in when combined, and the
+-- order their names are joined in to name each combination.
+local COMPONENT_ORDER = {
+    { key = "perm", render = render_perm },
+    { key = "owner", render = render_owner },
+    { key = "size", render = render_size },
+    { key = "time", render = render_time },
+}
+
+for mask = 1, (2 ^ #COMPONENT_ORDER) - 1 do
+    local names, renders = {}, {}
+    for i, component in ipairs(COMPONENT_ORDER) do
+        if (mask >> (i - 1)) & 1 == 1 then
+            names[#names + 1] = component.key
+            renders[#renders + 1] = component.render
+        end
+    end
+
+    Linemode[table.concat(names, "_")] = function(self)
+        local spans = {}
+        for i, render in ipairs(renders) do
+            if i > 1 then
+                spans[#spans + 1] = ui.Span("  ")
+            end
+            for _, span in ipairs(render(self)) do
+                spans[#spans + 1] = span
+            end
+        end
+        return spans
+    end
 end

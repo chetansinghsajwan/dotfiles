@@ -16,6 +16,7 @@
       toggle-pane = pkgs.yaziPlugins.toggle-pane;
       properties = ./yazi/properties.yazi;
       places = ./yazi/places.yazi;
+      linemode = ./yazi/linemode.yazi;
       piper = pkgs.yaziPlugins.piper;
     };
 
@@ -36,7 +37,7 @@
           3
           6
         ];
-        linemode = "perm_mtime";
+        linemode = "perm_time";
       };
 
       # yazi's own default open.rules already route text/*, json, and empty
@@ -168,6 +169,85 @@
           on = [ "?" ];
           run = "help";
           desc = "Open help";
+        }
+
+        # Replaces yazi's default linemode leader ("m") entirely: rather
+        # than the fixed one-at-a-time modes it offers, this toggles
+        # permissions/owner/size/time independently, combining whichever
+        # are on into one of the linemodes init.lua generates.
+        {
+          on = [
+            "l"
+            "p"
+          ];
+          run = "plugin linemode toggle_perm";
+          desc = "Toggle permissions in the linemode";
+        }
+        {
+          on = [
+            "l"
+            "t"
+          ];
+          run = "plugin linemode toggle_time";
+          desc = "Toggle time in the linemode";
+        }
+        {
+          on = [
+            "l"
+            "o"
+          ];
+          run = "plugin linemode toggle_owner";
+          desc = "Toggle owner in the linemode";
+        }
+        {
+          on = [
+            "l"
+            "s"
+          ];
+          run = "plugin linemode toggle_size";
+          desc = "Toggle size in the linemode";
+        }
+        {
+          on = [
+            "m"
+            "s"
+          ];
+          run = "noop";
+        }
+        {
+          on = [
+            "m"
+            "p"
+          ];
+          run = "noop";
+        }
+        {
+          on = [
+            "m"
+            "b"
+          ];
+          run = "noop";
+        }
+        {
+          on = [
+            "m"
+            "m"
+          ];
+          run = "noop";
+        }
+        {
+          on = [
+            "m"
+            "o"
+          ];
+          run = "noop";
+        }
+        {
+          on = [
+            "m"
+            "n"
+          ];
+          run = "noop";
         }
       ];
     };
