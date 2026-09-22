@@ -182,6 +182,34 @@
           desc = "Open help";
         }
 
+        # Renames yazi's default "create a new tab" from t t to t n, and
+        # adds t q to close the current tab (yazi has no default binding
+        # for that specifically - only <C-c>, which also quits if it's
+        # the last tab). t r (rename tab) is untouched.
+        {
+          on = [
+            "t"
+            "n"
+          ];
+          run = "tab_create --current";
+          desc = "Create a new tab in CWD";
+        }
+        {
+          on = [
+            "t"
+            "q"
+          ];
+          run = "close";
+          desc = "Close the current tab";
+        }
+        {
+          on = [
+            "t"
+            "t"
+          ];
+          run = "noop";
+        }
+
         # Replaces yazi's default linemode leader ("m") entries with
         # independent toggles for permissions/owner/size/time instead of
         # the fixed one-at-a-time modes yazi offers, combining whichever
