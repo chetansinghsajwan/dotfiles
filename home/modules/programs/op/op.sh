@@ -26,7 +26,7 @@ open_text() {
     # whether this is editable text - covers text files under any of the
     # many text/* and application/* mimes (json, yaml, toml, ...).
     local encoding
-    encoding=$(file --brief --mime-encoding -- "$file_path")
+    encoding=$(file --brief --dereference --mime-encoding -- "$file_path")
     if [[ "$encoding" != "binary" ]]; then
         exec "${EDITOR:-hx}" "$file_path"
     fi
@@ -44,7 +44,7 @@ if [[ ! -f "$file_path" ]]; then
     exit 1
 fi
 
-mime=$(file --brief --mime-type -- "$file_path")
+mime=$(file --brief --dereference --mime-type -- "$file_path")
 
 if is_tabular "$file_path" "$mime"; then
     open_tabular "$file_path"

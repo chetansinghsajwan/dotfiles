@@ -50,7 +50,7 @@ render_text() {
     # whether bat can handle it - covers text files under any of the many
     # text/* and application/* mimes bat already knows how to syntax-highlight.
     local encoding
-    encoding=$(file --brief --mime-encoding -- "$file_path")
+    encoding=$(file --brief --dereference --mime-encoding -- "$file_path")
     if [[ "$encoding" != "binary" ]]; then
         exec bat --color=always --style=numbers --paging=never -- "$file_path"
     fi
@@ -68,7 +68,7 @@ if [[ ! -f "$file_path" ]]; then
     exit 1
 fi
 
-mime=$(file --brief --mime-type -- "$file_path")
+mime=$(file --brief --dereference --mime-type -- "$file_path")
 
 if is_tabular "$file_path" "$mime"; then
     render_tabular "$file_path"
