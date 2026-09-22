@@ -6,10 +6,13 @@ require("properties"):setup()
 -- already padded and self._children already built by the time it swaps in
 -- the places panel.
 require("places"):setup()
--- Gives linemode.yazi's ya.sync() a state table to attach to - without
--- this it crashes at runtime ("error converting lua nil to table") even
--- though its entry() never uses the state itself.
-require("linemode"):setup()
+-- Gives linemode-toggle.yazi's ya.sync() a state table to attach to -
+-- without this it crashes at runtime ("error converting lua nil to
+-- table") even though its entry() never uses the state itself. Named
+-- "linemode-toggle", not "linemode" - the latter collided with the
+-- built-in Linemode global (require() itself failed with the exact same
+-- "nil to table" error, before this plugin's own code ever ran).
+require("linemode-toggle"):setup()
 
 -- Shows the full cwd (not header's abbreviated ~-relative one) as a
 -- wrapping banner above the files list, instead of squeezed into the

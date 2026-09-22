@@ -5,14 +5,19 @@
 --- combination by joining its active components with "_" in a fixed order
 --- (see COMPONENT_ORDER there), so toggling just means parsing that name
 --- back out, flipping one component, and re-joining. Invoke with
---- `plugin linemode toggle_<perm|owner|size|time>`.
+--- `plugin linemode-toggle toggle_<perm|owner|size|time>`.
 ---
---- setup() must be called (see init.lua) for this to have anything to
---- read cx from - the "@sync entry" annotation some yazi-rs/plugins
---- plugins use instead didn't work here (still crashed with "error
---- converting lua nil to table" even placed first-line-of-file, per
---- upstream examples). ya.sync(function(state) ...) is the same pattern
---- properties.yazi/places.yazi already use successfully in this repo.
+--- Named "linemode-toggle", not "linemode" - the latter collides with
+--- the built-in Linemode global (yazi's own linemode rendering system,
+--- which init.lua's own generated methods also live on), and
+--- require("linemode") failed outright with "error converting lua nil
+--- to table" before this plugin's code ever ran.
+---
+--- setup() must be called (see init.lua) for ya.sync() below to have a
+--- state table to attach to - without it, entry() crashes at runtime
+--- with that same "nil to table" error, even though it never uses the
+--- state itself. This is the same pattern properties.yazi/places.yazi
+--- already use successfully in this repo.
 
 local COMPONENT_ORDER = { "perm", "owner", "size", "time" }
 

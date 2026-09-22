@@ -16,7 +16,7 @@
       toggle-pane = pkgs.yaziPlugins.toggle-pane;
       properties = ./yazi/properties.yazi;
       places = ./yazi/places.yazi;
-      linemode = ./yazi/linemode.yazi;
+      linemode-toggle = ./yazi/linemode-toggle.yazi;
       piper = pkgs.yaziPlugins.piper;
     };
 
@@ -191,7 +191,7 @@
             "m"
             "p"
           ];
-          run = "plugin linemode toggle_perm";
+          run = "plugin linemode-toggle toggle_perm";
           desc = "Toggle permissions in the linemode";
         }
         {
@@ -199,7 +199,7 @@
             "m"
             "t"
           ];
-          run = "plugin linemode toggle_time";
+          run = "plugin linemode-toggle toggle_time";
           desc = "Toggle time in the linemode";
         }
         {
@@ -207,7 +207,7 @@
             "m"
             "o"
           ];
-          run = "plugin linemode toggle_owner";
+          run = "plugin linemode-toggle toggle_owner";
           desc = "Toggle owner in the linemode";
         }
         {
@@ -215,7 +215,7 @@
             "m"
             "s"
           ];
-          run = "plugin linemode toggle_size";
+          run = "plugin linemode-toggle toggle_size";
           desc = "Toggle size in the linemode";
         }
         # m p/m o/m s are now the real toggles above; only the yazi
