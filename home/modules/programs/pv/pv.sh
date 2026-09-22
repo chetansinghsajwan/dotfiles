@@ -23,7 +23,7 @@ render_tabular() {
     # tty for tidy-viewer's own auto-detection to pick up, so color is
     # silently dropped without it.
     local tv_args=(-D -a)
-    if [[ -n "${h:-}" ]]; then
+    if [[ -n ${h:-} ]]; then
         # yazi's piper previewer sets $h to the preview pane's visible row
         # count. Once the sed below strips the blank lines and dimensions
         # line, only the header row and (when truncating) a trailing
@@ -32,7 +32,7 @@ render_tabular() {
         # match exactly what will be shown instead of overflowing and
         # getting cut off mid-table by piper's own line-count limit.
         local rows=$((h - 2))
-        [[ "$rows" -lt 1 ]] && rows=1
+        [[ $rows -lt 1 ]] && rows=1
         tv_args+=(-n "$rows")
     fi
 
@@ -54,7 +54,7 @@ render_text() {
     # disagree with.
     local encoding
     encoding=$(file --brief --dereference --mime-encoding -- "$file_path")
-    if [[ "$encoding" != "binary" || ! -s "$file_path" ]]; then
+    if [[ $encoding != "binary" || ! -s $file_path ]]; then
         exec bat --color=always --style=numbers --paging=never -- "$file_path"
     fi
 
@@ -66,7 +66,7 @@ render_text() {
 
 file_path=$1
 
-if [[ ! -f "$file_path" ]]; then
+if [[ ! -f $file_path ]]; then
     echo "pv: not a file: $file_path" >&2
     exit 1
 fi

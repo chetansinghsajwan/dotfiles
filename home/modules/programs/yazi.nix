@@ -23,7 +23,11 @@
 
     settings = {
       mgr = {
-        ratio = [ 0 3 6 ];
+        ratio = [
+          0
+          3
+          6
+        ];
         linemode = "perm_mtime";
       };
 
@@ -100,22 +104,34 @@
     keymap = {
       mgr.prepend_keymap = [
         {
-          on = [ "p" "p" ];
+          on = [
+            "p"
+            "p"
+          ];
           run = "plugin toggle-pane min-preview";
           desc = "Toggle the preview pane";
         }
         {
-          on = [ "p" "q" ];
+          on = [
+            "p"
+            "q"
+          ];
           run = "plugin places toggle";
           desc = "Toggle the quickbar (favorites/bookmarks/drives/recents/tabs)";
         }
         {
-          on = [ "p" "m" ];
+          on = [
+            "p"
+            "m"
+          ];
           run = "plugin properties toggle";
           desc = "Toggle the file metadata panel";
         }
         {
-          on = [ "b" "s" ];
+          on = [
+            "b"
+            "s"
+          ];
           run = "plugin bookmarks save";
           desc = "Save current position as a bookmark";
         }
@@ -125,12 +141,18 @@
           desc = "Jump to a bookmark";
         }
         {
-          on = [ "b" "d" ];
+          on = [
+            "b"
+            "d"
+          ];
           run = "plugin bookmarks delete";
           desc = "Delete a bookmark";
         }
         {
-          on = [ "b" "D" ];
+          on = [
+            "b"
+            "D"
+          ];
           run = "plugin bookmarks delete_all";
           desc = "Delete all bookmarks";
         }

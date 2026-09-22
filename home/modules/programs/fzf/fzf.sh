@@ -151,6 +151,10 @@ function fe() {
 function fcmd() {
     {
         if [[ -n $ZSH_VERSION ]]; then
+            # (@ok) is zsh-only associative-array-key expansion syntax, invalid
+            # under shellcheck/shfmt's bash parser — excluded from shfmt in
+            # treefmt.nix for that reason; disabled here for the same reason.
+            # shellcheck disable=SC2296
             print -rl -- "${(@ok)commands}" "${(@ok)functions}" "${(@ok)aliases}" "${(@ok)reswords}"
         else
             compgen -c

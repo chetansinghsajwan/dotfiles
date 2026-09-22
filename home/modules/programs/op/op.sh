@@ -30,7 +30,7 @@ open_text() {
     # disagree with, and it's normal to open a new empty file to edit.
     local encoding
     encoding=$(file --brief --dereference --mime-encoding -- "$file_path")
-    if [[ "$encoding" != "binary" || ! -s "$file_path" ]]; then
+    if [[ $encoding != "binary" || ! -s $file_path ]]; then
         exec "${EDITOR:-hx}" "$file_path"
     fi
 
@@ -42,7 +42,7 @@ open_text() {
 
 file_path=$1
 
-if [[ ! -f "$file_path" ]]; then
+if [[ ! -f $file_path ]]; then
     echo "op: not a file: $file_path" >&2
     exit 1
 fi

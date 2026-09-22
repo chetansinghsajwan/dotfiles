@@ -152,7 +152,7 @@ in
 
           "image/png" = imageApp;
           "image/jpeg" = imageApp;
-          "image/svg" = imageApp;
+          "image/svg+xml" = imageApp;
           "image/bmp" = imageApp;
 
           "audio/mpeg" = audioApp;
@@ -163,7 +163,7 @@ in
           "video/x-msvideo" = videoApp;
 
           "text/plain" = textApp;
-          "text/md" = textApp;
+          "text/markdown" = textApp;
           "text/csv" = textApp;
           "text/html" = textApp;
         };
