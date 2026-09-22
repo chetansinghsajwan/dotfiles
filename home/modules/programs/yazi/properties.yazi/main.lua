@@ -406,14 +406,42 @@ function Properties:reflow()
 	return { self }
 end
 
+-- A short terminal can hand this panel fewer rows than the up-to-9 lines
+-- build_lines()/build_selection_summary() produce (the panel asks for a
+-- fixed Constraint.Length(10) in setup() below, but layout shrinks it under
+-- pressure). Rather than silently truncating, overflow rows continue in a
+-- second pane to the right of the first.
 function Properties:redraw()
 	local tab = self._tab
 	local lines = #tab.selected > 1 and build_selection_summary(tab) or build_lines(tab.current.hovered)
 
-	return {
+	local elements = {
 		ui.Border(ui.Edge.TOP):area(self._area):type(ui.Border.ROUNDED):style(th.mgr.border_style),
-		ui.Text(lines):area(self._area:pad(ui.Pad(1, 1, 0, 1))):wrap(ui.Wrap.YES),
 	}
+
+	local text_area = self._area:pad(ui.Pad(1, 1, 0, 1))
+	if text_area.h > 0 and #lines > text_area.h then
+		local cols = ui.Layout()
+			:direction(ui.Layout.HORIZONTAL)
+			:constraints({ ui.Constraint.Ratio(1, 2), ui.Constraint.Ratio(1, 2) })
+			:split(text_area)
+
+		local left, right = {}, {}
+		for i, line in ipairs(lines) do
+			if i <= text_area.h then
+				left[#left + 1] = line
+			else
+				right[#right + 1] = line
+			end
+		end
+
+		elements[#elements + 1] = ui.Text(left):area(cols[1]:pad(ui.Pad(0, 1, 0, 0))):wrap(ui.Wrap.YES)
+		elements[#elements + 1] = ui.Text(right):area(cols[2]:pad(ui.Pad(0, 0, 0, 1))):wrap(ui.Wrap.YES)
+	else
+		elements[#elements + 1] = ui.Text(lines):area(text_area):wrap(ui.Wrap.YES)
+	end
+
+	return elements
 end
 
 function Properties:click(event, up) end
