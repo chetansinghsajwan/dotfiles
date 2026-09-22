@@ -73,6 +73,15 @@ do
     end
 end
 
+-- Drop the header's own cwd (abbreviated ~-relative, above the border,
+-- next to tabs) now that the full path already shows inside the files
+-- pane via the CwdBanner above - no need to show it twice.
+for i = #Header._left, 1, -1 do
+    if Header._left[i][1] == "cwd" then
+        table.remove(Header._left, i)
+    end
+end
+
 -- Trim the status line to just the mode and position pills — name/size/perm
 -- already live in the properties panel, and the scroll-percent pill is noise.
 for i = #Status._left, 1, -1 do
