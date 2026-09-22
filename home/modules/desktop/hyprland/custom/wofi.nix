@@ -12,7 +12,7 @@ in
         location = "center";
         show = "drun";
         prompt = "Search apps...";
-        filtger_rate = 100;
+        filter_rate = 100;
         allow_markup = true;
         no_actions = true;
         halign = "fill";

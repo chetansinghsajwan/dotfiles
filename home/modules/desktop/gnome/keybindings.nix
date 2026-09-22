@@ -125,7 +125,7 @@ in
       "help" = [ ];
       "home" = [ ];
       "www" = [ ];
-      "search" = [ "<Super>s" ];
+      "search" = [ ];
       "magnifier" = [ ];
       "magnifier-zoom-in" = [ ];
       "magnifier-zoom-out" = [ ];

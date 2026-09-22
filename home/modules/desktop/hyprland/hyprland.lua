@@ -55,7 +55,7 @@ hl.bind(mod .. " + ALT + " .. down, hl.dsp.window.move({ direction = "down" }))
 hl.bind(mod .. " + ALT + " .. up, hl.dsp.window.move({ direction = "up" }))
 hl.bind(mod .. " + ALT + " .. right, hl.dsp.window.move({ direction = "right" }))
 
--- Move windows around within the same workspace
+-- Resize the focused window
 hl.bind(mod .. " + SHIFT + " .. left, hl.dsp.window.resize({ x = -window_resize_step, y = 0, relative = true }))
 hl.bind(mod .. " + SHIFT + " .. down, hl.dsp.window.resize({ x = 0, y = -window_resize_step, relative = true }))
 hl.bind(mod .. " + SHIFT + " .. up, hl.dsp.window.resize({ x = 0, y = window_resize_step, relative = true }))
