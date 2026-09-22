@@ -7,6 +7,20 @@ require("properties"):setup()
 -- the places panel.
 require("places"):setup()
 
+-- yazi's header already shows the cwd on the left by default, but via
+-- ya.readable_path, which abbreviates $HOME to "~" - show the literal full
+-- path instead. Same truncation/flags/styling as the stock Header:cwd,
+-- just without the abbreviation step.
+function Header:cwd()
+	local max = self._area.w - self._right_width
+	if max <= 0 then
+		return ""
+	end
+
+	local s = tostring(self._current.cwd) .. self:flags()
+	return ui.Span(ui.truncate(s, { max = max, rtl = true })):style(th.mgr.cwd)
+end
+
 -- Trim the status line to just the mode and position pills — name/size/perm
 -- already live in the properties panel, and the scroll-percent pill is noise.
 for i = #Status._left, 1, -1 do

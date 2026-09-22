@@ -213,13 +213,32 @@ end
 -- title and the entries as a nested list rather than all flush-left.
 local ENTRY_INDENT = "  "
 
+-- Every entry here is a directory (favorites/drives/recent/tabs always are;
+-- bookmarks usually are too), so they get the same blue+bold the files pane
+-- gives directories - see the `{ url = "*/", fg = "blue" }` fallback rule in
+-- yazi's default theme.toml. Decorative bits (bookmark key, drive size, tab
+-- index) stay dim instead, so the name itself is what draws the eye - the
+-- same split the files pane makes between its dim linemode column and its
+-- colored name column.
+local DIR_FG = "blue"
+
+-- entries: { { prefix = "optional dim text before the name", name = "...",
+-- suffix = "optional dim text after the name" }, ... }
 local function section(lines, title, entries, empty_text)
     lines[#lines + 1] = ui.Line(ui.Span(title):fg(DIM):bold())
     if #entries == 0 then
         lines[#lines + 1] = ui.Line(ui.Span(ENTRY_INDENT .. (empty_text or "-")):fg(DIM))
     else
-        for _, entry in ipairs(entries) do
-            lines[#lines + 1] = ui.Line(ui.Span(ENTRY_INDENT .. entry))
+        for _, e in ipairs(entries) do
+            local spans = { ui.Span(ENTRY_INDENT) }
+            if e.prefix then
+                spans[#spans + 1] = ui.Span(e.prefix):fg(DIM)
+            end
+            spans[#spans + 1] = ui.Span(e.name):fg(DIR_FG):bold()
+            if e.suffix then
+                spans[#spans + 1] = ui.Span(e.suffix):fg(DIM)
+            end
+            lines[#lines + 1] = ui.Line(spans)
         end
     end
     lines[#lines + 1] = ui.Line("")
@@ -230,31 +249,31 @@ local function build_lines(state)
 
     local favorites = {}
     for _, fav in ipairs(state.favorites or {}) do
-        favorites[#favorites + 1] = fav.label
+        favorites[#favorites + 1] = { name = fav.label }
     end
     section(lines, "Favorites", favorites)
 
     local bookmarks = {}
     for _, b in ipairs(state.bookmarks or {}) do
-        bookmarks[#bookmarks + 1] = string.format("'%s  %s", b.on, basename(b.path))
+        bookmarks[#bookmarks + 1] = { prefix = string.format("'%s ", b.on), name = basename(b.path) }
     end
     section(lines, "Bookmarks", bookmarks, "none saved")
 
     local drives = {}
     for _, d in ipairs(state.drives or {}) do
-        drives[#drives + 1] = d.size and string.format("%s (%s)", d.label, d.size) or d.label
+        drives[#drives + 1] = { name = d.label, suffix = d.size and (" (" .. d.size .. ")") or nil }
     end
     section(lines, "Drives", drives, "none detected")
 
     local recent = {}
     for _, r in ipairs(top_recent(state.recent, RECENT_LIMIT)) do
-        recent[#recent + 1] = basename(r.path)
+        recent[#recent + 1] = { name = basename(r.path) }
     end
     section(lines, "Recent", recent, "none yet")
 
     local tabs = {}
     for _, t in ipairs(state.tabs or {}) do
-        tabs[#tabs + 1] = string.format("%s%d  %s", t.active and "*" or " ", t.index, basename(t.cwd))
+        tabs[#tabs + 1] = { prefix = (t.active and "*" or " ") .. t.index .. " ", name = basename(t.cwd) }
     end
     section(lines, "Tabs", tabs)
 
