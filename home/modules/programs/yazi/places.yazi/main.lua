@@ -1,6 +1,6 @@
 --- Toggleable left panel listing quick-reference locations: XDG favorite
---- folders, the bookmarks.yazi marks, removable/connected drives, recently
---- visited directories, and open tabs. Purely a display panel - like
+--- folders, the bookmarks.yazi marks, removable/connected drives, and
+--- recently visited directories. Purely a display panel - like
 --- properties.yazi, it has no cursor/click navigation of its own; jumping
 --- still goes through yazi's existing mechanisms (bookmarks' `'`, manual
 --- cd, etc). Toggle with the `places toggle` command.
@@ -220,12 +220,12 @@ end
 -- title and the entries as a nested list rather than all flush-left.
 local ENTRY_INDENT = "  "
 
--- Every entry here is a directory (favorites/drives/recent/tabs always are;
+-- Every entry here is a directory (favorites/drives/recent always are;
 -- bookmarks usually are too), so they get the same blue+bold the files pane
 -- gives directories - see the `{ url = "*/", fg = "blue" }` fallback rule in
--- yazi's default theme.toml. Decorative bits (bookmark key, drive size, tab
--- index) stay dim instead, so the name itself is what draws the eye - the
--- same split the files pane makes between its dim linemode column and its
+-- yazi's default theme.toml. Decorative bits (bookmark key, drive size)
+-- stay dim instead, so the name itself is what draws the eye - the same
+-- split the files pane makes between its dim linemode column and its
 -- colored name column.
 local DIR_FG = "blue"
 
@@ -272,12 +272,6 @@ local function build_lines(state)
     end
     section(lines, "Drives", drives, "none detected")
 
-    local tabs = {}
-    for _, t in ipairs(state.tabs or {}) do
-        tabs[#tabs + 1] = { prefix = (t.active and "*" or " ") .. t.index .. " ", name = basename(t.cwd) }
-    end
-    section(lines, "Tabs", tabs)
-
     local recent = {}
     for _, r in ipairs(top_recent(state.recent, RECENT_LIMIT)) do
         recent[#recent + 1] = { name = basename(r.path) }
@@ -316,21 +310,11 @@ local toggle_visible = ya.sync(function(state)
     return state.visible
 end)
 
--- Commits favorites/drives (computed by the plain functions above, outside
--- the sync executor) and reads tabs (pure cx access, safe here) in one pass,
--- then re-renders with the fresh data.
+-- Commits favorites/drives (computed by the plain functions above,
+-- outside the sync executor), then re-renders with the fresh data.
 local commit_refresh = ya.sync(function(state, favorites, drives)
     state.favorites = favorites
     state.drives = drives
-
-    local tabs = {}
-    local active_cwd = tostring(cx.active.current.cwd)
-    for i = 1, #cx.tabs do
-        local tab = cx.tabs[i]
-        local cwd = tostring(tab.current.cwd)
-        tabs[#tabs + 1] = { index = i, cwd = cwd, active = cwd == active_cwd }
-    end
-    state.tabs = tabs
 
     ui.render()
 end)

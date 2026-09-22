@@ -137,7 +137,7 @@
             "q"
           ];
           run = "plugin places toggle";
-          desc = "Toggle the quickbar (favorites/bookmarks/drives/recents/tabs)";
+          desc = "Toggle the quickbar (favorites/bookmarks/drives/recents)";
         }
         {
           on = [
