@@ -412,7 +412,7 @@ function Properties:redraw()
 
 	return {
 		ui.Border(ui.Edge.TOP):area(self._area):type(ui.Border.ROUNDED):style(th.mgr.border_style),
-		ui.Text(lines):area(self._area:pad(ui.Pad(1, 1, 0, 0))):wrap(ui.Wrap.YES),
+		ui.Text(lines):area(self._area:pad(ui.Pad(1, 1, 0, 1))):wrap(ui.Wrap.YES),
 	}
 end
 

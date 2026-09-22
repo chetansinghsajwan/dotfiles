@@ -6,12 +6,14 @@
 --- cd, etc). Toggle with the `places toggle` command.
 ---
 --- Reuses the parent-directory column (chunk 1), which this config leaves
---- at width 0 via `mgr.ratio` in yazi.nix. BASE_RATIO below must match
---- that setting - when hidden, the layout falls back to exactly it.
+--- at width 0 via `mgr.ratio` in yazi.nix.
 
 local DIM = "darkgray"
-local BASE_RATIO = { 0, 3, 6 } -- must match `mgr.ratio` in yazi.nix
-local SIDEBAR_WEIGHT = 1
+-- Multiplies rt.mgr.ratio's current/preview parts before comparing them
+-- against SIDEBAR_WEIGHT, purely so the sidebar can land on a width finer-
+-- grained than rt.mgr.ratio's own small integers (3, 6) would allow.
+local RATIO_SCALE = 3
+local SIDEBAR_WEIGHT = 4 -- ~12.9% of the width, against the scaled default
 local RECENT_LIMIT = 8
 
 -- Holds the plugin's persistent sync state once `setup` runs, so the
@@ -33,11 +35,16 @@ end
 
 -- ***** Layout: give the parent-column chunk real width when visible *****
 
+-- Reads current/preview widths live from rt.mgr.ratio (rather than a fixed
+-- local, which is what this used before) so toggle-pane's min-preview/
+-- max-preview - which work by mutating rt.mgr.ratio and expecting the next
+-- layout pass to pick it up - actually take effect. Without this, this
+-- plugin's full replacement of Tab.layout would silently ignore whatever
+-- toggle-pane sets, since it never reads rt.mgr.ratio at all.
 local function chunks_for(area, visible)
-    local a, b, c = BASE_RATIO[1], BASE_RATIO[2], BASE_RATIO[3]
-    if visible then
-        a = SIDEBAR_WEIGHT
-    end
+    local ratio = rt.mgr.ratio
+    local a = visible and SIDEBAR_WEIGHT or 0
+    local b, c = ratio[2] * RATIO_SCALE, ratio[3] * RATIO_SCALE
     local total = a + b + c
 
     return ui.Layout()
@@ -265,17 +272,17 @@ local function build_lines(state)
     end
     section(lines, "Drives", drives, "none detected")
 
-    local recent = {}
-    for _, r in ipairs(top_recent(state.recent, RECENT_LIMIT)) do
-        recent[#recent + 1] = { name = basename(r.path) }
-    end
-    section(lines, "Recent", recent, "none yet")
-
     local tabs = {}
     for _, t in ipairs(state.tabs or {}) do
         tabs[#tabs + 1] = { prefix = (t.active and "*" or " ") .. t.index .. " ", name = basename(t.cwd) }
     end
     section(lines, "Tabs", tabs)
+
+    local recent = {}
+    for _, r in ipairs(top_recent(state.recent, RECENT_LIMIT)) do
+        recent[#recent + 1] = { name = basename(r.path) }
+    end
+    section(lines, "Recent", recent, "none yet")
 
     return lines
 end
@@ -291,7 +298,7 @@ function Places:reflow()
 end
 
 function Places:redraw()
-    return { ui.Text(build_lines(module_state)):area(self._area:pad(ui.Pad(0, 1, 0, 1))):wrap(ui.Wrap.YES) }
+    return { ui.Text(build_lines(module_state)):area(self._area:pad(ui.Pad(0, 1, 0, 2))):wrap(ui.Wrap.YES) }
 end
 
 function Places:click(event, up) end
