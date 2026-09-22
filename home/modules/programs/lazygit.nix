@@ -25,6 +25,11 @@ _: {
       gui = {
         nerdFontsVersion = "3";
 
+        # Hide the bottom keybindings line; press `?` (default optionMenu
+        # binding) to view the full keybindings list in its own panel
+        # instead.
+        showBottomLine = false;
+
         # Default (2) barely moves the diff per press. lazygit binds
         # Shift+J/K, Ctrl+u/d, and PgUp/PgDn to the same scroll-main handler
         # with no way to give them different amounts, so this raises the
