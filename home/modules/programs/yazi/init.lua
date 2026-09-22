@@ -1,6 +1,11 @@
 require("full-border"):setup()
 require("bookmarks"):setup()
 require("properties"):setup()
+-- Must load after properties: its Tab.build wrapper needs to run outermost,
+-- chaining through properties'/full-border's first, so self._chunks[1] is
+-- already padded and self._children already built by the time it swaps in
+-- the places panel.
+require("places"):setup()
 
 -- Trim the status line to just the mode and position pills — name/size/perm
 -- already live in the properties panel, and the scroll-percent pill is noise.

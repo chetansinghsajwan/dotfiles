@@ -14,6 +14,7 @@
       full-border = pkgs.yaziPlugins.full-border;
       bookmarks = pkgs.yaziPlugins.bookmarks;
       properties = ./yazi/properties.yazi;
+      places = ./yazi/places.yazi;
       piper = pkgs.yaziPlugins.piper;
     };
 
@@ -79,6 +80,11 @@
           on = [ "m" ];
           run = "plugin properties toggle";
           desc = "Toggle the file properties panel";
+        }
+        {
+          on = [ "P" ];
+          run = "plugin places toggle";
+          desc = "Toggle the places panel (favorites/bookmarks/drives/recents/tabs)";
         }
         {
           on = [ "b" "s" ];
