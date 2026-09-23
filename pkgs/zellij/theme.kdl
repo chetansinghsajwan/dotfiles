@@ -1,0 +1,126 @@
+// Base16 -> zellij theme mapping, taken from tinted-theming/base16-zellij's
+// templates/default.mustache (the same template Stylix's own zellij target
+// renders through). Named "default" rather than "stylix" so it overrides
+// zellij's built-in default theme without a `theme "..."` directive -
+// the @baseNN@ placeholders below are substituted by flake.nix from
+// whatever base16 palette is passed to mkZellij.
+themes {
+	default {
+		exit_code_error {
+			background "@base00@"
+			base "@base08@"
+			emphasis_0 "@base0A@"
+			emphasis_1 "@base00@"
+			emphasis_2 "@base00@"
+			emphasis_3 "@base00@"
+		}
+		exit_code_success {
+			background "@base00@"
+			base "@base0B@"
+			emphasis_0 "@base0C@"
+			emphasis_1 "@base01@"
+			emphasis_2 "@base0F@"
+			emphasis_3 "@base0D@"
+		}
+		frame_highlight {
+			background "@base00@"
+			base "@base08@"
+			emphasis_0 "@base0F@"
+			emphasis_1 "@base09@"
+			emphasis_2 "@base09@"
+			emphasis_3 "@base09@"
+		}
+		frame_selected {
+			background "@base00@"
+			base "@base0E@"
+			emphasis_0 "@base09@"
+			emphasis_1 "@base0C@"
+			emphasis_2 "@base0F@"
+			emphasis_3 "@base00@"
+		}
+		list_selected {
+			background "@base04@"
+			base "@base05@"
+			emphasis_0 "@base09@"
+			emphasis_1 "@base0C@"
+			emphasis_2 "@base0B@"
+			emphasis_3 "@base0F@"
+		}
+		list_unselected {
+			background "@base01@"
+			base "@base05@"
+			emphasis_0 "@base09@"
+			emphasis_1 "@base0C@"
+			emphasis_2 "@base0B@"
+			emphasis_3 "@base0F@"
+		}
+		multiplayer_user_colors {
+			player_1 "@base0F@"
+			player_10 "@base00@"
+			player_2 "@base0D@"
+			player_3 "@base00@"
+			player_4 "@base0A@"
+			player_5 "@base0C@"
+			player_6 "@base00@"
+			player_7 "@base08@"
+			player_8 "@base00@"
+			player_9 "@base00@"
+		}
+		ribbon_selected {
+			background "@base0E@"
+			base "@base01@"
+			emphasis_0 "@base08@"
+			emphasis_1 "@base09@"
+			emphasis_2 "@base0F@"
+			emphasis_3 "@base0D@"
+		}
+		ribbon_unselected {
+			background "@base02@"
+			base "@base05@"
+			emphasis_0 "@base08@"
+			emphasis_1 "@base05@"
+			emphasis_2 "@base0D@"
+			emphasis_3 "@base0F@"
+		}
+		table_cell_selected {
+			background "@base04@"
+			base "@base05@"
+			emphasis_0 "@base09@"
+			emphasis_1 "@base0C@"
+			emphasis_2 "@base0B@"
+			emphasis_3 "@base0F@"
+		}
+		table_cell_unselected {
+			background "@base01@"
+			base "@base05@"
+			emphasis_0 "@base09@"
+			emphasis_1 "@base0C@"
+			emphasis_2 "@base0B@"
+			emphasis_3 "@base0F@"
+		}
+		table_title {
+			background "@base00@"
+			base "@base0E@"
+			emphasis_0 "@base09@"
+			emphasis_1 "@base0C@"
+			emphasis_2 "@base0B@"
+			emphasis_3 "@base0F@"
+		}
+		text_selected {
+			background "@base04@"
+			base "@base05@"
+			emphasis_0 "@base09@"
+			emphasis_1 "@base0C@"
+			emphasis_2 "@base0B@"
+			emphasis_3 "@base0F@"
+		}
+		text_unselected {
+			background "@base01@"
+			base "@base05@"
+			emphasis_0 "@base09@"
+			emphasis_1 "@base0C@"
+			emphasis_2 "@base0B@"
+			emphasis_3 "@base0F@"
+		}
+	}
+}

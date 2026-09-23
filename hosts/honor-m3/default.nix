@@ -7,6 +7,9 @@
   caelestia-shell,
   silentSDDM,
   helix-wrapped,
+  btop-wrapped,
+  lazygit-wrapped,
+  zellij-wrapped,
   ...
 }:
 let
@@ -30,6 +33,9 @@ nixpkgs.lib.nixosSystem {
           localLib
           caelestia-shell
           helix-wrapped
+          btop-wrapped
+          lazygit-wrapped
+          zellij-wrapped
           ;
       };
       imports = [

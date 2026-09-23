@@ -3,7 +3,6 @@
     programs.bat.enable = true;
     programs.fd.enable = true;
     programs.ripgrep.enable = true;
-    programs.zellij.enable = true;
 
     home.file = {
       # fh's history file path is baked in from the zsh config below instead

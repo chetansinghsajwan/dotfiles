@@ -45,6 +45,21 @@
       url = "path:./pkgs/helix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    btop-wrapped = {
+      url = "path:./pkgs/btop";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    lazygit-wrapped = {
+      url = "path:./pkgs/lazygit";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    zellij-wrapped = {
+      url = "path:./pkgs/zellij";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -60,6 +75,9 @@
       caelestia-shell,
       silentSDDM,
       helix-wrapped,
+      btop-wrapped,
+      lazygit-wrapped,
+      zellij-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -84,6 +102,9 @@
           caelestia-shell
           silentSDDM
           helix-wrapped
+          btop-wrapped
+          lazygit-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -97,6 +118,9 @@
           caelestia-shell
           silentSDDM
           helix-wrapped
+          btop-wrapped
+          lazygit-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -109,6 +133,9 @@
           nix-darwin
           localLib
           helix-wrapped
+          btop-wrapped
+          lazygit-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -121,6 +148,9 @@
           nix-darwin
           localLib
           helix-wrapped
+          btop-wrapped
+          lazygit-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -133,6 +163,9 @@
           nixos-wsl
           localLib
           helix-wrapped
+          btop-wrapped
+          lazygit-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -154,6 +187,9 @@
             localLib
             caelestia-shell
             helix-wrapped
+            btop-wrapped
+            lazygit-wrapped
+            zellij-wrapped
             ;
         };
       };

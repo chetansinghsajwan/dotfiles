@@ -68,6 +68,22 @@
         "type": "github"
       }
     },
+    "btop-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/btop",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/btop",
+        "type": "path"
+      },
+      "parent": []
+    },
     "caelestia-cli": {
       "inputs": {
         "caelestia-shell": [
@@ -261,6 +277,22 @@
         "type": "github"
       }
     },
+    "lazygit-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/lazygit",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/lazygit",
+        "type": "path"
+      },
+      "parent": []
+    },
     "m3shapes": {
       "inputs": {
         "nixpkgs": [
@@ -425,16 +457,19 @@
     },
     "root": {
       "inputs": {
+        "btop-wrapped": "btop-wrapped",
         "caelestia-shell": "caelestia-shell",
         "helix-wrapped": "helix-wrapped",
         "home-manager": "home-manager",
+        "lazygit-wrapped": "lazygit-wrapped",
         "nix-darwin": "nix-darwin",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs",
         "nur": "nur",
         "silentSDDM": "silentSDDM",
         "stylix": "stylix",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix",
+        "zellij-wrapped": "zellij-wrapped"
       }
     },
     "silentSDDM": {
@@ -587,6 +622,22 @@
         "repo": "treefmt-nix",
         "type": "github"
       }
+    },
+    "zellij-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/zellij",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/zellij",
+        "type": "path"
+      },
+      "parent": []
     }
   },
   "root": "root",

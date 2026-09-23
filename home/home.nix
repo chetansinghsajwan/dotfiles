@@ -84,18 +84,15 @@ in
 
     starship.enable = config.dotfiles.shell.theme == "starship";
 
-    zellij.enable = true;
     nh.enable = true;
     git.enable = true;
     gitui.enable = true;
     gh.enable = true;
     fd.enable = true;
     yt-dlp.enable = true;
-    btop.enable = true;
     eza.enable = true;
     fzf.enable = true;
     lazydocker.enable = true;
-    lazygit.enable = true;
     superfile.enable = true;
     yazi.enable = true;
     direnv.enable = true;
