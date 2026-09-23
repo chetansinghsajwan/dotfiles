@@ -6,9 +6,6 @@
 }:
 {
   home.packages = [
-    (tealdeer-wrapped.lib.mkTealdeer {
-      inherit pkgs lib;
-      settings.updates.auto_update = true;
-    })
+    (tealdeer-wrapped.lib.mkTealdeer { inherit pkgs lib; })
   ];
 }

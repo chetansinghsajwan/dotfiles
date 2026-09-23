@@ -15,6 +15,11 @@
           "aarch64-darwin"
         ] f;
 
+      # This repo's own tealdeer customization, baked in as the default.
+      defaultSettings = {
+        updates.auto_update = true;
+      };
+
       mkTealdeer =
         {
           pkgs,
@@ -24,7 +29,7 @@
         }:
         let
           tomlFormat = pkgs.formats.toml { };
-          configFile = tomlFormat.generate "tealdeer.toml" settings;
+          configFile = tomlFormat.generate "tealdeer.toml" (lib.recursiveUpdate defaultSettings settings);
         in
         pkgs.symlinkJoin {
           name = "tealdeer-wrapped";

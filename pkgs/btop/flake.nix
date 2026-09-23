@@ -40,6 +40,15 @@
           builtins.attrValues (builtins.mapAttrs (name: value: "${name} = ${renderValue value}") settings)
         );
 
+      # This repo's own btop customization, baked in as the default so a
+      # bare `mkBtop { inherit pkgs lib; colors = ...; }` already produces
+      # the fully configured tool. Still overridable: whatever `settings`
+      # the caller passes is merged on top, not a wholesale replacement.
+      defaultSettings = {
+        vim_keys = true;
+        theme_background = false;
+      };
+
       mkBtop =
         {
           pkgs,
@@ -61,8 +70,10 @@
           ),
         }:
         let
+          finalSettings = lib.recursiveUpdate defaultSettings settings;
+
           configFile = pkgs.writeText "btop.conf" (
-            mkConfigText (settings // lib.optionalAttrs (colors != null) { color_theme = "stylix"; })
+            mkConfigText (finalSettings // lib.optionalAttrs (colors != null) { color_theme = "stylix"; })
           );
 
           themesDir = pkgs.runCommand "btop-themes" { } (

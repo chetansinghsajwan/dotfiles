@@ -22,6 +22,90 @@
       # below from whatever base16 palette is passed to mkHelix.
       themeTemplate = builtins.readFile ./theme.toml;
 
+      # This repo's own helix customization, baked in as the default so a
+      # bare `mkHelix { inherit pkgs lib; colors = ...; settings.editor =
+      # { rulers = ...; text-width = ...; scroll-lines = ...; line-number
+      # = ...; }; }` already produces the fully configured tool. The four
+      # editor.* leaves left out here (rulers, text-width, scroll-lines,
+      # line-number) come from config.dotfiles.editor.* - this flake can't
+      # see that repo-level option tree, so those stay real caller inputs,
+      # merged on top of this default via recursiveUpdate.
+      defaultSettings = {
+        editor = {
+          mouse = true;
+          middle-click-paste = false;
+          cursorline = true;
+          cursorcolumn = true;
+          continue-comments = true;
+          true-color = true;
+          bufferline = "multiple";
+          color-modes = true;
+          default-line-ending = "lf";
+          insert-final-newline = true;
+          trim-final-newlines = true;
+          trim-trailing-whitespace = true;
+          popup-border = "all";
+
+          cursor-shape = {
+            normal = "block";
+            insert = "bar";
+            select = "underline";
+          };
+
+          auto-save = {
+            focus-lost = true;
+            after-delay.enable = true;
+          };
+
+          indent-guides.render = true;
+
+          statusline = {
+            left = [
+              "mode"
+              "spinner"
+              "file-name"
+            ];
+            center = [ ];
+            right = [
+              "diagnostics"
+              "selections"
+              "position"
+              "file-encoding"
+            ];
+          };
+        };
+
+        keys =
+          let
+            navigation = {
+              "C-h" = "move_prev_word_start";
+              "C-l" = "move_next_word_start";
+              "C-j" = "page_cursor_half_down";
+              "C-k" = "page_cursor_half_up";
+              "C-A-h" = "goto_line_start";
+              "C-A-l" = "goto_line_end";
+              "C-A-j" = "goto_last_line";
+              "C-A-k" = "goto_file_start";
+              "A-j" = "goto_next_function";
+              "A-k" = "goto_prev_function";
+            };
+          in
+          {
+            normal = navigation;
+            select = navigation;
+          };
+      };
+
+      defaultExtraPackages =
+        pkgs: with pkgs; [
+          nil
+          lua-language-server
+          bash-language-server
+          marksman
+          vscode-langservers-extracted
+          yaml-language-server
+        ];
+
       mkHelix =
         {
           pkgs,
@@ -34,8 +118,8 @@
           colors ? null,
           # Strip the theme's background so a translucent terminal shows
           # through, same as Stylix's own helix target does when
-          # opacity.terminal != 1.0.
-          transparent ? false,
+          # opacity.terminal != 1.0. This repo always wants it on.
+          transparent ? true,
           # localLib.wrapped.base16.substituteTemplate - passed in rather
           # than defined here since sibling pkgs/<name> flakes can't share
           # files with each other (a `path:./pkgs/<name>` input is copied
@@ -52,8 +136,10 @@
         let
           tomlFormat = pkgs.formats.toml { };
 
+          finalSettings = lib.recursiveUpdate defaultSettings settings;
+
           configFile = tomlFormat.generate "config.toml" (
-            settings // lib.optionalAttrs (colors != null) { theme = "stylix"; }
+            finalSettings // lib.optionalAttrs (colors != null) { theme = "stylix"; }
           );
 
           themeToml = pkgs.writeText "stylix.toml" (substituteTemplate themeTemplate colors);
@@ -89,7 +175,7 @@
             wrapProgram $out/bin/hx \
               --set HELIX_RUNTIME "${runtimeDir}" \
               --add-flags "--config ${configFile}" \
-              --suffix PATH : ${lib.makeBinPath extraPackages}
+              --suffix PATH : ${lib.makeBinPath (defaultExtraPackages pkgs ++ extraPackages)}
 
             ln -s ${pkgs.helix-unwrapped}/bin/hx $out/bin/hx-unwrapped
           '';

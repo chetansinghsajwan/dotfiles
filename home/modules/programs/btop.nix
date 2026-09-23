@@ -14,11 +14,6 @@
       inherit (localLib.wrapped.base16) substituteTemplate;
 
       colors = config.lib.stylix.colors.withHashtag;
-
-      settings = {
-        vim_keys = true;
-        theme_background = false;
-      };
     })
   ];
 }

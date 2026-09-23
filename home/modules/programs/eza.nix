@@ -10,11 +10,6 @@
     (eza-wrapped.lib.mkEza {
       inherit pkgs lib;
       renderCliFlags = localLib.wrapped.cliFlags.render;
-
-      settings = {
-        git = true;
-        icons = "always";
-      };
     })
   ];
 

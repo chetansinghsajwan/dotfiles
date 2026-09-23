@@ -17,16 +17,128 @@
 
       themeTemplate = builtins.readFile ./theme.kdl;
 
+      # This repo's own zellij customization, baked in as the default so a
+      # bare `mkZellij { inherit pkgs lib; colors = ...; }` already
+      # produces the fully configured tool. `settings` is a *list* of
+      # top-level KDL nodes (not an attrset), so "overridable but
+      # defaulted" here means concatenation - whatever the caller passes
+      # is appended after these, not merged key-by-key.
+      mkDefaultSettings =
+        pkgs:
+        let
+          # zellij-forgot shows a floating keybind cheatsheet on demand;
+          # the built-in compact-bar tooltip is broken on zellij >=0.44.1
+          # (zellij-org/zellij#5229).
+          zellij-forgot = pkgs.fetchurl {
+            url = "https://github.com/karimould/zellij-forgot/releases/download/0.4.2/zellij_forgot.wasm";
+            sha256 = "1ns9wjn1ncjapqpp9nn9kyhqydvl0fbnyiavd0lc3gcxa52l269i";
+          };
+        in
+        [
+          {
+            node = "keybinds";
+            children = [
+              {
+                # Default tab mode groups h/Left/Up/k -> previous tab,
+                # l/Right/Down/j -> next tab. jk is dropped entirely
+                # (kanata handles that now); Up/Down are reversed relative
+                # to the default so Up goes to the next tab.
+                #
+                # GoToNextTab/GoToPreviousTab always wrap around at the
+                # ends; there's no config option to stop that as of zellij
+                # 0.45.0. A `tab_cycle_wrap false` option was proposed
+                # upstream but is unmerged: see
+                # https://github.com/zellij-org/zellij/pull/4815. Revisit
+                # once it lands.
+                node = "tab";
+                children = [
+                  {
+                    node = "unbind";
+                    args = [
+                      "j"
+                      "k"
+                    ];
+                  }
+                  {
+                    node = "bind";
+                    args = [ "Up" ];
+                    children = [ { node = "GoToNextTab"; } ];
+                  }
+                  {
+                    node = "bind";
+                    args = [ "Down" ];
+                    children = [ { node = "GoToPreviousTab"; } ];
+                  }
+                ];
+              }
+              {
+                node = "shared_except";
+                args = [ "locked" ];
+                children = [
+                  {
+                    # Ctrl+/ avoids colliding with typing a literal "?" in
+                    # a pane.
+                    node = "bind";
+                    args = [ "Ctrl /" ];
+                    children = [
+                      {
+                        node = "LaunchOrFocusPlugin";
+                        args = [ "file:${zellij-forgot}" ];
+                        children = [
+                          {
+                            node = "floating";
+                            args = [ true ];
+                          }
+                        ];
+                      }
+                    ];
+                  }
+                ];
+              }
+            ];
+          }
+        ];
+
+      # Compact bar merges the tab-bar and status-bar into a single line
+      # at the top, with a blank borderless row inserted after it so
+      # content doesn't sit flush against it.
+      defaultLayouts = {
+        default = [
+          {
+            node = "layout";
+            children = [
+              {
+                node = "pane";
+                props = {
+                  size = 1;
+                  borderless = true;
+                };
+                children = [
+                  {
+                    node = "plugin";
+                    props = {
+                      location = "compact-bar";
+                    };
+                  }
+                ];
+              }
+              { node = "pane"; }
+            ];
+          }
+        ];
+      };
+
       mkZellij =
         {
           pkgs,
           lib ? pkgs.lib,
           # config.kdl's content as a list of KDL nodes (keybinds, plugin
-          # aliases, top-level options, ...). A node is
-          # { node = "name"; args ? [ ]; props ? { }; children ? [ ]; } -
-          # see lib/wrapped/kdl.nix.
+          # aliases, top-level options, ...), appended after
+          # mkDefaultSettings above. A node is { node = "name"; args ? [ ];
+          # props ? { }; children ? [ ]; } - see lib/wrapped/kdl.nix.
           settings ? [ ],
-          # Named layouts as { <name> = <KDL node list>; ... }, rendered to
+          # Named layouts as { <name> = <KDL node list>; ... }, merged
+          # over defaultLayouts above and rendered to
           # <config-dir>/layouts/<name>.kdl. A layout named "default"
           # overrides zellij's built-in default layout with no further
           # config needed.
@@ -83,7 +195,10 @@
           ),
         }:
         let
-          configFile = pkgs.writeText "config.kdl" (renderDocument settings);
+          finalSettings = mkDefaultSettings pkgs ++ settings;
+          finalLayouts = lib.recursiveUpdate defaultLayouts layouts;
+
+          configFile = pkgs.writeText "config.kdl" (renderDocument finalSettings);
 
           # zellij resolves <config-dir>/themes and <config-dir>/layouts by
           # default, same as its normal XDG config dir - no theme_dir/
@@ -95,7 +210,7 @@
             + lib.concatStrings (
               lib.mapAttrsToList (name: nodes: ''
                 cp ${pkgs.writeText "${name}.kdl" (renderDocument nodes)} $out/layouts/${name}.kdl
-              '') layouts
+              '') finalLayouts
             )
             + lib.optionalString (colors != null) ''
               mkdir -p $out/themes
