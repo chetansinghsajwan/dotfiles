@@ -40,6 +40,11 @@
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    helix-wrapped = {
+      url = "path:./pkgs/helix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -54,6 +59,7 @@
       nixos-wsl,
       caelestia-shell,
       silentSDDM,
+      helix-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -77,6 +83,7 @@
           localLib
           caelestia-shell
           silentSDDM
+          helix-wrapped
           ;
       };
 
@@ -89,6 +96,7 @@
           localLib
           caelestia-shell
           silentSDDM
+          helix-wrapped
           ;
       };
 
@@ -100,6 +108,7 @@
           stylix
           nix-darwin
           localLib
+          helix-wrapped
           ;
       };
 
@@ -111,6 +120,7 @@
           stylix
           nix-darwin
           localLib
+          helix-wrapped
           ;
       };
 
@@ -122,6 +132,7 @@
           stylix
           nixos-wsl
           localLib
+          helix-wrapped
           ;
       };
 
@@ -138,7 +149,12 @@
         ];
 
         extraSpecialArgs = {
-          inherit nur localLib caelestia-shell;
+          inherit
+            nur
+            localLib
+            caelestia-shell
+            helix-wrapped
+            ;
         };
       };
 

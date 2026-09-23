@@ -2,15 +2,21 @@
   config,
   lib,
   pkgs,
+  helix-wrapped,
   ...
 }:
 let
   editor = config.dotfiles.editor;
 in
 {
-  config = lib.mkIf config.programs.helix.enable {
-    programs.helix = {
-      defaultEditor = true;
+  home.packages = [
+    (helix-wrapped.lib.mkHelix {
+      inherit pkgs lib;
+
+      # Was stylix.targets.helix.transparent in modules/stylix.nix - moved
+      # here now that theming no longer flows through programs.helix.
+      transparent = true;
+      colors = config.lib.stylix.colors.withHashtag;
 
       extraPackages = with pkgs; [
         nil
@@ -31,7 +37,7 @@ in
           cursorcolumn = true;
           continue-comments = true;
           true-color = true;
-          rulers = editor.rulers;
+          inherit (editor) rulers;
           bufferline = "multiple";
           text-width = editor.text_width;
           color-modes = true;
@@ -90,6 +96,12 @@ in
             select = navigation;
           };
       };
-    };
+    })
+  ];
+
+  # Was programs.helix.defaultEditor = true.
+  home.sessionVariables = {
+    EDITOR = "hx";
+    VISUAL = "hx";
   };
 }

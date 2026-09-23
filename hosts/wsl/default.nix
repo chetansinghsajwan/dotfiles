@@ -5,6 +5,7 @@
   stylix,
   nixos-wsl,
   localLib,
+  helix-wrapped,
   ...
 }:
 let
@@ -20,7 +21,7 @@ nixpkgs.lib.nixosSystem {
     (localLib.mkHomeManagerModule {
       username = "chetansinghsajwan";
       extraSpecialArgs = {
-        inherit nur localLib;
+        inherit nur localLib helix-wrapped;
       };
       imports = [
         ../../home/home.nix

@@ -60,8 +60,6 @@ in
         };
       };
 
-      helix.transparent = true;
-
       zed = {
         fonts.override = {
           sizes = {
