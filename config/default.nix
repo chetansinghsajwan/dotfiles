@@ -273,5 +273,30 @@ in
         };
       };
     };
+
+    editor = {
+      scroll_lines = mkOption {
+        type = types.int;
+        default = 5;
+      };
+
+      line_number = mkOption {
+        type = types.enum [
+          "absolute"
+          "reative"
+        ];
+        default = "absolute";
+      };
+
+      text_width = mkOption {
+        type = types.int;
+        default = 100;
+      };
+
+      rulers = mkOption {
+        type = types.listOf types.int;
+        default = [ config.dotfiles.editor.text_width ];
+      };
+    };
   };
 }
