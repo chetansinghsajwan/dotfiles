@@ -1,5 +1,5 @@
 {
-  description = "yazi, wrapped with its config, plugins, and theme baked in";
+  description = "yazi, wrapped with its config, plugins, theme, and shell integration baked in";
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
@@ -110,6 +110,13 @@
             wrapProgram $out/bin/yazi \
               --set YAZI_CONFIG_HOME "${configDir}" \
               --suffix PATH : ${lib.makeBinPath (defaultExtraPackages ++ extraPackages)}
+
+            # "y" cd-on-exit wrapper: opens yazi, then cds the calling shell
+            # to wherever yazi was left in on exit.
+            mkdir -p $out/share/yazi-shell
+            cp ${./y.zsh} $out/share/yazi-shell/y.zsh
+            cp ${./y.fish} $out/share/yazi-shell/y.fish
+            cp ${./y.nu} $out/share/yazi-shell/y.nu
           '';
         };
     in

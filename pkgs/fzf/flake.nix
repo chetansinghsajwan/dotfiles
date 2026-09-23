@@ -1,5 +1,5 @@
 {
-  description = "fzf, wrapped with its default options and theme baked in";
+  description = "fzf, wrapped with its default options, theme, and shell integration baked in";
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
@@ -47,6 +47,11 @@
           # { bg = "-1"; "bg+" = "-1"; } to fall back to the terminal's
           # own background instead of a solid theme color.
           colorOverrides ? { },
+          # Absolute path to the shell history file fh (fzf.sh's history
+          # picker) reads - substituted into the shipped fzf.sh in place of
+          # its "@histfile@" placeholder. Omit to leave the placeholder
+          # unsubstituted (fh will then fail to find its history file).
+          histFile ? null,
         }:
         let
           themeColors = lib.optionalAttrs (colors != null) (mkThemeColors colors) // colorOverrides;
@@ -56,6 +61,15 @@
               "--color ${lib.concatStringsSep "," (lib.mapAttrsToList (k: v: "${k}:${v}") themeColors)}";
 
           optsString = lib.concatStringsSep " " (extraOptions ++ lib.optional (colorArg != "") colorArg);
+
+          # fh's history file path is baked in here instead of read from
+          # $HISTFILE at call time, so it can't silently fall back to a
+          # stale/wrong file in a context where $HISTFILE isn't set.
+          shellSh = pkgs.writeText "fzf.sh" (
+            builtins.replaceStrings [ "@histfile@" ] [ (if histFile == null then "@histfile@" else histFile) ] (
+              builtins.readFile ./fzf.sh
+            )
+          );
         in
         pkgs.symlinkJoin {
           name = "fzf-wrapped";
@@ -63,6 +77,10 @@
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
             wrapProgram $out/bin/fzf --set FZF_DEFAULT_OPTS ${lib.escapeShellArg optsString}
+
+            mkdir -p $out/share/fzf-shell
+            cp ${shellSh} $out/share/fzf-shell/fzf.sh
+            cp ${./fzf.zsh} $out/share/fzf-shell/fzf.zsh
           '';
         };
     in

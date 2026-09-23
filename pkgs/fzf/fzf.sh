@@ -33,8 +33,9 @@ function __fzf() {
     local multi_toggle_bind="alt-m:transform:if [ \"\$(cat '$multi_state')\" = 1 ]; then printf 0 > '$multi_state'; echo 'change-multi(0)'; else printf 1 > '$multi_state'; echo 'change-multi'; fi"
 
     # Static defaults (popup size, border, layout, preview window, the
-    # constant binds) live in programs.fzf.defaultOptions (-> FZF_DEFAULT_OPTS)
-    # instead of here; only the per-invocation dynamic bits stay in this array.
+    # constant binds) live in mkFzf's extraOptions (-> FZF_DEFAULT_OPTS,
+    # baked into the wrapper in flake.nix) instead of here; only the
+    # per-invocation dynamic bits stay in this array.
     local args=(
         --bind "$multi_toggle_bind"
     )
