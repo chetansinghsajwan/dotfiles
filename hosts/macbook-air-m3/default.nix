@@ -8,6 +8,7 @@
   btop-wrapped,
   lazygit-wrapped,
   zellij-wrapped,
+  fzf-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -30,6 +31,7 @@ nix-darwin.lib.darwinSystem {
           btop-wrapped
           lazygit-wrapped
           zellij-wrapped
+          fzf-wrapped
           ;
       };
       imports = [

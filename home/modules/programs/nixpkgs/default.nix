@@ -20,6 +20,4 @@ localLib.mkToggleModule config "nixpkgs" {
     source ~/.config/nixpkgs-fzf/nixpkgs.sh
     source ~/.config/nixpkgs-fzf/nixpkgs.zsh
   '';
-
-  programs.fzf.enable = true;
 }

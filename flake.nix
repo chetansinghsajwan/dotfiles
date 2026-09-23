@@ -60,6 +60,11 @@
       url = "path:./pkgs/zellij";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    fzf-wrapped = {
+      url = "path:./pkgs/fzf";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -78,6 +83,7 @@
       btop-wrapped,
       lazygit-wrapped,
       zellij-wrapped,
+      fzf-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -105,6 +111,7 @@
           btop-wrapped
           lazygit-wrapped
           zellij-wrapped
+          fzf-wrapped
           ;
       };
 
@@ -121,6 +128,7 @@
           btop-wrapped
           lazygit-wrapped
           zellij-wrapped
+          fzf-wrapped
           ;
       };
 
@@ -136,6 +144,7 @@
           btop-wrapped
           lazygit-wrapped
           zellij-wrapped
+          fzf-wrapped
           ;
       };
 
@@ -151,6 +160,7 @@
           btop-wrapped
           lazygit-wrapped
           zellij-wrapped
+          fzf-wrapped
           ;
       };
 
@@ -166,6 +176,7 @@
           btop-wrapped
           lazygit-wrapped
           zellij-wrapped
+          fzf-wrapped
           ;
       };
 
@@ -190,6 +201,7 @@
             btop-wrapped
             lazygit-wrapped
             zellij-wrapped
+            fzf-wrapped
             ;
         };
       };

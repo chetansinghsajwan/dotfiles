@@ -10,6 +10,7 @@
   btop-wrapped,
   lazygit-wrapped,
   zellij-wrapped,
+  fzf-wrapped,
   ...
 }:
 let
@@ -36,6 +37,7 @@ nixpkgs.lib.nixosSystem {
           btop-wrapped
           lazygit-wrapped
           zellij-wrapped
+          fzf-wrapped
           ;
       };
       imports = [

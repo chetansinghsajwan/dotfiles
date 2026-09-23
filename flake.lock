@@ -221,6 +221,22 @@
         "type": "github"
       }
     },
+    "fzf-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/fzf",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/fzf",
+        "type": "path"
+      },
+      "parent": []
+    },
     "gnome-shell": {
       "flake": false,
       "locked": {
@@ -459,6 +475,7 @@
       "inputs": {
         "btop-wrapped": "btop-wrapped",
         "caelestia-shell": "caelestia-shell",
+        "fzf-wrapped": "fzf-wrapped",
         "helix-wrapped": "helix-wrapped",
         "home-manager": "home-manager",
         "lazygit-wrapped": "lazygit-wrapped",
