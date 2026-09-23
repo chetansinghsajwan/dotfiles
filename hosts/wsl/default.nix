@@ -10,6 +10,7 @@
   lazygit-wrapped,
   zellij-wrapped,
   fzf-wrapped,
+  yazi-wrapped,
   ...
 }:
 let
@@ -33,6 +34,7 @@ nixpkgs.lib.nixosSystem {
           lazygit-wrapped
           zellij-wrapped
           fzf-wrapped
+          yazi-wrapped
           ;
       };
       imports = [

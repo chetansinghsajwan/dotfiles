@@ -486,6 +486,7 @@
         "silentSDDM": "silentSDDM",
         "stylix": "stylix",
         "treefmt-nix": "treefmt-nix",
+        "yazi-wrapped": "yazi-wrapped",
         "zellij-wrapped": "zellij-wrapped"
       }
     },
@@ -639,6 +640,22 @@
         "repo": "treefmt-nix",
         "type": "github"
       }
+    },
+    "yazi-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/yazi",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/yazi",
+        "type": "path"
+      },
+      "parent": []
     },
     "zellij-wrapped": {
       "inputs": {

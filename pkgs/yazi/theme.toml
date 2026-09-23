@@ -1,0 +1,386 @@
+# Base16 -> yazi theme mapping, taken from tinted-theming/base16-yazi's
+# templates/default.mustache (the same template Stylix's own yazi target
+# renders through). The @baseNN@ placeholders are substituted by flake.nix
+# from whatever base16 palette is passed to mkYazi; @syntectTheme@ is
+# substituted with the path to a .tmTheme file for text-preview syntax
+# highlighting (mgr.syntect_theme).
+
+[completion.active]
+bg = "@base03@"
+fg = "@base0E@"
+
+[completion.border]
+fg = "@base0D@"
+
+[completion.inactive]
+fg = "@base05@"
+
+[[filetype.rules]]
+fg = "@base0C@"
+mime = "image/*"
+
+[[filetype.rules]]
+fg = "@base0A@"
+mime = "video/*"
+
+[[filetype.rules]]
+fg = "@base0A@"
+mime = "audio/*"
+
+[[filetype.rules]]
+fg = "@base0E@"
+mime = "application/zip"
+
+[[filetype.rules]]
+fg = "@base0E@"
+mime = "application/gzip"
+
+[[filetype.rules]]
+fg = "@base0E@"
+mime = "application/tar"
+
+[[filetype.rules]]
+fg = "@base0E@"
+mime = "application/bzip"
+
+[[filetype.rules]]
+fg = "@base0E@"
+mime = "application/bzip2"
+
+[[filetype.rules]]
+fg = "@base0E@"
+mime = "application/7z-compressed"
+
+[[filetype.rules]]
+fg = "@base0E@"
+mime = "application/rar"
+
+[[filetype.rules]]
+fg = "@base0E@"
+mime = "application/xz"
+
+[[filetype.rules]]
+fg = "@base0B@"
+mime = "application/doc"
+
+[[filetype.rules]]
+fg = "@base0B@"
+mime = "application/pdf"
+
+[[filetype.rules]]
+fg = "@base0B@"
+mime = "application/rtf"
+
+[[filetype.rules]]
+fg = "@base0B@"
+mime = "application/vnd.*"
+
+[[filetype.rules]]
+bold = true
+fg = "@base0D@"
+url = "*/"
+
+[[filetype.rules]]
+fg = "@base05@"
+mime = "*"
+
+[help.desc]
+fg = "@base05@"
+
+[help.footer]
+fg = "@base05@"
+
+[help.hovered]
+bg = "@base03@"
+fg = "@base05@"
+
+[help.on]
+fg = "@base0E@"
+
+[help.run]
+fg = "@base0C@"
+
+[[icon.conds]]
+fg = "@base05@"
+if = "orphan"
+text = ""
+
+[[icon.conds]]
+fg = "@base04@"
+if = "link"
+text = ""
+
+[[icon.conds]]
+fg = "@base0A@"
+if = "block"
+text = ""
+
+[[icon.conds]]
+fg = "@base0A@"
+if = "char"
+text = ""
+
+[[icon.conds]]
+fg = "@base0A@"
+if = "fifo"
+text = ""
+
+[[icon.conds]]
+fg = "@base0A@"
+if = "sock"
+text = ""
+
+[[icon.conds]]
+fg = "@base0A@"
+if = "sticky"
+text = ""
+
+[[icon.conds]]
+fg = "@base08@"
+if = "dummy"
+text = ""
+
+[[icon.conds]]
+fg = "@base0D@"
+if = "dir"
+text = ""
+
+[[icon.conds]]
+fg = "@base0B@"
+if = "exec"
+text = ""
+
+[[icon.conds]]
+fg = "@base05@"
+if = "!dir"
+text = ""
+
+[[icon.dirs]]
+fg = "@base09@"
+name = ".config"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = ".git"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0D@"
+name = ".github"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0D@"
+name = ".npm"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Desktop"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Development"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Documents"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Downloads"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Library"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Movies"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Music"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Pictures"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Public"
+text = ""
+
+[[icon.dirs]]
+fg = "@base0C@"
+name = "Videos"
+text = ""
+
+[indicator.current]
+bg = "@base02@"
+bold = true
+
+[indicator.preview]
+bg = "@base02@"
+bold = true
+
+[input.border]
+fg = "@base0D@"
+
+[input.selected]
+bg = "@base03@"
+
+[input.title]
+fg = "@base05@"
+
+[input.value]
+fg = "@base05@"
+
+[mgr]
+syntect_theme = "@syntectTheme@"
+
+[mgr.border_style]
+fg = "@base04@"
+
+[mgr.count_copied]
+bg = "@base0B@"
+fg = "@base00@"
+
+[mgr.count_cut]
+bg = "@base08@"
+fg = "@base00@"
+
+[mgr.count_selected]
+bg = "@base0A@"
+fg = "@base00@"
+
+[mgr.cwd]
+fg = "@base0C@"
+
+[mgr.find_keyword]
+bold = true
+fg = "@base0B@"
+
+[mgr.find_position]
+fg = "@base0E@"
+
+[mgr.marker_copied]
+bg = "@base0B@"
+fg = "@base0B@"
+
+[mgr.marker_cut]
+bg = "@base08@"
+fg = "@base08@"
+
+[mgr.marker_selected]
+bg = "@base0A@"
+fg = "@base0A@"
+
+[mode.normal_alt]
+bg = "@base00@"
+fg = "@base0D@"
+
+[mode.normal_main]
+bg = "@base0D@"
+bold = true
+fg = "@base00@"
+
+[mode.select_alt]
+bg = "@base00@"
+fg = "@base0B@"
+
+[mode.select_main]
+bg = "@base0B@"
+bold = true
+fg = "@base00@"
+
+[mode.unset_alt]
+bg = "@base00@"
+fg = "@base0F@"
+
+[mode.unset_main]
+bg = "@base0F@"
+bold = true
+fg = "@base00@"
+
+[pick.active]
+fg = "@base0E@"
+
+[pick.border]
+fg = "@base0D@"
+
+[pick.inactive]
+fg = "@base05@"
+
+[status.perm_exec]
+fg = "@base0B@"
+
+[status.perm_read]
+fg = "@base0A@"
+
+[status.perm_sep]
+fg = "@base0C@"
+
+[status.perm_type]
+fg = "@base0D@"
+
+[status.perm_write]
+fg = "@base08@"
+
+[status.progress_error]
+bg = "@base00@"
+fg = "@base08@"
+
+[status.progress_label]
+bg = "@base00@"
+fg = "@base05@"
+
+[status.progress_normal]
+bg = "@base00@"
+fg = "@base05@"
+
+[tabs.active]
+bg = "@base0D@"
+bold = true
+fg = "@base00@"
+
+[tabs.inactive]
+bg = "@base01@"
+fg = "@base0D@"
+
+[tasks.border]
+fg = "@base0D@"
+
+[tasks.hovered]
+bg = "@base03@"
+fg = "@base05@"
+
+[tasks.title]
+fg = "@base05@"
+
+[which.cand]
+fg = "@base0C@"
+
+[which.desc]
+fg = "@base05@"
+
+# Left empty (no bg) rather than the upstream base16 template's solid
+# base02 background, so this popup follows the terminal's own
+# transparency/acrylic like everything else in the UI instead of
+# rendering as an opaque box.
+[which.mask]
+
+[which.rest]
+fg = "@base0F@"
+
+[which.separator_style]
+fg = "@base04@"

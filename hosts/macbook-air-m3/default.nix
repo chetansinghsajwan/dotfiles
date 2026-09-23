@@ -9,6 +9,7 @@
   lazygit-wrapped,
   zellij-wrapped,
   fzf-wrapped,
+  yazi-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -32,6 +33,7 @@ nix-darwin.lib.darwinSystem {
           lazygit-wrapped
           zellij-wrapped
           fzf-wrapped
+          yazi-wrapped
           ;
       };
       imports = [

@@ -93,7 +93,6 @@ in
     eza.enable = true;
     lazydocker.enable = true;
     superfile.enable = true;
-    yazi.enable = true;
     direnv.enable = true;
     tealdeer.enable = true;
   };
