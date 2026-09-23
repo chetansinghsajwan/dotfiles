@@ -23,13 +23,6 @@
       # mkYazi.
       themeTemplate = builtins.readFile ./theme.toml;
 
-      mkThemeToml =
-        colors: syntectTheme:
-        builtins.replaceStrings
-          ((map (name: "@${name}@") (builtins.attrNames colors)) ++ [ "@syntectTheme@" ])
-          ((builtins.attrValues colors) ++ [ (if syntectTheme == null then "" else toString syntectTheme) ])
-          themeTemplate;
-
       mkYazi =
         {
           pkgs,
@@ -51,6 +44,15 @@
           # Path to a .tmTheme file for mgr.syntect_theme (text-preview
           # syntax highlighting). Only used when colors != null.
           syntectTheme ? null,
+          # localLib.wrapped.base16.substituteTemplate - see
+          # pkgs/helix/flake.nix for why this is a parameter and not a
+          # local definition.
+          substituteTemplate ? (
+            template: replacements:
+            builtins.replaceStrings (map (name: "@${name}@") (
+              builtins.attrNames replacements
+            )) (builtins.attrValues replacements) template
+          ),
         }:
         let
           tomlFormat = pkgs.formats.toml { };
@@ -58,7 +60,11 @@
           configFile = tomlFormat.generate "yazi.toml" settings;
           keymapFile = tomlFormat.generate "keymap.toml" keymap;
 
-          themeFile = pkgs.writeText "theme.toml" (mkThemeToml colors syntectTheme);
+          themeFile = pkgs.writeText "theme.toml" (
+            substituteTemplate themeTemplate (
+              colors // { syntectTheme = if syntectTheme == null then "" else toString syntectTheme; }
+            )
+          );
 
           configDir = pkgs.runCommand "yazi-config-dir" { } (
             ''

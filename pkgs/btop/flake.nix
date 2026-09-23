@@ -22,12 +22,6 @@
       # whatever base16 palette is passed to mkBtop.
       themeTemplate = builtins.readFile ./theme.theme;
 
-      mkThemeFile =
-        colors:
-        builtins.replaceStrings (map (name: "@${name}@") (
-          builtins.attrNames colors
-        )) (builtins.attrValues colors) themeTemplate;
-
       # btop's own config format: flat "key = value" lines, booleans spelled
       # "True"/"False" and strings double-quoted - not a format
       # pkgs.formats.* already speaks, so rendered by hand here.
@@ -51,10 +45,20 @@
           pkgs,
           lib ? pkgs.lib,
           settings ? { },
+          extraPackages ? [ ],
           # Base16 palette as { base00 = "#hex"; ...; base0F = "#hex"; }
           # (Stylix's `config.lib.stylix.colors.withHashtag` shape). Omit
           # for an unthemed build.
           colors ? null,
+          # localLib.wrapped.base16.substituteTemplate - see
+          # pkgs/helix/flake.nix for why this is a parameter and not a
+          # local definition.
+          substituteTemplate ? (
+            template: replacements:
+            builtins.replaceStrings (map (name: "@${name}@") (
+              builtins.attrNames replacements
+            )) (builtins.attrValues replacements) template
+          ),
         }:
         let
           configFile = pkgs.writeText "btop.conf" (
@@ -66,7 +70,7 @@
               mkdir -p $out
             ''
             + lib.optionalString (colors != null) ''
-              cp ${pkgs.writeText "stylix.theme" (mkThemeFile colors)} $out/stylix.theme
+              cp ${pkgs.writeText "stylix.theme" (substituteTemplate themeTemplate colors)} $out/stylix.theme
             ''
           );
         in
@@ -76,7 +80,8 @@
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
             wrapProgram $out/bin/btop \
-              --add-flags "--config ${configFile} --themes-dir ${themesDir}"
+              --add-flags "--config ${configFile} --themes-dir ${themesDir}" \
+              --suffix PATH : ${lib.makeBinPath extraPackages}
           '';
         };
     in

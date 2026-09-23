@@ -1,5 +1,9 @@
 { lib }:
 {
+  # Shared helpers for the wrapped-package flakes under pkgs/ (base16
+  # template substitution, KDL rendering, CLI-flags rendering).
+  wrapped = import ./wrapped { inherit lib; };
+
   # Shared home-manager wiring for a host's default.nix — keeps
   # useUserPackages/backupFileExtension/etc. from drifting between hosts.
   mkHomeManagerModule =

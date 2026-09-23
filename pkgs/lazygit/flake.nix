@@ -41,6 +41,7 @@
           pkgs,
           lib ? pkgs.lib,
           settings ? { },
+          extraPackages ? [ ],
           # Base16 palette as { base00 = "#hex"; ...; base0F = "#hex"; }
           # (Stylix's `config.lib.stylix.colors.withHashtag` shape). Omit
           # for an unthemed build.
@@ -59,7 +60,8 @@
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
             wrapProgram $out/bin/lazygit \
-              --add-flags "--use-config-file ${configFile}"
+              --add-flags "--use-config-file ${configFile}" \
+              --suffix PATH : ${lib.makeBinPath extraPackages}
           '';
         };
     in

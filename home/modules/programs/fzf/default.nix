@@ -2,12 +2,14 @@
   config,
   pkgs,
   lib,
+  localLib,
   fzf-wrapped,
   ...
 }:
 let
   fzfPkg = fzf-wrapped.lib.mkFzf {
     inherit pkgs lib;
+    renderCliFlags = localLib.wrapped.cliFlags.render;
 
     colors = config.lib.stylix.colors.withHashtag;
 
@@ -23,18 +25,20 @@ let
 
     histFile = config.programs.zsh.history.path;
 
-    extraOptions = [
-      "--popup 90%"
-      "--border rounded"
-      "--layout reverse"
-      "--margin 1"
-      "--padding 1"
-      "--preview-window right:60%:noborder"
-      "--bind ctrl-a:select-all"
-      "--bind alt-k:preview-half-page-up"
-      "--bind alt-j:preview-half-page-down"
-      "--bind ctrl-/:toggle-preview"
-    ];
+    settings = {
+      popup = "90%";
+      border = "rounded";
+      layout = "reverse";
+      margin = 1;
+      padding = 1;
+      "preview-window" = "right:60%:noborder";
+      bind = [
+        "ctrl-a:select-all"
+        "alt-k:preview-half-page-up"
+        "alt-j:preview-half-page-down"
+        "ctrl-/:toggle-preview"
+      ];
+    };
   };
 in
 {

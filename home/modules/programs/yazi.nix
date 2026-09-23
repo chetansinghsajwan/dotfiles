@@ -2,12 +2,14 @@
   config,
   lib,
   pkgs,
+  localLib,
   yazi-wrapped,
   ...
 }:
 let
   yaziPkg = yazi-wrapped.lib.mkYazi {
     inherit pkgs lib;
+    inherit (localLib.wrapped.base16) substituteTemplate;
 
     colors = config.lib.stylix.colors.withHashtag;
 

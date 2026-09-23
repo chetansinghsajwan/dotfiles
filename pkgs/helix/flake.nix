@@ -22,12 +22,6 @@
       # below from whatever base16 palette is passed to mkHelix.
       themeTemplate = builtins.readFile ./theme.toml;
 
-      mkThemeToml =
-        colors:
-        builtins.replaceStrings (map (name: "@${name}@") (
-          builtins.attrNames colors
-        )) (builtins.attrValues colors) themeTemplate;
-
       mkHelix =
         {
           pkgs,
@@ -42,6 +36,18 @@
           # through, same as Stylix's own helix target does when
           # opacity.terminal != 1.0.
           transparent ? false,
+          # localLib.wrapped.base16.substituteTemplate - passed in rather
+          # than defined here since sibling pkgs/<name> flakes can't share
+          # files with each other (a `path:./pkgs/<name>` input is copied
+          # as only that subtree). See lib/wrapped/default.nix. Defaults to
+          # the same one-line implementation so `packages.default` below
+          # (and standalone `nix build`) still works without a caller.
+          substituteTemplate ? (
+            template: replacements:
+            builtins.replaceStrings (map (name: "@${name}@") (
+              builtins.attrNames replacements
+            )) (builtins.attrValues replacements) template
+          ),
         }:
         let
           tomlFormat = pkgs.formats.toml { };
@@ -50,7 +56,7 @@
             settings // lib.optionalAttrs (colors != null) { theme = "stylix"; }
           );
 
-          themeToml = pkgs.writeText "stylix.toml" (mkThemeToml colors);
+          themeToml = pkgs.writeText "stylix.toml" (substituteTemplate themeTemplate colors);
 
           themeFinal =
             if transparent then

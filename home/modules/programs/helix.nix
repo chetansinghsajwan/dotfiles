@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  localLib,
   helix-wrapped,
   ...
 }:
@@ -12,6 +13,7 @@ in
   home.packages = [
     (helix-wrapped.lib.mkHelix {
       inherit pkgs lib;
+      inherit (localLib.wrapped.base16) substituteTemplate;
 
       # Was stylix.targets.helix.transparent in modules/stylix.nix - moved
       # here now that theming no longer flows through programs.helix.

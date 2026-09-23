@@ -37,8 +37,13 @@
         {
           pkgs,
           lib ? pkgs.lib,
-          # Raw --flag strings, applied before --color (e.g. "--layout reverse").
-          extraOptions ? [ ],
+          # fzf's flags as an attrset, e.g. { layout = "reverse"; bind =
+          # [ "ctrl-a:select-all" "alt-k:preview-half-page-up" ]; }. List
+          # values repeat the flag once per element (for repeatable flags
+          # like --bind); bool true is a bare flag, bool false is dropped;
+          # anything else renders as "--key value".
+          settings ? { },
+          extraPackages ? [ ],
           # Base16 palette as { base00 = "#hex"; ...; base0F = "#hex"; }
           # (Stylix's `config.lib.stylix.colors.withHashtag` shape). Omit
           # for an unthemed build.
@@ -52,6 +57,24 @@
           # its "@histfile@" placeholder. Omit to leave the placeholder
           # unsubstituted (fh will then fail to find its history file).
           histFile ? null,
+          # localLib.wrapped.cliFlags.render - see pkgs/helix/flake.nix for
+          # why this is a parameter and not a local definition.
+          renderCliFlags ? (
+            settings:
+            lib.concatStringsSep " " (
+              lib.flatten (
+                lib.mapAttrsToList (
+                  name: value:
+                  if builtins.isList value then
+                    map (v: "--${name} ${toString v}") value
+                  else if builtins.isBool value then
+                    lib.optional value "--${name}"
+                  else
+                    "--${name} ${toString value}"
+                ) settings
+              )
+            )
+          ),
         }:
         let
           themeColors = lib.optionalAttrs (colors != null) (mkThemeColors colors) // colorOverrides;
@@ -60,7 +83,9 @@
             lib.optionalString (themeColors != { })
               "--color ${lib.concatStringsSep "," (lib.mapAttrsToList (k: v: "${k}:${v}") themeColors)}";
 
-          optsString = lib.concatStringsSep " " (extraOptions ++ lib.optional (colorArg != "") colorArg);
+          optsString = lib.concatStringsSep " " (
+            lib.optional (settings != { }) (renderCliFlags settings) ++ lib.optional (colorArg != "") colorArg
+          );
 
           # fh's history file path is baked in here instead of read from
           # $HISTFILE at call time, so it can't silently fall back to a
@@ -76,7 +101,9 @@
           paths = [ pkgs.fzf ];
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
-            wrapProgram $out/bin/fzf --set FZF_DEFAULT_OPTS ${lib.escapeShellArg optsString}
+            wrapProgram $out/bin/fzf \
+              --set FZF_DEFAULT_OPTS ${lib.escapeShellArg optsString} \
+              --suffix PATH : ${lib.makeBinPath extraPackages}
 
             mkdir -p $out/share/fzf-shell
             cp ${shellSh} $out/share/fzf-shell/fzf.sh
