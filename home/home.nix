@@ -85,16 +85,13 @@ in
     starship.enable = config.dotfiles.shell.theme == "starship";
 
     nh.enable = true;
-    git.enable = true;
     gitui.enable = true;
     gh.enable = true;
     fd.enable = true;
     yt-dlp.enable = true;
-    eza.enable = true;
     lazydocker.enable = true;
     superfile.enable = true;
     direnv.enable = true;
-    tealdeer.enable = true;
   };
 
   # Desktop-independent kdeconnect: works the same whether GNOME or Hyprland

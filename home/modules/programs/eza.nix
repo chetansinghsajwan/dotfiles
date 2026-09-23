@@ -1,10 +1,31 @@
-_: {
-  programs.eza = {
-    enableZshIntegration = true;
-    extraOptions = [
-      "--git"
-      "--icons"
-      "always"
-    ];
+{
+  pkgs,
+  lib,
+  localLib,
+  eza-wrapped,
+  ...
+}:
+{
+  home.packages = [
+    (eza-wrapped.lib.mkEza {
+      inherit pkgs lib;
+      renderCliFlags = localLib.wrapped.cliFlags.render;
+
+      settings = {
+        git = true;
+        icons = "always";
+      };
+    })
+  ];
+
+  # Was programs.eza.enableZshIntegration's generated aliases; "eza" itself
+  # no longer needs its own alias since the wrapped binary already bakes in
+  # the flags above.
+  home.shellAliases = {
+    la = "eza -a";
+    ll = "eza -l";
+    lla = "eza -la";
+    ls = "eza";
+    lt = "eza --tree";
   };
 }

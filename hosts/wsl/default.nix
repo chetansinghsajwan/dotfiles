@@ -11,6 +11,14 @@
   zellij-wrapped,
   fzf-wrapped,
   yazi-wrapped,
+  op-wrapped,
+  pv-wrapped,
+  eza-wrapped,
+  tealdeer-wrapped,
+  git-wrapped,
+  delta-wrapped,
+  docker-wrapped,
+  zsh-wrapped,
   ...
 }:
 let
@@ -35,6 +43,14 @@ nixpkgs.lib.nixosSystem {
           zellij-wrapped
           fzf-wrapped
           yazi-wrapped
+          op-wrapped
+          pv-wrapped
+          eza-wrapped
+          tealdeer-wrapped
+          git-wrapped
+          delta-wrapped
+          docker-wrapped
+          zsh-wrapped
           ;
       };
       imports = [

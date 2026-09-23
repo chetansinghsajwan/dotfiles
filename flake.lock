@@ -131,6 +131,54 @@
         "type": "github"
       }
     },
+    "delta-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/delta",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/delta",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "docker-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/docker",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/docker",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "eza-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/eza",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/eza",
+        "type": "path"
+      },
+      "parent": []
+    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -233,6 +281,22 @@
       },
       "original": {
         "path": "./pkgs/fzf",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "git-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/git",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/git",
         "type": "path"
       },
       "parent": []
@@ -450,6 +514,38 @@
         "type": "github"
       }
     },
+    "op-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/op",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/op",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "pv-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/pv",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/pv",
+        "type": "path"
+      },
+      "parent": []
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -475,7 +571,11 @@
       "inputs": {
         "btop-wrapped": "btop-wrapped",
         "caelestia-shell": "caelestia-shell",
+        "delta-wrapped": "delta-wrapped",
+        "docker-wrapped": "docker-wrapped",
+        "eza-wrapped": "eza-wrapped",
         "fzf-wrapped": "fzf-wrapped",
+        "git-wrapped": "git-wrapped",
         "helix-wrapped": "helix-wrapped",
         "home-manager": "home-manager",
         "lazygit-wrapped": "lazygit-wrapped",
@@ -483,11 +583,15 @@
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs",
         "nur": "nur",
+        "op-wrapped": "op-wrapped",
+        "pv-wrapped": "pv-wrapped",
         "silentSDDM": "silentSDDM",
         "stylix": "stylix",
+        "tealdeer-wrapped": "tealdeer-wrapped",
         "treefmt-nix": "treefmt-nix",
         "yazi-wrapped": "yazi-wrapped",
-        "zellij-wrapped": "zellij-wrapped"
+        "zellij-wrapped": "zellij-wrapped",
+        "zsh-wrapped": "zsh-wrapped"
       }
     },
     "silentSDDM": {
@@ -558,6 +662,22 @@
         "repo": "default",
         "type": "github"
       }
+    },
+    "tealdeer-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/tealdeer",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/tealdeer",
+        "type": "path"
+      },
+      "parent": []
     },
     "tinted-kitty": {
       "flake": false,
@@ -669,6 +789,22 @@
       },
       "original": {
         "path": "./pkgs/zellij",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "zsh-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./pkgs/zsh",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/zsh",
         "type": "path"
       },
       "parent": []

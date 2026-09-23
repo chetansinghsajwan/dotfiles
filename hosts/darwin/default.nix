@@ -10,6 +10,14 @@
   zellij-wrapped,
   fzf-wrapped,
   yazi-wrapped,
+  op-wrapped,
+  pv-wrapped,
+  eza-wrapped,
+  tealdeer-wrapped,
+  git-wrapped,
+  delta-wrapped,
+  docker-wrapped,
+  zsh-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -35,6 +43,14 @@ nix-darwin.lib.darwinSystem {
           zellij-wrapped
           fzf-wrapped
           yazi-wrapped
+          op-wrapped
+          pv-wrapped
+          eza-wrapped
+          tealdeer-wrapped
+          git-wrapped
+          delta-wrapped
+          docker-wrapped
+          zsh-wrapped
           ;
       };
       imports = [

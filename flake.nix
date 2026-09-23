@@ -70,6 +70,46 @@
       url = "path:./pkgs/yazi";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    op-wrapped = {
+      url = "path:./pkgs/op";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    pv-wrapped = {
+      url = "path:./pkgs/pv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    eza-wrapped = {
+      url = "path:./pkgs/eza";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    tealdeer-wrapped = {
+      url = "path:./pkgs/tealdeer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    git-wrapped = {
+      url = "path:./pkgs/git";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    delta-wrapped = {
+      url = "path:./pkgs/delta";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    docker-wrapped = {
+      url = "path:./pkgs/docker";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    zsh-wrapped = {
+      url = "path:./pkgs/zsh";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -90,6 +130,14 @@
       zellij-wrapped,
       fzf-wrapped,
       yazi-wrapped,
+      op-wrapped,
+      pv-wrapped,
+      eza-wrapped,
+      tealdeer-wrapped,
+      git-wrapped,
+      delta-wrapped,
+      docker-wrapped,
+      zsh-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -119,6 +167,14 @@
           zellij-wrapped
           fzf-wrapped
           yazi-wrapped
+          op-wrapped
+          pv-wrapped
+          eza-wrapped
+          tealdeer-wrapped
+          git-wrapped
+          delta-wrapped
+          docker-wrapped
+          zsh-wrapped
           ;
       };
 
@@ -137,6 +193,14 @@
           zellij-wrapped
           fzf-wrapped
           yazi-wrapped
+          op-wrapped
+          pv-wrapped
+          eza-wrapped
+          tealdeer-wrapped
+          git-wrapped
+          delta-wrapped
+          docker-wrapped
+          zsh-wrapped
           ;
       };
 
@@ -154,6 +218,14 @@
           zellij-wrapped
           fzf-wrapped
           yazi-wrapped
+          op-wrapped
+          pv-wrapped
+          eza-wrapped
+          tealdeer-wrapped
+          git-wrapped
+          delta-wrapped
+          docker-wrapped
+          zsh-wrapped
           ;
       };
 
@@ -171,6 +243,14 @@
           zellij-wrapped
           fzf-wrapped
           yazi-wrapped
+          op-wrapped
+          pv-wrapped
+          eza-wrapped
+          tealdeer-wrapped
+          git-wrapped
+          delta-wrapped
+          docker-wrapped
+          zsh-wrapped
           ;
       };
 
@@ -188,6 +268,14 @@
           zellij-wrapped
           fzf-wrapped
           yazi-wrapped
+          op-wrapped
+          pv-wrapped
+          eza-wrapped
+          tealdeer-wrapped
+          git-wrapped
+          delta-wrapped
+          docker-wrapped
+          zsh-wrapped
           ;
       };
 
@@ -214,6 +302,14 @@
             zellij-wrapped
             fzf-wrapped
             yazi-wrapped
+            op-wrapped
+            pv-wrapped
+            eza-wrapped
+            tealdeer-wrapped
+            git-wrapped
+            delta-wrapped
+            docker-wrapped
+            zsh-wrapped
             ;
         };
       };
