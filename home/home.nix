@@ -23,6 +23,7 @@ in
     ../config
     ./modules/stylix.nix
     ./modules/programs
+    ./modules/vscode
     ./modules/features
     ./modules/desktop
   ];

@@ -1,6 +1,5 @@
 { localLib, ... }: {
   imports = [
-    ./vscode
     ./zed
     ./git
     ./fzf
