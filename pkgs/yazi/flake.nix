@@ -13,35 +13,98 @@
   outputs =
     { nixpkgs, wrappers, ... }:
     let
+      inherit (nixpkgs) lib;
+
       forEachSystem =
         f:
-        nixpkgs.lib.genAttrs [
+        lib.genAttrs [
           "x86_64-linux"
           "aarch64-linux"
           "x86_64-darwin"
           "aarch64-darwin"
         ] f;
 
-      # This repo's own yazi customization (plugins, keymap, settings, and
-      # - when `colors` is passed - a Stylix-driven theme), baked in as the
-      # default so a bare `mkYazi { inherit pkgs; }` already produces the
-      # fully configured tool.
-      mkYazi =
-        {
-          pkgs,
-          # base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... },
-          # e.g. `config.lib.stylix.colors.withHashtag` from a home-manager
-          # config. Left unthemed (yazi's own defaults) when null.
-          colors ? null,
-        }:
-        wrappers.lib.evalPackage [
-          { inherit pkgs; }
-          wrappers.wrapperModules.yazi
-          (import ./module.nix { inherit colors; })
-        ];
+      mkTheme = import ./theme.nix;
+
+      # This repo's own yazi customization (plugins, keymap, settings),
+      # shared between the home-manager module below and a bare package
+      # build. Doesn't include theming: a plain wrapper module only ever
+      # sees its own submodule config, not the config of whatever imports
+      # it, so theme colors have to come from the caller.
+      wrapperModule = ./module.nix;
     in
     {
-      lib = { inherit mkYazi; };
+      lib = {
+        inherit mkTheme;
+
+        mkYazi =
+          {
+            pkgs,
+            # base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... },
+            # e.g. `config.lib.stylix.colors.withHashtag`. Left unthemed
+            # (yazi's own defaults) when null.
+            colors ? null,
+          }:
+          wrappers.lib.evalPackage [
+            { inherit pkgs; }
+            wrappers.wrapperModules.yazi
+            wrapperModule
+            { config.settings.theme = mkTheme colors; }
+          ];
+      };
+
+      # Drop-in home-manager module: `imports = [ yazi-wrapped.homeModules.default ];`
+      # is the whole integration - no settings, packages, or shell wiring
+      # needed at the call site. Themes itself from Stylix when present,
+      # and wires the `y` (cd-on-quit) shell function into whichever of
+      # zsh/fish/nushell is enabled.
+      homeModules.default =
+        {
+          config,
+          lib,
+          ...
+        }:
+        {
+          imports = [
+            (wrappers.lib.getInstallModule {
+              name = "yazi";
+              value = [
+                wrappers.wrapperModules.yazi
+                wrapperModule
+              ];
+            })
+          ];
+
+          config.wrappers.yazi = {
+            enable = true;
+            settings.theme = mkTheme (
+              lib.attrByPath [
+                "lib"
+                "stylix"
+                "colors"
+                "withHashtag"
+              ] null config
+            );
+          };
+
+          config.home.file = {
+            ".config/yazi/y.zsh" = lib.mkIf config.programs.zsh.enable { source = ./y.zsh; };
+            ".config/yazi/y.fish" = lib.mkIf config.programs.fish.enable { source = ./y.fish; };
+            ".config/yazi/y.nu" = lib.mkIf config.programs.nushell.enable { source = ./y.nu; };
+          };
+
+          config.programs.zsh.initContent = lib.mkIf config.programs.zsh.enable ''
+            source ~/.config/yazi/y.zsh
+          '';
+
+          config.programs.fish.interactiveShellInit = lib.mkIf config.programs.fish.enable ''
+            source ~/.config/yazi/y.fish
+          '';
+
+          config.programs.nushell.extraConfig = lib.mkIf config.programs.nushell.enable (
+            builtins.readFile ./y.nu
+          );
+        };
 
       packages = forEachSystem (
         system:
@@ -49,7 +112,11 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = mkYazi { inherit pkgs; };
+          default = wrappers.lib.evalPackage [
+            { inherit pkgs; }
+            wrappers.wrapperModules.yazi
+            wrapperModule
+          ];
         }
       );
     };
