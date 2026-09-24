@@ -96,7 +96,6 @@ in
     eza.enable = true;
     fzf.enable = true;
     lazydocker.enable = true;
-    lazygit.enable = true;
     superfile.enable = true;
     direnv.enable = true;
     tealdeer.enable = true;

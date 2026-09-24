@@ -7,6 +7,7 @@
   caelestia-shell,
   silentSDDM,
   yazi-wrapped,
+  lazygit-wrapped,
   ...
 }:
 let
@@ -30,6 +31,7 @@ nixpkgs.lib.nixosSystem {
           localLib
           caelestia-shell
           yazi-wrapped
+          lazygit-wrapped
           ;
       };
       imports = [

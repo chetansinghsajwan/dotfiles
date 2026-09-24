@@ -6,6 +6,7 @@
   nixos-wsl,
   localLib,
   yazi-wrapped,
+  lazygit-wrapped,
   ...
 }:
 let
@@ -21,7 +22,12 @@ nixpkgs.lib.nixosSystem {
     (localLib.mkHomeManagerModule {
       username = "chetansinghsajwan";
       extraSpecialArgs = {
-        inherit nur localLib yazi-wrapped;
+        inherit
+          nur
+          localLib
+          yazi-wrapped
+          lazygit-wrapped
+          ;
       };
       imports = [
         ../../home/home.nix

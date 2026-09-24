@@ -5,6 +5,7 @@
   stylix,
   localLib,
   yazi-wrapped,
+  lazygit-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -20,7 +21,12 @@ nix-darwin.lib.darwinSystem {
     (localLib.mkHomeManagerModule {
       username = "kyutoo";
       extraSpecialArgs = {
-        inherit nur localLib yazi-wrapped;
+        inherit
+          nur
+          localLib
+          yazi-wrapped
+          lazygit-wrapped
+          ;
       };
       imports = [
         ../../home/home.nix

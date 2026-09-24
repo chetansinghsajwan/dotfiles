@@ -45,6 +45,11 @@
       url = "path:./pkgs/yazi";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    lazygit-wrapped = {
+      url = "path:./pkgs/lazygit";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -60,6 +65,7 @@
       caelestia-shell,
       silentSDDM,
       yazi-wrapped,
+      lazygit-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -84,6 +90,7 @@
           caelestia-shell
           silentSDDM
           yazi-wrapped
+          lazygit-wrapped
           ;
       };
 
@@ -97,6 +104,7 @@
           caelestia-shell
           silentSDDM
           yazi-wrapped
+          lazygit-wrapped
           ;
       };
 
@@ -109,6 +117,7 @@
           nix-darwin
           localLib
           yazi-wrapped
+          lazygit-wrapped
           ;
       };
 
@@ -121,6 +130,7 @@
           nix-darwin
           localLib
           yazi-wrapped
+          lazygit-wrapped
           ;
       };
 
@@ -133,6 +143,7 @@
           nixos-wsl
           localLib
           yazi-wrapped
+          lazygit-wrapped
           ;
       };
 
@@ -154,6 +165,7 @@
             localLib
             caelestia-shell
             yazi-wrapped
+            lazygit-wrapped
             ;
         };
       };
