@@ -6,6 +6,7 @@
   localLib,
   caelestia-shell,
   silentSDDM,
+  yazi-wrapped,
   ...
 }:
 let
@@ -24,7 +25,12 @@ nixpkgs.lib.nixosSystem {
     (localLib.mkHomeManagerModule {
       username = "chetansinghsajwan";
       extraSpecialArgs = {
-        inherit nur localLib caelestia-shell;
+        inherit
+          nur
+          localLib
+          caelestia-shell
+          yazi-wrapped
+          ;
       };
       imports = [
         {

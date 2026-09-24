@@ -24,30 +24,30 @@ local COMPONENT_ORDER = { "perm", "owner", "size", "time" }
 local function setup(_) end
 
 local get_mode = ya.sync(function(_)
-	return cx.active.pref.linemode
+    return cx.active.pref.linemode
 end)
 
 local function entry(_, job)
-	local action = job.args and job.args[1]
-	local toggled = action and action:match("^toggle_(%a+)$")
-	if not toggled then
-		return
-	end
+    local action = job.args and job.args[1]
+    local toggled = action and action:match("^toggle_(%a+)$")
+    if not toggled then
+        return
+    end
 
-	local active = {}
-	for part in (get_mode() or ""):gmatch("[^_]+") do
-		active[part] = true
-	end
-	active[toggled] = not active[toggled]
+    local active = {}
+    for part in (get_mode() or ""):gmatch("[^_]+") do
+        active[part] = true
+    end
+    active[toggled] = not active[toggled]
 
-	local parts = {}
-	for _, key in ipairs(COMPONENT_ORDER) do
-		if active[key] then
-			parts[#parts + 1] = key
-		end
-	end
+    local parts = {}
+    for _, key in ipairs(COMPONENT_ORDER) do
+        if active[key] then
+            parts[#parts + 1] = key
+        end
+    end
 
-	ya.emit("linemode", { #parts > 0 and table.concat(parts, "_") or "none" })
+    ya.emit("linemode", { #parts > 0 and table.concat(parts, "_") or "none" })
 end
 
 return { setup = setup, entry = entry }

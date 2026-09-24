@@ -417,7 +417,8 @@
         "nur": "nur",
         "silentSDDM": "silentSDDM",
         "stylix": "stylix",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix",
+        "yazi-wrapped": "yazi-wrapped"
       }
     },
     "silentSDDM": {
@@ -570,6 +571,44 @@
         "repo": "treefmt-nix",
         "type": "github"
       }
+    },
+    "wrappers": {
+      "inputs": {
+        "nixpkgs": [
+          "yazi-wrapped",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788981141,
+        "narHash": "sha256-7xWS16u13YGlRNKWaAPzRbEyh4OLOXJe31k7h4AnXNU=",
+        "owner": "nix-community",
+        "repo": "nix-wrapper-modules",
+        "rev": "1db3c116a6aa61823f8d8f3c47c306846428fc54",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-wrapper-modules",
+        "type": "github"
+      }
+    },
+    "yazi-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "wrappers": "wrappers"
+      },
+      "locked": {
+        "path": "./pkgs/yazi",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/yazi",
+        "type": "path"
+      },
+      "parent": []
     }
   },
   "root": "root",
