@@ -34,8 +34,6 @@ let
         else
           "cache";
 
-      core.editor = "hx";
-
       # Was programs.delta.enable's generated pager/interactive wiring -
       # points at the wrapped delta binary directly (it reads its own
       # baked --config instead of this file's now-absent [delta] section).
@@ -55,8 +53,6 @@ in
     deltaPkg
     pkgs.git-credential-manager
   ];
-
-  home.shellAliases.gcm = "git-credential-manager";
 
   programs.bash.initExtra = "source ${gitPkg}/share/git-shell/git.sh";
   # git.zsh (ZLE widgets/bindkey) is zsh-only, so it isn't sourced into bash.

@@ -1,6 +1,8 @@
 # Fuzzy git pickers built on the __fzf wrapper from the fzf module (always
 # available here since programs.git.enable forces programs.fzf.enable on).
 
+alias gcm='git-credential-manager'
+
 # fgl - fuzzy git log (commits)
 function fgl() {
     # Tracks which preview (full diff vs stat) is active across ctrl-g presses;

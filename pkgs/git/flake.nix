@@ -54,6 +54,11 @@
         init.defaultBranch = "main";
         protocol.version = 2;
 
+        # This repo always sets $EDITOR to the wrapped helix binary, so this
+        # has no host-specific dependency the way user.name/email or
+        # credential.credentialStore do.
+        core.editor = "hx";
+
         pull = {
           ff = "only";
           rebase = true;
