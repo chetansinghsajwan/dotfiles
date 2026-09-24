@@ -24,6 +24,7 @@ in
     ./modules/stylix.nix
     ./modules/programs
     ./modules/vscode
+    ./modules/zed
     ./modules/features
     ./modules/desktop
   ];

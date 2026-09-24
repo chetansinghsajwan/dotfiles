@@ -1,6 +1,5 @@
 { localLib, ... }: {
   imports = [
-    ./zed
     ./git
     ./fzf
     ./docker
