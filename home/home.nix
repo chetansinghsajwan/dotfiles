@@ -84,7 +84,6 @@ in
 
     starship.enable = config.dotfiles.shell.theme == "starship";
 
-    zellij.enable = true;
     nh.enable = true;
     gitui.enable = true;
     gh.enable = true;

@@ -80,6 +80,11 @@
       url = "path:./pkgs/git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    zellij-wrapped = {
+      url = "path:./pkgs/zellij";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -102,6 +107,7 @@
       eza-wrapped,
       fzf-wrapped,
       git-wrapped,
+      zellij-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -133,6 +139,7 @@
           eza-wrapped
           fzf-wrapped
           git-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -153,6 +160,7 @@
           eza-wrapped
           fzf-wrapped
           git-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -172,6 +180,7 @@
           eza-wrapped
           fzf-wrapped
           git-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -191,6 +200,7 @@
           eza-wrapped
           fzf-wrapped
           git-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -210,6 +220,7 @@
           eza-wrapped
           fzf-wrapped
           git-wrapped
+          zellij-wrapped
           ;
       };
 
@@ -238,6 +249,7 @@
             eza-wrapped
             fzf-wrapped
             git-wrapped
+            zellij-wrapped
             ;
         };
       };

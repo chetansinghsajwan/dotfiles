@@ -12,6 +12,7 @@
   eza-wrapped,
   fzf-wrapped,
   git-wrapped,
+  zellij-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -38,6 +39,7 @@ nix-darwin.lib.darwinSystem {
           eza-wrapped
           fzf-wrapped
           git-wrapped
+          zellij-wrapped
           ;
       };
       imports = [
