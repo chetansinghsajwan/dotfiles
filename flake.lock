@@ -239,6 +239,23 @@
         "type": "github"
       }
     },
+    "fzf-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "wrappers": "wrappers_3"
+      },
+      "locked": {
+        "path": "./pkgs/fzf",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/fzf",
+        "type": "path"
+      },
+      "parent": []
+    },
     "gnome-shell": {
       "flake": false,
       "locked": {
@@ -263,7 +280,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers_3"
+        "wrappers": "wrappers_4"
       },
       "locked": {
         "path": "./pkgs/helix",
@@ -301,7 +318,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers_4"
+        "wrappers": "wrappers_5"
       },
       "locked": {
         "path": "./pkgs/lazygit",
@@ -480,6 +497,7 @@
         "btop-wrapped": "btop-wrapped",
         "caelestia-shell": "caelestia-shell",
         "eza-wrapped": "eza-wrapped",
+        "fzf-wrapped": "fzf-wrapped",
         "helix-wrapped": "helix-wrapped",
         "home-manager": "home-manager",
         "lazygit-wrapped": "lazygit-wrapped",
@@ -568,7 +586,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers_5"
+        "wrappers": "wrappers_6"
       },
       "locked": {
         "path": "./pkgs/tealdeer",
@@ -707,7 +725,7 @@
     "wrappers_3": {
       "inputs": {
         "nixpkgs": [
-          "helix-wrapped",
+          "fzf-wrapped",
           "nixpkgs"
         ]
       },
@@ -728,7 +746,7 @@
     "wrappers_4": {
       "inputs": {
         "nixpkgs": [
-          "lazygit-wrapped",
+          "helix-wrapped",
           "nixpkgs"
         ]
       },
@@ -749,7 +767,7 @@
     "wrappers_5": {
       "inputs": {
         "nixpkgs": [
-          "tealdeer-wrapped",
+          "lazygit-wrapped",
           "nixpkgs"
         ]
       },
@@ -768,6 +786,27 @@
       }
     },
     "wrappers_6": {
+      "inputs": {
+        "nixpkgs": [
+          "tealdeer-wrapped",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788981141,
+        "narHash": "sha256-7xWS16u13YGlRNKWaAPzRbEyh4OLOXJe31k7h4AnXNU=",
+        "owner": "nix-community",
+        "repo": "nix-wrapper-modules",
+        "rev": "1db3c116a6aa61823f8d8f3c47c306846428fc54",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-wrapper-modules",
+        "type": "github"
+      }
+    },
+    "wrappers_7": {
       "inputs": {
         "nixpkgs": [
           "yazi-wrapped",
@@ -793,7 +832,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers_6"
+        "wrappers": "wrappers_7"
       },
       "locked": {
         "path": "./pkgs/yazi",

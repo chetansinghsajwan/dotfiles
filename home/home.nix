@@ -91,7 +91,6 @@ in
     gh.enable = true;
     fd.enable = true;
     yt-dlp.enable = true;
-    fzf.enable = true;
     lazydocker.enable = true;
     superfile.enable = true;
     direnv.enable = true;

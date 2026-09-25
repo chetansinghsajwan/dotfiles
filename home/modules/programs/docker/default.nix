@@ -14,7 +14,5 @@
       source ~/.config/docker-fzf/docker.sh
       source ~/.config/docker-fzf/docker.zsh
     '';
-
-    programs.fzf.enable = true;
   };
 }

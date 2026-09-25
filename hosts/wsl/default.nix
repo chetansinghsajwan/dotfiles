@@ -11,6 +11,7 @@
   helix-wrapped,
   tealdeer-wrapped,
   eza-wrapped,
+  fzf-wrapped,
   ...
 }:
 let
@@ -35,6 +36,7 @@ nixpkgs.lib.nixosSystem {
           helix-wrapped
           tealdeer-wrapped
           eza-wrapped
+          fzf-wrapped
           ;
       };
       imports = [

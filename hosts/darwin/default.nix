@@ -10,6 +10,7 @@
   helix-wrapped,
   tealdeer-wrapped,
   eza-wrapped,
+  fzf-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -35,6 +36,7 @@ nix-darwin.lib.darwinSystem {
           helix-wrapped
           tealdeer-wrapped
           eza-wrapped
+          fzf-wrapped
           ;
       };
       imports = [

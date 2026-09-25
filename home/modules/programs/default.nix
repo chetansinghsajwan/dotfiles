@@ -3,7 +3,6 @@
     ./vscode
     ./zed
     ./git
-    ./fzf
     ./docker
     ./nixpkgs
     ./clipboard
