@@ -12,6 +12,7 @@
   tealdeer-wrapped,
   eza-wrapped,
   fzf-wrapped,
+  git-wrapped,
   ...
 }:
 let
@@ -37,6 +38,7 @@ nixpkgs.lib.nixosSystem {
           tealdeer-wrapped
           eza-wrapped
           fzf-wrapped
+          git-wrapped
           ;
       };
       imports = [

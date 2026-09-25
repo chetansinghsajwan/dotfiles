@@ -86,7 +86,6 @@ in
 
     zellij.enable = true;
     nh.enable = true;
-    git.enable = true;
     gitui.enable = true;
     gh.enable = true;
     fd.enable = true;

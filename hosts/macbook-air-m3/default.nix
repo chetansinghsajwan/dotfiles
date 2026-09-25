@@ -11,6 +11,7 @@
   tealdeer-wrapped,
   eza-wrapped,
   fzf-wrapped,
+  git-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -36,6 +37,7 @@ nix-darwin.lib.darwinSystem {
           tealdeer-wrapped
           eza-wrapped
           fzf-wrapped
+          git-wrapped
           ;
       };
       imports = [

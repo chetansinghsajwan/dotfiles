@@ -75,6 +75,11 @@
       url = "path:./pkgs/fzf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    git-wrapped = {
+      url = "path:./pkgs/git";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -96,6 +101,7 @@
       tealdeer-wrapped,
       eza-wrapped,
       fzf-wrapped,
+      git-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -126,6 +132,7 @@
           tealdeer-wrapped
           eza-wrapped
           fzf-wrapped
+          git-wrapped
           ;
       };
 
@@ -145,6 +152,7 @@
           tealdeer-wrapped
           eza-wrapped
           fzf-wrapped
+          git-wrapped
           ;
       };
 
@@ -163,6 +171,7 @@
           tealdeer-wrapped
           eza-wrapped
           fzf-wrapped
+          git-wrapped
           ;
       };
 
@@ -181,6 +190,7 @@
           tealdeer-wrapped
           eza-wrapped
           fzf-wrapped
+          git-wrapped
           ;
       };
 
@@ -199,6 +209,7 @@
           tealdeer-wrapped
           eza-wrapped
           fzf-wrapped
+          git-wrapped
           ;
       };
 
@@ -226,6 +237,7 @@
             tealdeer-wrapped
             eza-wrapped
             fzf-wrapped
+            git-wrapped
             ;
         };
       };

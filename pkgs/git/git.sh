@@ -1,5 +1,5 @@
-# Fuzzy git pickers built on the __fzf wrapper from the fzf module (always
-# available here since programs.git.enable forces programs.fzf.enable on).
+# Fuzzy git pickers built on the __fzf wrapper from the fzf module (fzf's
+# own home-manager module is always installed, independent of git).
 
 # fgl - fuzzy git log (commits)
 function fgl() {
