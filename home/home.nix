@@ -20,6 +20,7 @@
   starship-wrapped,
   direnv-wrapped,
   batman-wrapped,
+  zed-wrapped,
   ...
 }:
 let
@@ -63,6 +64,7 @@ in
     starship-wrapped.homeModules.default
     direnv-wrapped.homeModules.default
     batman-wrapped.homeModules.default
+    zed-wrapped.homeModules.default
   ];
 
   # The imports above only wire each wrapped package's config up; each
@@ -79,6 +81,7 @@ in
     git.enable = true;
     zellij.enable = true;
     zsh.enable = config.dotfiles.shell.program == "zsh";
+    zed.enable = config.dotfiles.features.dev && config.dotfiles.features.gui;
   };
 
   home = {

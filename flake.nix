@@ -98,6 +98,11 @@
     starship-wrapped.url = "path:./pkgs/starship";
     direnv-wrapped.url = "path:./pkgs/direnv";
     batman-wrapped.url = "path:./pkgs/batman";
+
+    zed-wrapped = {
+      url = "path:./pkgs/zed";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -129,6 +134,7 @@
       starship-wrapped,
       direnv-wrapped,
       batman-wrapped,
+      zed-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -169,6 +175,7 @@
           starship-wrapped
           direnv-wrapped
           batman-wrapped
+          zed-wrapped
           ;
       };
 
@@ -198,6 +205,7 @@
           starship-wrapped
           direnv-wrapped
           batman-wrapped
+          zed-wrapped
           ;
       };
 
@@ -226,6 +234,7 @@
           starship-wrapped
           direnv-wrapped
           batman-wrapped
+          zed-wrapped
           ;
       };
 
@@ -254,6 +263,7 @@
           starship-wrapped
           direnv-wrapped
           batman-wrapped
+          zed-wrapped
           ;
       };
 
@@ -282,6 +292,7 @@
           starship-wrapped
           direnv-wrapped
           batman-wrapped
+          zed-wrapped
           ;
       };
 
@@ -319,6 +330,7 @@
             starship-wrapped
             direnv-wrapped
             batman-wrapped
+            zed-wrapped
             ;
         };
       };

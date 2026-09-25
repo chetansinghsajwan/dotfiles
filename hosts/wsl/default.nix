@@ -22,6 +22,7 @@
   starship-wrapped,
   direnv-wrapped,
   batman-wrapped,
+  zed-wrapped,
   ...
 }:
 let
@@ -57,6 +58,7 @@ nixpkgs.lib.nixosSystem {
           starship-wrapped
           direnv-wrapped
           batman-wrapped
+          zed-wrapped
           ;
       };
       imports = [

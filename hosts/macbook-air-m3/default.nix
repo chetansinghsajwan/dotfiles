@@ -21,6 +21,7 @@
   starship-wrapped,
   direnv-wrapped,
   batman-wrapped,
+  zed-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -56,6 +57,7 @@ nix-darwin.lib.darwinSystem {
           starship-wrapped
           direnv-wrapped
           batman-wrapped
+          zed-wrapped
           ;
       };
       imports = [
