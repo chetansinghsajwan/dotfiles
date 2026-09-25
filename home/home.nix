@@ -3,6 +3,15 @@
   pkgs,
   nur,
   lib,
+  yazi-wrapped,
+  lazygit-wrapped,
+  btop-wrapped,
+  helix-wrapped,
+  tealdeer-wrapped,
+  eza-wrapped,
+  fzf-wrapped,
+  git-wrapped,
+  zellij-wrapped,
   ...
 }:
 let
@@ -25,6 +34,19 @@ in
     ./modules/programs
     ./modules/features
     ./modules/desktop
+
+    # Wrapped packages (pkgs/<name>/, nix-wrapper-modules) - self-contained
+    # home-manager modules, imported directly rather than through a
+    # one-line home/modules/programs/<name>.nix pass-through.
+    yazi-wrapped.homeModules.default
+    lazygit-wrapped.homeModules.default
+    btop-wrapped.homeModules.default
+    helix-wrapped.homeModules.default
+    tealdeer-wrapped.homeModules.default
+    eza-wrapped.homeModules.default
+    fzf-wrapped.homeModules.default
+    git-wrapped.homeModules.default
+    zellij-wrapped.homeModules.default
   ];
 
   home = {
