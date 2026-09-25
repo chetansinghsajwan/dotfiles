@@ -24,6 +24,7 @@
   direnv-wrapped,
   batman-wrapped,
   zed-wrapped,
+  vscode-wrapped,
   ...
 }:
 let
@@ -64,6 +65,7 @@ nixpkgs.lib.nixosSystem {
           direnv-wrapped
           batman-wrapped
           zed-wrapped
+          vscode-wrapped
           ;
       };
       imports = [

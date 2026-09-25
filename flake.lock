@@ -600,6 +600,7 @@
         "stylix": "stylix",
         "tealdeer-wrapped": "tealdeer-wrapped",
         "treefmt-nix": "treefmt-nix",
+        "vscode-wrapped": "vscode-wrapped",
         "yazi-wrapped": "yazi-wrapped",
         "zed-wrapped": "zed-wrapped",
         "zellij-wrapped": "zellij-wrapped",
@@ -785,6 +786,23 @@
         "type": "github"
       }
     },
+    "vscode-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "wrappers": "wrappers_8"
+      },
+      "locked": {
+        "path": "./pkgs/vscode",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/vscode",
+        "type": "path"
+      },
+      "parent": []
+    },
     "wrappers": {
       "inputs": {
         "nixpkgs": [
@@ -809,7 +827,7 @@
     "wrappers_10": {
       "inputs": {
         "nixpkgs": [
-          "zellij-wrapped",
+          "zed-wrapped",
           "nixpkgs"
         ]
       },
@@ -828,6 +846,27 @@
       }
     },
     "wrappers_11": {
+      "inputs": {
+        "nixpkgs": [
+          "zellij-wrapped",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788981141,
+        "narHash": "sha256-7xWS16u13YGlRNKWaAPzRbEyh4OLOXJe31k7h4AnXNU=",
+        "owner": "nix-community",
+        "repo": "nix-wrapper-modules",
+        "rev": "1db3c116a6aa61823f8d8f3c47c306846428fc54",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-wrapper-modules",
+        "type": "github"
+      }
+    },
+    "wrappers_12": {
       "inputs": {
         "nixpkgs": [
           "zsh-wrapped",
@@ -977,7 +1016,7 @@
     "wrappers_8": {
       "inputs": {
         "nixpkgs": [
-          "yazi-wrapped",
+          "vscode-wrapped",
           "nixpkgs"
         ]
       },
@@ -998,7 +1037,7 @@
     "wrappers_9": {
       "inputs": {
         "nixpkgs": [
-          "zed-wrapped",
+          "yazi-wrapped",
           "nixpkgs"
         ]
       },
@@ -1021,7 +1060,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers_8"
+        "wrappers": "wrappers_9"
       },
       "locked": {
         "path": "./pkgs/yazi",
@@ -1038,7 +1077,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers_9"
+        "wrappers": "wrappers_10"
       },
       "locked": {
         "path": "./pkgs/zed",
@@ -1055,7 +1094,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers_10"
+        "wrappers": "wrappers_11"
       },
       "locked": {
         "path": "./pkgs/zellij",
@@ -1072,7 +1111,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers_11"
+        "wrappers": "wrappers_12"
       },
       "locked": {
         "path": "./pkgs/zsh",

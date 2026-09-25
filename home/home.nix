@@ -21,6 +21,7 @@
   direnv-wrapped,
   batman-wrapped,
   zed-wrapped,
+  vscode-wrapped,
   ...
 }:
 let
@@ -65,6 +66,7 @@ in
     direnv-wrapped.homeModules.default
     batman-wrapped.homeModules.default
     zed-wrapped.homeModules.default
+    vscode-wrapped.homeModules.default
   ];
 
   # The imports above only wire each wrapped package's config up; each
@@ -82,6 +84,7 @@ in
     zellij.enable = true;
     zsh.enable = config.dotfiles.shell.program == "zsh";
     zed.enable = config.dotfiles.features.dev && config.dotfiles.features.gui;
+    vscode.enable = config.dotfiles.features.dev && config.dotfiles.features.gui;
   };
 
   home = {

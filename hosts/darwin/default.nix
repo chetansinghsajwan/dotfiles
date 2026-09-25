@@ -22,6 +22,7 @@
   direnv-wrapped,
   batman-wrapped,
   zed-wrapped,
+  vscode-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -59,6 +60,7 @@ nix-darwin.lib.darwinSystem {
           direnv-wrapped
           batman-wrapped
           zed-wrapped
+          vscode-wrapped
           ;
       };
       imports = [

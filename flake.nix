@@ -103,6 +103,11 @@
       url = "path:./pkgs/zed";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    vscode-wrapped = {
+      url = "path:./pkgs/vscode";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -135,6 +140,7 @@
       direnv-wrapped,
       batman-wrapped,
       zed-wrapped,
+      vscode-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -176,6 +182,7 @@
           direnv-wrapped
           batman-wrapped
           zed-wrapped
+          vscode-wrapped
           ;
       };
 
@@ -206,6 +213,7 @@
           direnv-wrapped
           batman-wrapped
           zed-wrapped
+          vscode-wrapped
           ;
       };
 
@@ -235,6 +243,7 @@
           direnv-wrapped
           batman-wrapped
           zed-wrapped
+          vscode-wrapped
           ;
       };
 
@@ -264,6 +273,7 @@
           direnv-wrapped
           batman-wrapped
           zed-wrapped
+          vscode-wrapped
           ;
       };
 
@@ -293,6 +303,7 @@
           direnv-wrapped
           batman-wrapped
           zed-wrapped
+          vscode-wrapped
           ;
       };
 
@@ -331,6 +342,7 @@
             direnv-wrapped
             batman-wrapped
             zed-wrapped
+            vscode-wrapped
             ;
         };
       };
