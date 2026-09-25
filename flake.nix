@@ -90,6 +90,14 @@
       url = "path:./pkgs/zsh";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    op-wrapped.url = "path:./pkgs/op";
+    pv-wrapped.url = "path:./pkgs/pv";
+    docker-wrapped.url = "path:./pkgs/docker";
+    nixpkgs-wrapped.url = "path:./pkgs/nixpkgs";
+    starship-wrapped.url = "path:./pkgs/starship";
+    direnv-wrapped.url = "path:./pkgs/direnv";
+    batman-wrapped.url = "path:./pkgs/batman";
   };
 
   outputs =
@@ -114,6 +122,13 @@
       git-wrapped,
       zellij-wrapped,
       zsh-wrapped,
+      op-wrapped,
+      pv-wrapped,
+      docker-wrapped,
+      nixpkgs-wrapped,
+      starship-wrapped,
+      direnv-wrapped,
+      batman-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -147,6 +162,13 @@
           git-wrapped
           zellij-wrapped
           zsh-wrapped
+          op-wrapped
+          pv-wrapped
+          docker-wrapped
+          nixpkgs-wrapped
+          starship-wrapped
+          direnv-wrapped
+          batman-wrapped
           ;
       };
 
@@ -169,6 +191,13 @@
           git-wrapped
           zellij-wrapped
           zsh-wrapped
+          op-wrapped
+          pv-wrapped
+          docker-wrapped
+          nixpkgs-wrapped
+          starship-wrapped
+          direnv-wrapped
+          batman-wrapped
           ;
       };
 
@@ -190,6 +219,13 @@
           git-wrapped
           zellij-wrapped
           zsh-wrapped
+          op-wrapped
+          pv-wrapped
+          docker-wrapped
+          nixpkgs-wrapped
+          starship-wrapped
+          direnv-wrapped
+          batman-wrapped
           ;
       };
 
@@ -211,6 +247,13 @@
           git-wrapped
           zellij-wrapped
           zsh-wrapped
+          op-wrapped
+          pv-wrapped
+          docker-wrapped
+          nixpkgs-wrapped
+          starship-wrapped
+          direnv-wrapped
+          batman-wrapped
           ;
       };
 
@@ -232,6 +275,13 @@
           git-wrapped
           zellij-wrapped
           zsh-wrapped
+          op-wrapped
+          pv-wrapped
+          docker-wrapped
+          nixpkgs-wrapped
+          starship-wrapped
+          direnv-wrapped
+          batman-wrapped
           ;
       };
 
@@ -262,6 +312,13 @@
             git-wrapped
             zellij-wrapped
             zsh-wrapped
+            op-wrapped
+            pv-wrapped
+            docker-wrapped
+            nixpkgs-wrapped
+            starship-wrapped
+            direnv-wrapped
+            batman-wrapped
             ;
         };
       };

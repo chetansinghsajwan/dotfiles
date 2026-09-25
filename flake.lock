@@ -68,6 +68,17 @@
         "type": "github"
       }
     },
+    "batman-wrapped": {
+      "locked": {
+        "path": "./pkgs/batman",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/batman",
+        "type": "path"
+      },
+      "parent": []
+    },
     "btop-wrapped": {
       "inputs": {
         "nixpkgs": [
@@ -131,6 +142,28 @@
         "repo": "shell",
         "type": "github"
       }
+    },
+    "direnv-wrapped": {
+      "locked": {
+        "path": "./pkgs/direnv",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/direnv",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "docker-wrapped": {
+      "locked": {
+        "path": "./pkgs/docker",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/docker",
+        "type": "path"
+      },
+      "parent": []
     },
     "eza-wrapped": {
       "inputs": {
@@ -426,6 +459,17 @@
         "type": "github"
       }
     },
+    "nixpkgs-wrapped": {
+      "locked": {
+        "path": "./pkgs/nixpkgs",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/nixpkgs",
+        "type": "path"
+      },
+      "parent": []
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1770107345,
@@ -488,6 +532,28 @@
         "type": "github"
       }
     },
+    "op-wrapped": {
+      "locked": {
+        "path": "./pkgs/op",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/op",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "pv-wrapped": {
+      "locked": {
+        "path": "./pkgs/pv",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/pv",
+        "type": "path"
+      },
+      "parent": []
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -511,8 +577,11 @@
     },
     "root": {
       "inputs": {
+        "batman-wrapped": "batman-wrapped",
         "btop-wrapped": "btop-wrapped",
         "caelestia-shell": "caelestia-shell",
+        "direnv-wrapped": "direnv-wrapped",
+        "docker-wrapped": "docker-wrapped",
         "eza-wrapped": "eza-wrapped",
         "fzf-wrapped": "fzf-wrapped",
         "git-wrapped": "git-wrapped",
@@ -522,8 +591,12 @@
         "nix-darwin": "nix-darwin",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-wrapped": "nixpkgs-wrapped",
         "nur": "nur",
+        "op-wrapped": "op-wrapped",
+        "pv-wrapped": "pv-wrapped",
         "silentSDDM": "silentSDDM",
+        "starship-wrapped": "starship-wrapped",
         "stylix": "stylix",
         "tealdeer-wrapped": "tealdeer-wrapped",
         "treefmt-nix": "treefmt-nix",
@@ -551,6 +624,17 @@
         "repo": "SilentSDDM",
         "type": "github"
       }
+    },
+    "starship-wrapped": {
+      "locked": {
+        "path": "./pkgs/starship",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/starship",
+        "type": "path"
+      },
+      "parent": []
     },
     "stylix": {
       "inputs": {

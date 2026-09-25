@@ -15,6 +15,13 @@
   git-wrapped,
   zellij-wrapped,
   zsh-wrapped,
+  op-wrapped,
+  pv-wrapped,
+  docker-wrapped,
+  nixpkgs-wrapped,
+  starship-wrapped,
+  direnv-wrapped,
+  batman-wrapped,
   ...
 }:
 let
@@ -43,6 +50,13 @@ nixpkgs.lib.nixosSystem {
           git-wrapped
           zellij-wrapped
           zsh-wrapped
+          op-wrapped
+          pv-wrapped
+          docker-wrapped
+          nixpkgs-wrapped
+          starship-wrapped
+          direnv-wrapped
+          batman-wrapped
           ;
       };
       imports = [

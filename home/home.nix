@@ -13,6 +13,13 @@
   git-wrapped,
   zellij-wrapped,
   zsh-wrapped,
+  op-wrapped,
+  pv-wrapped,
+  docker-wrapped,
+  nixpkgs-wrapped,
+  starship-wrapped,
+  direnv-wrapped,
+  batman-wrapped,
   ...
 }:
 let
@@ -49,6 +56,13 @@ in
     git-wrapped.homeModules.default
     zellij-wrapped.homeModules.default
     zsh-wrapped.homeModules.default
+    op-wrapped.homeModules.default
+    pv-wrapped.homeModules.default
+    docker-wrapped.homeModules.default
+    nixpkgs-wrapped.homeModules.default
+    starship-wrapped.homeModules.default
+    direnv-wrapped.homeModules.default
+    batman-wrapped.homeModules.default
   ];
 
   # The imports above only wire each wrapped package's config up; each
@@ -122,8 +136,6 @@ in
     fish.enable = config.dotfiles.shell.program == "fish";
     nushell.enable = config.dotfiles.shell.program == "nushell";
 
-    starship.enable = config.dotfiles.shell.theme == "starship";
-
     nh.enable = true;
     gitui.enable = true;
     gh.enable = true;
@@ -131,7 +143,6 @@ in
     yt-dlp.enable = true;
     lazydocker.enable = true;
     superfile.enable = true;
-    direnv.enable = true;
   };
 
   # Desktop-independent kdeconnect: works the same whether GNOME or Hyprland

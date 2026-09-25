@@ -14,6 +14,13 @@
   git-wrapped,
   zellij-wrapped,
   zsh-wrapped,
+  op-wrapped,
+  pv-wrapped,
+  docker-wrapped,
+  nixpkgs-wrapped,
+  starship-wrapped,
+  direnv-wrapped,
+  batman-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -42,6 +49,13 @@ nix-darwin.lib.darwinSystem {
           git-wrapped
           zellij-wrapped
           zsh-wrapped
+          op-wrapped
+          pv-wrapped
+          docker-wrapped
+          nixpkgs-wrapped
+          starship-wrapped
+          direnv-wrapped
+          batman-wrapped
           ;
       };
       imports = [
