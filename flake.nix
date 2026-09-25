@@ -55,6 +55,11 @@
       url = "path:./pkgs/btop";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    helix-wrapped = {
+      url = "path:./pkgs/helix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -72,6 +77,7 @@
       yazi-wrapped,
       lazygit-wrapped,
       btop-wrapped,
+      helix-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -98,6 +104,7 @@
           yazi-wrapped
           lazygit-wrapped
           btop-wrapped
+          helix-wrapped
           ;
       };
 
@@ -113,6 +120,7 @@
           yazi-wrapped
           lazygit-wrapped
           btop-wrapped
+          helix-wrapped
           ;
       };
 
@@ -127,6 +135,7 @@
           yazi-wrapped
           lazygit-wrapped
           btop-wrapped
+          helix-wrapped
           ;
       };
 
@@ -141,6 +150,7 @@
           yazi-wrapped
           lazygit-wrapped
           btop-wrapped
+          helix-wrapped
           ;
       };
 
@@ -155,6 +165,7 @@
           yazi-wrapped
           lazygit-wrapped
           btop-wrapped
+          helix-wrapped
           ;
       };
 
@@ -178,6 +189,7 @@
             yazi-wrapped
             lazygit-wrapped
             btop-wrapped
+            helix-wrapped
             ;
         };
       };

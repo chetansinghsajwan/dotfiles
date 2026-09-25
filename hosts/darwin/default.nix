@@ -7,6 +7,7 @@
   yazi-wrapped,
   lazygit-wrapped,
   btop-wrapped,
+  helix-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -29,6 +30,7 @@ nix-darwin.lib.darwinSystem {
           yazi-wrapped
           lazygit-wrapped
           btop-wrapped
+          helix-wrapped
           ;
       };
       imports = [
