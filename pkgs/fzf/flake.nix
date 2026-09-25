@@ -102,7 +102,7 @@
           config.programs.bash.initExtra = "source ~/.config/fzf/fzf.sh";
 
           # fzf.zsh (ZLE widgets/bindkey) is zsh-only, so it isn't sourced into bash.
-          config.programs.zsh.initContent = ''
+          config.wrappers.zsh.extraInitContent = ''
             source ~/.config/fzf/fzf.sh
             source ~/.config/fzf/fzf.zsh
           '';

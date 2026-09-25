@@ -24,7 +24,7 @@ localLib.mkToggleModule config "clipboard" {
     source ~/.config/clipboard-fzf/clipboard.sh
   '';
   # clipboard.zsh (ZLE widgets/bindkey) is zsh-only, so it isn't sourced into bash.
-  programs.zsh.initContent = ''
+  wrappers.zsh.extraInitContent = ''
     source ~/.config/clipboard-fzf/clipboard.sh
     source ~/.config/clipboard-fzf/clipboard.zsh
   '';

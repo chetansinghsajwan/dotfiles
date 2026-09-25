@@ -90,7 +90,7 @@
             ".config/yazi/y.nu" = lib.mkIf config.programs.nushell.enable { source = ./y.nu; };
           };
 
-          config.programs.zsh.initContent = lib.mkIf config.programs.zsh.enable ''
+          config.wrappers.zsh.extraInitContent = lib.mkIf config.programs.zsh.enable ''
             source ~/.config/yazi/y.zsh
           '';
 
