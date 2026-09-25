@@ -75,8 +75,13 @@
             );
           };
 
+          # bat stays on home-manager's own `programs.bat` (not plain
+          # home.packages) so stylix's bat target still fires - it
+          # generates the "base16-stylix" bat theme that both delta's
+          # syntax-theme and pv's bat-based previews depend on.
+          config.programs.bat.enable = true;
+
           config.home.packages = [
-            pkgs.bat
             pkgs.fd
             pkgs.ripgrep
           ];
