@@ -108,6 +108,10 @@
       url = "path:./pkgs/vscode";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    vlc-wrapped.url = "path:./pkgs/vlc";
+    ghostty-wrapped.url = "path:./pkgs/ghostty";
+    firefox-wrapped.url = "path:./pkgs/firefox";
   };
 
   outputs =
@@ -141,6 +145,9 @@
       batman-wrapped,
       zed-wrapped,
       vscode-wrapped,
+      vlc-wrapped,
+      ghostty-wrapped,
+      firefox-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -183,6 +190,9 @@
           batman-wrapped
           zed-wrapped
           vscode-wrapped
+          vlc-wrapped
+          ghostty-wrapped
+          firefox-wrapped
           ;
       };
 
@@ -214,6 +224,9 @@
           batman-wrapped
           zed-wrapped
           vscode-wrapped
+          vlc-wrapped
+          ghostty-wrapped
+          firefox-wrapped
           ;
       };
 
@@ -244,6 +257,9 @@
           batman-wrapped
           zed-wrapped
           vscode-wrapped
+          vlc-wrapped
+          ghostty-wrapped
+          firefox-wrapped
           ;
       };
 
@@ -274,6 +290,9 @@
           batman-wrapped
           zed-wrapped
           vscode-wrapped
+          vlc-wrapped
+          ghostty-wrapped
+          firefox-wrapped
           ;
       };
 
@@ -304,6 +323,9 @@
           batman-wrapped
           zed-wrapped
           vscode-wrapped
+          vlc-wrapped
+          ghostty-wrapped
+          firefox-wrapped
           ;
       };
 
@@ -343,6 +365,9 @@
             batman-wrapped
             zed-wrapped
             vscode-wrapped
+            vlc-wrapped
+            ghostty-wrapped
+            firefox-wrapped
             ;
         };
       };

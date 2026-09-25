@@ -23,6 +23,9 @@
   batman-wrapped,
   zed-wrapped,
   vscode-wrapped,
+  vlc-wrapped,
+  ghostty-wrapped,
+  firefox-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -61,6 +64,9 @@ nix-darwin.lib.darwinSystem {
           batman-wrapped
           zed-wrapped
           vscode-wrapped
+          vlc-wrapped
+          ghostty-wrapped
+          firefox-wrapped
           ;
       };
       imports = [

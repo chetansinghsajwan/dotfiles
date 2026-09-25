@@ -22,6 +22,9 @@
   batman-wrapped,
   zed-wrapped,
   vscode-wrapped,
+  vlc-wrapped,
+  ghostty-wrapped,
+  firefox-wrapped,
   ...
 }:
 let
@@ -67,6 +70,9 @@ in
     batman-wrapped.homeModules.default
     zed-wrapped.homeModules.default
     vscode-wrapped.homeModules.default
+    vlc-wrapped.homeModules.default
+    ghostty-wrapped.homeModules.default
+    firefox-wrapped.homeModules.default
   ];
 
   # The imports above only wire each wrapped package's config up; each

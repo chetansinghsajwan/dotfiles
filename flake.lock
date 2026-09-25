@@ -198,6 +198,17 @@
         "type": "github"
       }
     },
+    "firefox-wrapped": {
+      "locked": {
+        "path": "./pkgs/firefox",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/firefox",
+        "type": "path"
+      },
+      "parent": []
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -285,6 +296,17 @@
       },
       "original": {
         "path": "./pkgs/fzf",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "ghostty-wrapped": {
+      "locked": {
+        "path": "./pkgs/ghostty",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/ghostty",
         "type": "path"
       },
       "parent": []
@@ -583,7 +605,9 @@
         "direnv-wrapped": "direnv-wrapped",
         "docker-wrapped": "docker-wrapped",
         "eza-wrapped": "eza-wrapped",
+        "firefox-wrapped": "firefox-wrapped",
         "fzf-wrapped": "fzf-wrapped",
+        "ghostty-wrapped": "ghostty-wrapped",
         "git-wrapped": "git-wrapped",
         "helix-wrapped": "helix-wrapped",
         "home-manager": "home-manager",
@@ -600,6 +624,7 @@
         "stylix": "stylix",
         "tealdeer-wrapped": "tealdeer-wrapped",
         "treefmt-nix": "treefmt-nix",
+        "vlc-wrapped": "vlc-wrapped",
         "vscode-wrapped": "vscode-wrapped",
         "yazi-wrapped": "yazi-wrapped",
         "zed-wrapped": "zed-wrapped",
@@ -785,6 +810,17 @@
         "repo": "treefmt-nix",
         "type": "github"
       }
+    },
+    "vlc-wrapped": {
+      "locked": {
+        "path": "./pkgs/vlc",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/vlc",
+        "type": "path"
+      },
+      "parent": []
     },
     "vscode-wrapped": {
       "inputs": {

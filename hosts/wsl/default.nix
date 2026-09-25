@@ -24,6 +24,9 @@
   batman-wrapped,
   zed-wrapped,
   vscode-wrapped,
+  vlc-wrapped,
+  ghostty-wrapped,
+  firefox-wrapped,
   ...
 }:
 let
@@ -61,6 +64,9 @@ nixpkgs.lib.nixosSystem {
           batman-wrapped
           zed-wrapped
           vscode-wrapped
+          vlc-wrapped
+          ghostty-wrapped
+          firefox-wrapped
           ;
       };
       imports = [
