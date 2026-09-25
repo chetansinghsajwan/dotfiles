@@ -8,6 +8,7 @@
   silentSDDM,
   yazi-wrapped,
   lazygit-wrapped,
+  btop-wrapped,
   ...
 }:
 let
@@ -32,6 +33,7 @@ nixpkgs.lib.nixosSystem {
           caelestia-shell
           yazi-wrapped
           lazygit-wrapped
+          btop-wrapped
           ;
       };
       imports = [

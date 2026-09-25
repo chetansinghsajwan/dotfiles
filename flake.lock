@@ -68,6 +68,23 @@
         "type": "github"
       }
     },
+    "btop-wrapped": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "wrappers": "wrappers"
+      },
+      "locked": {
+        "path": "./pkgs/btop",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/btop",
+        "type": "path"
+      },
+      "parent": []
+    },
     "caelestia-cli": {
       "inputs": {
         "caelestia-shell": [
@@ -250,7 +267,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers"
+        "wrappers": "wrappers_2"
       },
       "locked": {
         "path": "./pkgs/lazygit",
@@ -426,6 +443,7 @@
     },
     "root": {
       "inputs": {
+        "btop-wrapped": "btop-wrapped",
         "caelestia-shell": "caelestia-shell",
         "home-manager": "home-manager",
         "lazygit-wrapped": "lazygit-wrapped",
@@ -593,7 +611,7 @@
     "wrappers": {
       "inputs": {
         "nixpkgs": [
-          "lazygit-wrapped",
+          "btop-wrapped",
           "nixpkgs"
         ]
       },
@@ -612,6 +630,27 @@
       }
     },
     "wrappers_2": {
+      "inputs": {
+        "nixpkgs": [
+          "lazygit-wrapped",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788981141,
+        "narHash": "sha256-7xWS16u13YGlRNKWaAPzRbEyh4OLOXJe31k7h4AnXNU=",
+        "owner": "nix-community",
+        "repo": "nix-wrapper-modules",
+        "rev": "1db3c116a6aa61823f8d8f3c47c306846428fc54",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-wrapper-modules",
+        "type": "github"
+      }
+    },
+    "wrappers_3": {
       "inputs": {
         "nixpkgs": [
           "yazi-wrapped",
@@ -637,7 +676,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "wrappers": "wrappers_2"
+        "wrappers": "wrappers_3"
       },
       "locked": {
         "path": "./pkgs/yazi",

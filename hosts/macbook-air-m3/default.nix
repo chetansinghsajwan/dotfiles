@@ -6,6 +6,7 @@
   localLib,
   yazi-wrapped,
   lazygit-wrapped,
+  btop-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -26,6 +27,7 @@ nix-darwin.lib.darwinSystem {
           localLib
           yazi-wrapped
           lazygit-wrapped
+          btop-wrapped
           ;
       };
       imports = [

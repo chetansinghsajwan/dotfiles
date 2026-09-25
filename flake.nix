@@ -50,6 +50,11 @@
       url = "path:./pkgs/lazygit";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    btop-wrapped = {
+      url = "path:./pkgs/btop";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -66,6 +71,7 @@
       silentSDDM,
       yazi-wrapped,
       lazygit-wrapped,
+      btop-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -91,6 +97,7 @@
           silentSDDM
           yazi-wrapped
           lazygit-wrapped
+          btop-wrapped
           ;
       };
 
@@ -105,6 +112,7 @@
           silentSDDM
           yazi-wrapped
           lazygit-wrapped
+          btop-wrapped
           ;
       };
 
@@ -118,6 +126,7 @@
           localLib
           yazi-wrapped
           lazygit-wrapped
+          btop-wrapped
           ;
       };
 
@@ -131,6 +140,7 @@
           localLib
           yazi-wrapped
           lazygit-wrapped
+          btop-wrapped
           ;
       };
 
@@ -144,6 +154,7 @@
           localLib
           yazi-wrapped
           lazygit-wrapped
+          btop-wrapped
           ;
       };
 
@@ -166,6 +177,7 @@
             caelestia-shell
             yazi-wrapped
             lazygit-wrapped
+            btop-wrapped
             ;
         };
       };

@@ -7,6 +7,7 @@
   localLib,
   yazi-wrapped,
   lazygit-wrapped,
+  btop-wrapped,
   ...
 }:
 let
@@ -27,6 +28,7 @@ nixpkgs.lib.nixosSystem {
           localLib
           yazi-wrapped
           lazygit-wrapped
+          btop-wrapped
           ;
       };
       imports = [
