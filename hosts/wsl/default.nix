@@ -14,6 +14,7 @@
   fzf-wrapped,
   git-wrapped,
   zellij-wrapped,
+  zsh-wrapped,
   ...
 }:
 let
@@ -41,6 +42,7 @@ nixpkgs.lib.nixosSystem {
           fzf-wrapped
           git-wrapped
           zellij-wrapped
+          zsh-wrapped
           ;
       };
       imports = [

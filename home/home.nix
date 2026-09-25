@@ -12,6 +12,7 @@
   fzf-wrapped,
   git-wrapped,
   zellij-wrapped,
+  zsh-wrapped,
   ...
 }:
 let
@@ -47,7 +48,24 @@ in
     fzf-wrapped.homeModules.default
     git-wrapped.homeModules.default
     zellij-wrapped.homeModules.default
+    zsh-wrapped.homeModules.default
   ];
+
+  # The imports above only wire each wrapped package's config up; each
+  # one still defaults to disabled (matching every other wrapper module's
+  # own default) until switched on here.
+  wrappers = {
+    yazi.enable = true;
+    lazygit.enable = true;
+    btop.enable = true;
+    helix.enable = true;
+    tealdeer.enable = true;
+    eza.enable = true;
+    fzf.enable = true;
+    git.enable = true;
+    zellij.enable = true;
+    zsh.enable = config.dotfiles.shell.program == "zsh";
+  };
 
   home = {
     username = config.dotfiles.user.username;

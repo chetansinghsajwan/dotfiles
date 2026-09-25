@@ -92,14 +92,11 @@
             })
           ];
 
-          config.wrappers.git = {
-            enable = true;
-            settings = {
-              credential.credentialStore = credentialStore;
-              user = {
-                name = config.dotfiles.user.displayName;
-                email = config.dotfiles.user.git.email;
-              };
+          config.wrappers.git.settings = {
+            credential.credentialStore = credentialStore;
+            user = {
+              name = config.dotfiles.user.displayName;
+              email = config.dotfiles.user.git.email;
             };
           };
 

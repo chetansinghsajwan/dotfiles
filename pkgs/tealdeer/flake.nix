@@ -40,8 +40,8 @@
       };
 
       # Drop-in home-manager module: `imports = [ tealdeer-wrapped.homeModules.default ];`
-      # is the whole integration - no settings or packages needed at the
-      # call site.
+      # wires everything up; the caller still sets
+      # `wrappers.tealdeer.enable = true;` to actually turn it on.
       homeModules.default = {
         imports = [
           (wrappers.lib.getInstallModule {
@@ -52,8 +52,6 @@
             ];
           })
         ];
-
-        config.wrappers.tealdeer.enable = true;
       };
 
       packages = forEachSystem (

@@ -62,8 +62,6 @@
             })
           ];
 
-          config.wrappers.zellij.enable = true;
-
           # extraConfig's LaunchOrFocusPlugin references this exact path
           # (not zellij's own config dir), so it has to land here verbatim.
           config.home.file."zellij-plugins/zellij_forgot.wasm".source = zellijForgot pkgs;

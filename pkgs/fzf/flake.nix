@@ -63,17 +63,14 @@
             })
           ];
 
-          config.wrappers.fzf = {
-            enable = true;
-            colorArgs = mkTheme (
-              lib.attrByPath [
-                "lib"
-                "stylix"
-                "colors"
-                "withHashtag"
-              ] null config
-            );
-          };
+          config.wrappers.fzf.colorArgs = mkTheme (
+            lib.attrByPath [
+              "lib"
+              "stylix"
+              "colors"
+              "withHashtag"
+            ] null config
+          );
 
           # bat stays on home-manager's own `programs.bat` (not plain
           # home.packages) so stylix's bat target still fires - it

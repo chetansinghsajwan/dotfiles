@@ -73,18 +73,14 @@
             })
           ];
 
-          config.wrappers.btop =
-            mkTheme (
-              lib.attrByPath [
-                "lib"
-                "stylix"
-                "colors"
-                "withHashtag"
-              ] null config
-            )
-            // {
-              enable = true;
-            };
+          config.wrappers.btop = mkTheme (
+            lib.attrByPath [
+              "lib"
+              "stylix"
+              "colors"
+              "withHashtag"
+            ] null config
+          );
         };
 
       packages = forEachSystem (

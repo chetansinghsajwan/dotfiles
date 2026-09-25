@@ -75,17 +75,14 @@
             })
           ];
 
-          config.wrappers.yazi = {
-            enable = true;
-            settings.theme = mkTheme (
-              lib.attrByPath [
-                "lib"
-                "stylix"
-                "colors"
-                "withHashtag"
-              ] null config
-            );
-          };
+          config.wrappers.yazi.settings.theme = mkTheme (
+            lib.attrByPath [
+              "lib"
+              "stylix"
+              "colors"
+              "withHashtag"
+            ] null config
+          );
 
           config.home.file = {
             ".config/yazi/y.zsh" = lib.mkIf config.programs.zsh.enable { source = ./y.zsh; };

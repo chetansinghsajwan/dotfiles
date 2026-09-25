@@ -46,8 +46,6 @@
           })
         ];
 
-        config.wrappers.eza.enable = true;
-
         # ls/ll/la/lt/lla all resolve "eza" through the alias chain to the
         # wrapped binary above, so --git/--icons apply to these too without
         # needing to repeat them here.

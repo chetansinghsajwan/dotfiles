@@ -13,6 +13,7 @@
   fzf-wrapped,
   git-wrapped,
   zellij-wrapped,
+  zsh-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -40,6 +41,7 @@ nix-darwin.lib.darwinSystem {
           fzf-wrapped
           git-wrapped
           zellij-wrapped
+          zsh-wrapped
           ;
       };
       imports = [

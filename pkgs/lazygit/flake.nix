@@ -76,17 +76,14 @@
             })
           ];
 
-          config.wrappers.lazygit = {
-            enable = true;
-            settings = mkTheme (
-              lib.attrByPath [
-                "lib"
-                "stylix"
-                "colors"
-                "withHashtag"
-              ] null config
-            );
-          };
+          config.wrappers.lazygit.settings = mkTheme (
+            lib.attrByPath [
+              "lib"
+              "stylix"
+              "colors"
+              "withHashtag"
+            ] null config
+          );
         };
 
       packages = forEachSystem (

@@ -90,7 +90,6 @@
                 ] null config
               ))
               {
-                enable = true;
                 settings.editor = {
                   scroll-lines = editor.scroll_lines;
                   line-number = editor.line_number;
