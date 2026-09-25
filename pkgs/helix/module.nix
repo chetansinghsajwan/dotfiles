@@ -77,7 +77,13 @@
           };
         in
         {
-          normal = navigation;
+          normal = navigation // {
+            # Bare "q" is macro-record by default; quit lives under the
+            # space leader instead so it stays a deliberate chord rather
+            # than a stray keypress, and macro-record keeps working.
+            space.q = ":quit";
+            space.Q = ":quit!";
+          };
           select = navigation;
         };
     };
