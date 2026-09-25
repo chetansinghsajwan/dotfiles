@@ -9,6 +9,7 @@
   lazygit-wrapped,
   btop-wrapped,
   helix-wrapped,
+  tealdeer-wrapped,
   ...
 }:
 let
@@ -31,6 +32,7 @@ nixpkgs.lib.nixosSystem {
           lazygit-wrapped
           btop-wrapped
           helix-wrapped
+          tealdeer-wrapped
           ;
       };
       imports = [

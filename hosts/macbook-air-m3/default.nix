@@ -8,6 +8,7 @@
   lazygit-wrapped,
   btop-wrapped,
   helix-wrapped,
+  tealdeer-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -30,6 +31,7 @@ nix-darwin.lib.darwinSystem {
           lazygit-wrapped
           btop-wrapped
           helix-wrapped
+          tealdeer-wrapped
           ;
       };
       imports = [

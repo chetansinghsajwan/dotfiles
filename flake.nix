@@ -60,6 +60,11 @@
       url = "path:./pkgs/helix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    tealdeer-wrapped = {
+      url = "path:./pkgs/tealdeer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -78,6 +83,7 @@
       lazygit-wrapped,
       btop-wrapped,
       helix-wrapped,
+      tealdeer-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -105,6 +111,7 @@
           lazygit-wrapped
           btop-wrapped
           helix-wrapped
+          tealdeer-wrapped
           ;
       };
 
@@ -121,6 +128,7 @@
           lazygit-wrapped
           btop-wrapped
           helix-wrapped
+          tealdeer-wrapped
           ;
       };
 
@@ -136,6 +144,7 @@
           lazygit-wrapped
           btop-wrapped
           helix-wrapped
+          tealdeer-wrapped
           ;
       };
 
@@ -151,6 +160,7 @@
           lazygit-wrapped
           btop-wrapped
           helix-wrapped
+          tealdeer-wrapped
           ;
       };
 
@@ -166,6 +176,7 @@
           lazygit-wrapped
           btop-wrapped
           helix-wrapped
+          tealdeer-wrapped
           ;
       };
 
@@ -190,6 +201,7 @@
             lazygit-wrapped
             btop-wrapped
             helix-wrapped
+            tealdeer-wrapped
             ;
         };
       };

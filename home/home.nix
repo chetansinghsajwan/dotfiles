@@ -96,7 +96,6 @@ in
     lazydocker.enable = true;
     superfile.enable = true;
     direnv.enable = true;
-    tealdeer.enable = true;
   };
 
   # Desktop-independent kdeconnect: works the same whether GNOME or Hyprland
