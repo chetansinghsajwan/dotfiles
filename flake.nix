@@ -65,6 +65,11 @@
       url = "path:./pkgs/tealdeer";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    eza-wrapped = {
+      url = "path:./pkgs/eza";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -84,6 +89,7 @@
       btop-wrapped,
       helix-wrapped,
       tealdeer-wrapped,
+      eza-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -112,6 +118,7 @@
           btop-wrapped
           helix-wrapped
           tealdeer-wrapped
+          eza-wrapped
           ;
       };
 
@@ -129,6 +136,7 @@
           btop-wrapped
           helix-wrapped
           tealdeer-wrapped
+          eza-wrapped
           ;
       };
 
@@ -145,6 +153,7 @@
           btop-wrapped
           helix-wrapped
           tealdeer-wrapped
+          eza-wrapped
           ;
       };
 
@@ -161,6 +170,7 @@
           btop-wrapped
           helix-wrapped
           tealdeer-wrapped
+          eza-wrapped
           ;
       };
 
@@ -177,6 +187,7 @@
           btop-wrapped
           helix-wrapped
           tealdeer-wrapped
+          eza-wrapped
           ;
       };
 
@@ -202,6 +213,7 @@
             btop-wrapped
             helix-wrapped
             tealdeer-wrapped
+            eza-wrapped
             ;
         };
       };

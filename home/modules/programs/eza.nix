@@ -1,10 +1,4 @@
-_: {
-  programs.eza = {
-    enableZshIntegration = true;
-    extraOptions = [
-      "--git"
-      "--icons"
-      "always"
-    ];
-  };
+{ eza-wrapped, ... }:
+{
+  imports = [ eza-wrapped.homeModules.default ];
 }

@@ -10,6 +10,7 @@
   btop-wrapped,
   helix-wrapped,
   tealdeer-wrapped,
+  eza-wrapped,
   ...
 }:
 let
@@ -33,6 +34,7 @@ nixpkgs.lib.nixosSystem {
           btop-wrapped
           helix-wrapped
           tealdeer-wrapped
+          eza-wrapped
           ;
       };
       imports = [

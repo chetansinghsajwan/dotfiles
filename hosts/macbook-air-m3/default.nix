@@ -9,6 +9,7 @@
   btop-wrapped,
   helix-wrapped,
   tealdeer-wrapped,
+  eza-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -32,6 +33,7 @@ nix-darwin.lib.darwinSystem {
           btop-wrapped
           helix-wrapped
           tealdeer-wrapped
+          eza-wrapped
           ;
       };
       imports = [
