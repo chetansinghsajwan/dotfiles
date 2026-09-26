@@ -143,6 +143,28 @@
         "type": "github"
       }
     },
+    "clipboard-wrapped": {
+      "locked": {
+        "path": "./pkgs/clipboard",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/clipboard",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dconf-editor-wrapped": {
+      "locked": {
+        "path": "./pkgs/dconf-editor",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/dconf-editor",
+        "type": "path"
+      },
+      "parent": []
+    },
     "direnv-wrapped": {
       "locked": {
         "path": "./pkgs/direnv",
@@ -161,6 +183,17 @@
       },
       "original": {
         "path": "./pkgs/docker",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "epiphany-wrapped": {
+      "locked": {
+        "path": "./pkgs/epiphany",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/epiphany",
         "type": "path"
       },
       "parent": []
@@ -347,6 +380,28 @@
         "type": "gitlab"
       }
     },
+    "gnome-terminal-wrapped": {
+      "locked": {
+        "path": "./pkgs/gnome-terminal",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/gnome-terminal",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "gnome-text-editor-wrapped": {
+      "locked": {
+        "path": "./pkgs/gnome-text-editor",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/gnome-text-editor",
+        "type": "path"
+      },
+      "parent": []
+    },
     "helix-wrapped": {
       "inputs": {
         "nixpkgs": [
@@ -385,6 +440,17 @@
         "type": "github"
       }
     },
+    "kanata-layer-indicator-wrapped": {
+      "locked": {
+        "path": "./pkgs/kanata-layer-indicator",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/kanata-layer-indicator",
+        "type": "path"
+      },
+      "parent": []
+    },
     "lazygit-wrapped": {
       "inputs": {
         "nixpkgs": [
@@ -398,6 +464,17 @@
       },
       "original": {
         "path": "./pkgs/lazygit",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "libreoffice-wrapped": {
+      "locked": {
+        "path": "./pkgs/libreoffice",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/libreoffice",
         "type": "path"
       },
       "parent": []
@@ -423,6 +500,17 @@
         "rev": "32ad9ce328bb77ed349b40a3be10ee9ea610b8ab",
         "type": "github"
       }
+    },
+    "nbfc-linux-wrapped": {
+      "locked": {
+        "path": "./pkgs/nbfc-linux",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs/nbfc-linux",
+        "type": "path"
+      },
+      "parent": []
     },
     "nix-darwin": {
       "inputs": {
@@ -602,16 +690,24 @@
         "batman-wrapped": "batman-wrapped",
         "btop-wrapped": "btop-wrapped",
         "caelestia-shell": "caelestia-shell",
+        "clipboard-wrapped": "clipboard-wrapped",
+        "dconf-editor-wrapped": "dconf-editor-wrapped",
         "direnv-wrapped": "direnv-wrapped",
         "docker-wrapped": "docker-wrapped",
+        "epiphany-wrapped": "epiphany-wrapped",
         "eza-wrapped": "eza-wrapped",
         "firefox-wrapped": "firefox-wrapped",
         "fzf-wrapped": "fzf-wrapped",
         "ghostty-wrapped": "ghostty-wrapped",
         "git-wrapped": "git-wrapped",
+        "gnome-terminal-wrapped": "gnome-terminal-wrapped",
+        "gnome-text-editor-wrapped": "gnome-text-editor-wrapped",
         "helix-wrapped": "helix-wrapped",
         "home-manager": "home-manager",
+        "kanata-layer-indicator-wrapped": "kanata-layer-indicator-wrapped",
         "lazygit-wrapped": "lazygit-wrapped",
+        "libreoffice-wrapped": "libreoffice-wrapped",
+        "nbfc-linux-wrapped": "nbfc-linux-wrapped",
         "nix-darwin": "nix-darwin",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs",

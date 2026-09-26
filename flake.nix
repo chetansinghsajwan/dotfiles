@@ -112,6 +112,14 @@
     vlc-wrapped.url = "path:./pkgs/vlc";
     ghostty-wrapped.url = "path:./pkgs/ghostty";
     firefox-wrapped.url = "path:./pkgs/firefox";
+    dconf-editor-wrapped.url = "path:./pkgs/dconf-editor";
+    epiphany-wrapped.url = "path:./pkgs/epiphany";
+    gnome-terminal-wrapped.url = "path:./pkgs/gnome-terminal";
+    gnome-text-editor-wrapped.url = "path:./pkgs/gnome-text-editor";
+    kanata-layer-indicator-wrapped.url = "path:./pkgs/kanata-layer-indicator";
+    libreoffice-wrapped.url = "path:./pkgs/libreoffice";
+    nbfc-linux-wrapped.url = "path:./pkgs/nbfc-linux";
+    clipboard-wrapped.url = "path:./pkgs/clipboard";
   };
 
   outputs =
@@ -148,6 +156,14 @@
       vlc-wrapped,
       ghostty-wrapped,
       firefox-wrapped,
+      dconf-editor-wrapped,
+      epiphany-wrapped,
+      gnome-terminal-wrapped,
+      gnome-text-editor-wrapped,
+      kanata-layer-indicator-wrapped,
+      libreoffice-wrapped,
+      nbfc-linux-wrapped,
+      clipboard-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -193,6 +209,14 @@
           vlc-wrapped
           ghostty-wrapped
           firefox-wrapped
+          dconf-editor-wrapped
+          epiphany-wrapped
+          gnome-terminal-wrapped
+          gnome-text-editor-wrapped
+          kanata-layer-indicator-wrapped
+          libreoffice-wrapped
+          nbfc-linux-wrapped
+          clipboard-wrapped
           ;
       };
 
@@ -227,6 +251,14 @@
           vlc-wrapped
           ghostty-wrapped
           firefox-wrapped
+          dconf-editor-wrapped
+          epiphany-wrapped
+          gnome-terminal-wrapped
+          gnome-text-editor-wrapped
+          kanata-layer-indicator-wrapped
+          libreoffice-wrapped
+          nbfc-linux-wrapped
+          clipboard-wrapped
           ;
       };
 
@@ -260,6 +292,14 @@
           vlc-wrapped
           ghostty-wrapped
           firefox-wrapped
+          dconf-editor-wrapped
+          epiphany-wrapped
+          gnome-terminal-wrapped
+          gnome-text-editor-wrapped
+          kanata-layer-indicator-wrapped
+          libreoffice-wrapped
+          nbfc-linux-wrapped
+          clipboard-wrapped
           ;
       };
 
@@ -293,6 +333,14 @@
           vlc-wrapped
           ghostty-wrapped
           firefox-wrapped
+          dconf-editor-wrapped
+          epiphany-wrapped
+          gnome-terminal-wrapped
+          gnome-text-editor-wrapped
+          kanata-layer-indicator-wrapped
+          libreoffice-wrapped
+          nbfc-linux-wrapped
+          clipboard-wrapped
           ;
       };
 
@@ -326,6 +374,14 @@
           vlc-wrapped
           ghostty-wrapped
           firefox-wrapped
+          dconf-editor-wrapped
+          epiphany-wrapped
+          gnome-terminal-wrapped
+          gnome-text-editor-wrapped
+          kanata-layer-indicator-wrapped
+          libreoffice-wrapped
+          nbfc-linux-wrapped
+          clipboard-wrapped
           ;
       };
 
@@ -368,6 +424,14 @@
             vlc-wrapped
             ghostty-wrapped
             firefox-wrapped
+            dconf-editor-wrapped
+            epiphany-wrapped
+            gnome-terminal-wrapped
+            gnome-text-editor-wrapped
+            kanata-layer-indicator-wrapped
+            libreoffice-wrapped
+            nbfc-linux-wrapped
+            clipboard-wrapped
             ;
         };
       };

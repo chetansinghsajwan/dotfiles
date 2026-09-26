@@ -27,6 +27,14 @@
   vlc-wrapped,
   ghostty-wrapped,
   firefox-wrapped,
+  dconf-editor-wrapped,
+  epiphany-wrapped,
+  gnome-terminal-wrapped,
+  gnome-text-editor-wrapped,
+  kanata-layer-indicator-wrapped,
+  libreoffice-wrapped,
+  nbfc-linux-wrapped,
+  clipboard-wrapped,
   ...
 }:
 let
@@ -67,6 +75,14 @@ nixpkgs.lib.nixosSystem {
           vlc-wrapped
           ghostty-wrapped
           firefox-wrapped
+          dconf-editor-wrapped
+          epiphany-wrapped
+          gnome-terminal-wrapped
+          gnome-text-editor-wrapped
+          kanata-layer-indicator-wrapped
+          libreoffice-wrapped
+          nbfc-linux-wrapped
+          clipboard-wrapped
           ;
       };
       imports = [

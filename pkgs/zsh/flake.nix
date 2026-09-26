@@ -76,6 +76,7 @@
           # (unwrapped) zsh install and this wrapped one - dotfile
           # generation (everything but the package install) is untouched.
           config.programs.zsh.package = lib.mkForce null;
+          config.programs.zsh.dotDir = "${config.xdg.configHome}/zsh";
         };
 
       packages = forEachSystem (

@@ -26,6 +26,14 @@
   vlc-wrapped,
   ghostty-wrapped,
   firefox-wrapped,
+  dconf-editor-wrapped,
+  epiphany-wrapped,
+  gnome-terminal-wrapped,
+  gnome-text-editor-wrapped,
+  kanata-layer-indicator-wrapped,
+  libreoffice-wrapped,
+  nbfc-linux-wrapped,
+  clipboard-wrapped,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -67,6 +75,14 @@ nix-darwin.lib.darwinSystem {
           vlc-wrapped
           ghostty-wrapped
           firefox-wrapped
+          dconf-editor-wrapped
+          epiphany-wrapped
+          gnome-terminal-wrapped
+          gnome-text-editor-wrapped
+          kanata-layer-indicator-wrapped
+          libreoffice-wrapped
+          nbfc-linux-wrapped
+          clipboard-wrapped
           ;
       };
       imports = [

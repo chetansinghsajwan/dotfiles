@@ -25,8 +25,11 @@ standalone Home Manager. It configures three machines:
   (e.g. `hardware-configuration.nix`, `kanata.nix`).
 - `hosts/shared.nix` — settings common to all NixOS/darwin hosts.
 - `home/home.nix` — Home Manager entry point.
-- `home/modules/programs/*.nix` — one file per program (git, zsh, helix,
-  starship, etc.), each a self-contained Home Manager module.
+- `pkgs/<name>/flake.nix` — one flake per program (git, zsh, helix, starship,
+  vlc, etc.), each exposing a `homeModules.default` Home Manager module (and,
+  for programs wrapped via nix-wrapper-modules, a `packages.default`). Wired
+  into `flake.nix` as a `path:./pkgs/<name>` input and imported directly in
+  `home/home.nix` — no per-program file lives under `home/` anymore.
 - `home/modules/features/*.nix` — optional feature bundles gated by
   `config.dotfiles.features.*` (dev, gui, gaming).
 - `home/modules/desktop/{gnome,hyprland}` — desktop-environment-specific
@@ -40,8 +43,8 @@ standalone Home Manager. It configures three machines:
   pattern and returns an attrset (options and/or config).
 - New user-facing settings go through `options.dotfiles.*` in
   `config/default.nix`, then are read via `config.dotfiles.*` elsewhere.
-- Keep program configs isolated: one file per program under
-  `home/modules/programs/`, imported from `home/home.nix` or a feature file.
+- Keep program configs isolated: one flake per program under `pkgs/<name>/`,
+  imported directly in `home/home.nix`.
 - Don't hardcode the username/email/paths — use `config.dotfiles.user.*`.
 
 ## Building & validating changes

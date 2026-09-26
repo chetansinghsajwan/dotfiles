@@ -25,6 +25,14 @@
   vlc-wrapped,
   ghostty-wrapped,
   firefox-wrapped,
+  dconf-editor-wrapped,
+  epiphany-wrapped,
+  gnome-terminal-wrapped,
+  gnome-text-editor-wrapped,
+  kanata-layer-indicator-wrapped,
+  libreoffice-wrapped,
+  nbfc-linux-wrapped,
+  clipboard-wrapped,
   ...
 }:
 let
@@ -44,7 +52,6 @@ in
   imports = [
     ../config
     ./modules/stylix.nix
-    ./modules/programs
     ./modules/features
     ./modules/desktop
 
@@ -73,6 +80,14 @@ in
     vlc-wrapped.homeModules.default
     ghostty-wrapped.homeModules.default
     firefox-wrapped.homeModules.default
+    dconf-editor-wrapped.homeModules.default
+    epiphany-wrapped.homeModules.default
+    gnome-terminal-wrapped.homeModules.default
+    gnome-text-editor-wrapped.homeModules.default
+    kanata-layer-indicator-wrapped.homeModules.default
+    libreoffice-wrapped.homeModules.default
+    nbfc-linux-wrapped.homeModules.default
+    clipboard-wrapped.homeModules.default
   ];
 
   # The imports above only wire each wrapped package's config up; each
