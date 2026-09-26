@@ -41,85 +41,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    yazi-wrapped = {
-      url = "path:./pkgs/yazi";
+    # Aggregate of every pkgs/<name>/ flake (see pkgs/flake.nix) - the one
+    # input every host and home.nix need instead of threading each package
+    # through this file and every hosts/*/default.nix individually.
+    pkgs-wrapped = {
+      url = "path:./pkgs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    lazygit-wrapped = {
-      url = "path:./pkgs/lazygit";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    btop-wrapped = {
-      url = "path:./pkgs/btop";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    helix-wrapped = {
-      url = "path:./pkgs/helix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    tealdeer-wrapped = {
-      url = "path:./pkgs/tealdeer";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    eza-wrapped = {
-      url = "path:./pkgs/eza";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    fzf-wrapped = {
-      url = "path:./pkgs/fzf";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    git-wrapped = {
-      url = "path:./pkgs/git";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    zellij-wrapped = {
-      url = "path:./pkgs/zellij";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    zsh-wrapped = {
-      url = "path:./pkgs/zsh";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    op-wrapped.url = "path:./pkgs/op";
-    pv-wrapped.url = "path:./pkgs/pv";
-    docker-wrapped.url = "path:./pkgs/docker";
-    nixpkgs-wrapped.url = "path:./pkgs/nixpkgs";
-    starship-wrapped.url = "path:./pkgs/starship";
-    direnv-wrapped.url = "path:./pkgs/direnv";
-    batman-wrapped.url = "path:./pkgs/batman";
-
-    zed-wrapped = {
-      url = "path:./pkgs/zed";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    vscode-wrapped = {
-      url = "path:./pkgs/vscode";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    vlc-wrapped.url = "path:./pkgs/vlc";
-    ghostty-wrapped.url = "path:./pkgs/ghostty";
-    firefox-wrapped.url = "path:./pkgs/firefox";
-    dconf-editor-wrapped.url = "path:./pkgs/dconf-editor";
-    epiphany-wrapped.url = "path:./pkgs/epiphany";
-    gnome-terminal-wrapped.url = "path:./pkgs/gnome-terminal";
-    gnome-text-editor-wrapped.url = "path:./pkgs/gnome-text-editor";
-    kanata-layer-indicator-wrapped.url = "path:./pkgs/kanata-layer-indicator";
-    libreoffice-wrapped.url = "path:./pkgs/libreoffice";
-    nbfc-linux-wrapped.url = "path:./pkgs/nbfc-linux";
-    clipboard-wrapped.url = "path:./pkgs/clipboard";
   };
 
   outputs =
@@ -134,36 +62,7 @@
       nixos-wsl,
       caelestia-shell,
       silentSDDM,
-      yazi-wrapped,
-      lazygit-wrapped,
-      btop-wrapped,
-      helix-wrapped,
-      tealdeer-wrapped,
-      eza-wrapped,
-      fzf-wrapped,
-      git-wrapped,
-      zellij-wrapped,
-      zsh-wrapped,
-      op-wrapped,
-      pv-wrapped,
-      docker-wrapped,
-      nixpkgs-wrapped,
-      starship-wrapped,
-      direnv-wrapped,
-      batman-wrapped,
-      zed-wrapped,
-      vscode-wrapped,
-      vlc-wrapped,
-      ghostty-wrapped,
-      firefox-wrapped,
-      dconf-editor-wrapped,
-      epiphany-wrapped,
-      gnome-terminal-wrapped,
-      gnome-text-editor-wrapped,
-      kanata-layer-indicator-wrapped,
-      libreoffice-wrapped,
-      nbfc-linux-wrapped,
-      clipboard-wrapped,
+      pkgs-wrapped,
     }:
     let
       linuxSystem = "x86_64-linux";
@@ -187,36 +86,7 @@
           localLib
           caelestia-shell
           silentSDDM
-          yazi-wrapped
-          lazygit-wrapped
-          btop-wrapped
-          helix-wrapped
-          tealdeer-wrapped
-          eza-wrapped
-          fzf-wrapped
-          git-wrapped
-          zellij-wrapped
-          zsh-wrapped
-          op-wrapped
-          pv-wrapped
-          docker-wrapped
-          nixpkgs-wrapped
-          starship-wrapped
-          direnv-wrapped
-          batman-wrapped
-          zed-wrapped
-          vscode-wrapped
-          vlc-wrapped
-          ghostty-wrapped
-          firefox-wrapped
-          dconf-editor-wrapped
-          epiphany-wrapped
-          gnome-terminal-wrapped
-          gnome-text-editor-wrapped
-          kanata-layer-indicator-wrapped
-          libreoffice-wrapped
-          nbfc-linux-wrapped
-          clipboard-wrapped
+          pkgs-wrapped
           ;
       };
 
@@ -229,36 +99,7 @@
           localLib
           caelestia-shell
           silentSDDM
-          yazi-wrapped
-          lazygit-wrapped
-          btop-wrapped
-          helix-wrapped
-          tealdeer-wrapped
-          eza-wrapped
-          fzf-wrapped
-          git-wrapped
-          zellij-wrapped
-          zsh-wrapped
-          op-wrapped
-          pv-wrapped
-          docker-wrapped
-          nixpkgs-wrapped
-          starship-wrapped
-          direnv-wrapped
-          batman-wrapped
-          zed-wrapped
-          vscode-wrapped
-          vlc-wrapped
-          ghostty-wrapped
-          firefox-wrapped
-          dconf-editor-wrapped
-          epiphany-wrapped
-          gnome-terminal-wrapped
-          gnome-text-editor-wrapped
-          kanata-layer-indicator-wrapped
-          libreoffice-wrapped
-          nbfc-linux-wrapped
-          clipboard-wrapped
+          pkgs-wrapped
           ;
       };
 
@@ -270,36 +111,7 @@
           stylix
           nix-darwin
           localLib
-          yazi-wrapped
-          lazygit-wrapped
-          btop-wrapped
-          helix-wrapped
-          tealdeer-wrapped
-          eza-wrapped
-          fzf-wrapped
-          git-wrapped
-          zellij-wrapped
-          zsh-wrapped
-          op-wrapped
-          pv-wrapped
-          docker-wrapped
-          nixpkgs-wrapped
-          starship-wrapped
-          direnv-wrapped
-          batman-wrapped
-          zed-wrapped
-          vscode-wrapped
-          vlc-wrapped
-          ghostty-wrapped
-          firefox-wrapped
-          dconf-editor-wrapped
-          epiphany-wrapped
-          gnome-terminal-wrapped
-          gnome-text-editor-wrapped
-          kanata-layer-indicator-wrapped
-          libreoffice-wrapped
-          nbfc-linux-wrapped
-          clipboard-wrapped
+          pkgs-wrapped
           ;
       };
 
@@ -311,36 +123,7 @@
           stylix
           nix-darwin
           localLib
-          yazi-wrapped
-          lazygit-wrapped
-          btop-wrapped
-          helix-wrapped
-          tealdeer-wrapped
-          eza-wrapped
-          fzf-wrapped
-          git-wrapped
-          zellij-wrapped
-          zsh-wrapped
-          op-wrapped
-          pv-wrapped
-          docker-wrapped
-          nixpkgs-wrapped
-          starship-wrapped
-          direnv-wrapped
-          batman-wrapped
-          zed-wrapped
-          vscode-wrapped
-          vlc-wrapped
-          ghostty-wrapped
-          firefox-wrapped
-          dconf-editor-wrapped
-          epiphany-wrapped
-          gnome-terminal-wrapped
-          gnome-text-editor-wrapped
-          kanata-layer-indicator-wrapped
-          libreoffice-wrapped
-          nbfc-linux-wrapped
-          clipboard-wrapped
+          pkgs-wrapped
           ;
       };
 
@@ -352,36 +135,7 @@
           stylix
           nixos-wsl
           localLib
-          yazi-wrapped
-          lazygit-wrapped
-          btop-wrapped
-          helix-wrapped
-          tealdeer-wrapped
-          eza-wrapped
-          fzf-wrapped
-          git-wrapped
-          zellij-wrapped
-          zsh-wrapped
-          op-wrapped
-          pv-wrapped
-          docker-wrapped
-          nixpkgs-wrapped
-          starship-wrapped
-          direnv-wrapped
-          batman-wrapped
-          zed-wrapped
-          vscode-wrapped
-          vlc-wrapped
-          ghostty-wrapped
-          firefox-wrapped
-          dconf-editor-wrapped
-          epiphany-wrapped
-          gnome-terminal-wrapped
-          gnome-text-editor-wrapped
-          kanata-layer-indicator-wrapped
-          libreoffice-wrapped
-          nbfc-linux-wrapped
-          clipboard-wrapped
+          pkgs-wrapped
           ;
       };
 
@@ -402,36 +156,7 @@
             nur
             localLib
             caelestia-shell
-            yazi-wrapped
-            lazygit-wrapped
-            btop-wrapped
-            helix-wrapped
-            tealdeer-wrapped
-            eza-wrapped
-            fzf-wrapped
-            git-wrapped
-            zellij-wrapped
-            zsh-wrapped
-            op-wrapped
-            pv-wrapped
-            docker-wrapped
-            nixpkgs-wrapped
-            starship-wrapped
-            direnv-wrapped
-            batman-wrapped
-            zed-wrapped
-            vscode-wrapped
-            vlc-wrapped
-            ghostty-wrapped
-            firefox-wrapped
-            dconf-editor-wrapped
-            epiphany-wrapped
-            gnome-terminal-wrapped
-            gnome-text-editor-wrapped
-            kanata-layer-indicator-wrapped
-            libreoffice-wrapped
-            nbfc-linux-wrapped
-            clipboard-wrapped
+            pkgs-wrapped
             ;
         };
       };

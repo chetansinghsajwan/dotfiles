@@ -6,36 +6,7 @@
   localLib,
   caelestia-shell,
   silentSDDM,
-  yazi-wrapped,
-  lazygit-wrapped,
-  btop-wrapped,
-  helix-wrapped,
-  tealdeer-wrapped,
-  eza-wrapped,
-  fzf-wrapped,
-  git-wrapped,
-  zellij-wrapped,
-  zsh-wrapped,
-  op-wrapped,
-  pv-wrapped,
-  docker-wrapped,
-  nixpkgs-wrapped,
-  starship-wrapped,
-  direnv-wrapped,
-  batman-wrapped,
-  zed-wrapped,
-  vscode-wrapped,
-  vlc-wrapped,
-  ghostty-wrapped,
-  firefox-wrapped,
-  dconf-editor-wrapped,
-  epiphany-wrapped,
-  gnome-terminal-wrapped,
-  gnome-text-editor-wrapped,
-  kanata-layer-indicator-wrapped,
-  libreoffice-wrapped,
-  nbfc-linux-wrapped,
-  clipboard-wrapped,
+  pkgs-wrapped,
   ...
 }:
 let
@@ -58,36 +29,7 @@ nixpkgs.lib.nixosSystem {
           nur
           localLib
           caelestia-shell
-          yazi-wrapped
-          lazygit-wrapped
-          btop-wrapped
-          helix-wrapped
-          tealdeer-wrapped
-          eza-wrapped
-          fzf-wrapped
-          git-wrapped
-          zellij-wrapped
-          zsh-wrapped
-          op-wrapped
-          pv-wrapped
-          docker-wrapped
-          nixpkgs-wrapped
-          starship-wrapped
-          direnv-wrapped
-          batman-wrapped
-          zed-wrapped
-          vscode-wrapped
-          vlc-wrapped
-          ghostty-wrapped
-          firefox-wrapped
-          dconf-editor-wrapped
-          epiphany-wrapped
-          gnome-terminal-wrapped
-          gnome-text-editor-wrapped
-          kanata-layer-indicator-wrapped
-          libreoffice-wrapped
-          nbfc-linux-wrapped
-          clipboard-wrapped
+          pkgs-wrapped
           ;
       };
       imports = [

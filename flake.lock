@@ -68,33 +68,38 @@
         "type": "github"
       }
     },
-    "batman-wrapped": {
+    "batman": {
       "locked": {
-        "path": "./pkgs/batman",
+        "path": "./batman",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/batman",
+        "path": "./batman",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "btop-wrapped": {
+    "btop": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers"
       },
       "locked": {
-        "path": "./pkgs/btop",
+        "path": "./btop",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/btop",
+        "path": "./btop",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "caelestia-cli": {
       "inputs": {
@@ -143,77 +148,103 @@
         "type": "github"
       }
     },
-    "clipboard-wrapped": {
+    "clipboard": {
       "locked": {
-        "path": "./pkgs/clipboard",
+        "path": "./clipboard",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/clipboard",
+        "path": "./clipboard",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "dconf-editor-wrapped": {
+    "dconf-editor": {
       "locked": {
-        "path": "./pkgs/dconf-editor",
+        "path": "./dconf-editor",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/dconf-editor",
+        "path": "./dconf-editor",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "direnv-wrapped": {
+    "direnv": {
       "locked": {
-        "path": "./pkgs/direnv",
+        "path": "./direnv",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/direnv",
+        "path": "./direnv",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "docker-wrapped": {
+    "docker": {
       "locked": {
-        "path": "./pkgs/docker",
+        "path": "./docker",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/docker",
+        "path": "./docker",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "epiphany-wrapped": {
+    "epiphany": {
       "locked": {
-        "path": "./pkgs/epiphany",
+        "path": "./epiphany",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/epiphany",
+        "path": "./epiphany",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "eza-wrapped": {
+    "eza": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_2"
       },
       "locked": {
-        "path": "./pkgs/eza",
+        "path": "./eza",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/eza",
+        "path": "./eza",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
+    },
+    "firefox": {
+      "locked": {
+        "path": "./firefox",
+        "type": "path"
+      },
+      "original": {
+        "path": "./firefox",
+        "type": "path"
+      },
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "firefox-gnome-theme": {
       "flake": false,
@@ -230,17 +261,6 @@
         "repo": "firefox-gnome-theme",
         "type": "github"
       }
-    },
-    "firefox-wrapped": {
-      "locked": {
-        "path": "./pkgs/firefox",
-        "type": "path"
-      },
-      "original": {
-        "path": "./pkgs/firefox",
-        "type": "path"
-      },
-      "parent": []
     },
     "flake-compat": {
       "flake": false,
@@ -316,50 +336,58 @@
         "type": "github"
       }
     },
-    "fzf-wrapped": {
+    "fzf": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_3"
       },
       "locked": {
-        "path": "./pkgs/fzf",
+        "path": "./fzf",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/fzf",
+        "path": "./fzf",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "ghostty-wrapped": {
+    "ghostty": {
       "locked": {
-        "path": "./pkgs/ghostty",
+        "path": "./ghostty",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/ghostty",
+        "path": "./ghostty",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "git-wrapped": {
+    "git": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_4"
       },
       "locked": {
-        "path": "./pkgs/git",
+        "path": "./git",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/git",
+        "path": "./git",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "gnome-shell": {
       "flake": false,
@@ -380,44 +408,51 @@
         "type": "gitlab"
       }
     },
-    "gnome-terminal-wrapped": {
+    "gnome-terminal": {
       "locked": {
-        "path": "./pkgs/gnome-terminal",
+        "path": "./gnome-terminal",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/gnome-terminal",
+        "path": "./gnome-terminal",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "gnome-text-editor-wrapped": {
+    "gnome-text-editor": {
       "locked": {
-        "path": "./pkgs/gnome-text-editor",
+        "path": "./gnome-text-editor",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/gnome-text-editor",
+        "path": "./gnome-text-editor",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "helix-wrapped": {
+    "helix": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_5"
       },
       "locked": {
-        "path": "./pkgs/helix",
+        "path": "./helix",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/helix",
+        "path": "./helix",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "home-manager": {
       "inputs": {
@@ -440,44 +475,51 @@
         "type": "github"
       }
     },
-    "kanata-layer-indicator-wrapped": {
+    "kanata-layer-indicator": {
       "locked": {
-        "path": "./pkgs/kanata-layer-indicator",
+        "path": "./kanata-layer-indicator",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/kanata-layer-indicator",
+        "path": "./kanata-layer-indicator",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "lazygit-wrapped": {
+    "lazygit": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_6"
       },
       "locked": {
-        "path": "./pkgs/lazygit",
+        "path": "./lazygit",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/lazygit",
+        "path": "./lazygit",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "libreoffice-wrapped": {
+    "libreoffice": {
       "locked": {
-        "path": "./pkgs/libreoffice",
+        "path": "./libreoffice",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/libreoffice",
+        "path": "./libreoffice",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "m3shapes": {
       "inputs": {
@@ -501,16 +543,18 @@
         "type": "github"
       }
     },
-    "nbfc-linux-wrapped": {
+    "nbfc-linux": {
       "locked": {
-        "path": "./pkgs/nbfc-linux",
+        "path": "./nbfc-linux",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/nbfc-linux",
+        "path": "./nbfc-linux",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "nix-darwin": {
       "inputs": {
@@ -569,16 +613,18 @@
         "type": "github"
       }
     },
-    "nixpkgs-wrapped": {
+    "nixpkgs-picker": {
       "locked": {
-        "path": "./pkgs/nixpkgs",
+        "path": "./nixpkgs",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/nixpkgs",
+        "path": "./nixpkgs",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "nixpkgs_2": {
       "locked": {
@@ -642,27 +688,77 @@
         "type": "github"
       }
     },
-    "op-wrapped": {
+    "op": {
       "locked": {
-        "path": "./pkgs/op",
+        "path": "./op",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/op",
+        "path": "./op",
+        "type": "path"
+      },
+      "parent": [
+        "pkgs-wrapped"
+      ]
+    },
+    "pkgs-wrapped": {
+      "inputs": {
+        "batman": "batman",
+        "btop": "btop",
+        "clipboard": "clipboard",
+        "dconf-editor": "dconf-editor",
+        "direnv": "direnv",
+        "docker": "docker",
+        "epiphany": "epiphany",
+        "eza": "eza",
+        "firefox": "firefox",
+        "fzf": "fzf",
+        "ghostty": "ghostty",
+        "git": "git",
+        "gnome-terminal": "gnome-terminal",
+        "gnome-text-editor": "gnome-text-editor",
+        "helix": "helix",
+        "kanata-layer-indicator": "kanata-layer-indicator",
+        "lazygit": "lazygit",
+        "libreoffice": "libreoffice",
+        "nbfc-linux": "nbfc-linux",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-picker": "nixpkgs-picker",
+        "op": "op",
+        "pv": "pv",
+        "starship": "starship",
+        "tealdeer": "tealdeer",
+        "vlc": "vlc",
+        "vscode": "vscode",
+        "yazi": "yazi",
+        "zed": "zed",
+        "zellij": "zellij",
+        "zsh": "zsh"
+      },
+      "locked": {
+        "path": "./pkgs",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs",
         "type": "path"
       },
       "parent": []
     },
-    "pv-wrapped": {
+    "pv": {
       "locked": {
-        "path": "./pkgs/pv",
+        "path": "./pv",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/pv",
+        "path": "./pv",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "quickshell": {
       "inputs": {
@@ -687,45 +783,16 @@
     },
     "root": {
       "inputs": {
-        "batman-wrapped": "batman-wrapped",
-        "btop-wrapped": "btop-wrapped",
         "caelestia-shell": "caelestia-shell",
-        "clipboard-wrapped": "clipboard-wrapped",
-        "dconf-editor-wrapped": "dconf-editor-wrapped",
-        "direnv-wrapped": "direnv-wrapped",
-        "docker-wrapped": "docker-wrapped",
-        "epiphany-wrapped": "epiphany-wrapped",
-        "eza-wrapped": "eza-wrapped",
-        "firefox-wrapped": "firefox-wrapped",
-        "fzf-wrapped": "fzf-wrapped",
-        "ghostty-wrapped": "ghostty-wrapped",
-        "git-wrapped": "git-wrapped",
-        "gnome-terminal-wrapped": "gnome-terminal-wrapped",
-        "gnome-text-editor-wrapped": "gnome-text-editor-wrapped",
-        "helix-wrapped": "helix-wrapped",
         "home-manager": "home-manager",
-        "kanata-layer-indicator-wrapped": "kanata-layer-indicator-wrapped",
-        "lazygit-wrapped": "lazygit-wrapped",
-        "libreoffice-wrapped": "libreoffice-wrapped",
-        "nbfc-linux-wrapped": "nbfc-linux-wrapped",
         "nix-darwin": "nix-darwin",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-wrapped": "nixpkgs-wrapped",
         "nur": "nur",
-        "op-wrapped": "op-wrapped",
-        "pv-wrapped": "pv-wrapped",
+        "pkgs-wrapped": "pkgs-wrapped",
         "silentSDDM": "silentSDDM",
-        "starship-wrapped": "starship-wrapped",
         "stylix": "stylix",
-        "tealdeer-wrapped": "tealdeer-wrapped",
-        "treefmt-nix": "treefmt-nix",
-        "vlc-wrapped": "vlc-wrapped",
-        "vscode-wrapped": "vscode-wrapped",
-        "yazi-wrapped": "yazi-wrapped",
-        "zed-wrapped": "zed-wrapped",
-        "zellij-wrapped": "zellij-wrapped",
-        "zsh-wrapped": "zsh-wrapped"
+        "treefmt-nix": "treefmt-nix"
       }
     },
     "silentSDDM": {
@@ -748,16 +815,18 @@
         "type": "github"
       }
     },
-    "starship-wrapped": {
+    "starship": {
       "locked": {
-        "path": "./pkgs/starship",
+        "path": "./starship",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/starship",
+        "path": "./starship",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "stylix": {
       "inputs": {
@@ -808,22 +877,25 @@
         "type": "github"
       }
     },
-    "tealdeer-wrapped": {
+    "tealdeer": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_7"
       },
       "locked": {
-        "path": "./pkgs/tealdeer",
+        "path": "./tealdeer",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/tealdeer",
+        "path": "./tealdeer",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "tinted-kitty": {
       "flake": false,
@@ -907,38 +979,44 @@
         "type": "github"
       }
     },
-    "vlc-wrapped": {
+    "vlc": {
       "locked": {
-        "path": "./pkgs/vlc",
+        "path": "./vlc",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/vlc",
+        "path": "./vlc",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "vscode-wrapped": {
+    "vscode": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_8"
       },
       "locked": {
-        "path": "./pkgs/vscode",
+        "path": "./vscode",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/vscode",
+        "path": "./vscode",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
     "wrappers": {
       "inputs": {
         "nixpkgs": [
-          "btop-wrapped",
+          "pkgs-wrapped",
+          "btop",
           "nixpkgs"
         ]
       },
@@ -959,7 +1037,8 @@
     "wrappers_10": {
       "inputs": {
         "nixpkgs": [
-          "zed-wrapped",
+          "pkgs-wrapped",
+          "zed",
           "nixpkgs"
         ]
       },
@@ -980,7 +1059,8 @@
     "wrappers_11": {
       "inputs": {
         "nixpkgs": [
-          "zellij-wrapped",
+          "pkgs-wrapped",
+          "zellij",
           "nixpkgs"
         ]
       },
@@ -1001,7 +1081,8 @@
     "wrappers_12": {
       "inputs": {
         "nixpkgs": [
-          "zsh-wrapped",
+          "pkgs-wrapped",
+          "zsh",
           "nixpkgs"
         ]
       },
@@ -1022,7 +1103,8 @@
     "wrappers_2": {
       "inputs": {
         "nixpkgs": [
-          "eza-wrapped",
+          "pkgs-wrapped",
+          "eza",
           "nixpkgs"
         ]
       },
@@ -1043,7 +1125,8 @@
     "wrappers_3": {
       "inputs": {
         "nixpkgs": [
-          "fzf-wrapped",
+          "pkgs-wrapped",
+          "fzf",
           "nixpkgs"
         ]
       },
@@ -1064,7 +1147,8 @@
     "wrappers_4": {
       "inputs": {
         "nixpkgs": [
-          "git-wrapped",
+          "pkgs-wrapped",
+          "git",
           "nixpkgs"
         ]
       },
@@ -1085,7 +1169,8 @@
     "wrappers_5": {
       "inputs": {
         "nixpkgs": [
-          "helix-wrapped",
+          "pkgs-wrapped",
+          "helix",
           "nixpkgs"
         ]
       },
@@ -1106,7 +1191,8 @@
     "wrappers_6": {
       "inputs": {
         "nixpkgs": [
-          "lazygit-wrapped",
+          "pkgs-wrapped",
+          "lazygit",
           "nixpkgs"
         ]
       },
@@ -1127,7 +1213,8 @@
     "wrappers_7": {
       "inputs": {
         "nixpkgs": [
-          "tealdeer-wrapped",
+          "pkgs-wrapped",
+          "tealdeer",
           "nixpkgs"
         ]
       },
@@ -1148,7 +1235,8 @@
     "wrappers_8": {
       "inputs": {
         "nixpkgs": [
-          "vscode-wrapped",
+          "pkgs-wrapped",
+          "vscode",
           "nixpkgs"
         ]
       },
@@ -1169,7 +1257,8 @@
     "wrappers_9": {
       "inputs": {
         "nixpkgs": [
-          "yazi-wrapped",
+          "pkgs-wrapped",
+          "yazi",
           "nixpkgs"
         ]
       },
@@ -1187,73 +1276,85 @@
         "type": "github"
       }
     },
-    "yazi-wrapped": {
+    "yazi": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_9"
       },
       "locked": {
-        "path": "./pkgs/yazi",
+        "path": "./yazi",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/yazi",
+        "path": "./yazi",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "zed-wrapped": {
+    "zed": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_10"
       },
       "locked": {
-        "path": "./pkgs/zed",
+        "path": "./zed",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/zed",
+        "path": "./zed",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "zellij-wrapped": {
+    "zellij": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_11"
       },
       "locked": {
-        "path": "./pkgs/zellij",
+        "path": "./zellij",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/zellij",
+        "path": "./zellij",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     },
-    "zsh-wrapped": {
+    "zsh": {
       "inputs": {
         "nixpkgs": [
+          "pkgs-wrapped",
           "nixpkgs"
         ],
         "wrappers": "wrappers_12"
       },
       "locked": {
-        "path": "./pkgs/zsh",
+        "path": "./zsh",
         "type": "path"
       },
       "original": {
-        "path": "./pkgs/zsh",
+        "path": "./zsh",
         "type": "path"
       },
-      "parent": []
+      "parent": [
+        "pkgs-wrapped"
+      ]
     }
   },
   "root": "root",

@@ -3,36 +3,7 @@
   pkgs,
   nur,
   lib,
-  yazi-wrapped,
-  lazygit-wrapped,
-  btop-wrapped,
-  helix-wrapped,
-  tealdeer-wrapped,
-  eza-wrapped,
-  fzf-wrapped,
-  git-wrapped,
-  zellij-wrapped,
-  zsh-wrapped,
-  op-wrapped,
-  pv-wrapped,
-  docker-wrapped,
-  nixpkgs-wrapped,
-  starship-wrapped,
-  direnv-wrapped,
-  batman-wrapped,
-  zed-wrapped,
-  vscode-wrapped,
-  vlc-wrapped,
-  ghostty-wrapped,
-  firefox-wrapped,
-  dconf-editor-wrapped,
-  epiphany-wrapped,
-  gnome-terminal-wrapped,
-  gnome-text-editor-wrapped,
-  kanata-layer-indicator-wrapped,
-  libreoffice-wrapped,
-  nbfc-linux-wrapped,
-  clipboard-wrapped,
+  pkgs-wrapped,
   ...
 }:
 let
@@ -55,39 +26,42 @@ in
     ./modules/features
     ./modules/desktop
 
-    # Wrapped packages (pkgs/<name>/, nix-wrapper-modules) - self-contained
+    # Every pkgs/<name>/ package (see pkgs/flake.nix) - self-contained
     # home-manager modules, imported directly rather than through a
-    # one-line home/modules/programs/<name>.nix pass-through.
-    yazi-wrapped.homeModules.default
-    lazygit-wrapped.homeModules.default
-    btop-wrapped.homeModules.default
-    helix-wrapped.homeModules.default
-    tealdeer-wrapped.homeModules.default
-    eza-wrapped.homeModules.default
-    fzf-wrapped.homeModules.default
-    git-wrapped.homeModules.default
-    zellij-wrapped.homeModules.default
-    zsh-wrapped.homeModules.default
-    op-wrapped.homeModules.default
-    pv-wrapped.homeModules.default
-    docker-wrapped.homeModules.default
-    nixpkgs-wrapped.homeModules.default
-    starship-wrapped.homeModules.default
-    direnv-wrapped.homeModules.default
-    batman-wrapped.homeModules.default
-    zed-wrapped.homeModules.default
-    vscode-wrapped.homeModules.default
-    vlc-wrapped.homeModules.default
-    ghostty-wrapped.homeModules.default
-    firefox-wrapped.homeModules.default
-    dconf-editor-wrapped.homeModules.default
-    epiphany-wrapped.homeModules.default
-    gnome-terminal-wrapped.homeModules.default
-    gnome-text-editor-wrapped.homeModules.default
-    kanata-layer-indicator-wrapped.homeModules.default
-    libreoffice-wrapped.homeModules.default
-    nbfc-linux-wrapped.homeModules.default
-    clipboard-wrapped.homeModules.default
+    # one-line home/modules/programs/<name>.nix pass-through. Order matters
+    # here: modules setting wrappers.zsh.extraInitContent (yazi, fzf, git,
+    # docker, nixpkgs, starship, direnv, clipboard) concatenate their rc
+    # snippets in this list's order, since none of them use mkOrder.
+    pkgs-wrapped.homeModules.yazi
+    pkgs-wrapped.homeModules.lazygit
+    pkgs-wrapped.homeModules.btop
+    pkgs-wrapped.homeModules.helix
+    pkgs-wrapped.homeModules.tealdeer
+    pkgs-wrapped.homeModules.eza
+    pkgs-wrapped.homeModules.fzf
+    pkgs-wrapped.homeModules.git
+    pkgs-wrapped.homeModules.zellij
+    pkgs-wrapped.homeModules.zsh
+    pkgs-wrapped.homeModules.op
+    pkgs-wrapped.homeModules.pv
+    pkgs-wrapped.homeModules.docker
+    pkgs-wrapped.homeModules.nixpkgs
+    pkgs-wrapped.homeModules.starship
+    pkgs-wrapped.homeModules.direnv
+    pkgs-wrapped.homeModules.batman
+    pkgs-wrapped.homeModules.zed
+    pkgs-wrapped.homeModules.vscode
+    pkgs-wrapped.homeModules.vlc
+    pkgs-wrapped.homeModules.ghostty
+    pkgs-wrapped.homeModules.firefox
+    pkgs-wrapped.homeModules.dconf-editor
+    pkgs-wrapped.homeModules.epiphany
+    pkgs-wrapped.homeModules.gnome-terminal
+    pkgs-wrapped.homeModules.gnome-text-editor
+    pkgs-wrapped.homeModules.kanata-layer-indicator
+    pkgs-wrapped.homeModules.libreoffice
+    pkgs-wrapped.homeModules.nbfc-linux
+    pkgs-wrapped.homeModules.clipboard
   ];
 
   # The imports above only wire each wrapped package's config up; each

@@ -27,9 +27,15 @@ standalone Home Manager. It configures three machines:
 - `home/home.nix` — Home Manager entry point.
 - `pkgs/<name>/flake.nix` — one flake per program (git, zsh, helix, starship,
   vlc, etc.), each exposing a `homeModules.default` Home Manager module (and,
-  for programs wrapped via nix-wrapper-modules, a `packages.default`). Wired
-  into `flake.nix` as a `path:./pkgs/<name>` input and imported directly in
-  `home/home.nix` — no per-program file lives under `home/` anymore.
+  for programs wrapped via nix-wrapper-modules, a `packages.default` and
+  often a `lib`). No per-program file lives under `home/` anymore.
+- `pkgs/flake.nix` — aggregates every `pkgs/<name>/` flake into one
+  `homeModules.<name>` / `packages.<system>.<name>` / `lib.<name>` set. The
+  root `flake.nix`, every `hosts/<name>/default.nix`, and `home/home.nix`
+  each take just this one `pkgs-wrapped` input rather than one per package —
+  adding a new program only means writing `pkgs/<name>/flake.nix`,
+  registering it in `pkgs/flake.nix`, and importing
+  `pkgs-wrapped.homeModules.<name>` in `home/home.nix`.
 - `home/modules/features/*.nix` — optional feature bundles gated by
   `config.dotfiles.features.*` (dev, gui, gaming).
 - `home/modules/desktop/{gnome,hyprland}` — desktop-environment-specific
