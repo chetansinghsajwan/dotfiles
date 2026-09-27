@@ -26,42 +26,10 @@ in
     ./modules/features
     ./modules/desktop
 
-    # Every pkgs/<name>/ package (see pkgs/flake.nix) - self-contained
-    # home-manager modules, imported directly rather than through a
-    # one-line home/modules/programs/<name>.nix pass-through. Order matters
-    # here: modules setting wrappers.zsh.extraInitContent (yazi, fzf, git,
-    # docker, nixpkgs, starship, direnv, clipboard) concatenate their rc
-    # snippets in this list's order, since none of them use mkOrder.
-    pkgs-wrapped.homeModules.yazi
-    pkgs-wrapped.homeModules.lazygit
-    pkgs-wrapped.homeModules.btop
-    pkgs-wrapped.homeModules.helix
-    pkgs-wrapped.homeModules.tealdeer
-    pkgs-wrapped.homeModules.eza
-    pkgs-wrapped.homeModules.fzf
-    pkgs-wrapped.homeModules.git
-    pkgs-wrapped.homeModules.zellij
-    pkgs-wrapped.homeModules.zsh
-    pkgs-wrapped.homeModules.op
-    pkgs-wrapped.homeModules.pv
-    pkgs-wrapped.homeModules.docker
-    pkgs-wrapped.homeModules.nixpkgs
-    pkgs-wrapped.homeModules.starship
-    pkgs-wrapped.homeModules.direnv
-    pkgs-wrapped.homeModules.batman
-    pkgs-wrapped.homeModules.zed
-    pkgs-wrapped.homeModules.vscode
-    pkgs-wrapped.homeModules.vlc
-    pkgs-wrapped.homeModules.ghostty
-    pkgs-wrapped.homeModules.firefox
-    pkgs-wrapped.homeModules.dconf-editor
-    pkgs-wrapped.homeModules.epiphany
-    pkgs-wrapped.homeModules.gnome-terminal
-    pkgs-wrapped.homeModules.gnome-text-editor
-    pkgs-wrapped.homeModules.kanata-layer-indicator
-    pkgs-wrapped.homeModules.libreoffice
-    pkgs-wrapped.homeModules.nbfc-linux
-    pkgs-wrapped.homeModules.clipboard
+    # Every pkgs/<name>/ package, in one module - see pkgs/flake.nix, which
+    # is the only file that needs to change when a package is added,
+    # removed, or reordered.
+    pkgs-wrapped.homeModule
   ];
 
   # The imports above only wire each wrapped package's config up; each

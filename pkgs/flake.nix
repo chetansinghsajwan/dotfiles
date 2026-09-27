@@ -133,8 +133,7 @@
         "zed"
         "zellij"
       ];
-    in
-    {
+
       homeModules = {
         batman = inputs.batman.homeModules.default;
         btop = inputs.btop.homeModules.default;
@@ -167,6 +166,63 @@
         zellij = inputs.zellij.homeModules.default;
         zsh = inputs.zsh.homeModules.default;
       };
+
+      # The order every package's homeModule gets imported in, when pulled
+      # in via the single `homeModule` output below. Only load-bearing for
+      # the handful of modules (yazi, fzf, git, docker, nixpkgs, starship,
+      # direnv, clipboard) that set wrappers.zsh.extraInitContent without
+      # mkOrder - their rc-snippet concatenation follows this order. Add new
+      # packages wherever makes sense; everything else is order-independent.
+      homeModuleOrder = [
+        "yazi"
+        "lazygit"
+        "btop"
+        "helix"
+        "tealdeer"
+        "eza"
+        "fzf"
+        "git"
+        "zellij"
+        "zsh"
+        "op"
+        "pv"
+        "docker"
+        "nixpkgs"
+        "starship"
+        "direnv"
+        "batman"
+        "zed"
+        "vscode"
+        "vlc"
+        "ghostty"
+        "firefox"
+        "dconf-editor"
+        "epiphany"
+        "gnome-terminal"
+        "gnome-text-editor"
+        "kanata-layer-indicator"
+        "libreoffice"
+        "nbfc-linux"
+        "clipboard"
+      ];
+    in
+    {
+      inherit homeModules;
+
+      # The single output callers actually import: `imports = [
+      # pkgs-wrapped.homeModule ];` pulls in every package at once, so
+      # home.nix (and everything else) never has to list packages by name.
+      # Fails loudly at eval time if a package gets added to homeModules
+      # above without also being added to homeModuleOrder - the alternative
+      # is silently dropping it from this output.
+      homeModule =
+        let
+          missing = builtins.filter (n: !(builtins.elem n homeModuleOrder)) (builtins.attrNames homeModules);
+        in
+        if missing != [ ] then
+          throw "pkgs/flake.nix: homeModuleOrder is missing: ${builtins.concatStringsSep ", " missing}"
+        else
+          { imports = map (name: homeModules.${name}) homeModuleOrder; };
 
       packages = forEachSystem (
         system: nixpkgs.lib.genAttrs withPackage (name: inputs.${name}.packages.${system}.default)
