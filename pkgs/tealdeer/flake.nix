@@ -24,19 +24,26 @@
           "aarch64-darwin"
         ] f;
 
-      # This repo's own tealdeer customization, shared between the
-      # home-manager module below and a bare package build.
-      wrapperModule = ./module.nix;
+      # The complete tealdeer wrapper (nix-wrapper-modules' own native
+      # tealdeer module plus this repo's customization - see
+      # modules/module.nix), shared between the home-manager module
+      # below and a bare package build.
+      wrapperModule = ./modules/module.nix;
+
+      # Builds the same wrapped tealdeer both `lib.mkTealdeer` (for
+      # external callers) and `packages.default` (this flake's own
+      # standalone build) use, so there's exactly one module list to
+      # keep in sync instead of two.
+      mkTealdeer =
+        { pkgs }:
+        wrappers.lib.evalPackage [
+          { inherit pkgs; }
+          wrapperModule
+        ];
     in
     {
       lib = {
-        mkTealdeer =
-          { pkgs }:
-          wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrappers.wrapperModules.tealdeer
-            wrapperModule
-          ];
+        inherit mkTealdeer;
       };
 
       # Drop-in home-manager module: `imports = [ tealdeer-wrapped.homeModules.default ];`
@@ -46,10 +53,7 @@
         imports = [
           (wrappers.lib.getInstallModule {
             name = "tealdeer";
-            value = [
-              wrappers.wrapperModules.tealdeer
-              wrapperModule
-            ];
+            value = wrapperModule;
           })
         ];
       };
@@ -60,11 +64,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrappers.wrapperModules.tealdeer
-            wrapperModule
-          ];
+          default = mkTealdeer { inherit pkgs; };
         }
       );
     };
