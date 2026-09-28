@@ -1,5 +1,11 @@
-# This repo's own zellij customization.
+# This repo's own zellij customization plus nix-wrapper-modules' generic
+# wrapper mechanism (wrapper-module.nix, since nix-wrapper-modules ships
+# no native zellij module) - so this one file is the complete zellij
+# wrapper, and callers only ever need to reference it, not also list
+# wrapper-module.nix separately.
 {
+  imports = [ ./wrapper-module.nix ];
+
   config = {
     # Default tab mode groups h/Left/Up/k -> previous tab, l/Right/Down/j ->
     # next tab. jk is dropped entirely (kanata handles that now); Up/Down are

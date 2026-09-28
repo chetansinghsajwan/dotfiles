@@ -24,8 +24,11 @@
           "aarch64-darwin"
         ] f;
 
-      wrapperModule = ./module.nix;
-      baseModule = ./wrapper-module.nix;
+      # The complete zellij wrapper (nix-wrapper-modules' generic wrapper
+      # mechanism plus this repo's customization - see
+      # modules/module.nix), shared between the home-manager module
+      # below and a bare package build.
+      wrapperModule = ./modules/module.nix;
 
       # zellij-forgot shows a floating keybind cheatsheet on demand; the built-in
       # compact-bar tooltip is broken on zellij >=0.44.1 (zellij-org/zellij#5229).
@@ -42,7 +45,6 @@
           { pkgs }:
           wrappers.lib.evalPackage [
             { inherit pkgs; }
-            baseModule
             wrapperModule
           ];
       };
@@ -55,15 +57,17 @@
           imports = [
             (wrappers.lib.getInstallModule {
               name = "zellij";
-              value = [
-                baseModule
-                wrapperModule
-              ];
+              value = wrapperModule;
             })
           ];
 
           # extraConfig's LaunchOrFocusPlugin references this exact path
           # (not zellij's own config dir), so it has to land here verbatim.
+          # This can't move into module.nix's own constructFiles the way
+          # other packages' resource files did: LaunchOrFocusPlugin needs
+          # a stable $HOME-relative path, not a store path that changes
+          # every rebuild, so it's inherently home-manager's job (home.file
+          # places things in $HOME; module.nix's own build output can't).
           config.home.file."zellij-plugins/zellij_forgot.wasm".source = zellijForgot pkgs;
 
           config.home.shellAliases.z = "zellij";
@@ -77,7 +81,6 @@
         {
           default = wrappers.lib.evalPackage [
             { inherit pkgs; }
-            baseModule
             wrapperModule
           ];
         }
