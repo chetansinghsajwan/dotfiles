@@ -701,6 +701,20 @@
         "pkgs-wrapped"
       ]
     },
+    "op_2": {
+      "locked": {
+        "path": "../op",
+        "type": "path"
+      },
+      "original": {
+        "path": "../op",
+        "type": "path"
+      },
+      "parent": [
+        "pkgs-wrapped",
+        "yazi"
+      ]
+    },
     "pkgs-wrapped": {
       "inputs": {
         "batman": "batman",
@@ -1282,6 +1296,7 @@
           "pkgs-wrapped",
           "nixpkgs"
         ],
+        "op": "op_2",
         "wrappers": "wrappers_9"
       },
       "locked": {

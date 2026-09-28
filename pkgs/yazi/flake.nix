@@ -8,10 +8,21 @@
       url = "github:nix-community/nix-wrapper-modules";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # yazi's opener.edit rule runs `op` (see settings.yazi.opener.edit in
+    # modules/module.nix) - a real runtime dependency, not just something
+    # installed alongside it. op/flake.nix takes no inputs of its own, so
+    # nothing to follow here.
+    op.url = "path:../op";
   };
 
   outputs =
-    { nixpkgs, wrappers, ... }:
+    {
+      nixpkgs,
+      wrappers,
+      op,
+      ...
+    }:
     let
       inherit (nixpkgs) lib;
 
@@ -35,6 +46,10 @@
       # Builds the same wrapped yazi both `lib.mkYazi` (for external callers)
       # and `packages.default` (this flake's own standalone build) use, so
       # there's exactly one module list to keep in sync instead of two.
+      # Calls wlib.evalModules directly instead of the evalPackage
+      # convenience wrapper, since evalPackage has no way to pass
+      # specialArgs through - and module.nix needs `opPkg` threaded in
+      # that way.
       mkYazi =
         {
           pkgs,
@@ -44,13 +59,14 @@
           # (module.nix's default applies) when null.
           colors ? null,
         }:
-        wrappers.lib.evalPackage (
-          [
+        (wrappers.lib.evalModules {
+          modules = [
             { inherit pkgs; }
             wrapperModule
           ]
-          ++ lib.optional (colors != null) { config.colors = colors; }
-        );
+          ++ lib.optional (colors != null) { config.colors = colors; };
+          specialArgs.opPkg = op.lib.mkOp { inherit pkgs; };
+        }).config.wrapper;
     in
     {
       lib = {
@@ -66,6 +82,7 @@
         {
           config,
           lib,
+          pkgs,
           ...
         }:
         let
@@ -77,6 +94,7 @@
             (wrappers.lib.getInstallModule {
               name = "yazi";
               value = wrapperModule;
+              specialArgs.opPkg = op.lib.mkOp { inherit pkgs; };
             })
           ];
 
