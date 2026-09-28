@@ -5,10 +5,11 @@
 # file is the complete yazi wrapper, and callers only ever need to
 # reference it, not also list `wrappers.wrapperModules.yazi` separately.
 # Theming is this module's own responsibility end to end: `colors`
-# defaults to this repo's own palette.nix, so a standalone build is
-# themed out of the box with no outer config needed at all. Whatever
-# imports this (see flake.nix's `homeModules.default`) may still override
-# `colors` with a live palette (e.g. Stylix's) when one is available.
+# defaults to this repo's own default base16 theme, so a standalone
+# build is themed out of the box with no outer config needed at all.
+# Whatever imports this (see flake.nix's `homeModules.default`) may
+# still override `colors` with a live palette (e.g. Stylix's) when one
+# is available.
 {
   config,
   lib,
@@ -16,17 +17,54 @@
   wlib,
   ...
 }:
+let
+  # This repo's own default theme name (config/default.nix's
+  # dotfiles.theme.name), read via a standalone evalModules - safe
+  # because every config.dotfiles.* reference that file makes internally
+  # has its own default declared in that same file, and theme.name's own
+  # default is a plain literal, so reading it forces nothing else there
+  # (no fetchFromGitHub, no font packages).
+  defaultThemeName =
+    (lib.evalModules {
+      modules = [ ../../config ];
+      specialArgs = { inherit pkgs; };
+    }).config.dotfiles.theme.name;
+
+  # Loaded from nixpkgs' own base16-schemes package (the same one
+  # home/modules/stylix.nix points Stylix at) and expanded into named
+  # colors the same way Stylix does (base08-base0F ->
+  # red/orange/yellow/green/cyan/blue/magenta/brown).
+  defaultPalette =
+    (builtins.fromJSON (
+      builtins.readFile (
+        pkgs.runCommand "base16-scheme.json" { } ''
+          ${pkgs.remarshal}/bin/yaml2json ${pkgs.base16-schemes}/share/themes/${defaultThemeName}.yaml "$out"
+        ''
+      )
+    )).palette;
+
+  defaultColors = defaultPalette // {
+    red = defaultPalette.base08;
+    orange = defaultPalette.base09;
+    yellow = defaultPalette.base0A;
+    green = defaultPalette.base0B;
+    cyan = defaultPalette.base0C;
+    blue = defaultPalette.base0D;
+    magenta = defaultPalette.base0E;
+    brown = defaultPalette.base0F;
+  };
+in
 {
   imports = [ wlib.wrapperModules.yazi ];
 
   options.colors = lib.mkOption {
     type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
-    default = (import ../../themes { inherit pkgs; }) ../../themes/ayu-dark.yaml;
-    defaultText = lib.literalExpression "themes/ayu-dark.yaml";
+    default = defaultColors;
+    defaultText = lib.literalExpression "this repo's default base16 theme (config/default.nix's dotfiles.theme.name)";
     description = ''
       base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... }, e.g.
       `config.lib.stylix.colors.withHashtag`. Defaults to this repo's own
-      themes/ayu-dark.yaml; set to null to leave yazi unthemed (its own
+      default theme; set to null to leave yazi unthemed (its own
       defaults) instead.
     '';
   };
