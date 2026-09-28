@@ -1,4 +1,9 @@
-# nix-wrapper-modules' zsh wrapper has no `plugins` option and no
+# nix-wrapper-modules wrapper module: pulls in nix-wrapper-modules' own
+# native zsh module plus this repo's customization on top - so this one
+# file is the complete zsh wrapper, and callers only ever need to
+# reference it, not also list `wrappers.wrapperModules.zsh` separately.
+#
+# The native zsh wrapper has no `plugins` option and no
 # initContent-style composition option - its whole config surface is raw
 # zshenv/zshrc/zlogin/zlogout = { path; content; } text (see the upstream
 # module's own check.nix). So plugin sourcing is baked in here directly,
@@ -11,9 +16,12 @@
   config,
   lib,
   pkgs,
+  wlib,
   ...
 }:
 {
+  imports = [ wlib.wrapperModules.zsh ];
+
   options.extraInitContent = lib.mkOption {
     type = lib.types.lines;
     default = "";

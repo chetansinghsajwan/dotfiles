@@ -24,12 +24,29 @@
           "aarch64-darwin"
         ] f;
 
-      # This repo's own zsh customization: plugins + the extraInitContent
-      # hook other pkgs/<name> modules use instead of
-      # programs.zsh.initContent (see module.nix).
-      wrapperModule = ./module.nix;
+      # The complete zsh wrapper (nix-wrapper-modules' own native zsh
+      # module plus this repo's customization: plugins + the
+      # extraInitContent hook other pkgs/<name> modules use instead of
+      # programs.zsh.initContent - see modules/module.nix), shared
+      # between the home-manager module below and a bare package build.
+      wrapperModule = ./modules/module.nix;
+
+      # Builds the same wrapped zsh both `lib.mkZsh` (for external
+      # callers) and `packages.default` (this flake's own standalone
+      # build) use, so there's exactly one module list to keep in sync
+      # instead of two.
+      mkZsh =
+        { pkgs }:
+        wrappers.lib.evalPackage [
+          { inherit pkgs; }
+          wrapperModule
+        ];
     in
     {
+      lib = {
+        inherit mkZsh;
+      };
+
       # Drop-in home-manager module: `imports = [ zsh-wrapped.homeModules.default ];`
       # is the whole integration.
       #
@@ -60,10 +77,7 @@
           imports = [
             (wrappers.lib.getInstallModule {
               name = "zsh";
-              value = [
-                wrappers.wrapperModules.zsh
-                wrapperModule
-              ];
+              value = wrapperModule;
             })
           ];
 
@@ -85,11 +99,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrappers.wrapperModules.zsh
-            wrapperModule
-          ];
+          default = mkZsh { inherit pkgs; };
         }
       );
     };
