@@ -21,13 +21,13 @@
 
   options.colors = lib.mkOption {
     type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
-    default = import ./palette.nix;
-    defaultText = lib.literalExpression "import ./palette.nix";
+    default = (import ../../themes { inherit pkgs; }) ../../themes/ayu-dark.yaml;
+    defaultText = lib.literalExpression "themes/ayu-dark.yaml";
     description = ''
       base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... }, e.g.
       `config.lib.stylix.colors.withHashtag`. Defaults to this repo's own
-      palette.nix; set to null to leave yazi unthemed (its own defaults)
-      instead.
+      themes/ayu-dark.yaml; set to null to leave yazi unthemed (its own
+      defaults) instead.
     '';
   };
 
