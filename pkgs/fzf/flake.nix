@@ -24,23 +24,37 @@
           "aarch64-darwin"
         ] f;
 
-      mkTheme = import ./theme.nix;
-      wrapperModule = ./module.nix;
+      # The complete fzf wrapper (popup layout, binds, theme, picker
+      # functions - see modules/module.nix), shared between the
+      # home-manager module below and a bare package build. Themed out
+      # of the box even with no caller-supplied `colors` at all - see
+      # modules/module.nix's default (config.dotfiles.theme.colors).
+      wrapperModule = ./modules/module.nix;
+
+      # Builds the same wrapped fzf both `lib.mkFzf` (for external
+      # callers) and `packages.default` (this flake's own standalone
+      # build) use, so there's exactly one module list to keep in sync
+      # instead of two.
+      mkFzf =
+        {
+          pkgs,
+          # base16 palette as { base00 = "#hex"; ...; }, e.g.
+          # `config.lib.stylix.colors.withHashtag`. Overrides
+          # module.nix's own default palette when given; left alone
+          # (module.nix's default applies) when null.
+          colors ? null,
+        }:
+        wrappers.lib.evalPackage (
+          [
+            { inherit pkgs; }
+            wrapperModule
+          ]
+          ++ lib.optional (colors != null) { config.colors = colors; }
+        );
     in
     {
       lib = {
-        inherit mkTheme;
-
-        mkFzf =
-          {
-            pkgs,
-            colors ? null,
-          }:
-          wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrapperModule
-            { config.colorArgs = mkTheme colors; }
-          ];
+        inherit mkFzf;
       };
 
       # Drop-in home-manager module: `imports = [ fzf-wrapped.homeModules.default ];`
@@ -52,9 +66,12 @@
         {
           config,
           lib,
-          pkgs,
           ...
         }:
+        let
+          wrapper = config.wrappers.fzf;
+          files = wrapper.wrapper.configuration.constructFiles;
+        in
         {
           imports = [
             (wrappers.lib.getInstallModule {
@@ -63,14 +80,17 @@
             })
           ];
 
-          config.wrappers.fzf.colorArgs = mkTheme (
-            lib.attrByPath [
-              "lib"
-              "stylix"
-              "colors"
-              "withHashtag"
-            ] null config
-          );
+          # Only overrides module.nix's own default palette when Stylix is
+          # actually present - otherwise leaves that default in place
+          # rather than forcing colors to null.
+          config.wrappers.fzf.colors = lib.mkIf (lib.hasAttrByPath [
+            "lib"
+            "stylix"
+            "colors"
+            "withHashtag"
+          ] config) config.lib.stylix.colors.withHashtag;
+
+          config.wrappers.fzf.histfile = config.programs.zsh.history.path;
 
           # bat stays on home-manager's own `programs.bat` (not plain
           # home.packages) so stylix's bat target still fires - it
@@ -78,25 +98,9 @@
           # syntax-theme and pv's bat-based previews depend on.
           config.programs.bat.enable = true;
 
-          config.home.packages = [
-            pkgs.fd
-            pkgs.ripgrep
-          ];
-
           config.home.file = {
-            # fh's history file path is baked in from zsh's own history
-            # option at build time instead of read from $HISTFILE at call
-            # time, so it can't silently fall back to a stale/wrong file
-            # in a context where $HISTFILE isn't set.
-            ".config/fzf/fzf.sh".text =
-              builtins.replaceStrings
-                [ "@histfile@" ]
-                [
-                  config.programs.zsh.history.path
-                ]
-                (builtins.readFile ./fzf.sh);
-
-            ".config/fzf/fzf.zsh".source = ./fzf.zsh;
+            ".config/fzf/fzf.sh".source = files.fzfSh.outPath;
+            ".config/fzf/fzf.zsh".source = files.fzfZsh.outPath;
           };
 
           config.programs.bash.initExtra = "source ~/.config/fzf/fzf.sh";
@@ -114,10 +118,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrapperModule
-          ];
+          default = mkFzf { inherit pkgs; };
         }
       );
     };
