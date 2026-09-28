@@ -1,17 +1,17 @@
 # This repo's own VS Code customization, consolidated from the previous
 # modules/settings.nix, modules/extensions.nix, modules/keybindings.nix,
 # languages/{nix,cpp,json}.nix, features/{lldb,clangd,cmake}.nix, and
-# themes/material-icons.nix.
-#
-# terminal.integrated.defaultProfile.{windows,linux,osx} are set separately
-# by whatever imports this (see flake.nix's `homeModules.default`), since
-# they need the outer config's dotfiles.shell.program - a plain wrapper
-# module like this one only ever sees its own submodule config, not the
-# config around it. They're still present here (as an empty-string
-# placeholder) purely so `flattenAttrs` below produces the same key list
-# `workbench.settings.applyToAllProfiles` had before: flattening only
-# needs each leaf's *path*, never its value.
-{ pkgs, ... }:
+# themes/material-icons.nix, plus nix-wrapper-modules' generic wrapper
+# mechanism (wrapper-module.nix, since nix-wrapper-modules ships no
+# native vscode module) - so this one file is the complete vscode
+# wrapper, and callers only ever need to reference it, not also list
+# wrapper-module.nix separately.
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   # Ported from modules/settings.nix: flattens nested attrs into
   # dot-notation keys, e.g. { a.b.c = 1; d = 2; } -> [ "a.b.c" "d" ].
@@ -67,11 +67,9 @@ let
     "files.trimTrailingWhitespace" = true;
 
     "terminal.integrated.cursorStyle" = "line";
-    # Placeholder - see module docstring. The real value is merged in from
-    # outside.
-    "terminal.integrated.defaultProfile.windows" = "";
-    "terminal.integrated.defaultProfile.linux" = "";
-    "terminal.integrated.defaultProfile.osx" = "";
+    "terminal.integrated.defaultProfile.windows" = config.shellProgram;
+    "terminal.integrated.defaultProfile.linux" = config.shellProgram;
+    "terminal.integrated.defaultProfile.osx" = config.shellProgram;
     "terminal.integrated.tabs.enabled" = true;
     "terminal.integrated.profiles.windows" = {
       "git-bash".source = "PowerShell";
@@ -107,6 +105,30 @@ let
   cmakeInstallDir = "\${workspaceFolder}/install";
 in
 {
+  imports = [
+    ./wrapper-module.nix
+
+    # Purely so `shellProgram` below can default to
+    # config.dotfiles.shell.program - the same config/default.nix option
+    # this repo's home-manager hosts already get, just merged into this
+    # wrapper module's own isolated evalModules instead of
+    # home-manager's. pkgs/lib/config are already shared module args, so
+    # this needs no separate evalModules call or specialArgs threading.
+    ../../../config
+  ];
+
+  # A separate option (rather than setting userSettings."terminal.integrated.defaultProfile"
+  # to a whole computed value from outside) since userSettings' own type
+  # (plain attrs, not a freeform submodule) requires equal values across
+  # definition sites instead of recursively merging them - same
+  # reasoning as zed's shellProgram.
+  options.shellProgram = lib.mkOption {
+    type = lib.types.str;
+    default = config.dotfiles.shell.program;
+    defaultText = lib.literalExpression "config.dotfiles.shell.program";
+    description = "Value for terminal.integrated.defaultProfile.{windows,linux,osx}.";
+  };
+
   config = {
     runtimePkgs =
       with pkgs;
