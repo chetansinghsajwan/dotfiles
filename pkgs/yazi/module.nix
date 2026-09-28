@@ -1,15 +1,17 @@
 # nix-wrapper-modules wrapper module: pulls in nix-wrapper-modules' own
 # native yazi module (settings/keymap/theme/vfs/package options,
 # constructFiles, package default, etc.) plus this repo's own yazi
-# customization (plugins, keymap, settings) on top - so this one file is
-# the complete yazi wrapper, and callers only ever need to reference it,
-# not also list `wrappers.wrapperModules.yazi` separately. Theming is set
-# separately by whatever imports this (see flake.nix's
-# `homeModules.default`), since it needs the outer config's `colors` - a
-# plain wrapper module like this one only ever sees its own submodule
-# config, not the home-manager config around it.
+# customization (plugins, keymap, settings, theme) on top - so this one
+# file is the complete yazi wrapper, and callers only ever need to
+# reference it, not also list `wrappers.wrapperModules.yazi` separately.
+# Theming is this module's own responsibility end to end: `colors`
+# defaults to this repo's own palette.nix, so a standalone build is
+# themed out of the box with no outer config needed at all. Whatever
+# imports this (see flake.nix's `homeModules.default`) may still override
+# `colors` with a live palette (e.g. Stylix's) when one is available.
 {
   config,
+  lib,
   pkgs,
   wlib,
   ...
@@ -17,7 +19,21 @@
 {
   imports = [ wlib.wrapperModules.yazi ];
 
+  options.colors = lib.mkOption {
+    type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
+    default = import ./palette.nix;
+    defaultText = lib.literalExpression "import ./palette.nix";
+    description = ''
+      base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... }, e.g.
+      `config.lib.stylix.colors.withHashtag`. Defaults to this repo's own
+      palette.nix; set to null to leave yazi unthemed (its own defaults)
+      instead.
+    '';
+  };
+
   config = {
+    settings.theme = (import ./theme.nix) config.colors;
+
     # 7zz (archive listing) and ffprobe (media duration/codec) back the
     # properties panel; baking them into yazi's own PATH here means every
     # consumer gets them for free instead of having to add them to

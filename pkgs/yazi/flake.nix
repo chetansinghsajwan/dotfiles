@@ -27,11 +27,11 @@
       mkTheme = import ./theme.nix;
 
       # The complete yazi wrapper (nix-wrapper-modules' own native yazi
-      # module plus this repo's customization - see module.nix), shared
-      # between the home-manager module below and a bare package build.
-      # Doesn't include theming: a plain wrapper module only ever sees its
-      # own submodule config, not the config of whatever imports it, so
-      # theme colors have to come from the caller.
+      # module plus this repo's customization, including its own default
+      # theme - see module.nix), shared between the home-manager module
+      # below and a bare package build. Themed out of the box even with
+      # no caller-supplied `colors` at all - see module.nix's palette.nix
+      # default.
       wrapperModule = ./module.nix;
 
       # Builds the same wrapped yazi both `lib.mkYazi` (for external callers)
@@ -41,15 +41,18 @@
         {
           pkgs,
           # base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... },
-          # e.g. `config.lib.stylix.colors.withHashtag`. Left unthemed
-          # (yazi's own defaults) when null.
+          # e.g. `config.lib.stylix.colors.withHashtag`. Overrides
+          # module.nix's own default palette when given; left alone
+          # (module.nix's default applies) when null.
           colors ? null,
         }:
-        wrappers.lib.evalPackage [
-          { inherit pkgs; }
-          wrapperModule
-          { config.settings.theme = mkTheme colors; }
-        ];
+        wrappers.lib.evalPackage (
+          [
+            { inherit pkgs; }
+            wrapperModule
+          ]
+          ++ lib.optional (colors != null) { config.colors = colors; }
+        );
     in
     {
       lib = {
@@ -79,14 +82,15 @@
             })
           ];
 
-          config.wrappers.yazi.settings.theme = mkTheme (
-            lib.attrByPath [
-              "lib"
-              "stylix"
-              "colors"
-              "withHashtag"
-            ] null config
-          );
+          # Only overrides module.nix's own default palette when Stylix is
+          # actually present - otherwise leaves that default in place
+          # rather than forcing colors to null.
+          config.wrappers.yazi.colors = lib.mkIf (lib.hasAttrByPath [
+            "lib"
+            "stylix"
+            "colors"
+            "withHashtag"
+          ] config) config.lib.stylix.colors.withHashtag;
 
           config.home.file = {
             ".config/yazi/y.zsh" = lib.mkIf config.programs.zsh.enable { source = files.yZsh.outPath; };
