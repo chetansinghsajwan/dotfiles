@@ -24,63 +24,62 @@
           "aarch64-darwin"
         ] f;
 
-      mkTheme = import ./theme.nix;
+      # The complete btop wrapper (nix-wrapper-modules' own native btop
+      # module plus this repo's customization, including its own default
+      # theme - see modules/module.nix), shared between the home-manager
+      # module below and a bare package build. Themed out of the box even
+      # with no caller-supplied `colors` at all - see
+      # modules/module.nix's default (config.dotfiles.theme.colors).
+      wrapperModule = ./modules/module.nix;
 
-      # This repo's own btop customization, shared between the
-      # home-manager module below and a bare package build. Doesn't
-      # include theming: a plain wrapper module only ever sees its own
-      # submodule config, not the config of whatever imports it, so theme
-      # colors have to come from the caller.
-      wrapperModule = ./module.nix;
+      # Builds the same wrapped btop both `lib.mkBtop` (for external
+      # callers) and `packages.default` (this flake's own standalone
+      # build) use, so there's exactly one module list to keep in sync
+      # instead of two.
+      mkBtop =
+        {
+          pkgs,
+          # base16 palette as { base00 = "#hex"; ...; base0F = "#hex"; },
+          # e.g. `config.lib.stylix.colors.withHashtag`. Overrides
+          # module.nix's own default palette when given; left alone
+          # (module.nix's default applies) when null.
+          colors ? null,
+        }:
+        wrappers.lib.evalPackage (
+          [
+            { inherit pkgs; }
+            wrapperModule
+          ]
+          ++ lib.optional (colors != null) { config.colors = colors; }
+        );
     in
     {
       lib = {
-        inherit mkTheme;
-
-        mkBtop =
-          {
-            pkgs,
-            # base16 palette as { base00 = "#hex"; ...; base0F = "#hex"; },
-            # e.g. `config.lib.stylix.colors.withHashtag`. Left unthemed
-            # (btop's own defaults) when null.
-            colors ? null,
-          }:
-          wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrappers.wrapperModules.btop
-            wrapperModule
-            (mkTheme colors)
-          ];
+        inherit mkBtop;
       };
 
       # Drop-in home-manager module: `imports = [ btop-wrapped.homeModules.default ];`
       # is the whole integration - no settings or packages needed at the
       # call site. Themes itself from Stylix when present.
       homeModules.default =
-        {
-          config,
-          lib,
-          ...
-        }:
+        { config, lib, ... }:
         {
           imports = [
             (wrappers.lib.getInstallModule {
               name = "btop";
-              value = [
-                wrappers.wrapperModules.btop
-                wrapperModule
-              ];
+              value = wrapperModule;
             })
           ];
 
-          config.wrappers.btop = mkTheme (
-            lib.attrByPath [
-              "lib"
-              "stylix"
-              "colors"
-              "withHashtag"
-            ] null config
-          );
+          # Only overrides module.nix's own default palette when Stylix is
+          # actually present - otherwise leaves that default in place
+          # rather than forcing colors to null.
+          config.wrappers.btop.colors = lib.mkIf (lib.hasAttrByPath [
+            "lib"
+            "stylix"
+            "colors"
+            "withHashtag"
+          ] config) config.lib.stylix.colors.withHashtag;
         };
 
       packages = forEachSystem (
@@ -89,11 +88,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrappers.wrapperModules.btop
-            wrapperModule
-          ];
+          default = mkBtop { inherit pkgs; };
         }
       );
     };
