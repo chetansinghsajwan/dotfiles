@@ -15,10 +15,12 @@
   lib,
   pkgs,
   wlib,
-  # The built `op` package (pkgs/op/flake.nix's mkOp), threaded in via
-  # specialArgs from flake.nix - op isn't in nixpkgs, and a plain wrapper
-  # module can't reach another package's flake output on its own.
+  # The built `op`/`pv` packages (pkgs/op and pkgs/pv's own mkOp/mkPv),
+  # threaded in via specialArgs from flake.nix - neither is in nixpkgs,
+  # and a plain wrapper module can't reach another package's flake output
+  # on its own.
   opPkg,
+  pvPkg,
   ...
 }:
 {
@@ -54,16 +56,18 @@
 
   config = {
     # 7zz (archive listing) and ffprobe (media duration/codec) back the
-    # properties panel; op is what settings.yazi.opener.edit below
-    # actually runs. Baking all three into yazi's own PATH here means
-    # every consumer gets them for free instead of having to add them to
-    # home.packages separately - and, for op specifically, means yazi's
-    # own "Edit" keybinding still works on a standalone install that
-    # never installed op on its own.
+    # properties panel; op is what settings.yazi.opener.edit runs, pv is
+    # what the piper previewers below run. Baking all four into yazi's
+    # own PATH here means every consumer gets them for free instead of
+    # having to add them to home.packages separately - and, for op/pv
+    # specifically, means yazi's "Edit" keybinding and text/CSV previews
+    # still work on a standalone install that never installed them on
+    # its own.
     runtimePkgs = [
       pkgs._7zz
       pkgs.ffmpeg-headless
       opPkg
+      pvPkg
     ];
 
     plugins = {

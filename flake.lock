@@ -774,6 +774,20 @@
         "pkgs-wrapped"
       ]
     },
+    "pv_2": {
+      "locked": {
+        "path": "../pv",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pv",
+        "type": "path"
+      },
+      "parent": [
+        "pkgs-wrapped",
+        "yazi"
+      ]
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -1297,6 +1311,7 @@
           "nixpkgs"
         ],
         "op": "op_2",
+        "pv": "pv_2",
         "wrappers": "wrappers_9"
       },
       "locked": {

@@ -9,11 +9,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # yazi's opener.edit rule runs `op` (see settings.yazi.opener.edit in
-    # modules/module.nix) - a real runtime dependency, not just something
-    # installed alongside it. op/flake.nix takes no inputs of its own, so
-    # nothing to follow here.
+    # yazi's opener.edit rule runs `op`, and its piper previewers run `pv`
+    # (see settings.yazi in modules/module.nix) - real runtime
+    # dependencies, not just something installed alongside it. Neither
+    # op/flake.nix nor pv/flake.nix take inputs of their own, so nothing
+    # to follow here.
     op.url = "path:../op";
+    pv.url = "path:../pv";
   };
 
   outputs =
@@ -21,6 +23,7 @@
       nixpkgs,
       wrappers,
       op,
+      pv,
       ...
     }:
     let
@@ -65,7 +68,10 @@
             wrapperModule
           ]
           ++ lib.optional (colors != null) { config.colors = colors; };
-          specialArgs.opPkg = op.lib.mkOp { inherit pkgs; };
+          specialArgs = {
+            opPkg = op.lib.mkOp { inherit pkgs; };
+            pvPkg = pv.lib.mkPv { inherit pkgs; };
+          };
         }).config.wrapper;
     in
     {
@@ -94,7 +100,10 @@
             (wrappers.lib.getInstallModule {
               name = "yazi";
               value = wrapperModule;
-              specialArgs.opPkg = op.lib.mkOp { inherit pkgs; };
+              specialArgs = {
+                opPkg = op.lib.mkOp { inherit pkgs; };
+                pvPkg = pv.lib.mkPv { inherit pkgs; };
+              };
             })
           ];
 
