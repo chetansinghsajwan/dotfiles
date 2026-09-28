@@ -62,6 +62,45 @@ in
         default = "ayu-dark";
       };
 
+      # base16 palette derived from `name`, loaded from nixpkgs' own
+      # base16-schemes package (the same one home/modules/stylix.nix
+      # points Stylix at) via remarshal's yaml2json - Nix has no native
+      # YAML parser - and expanded into named colors the same way Stylix
+      # does (base08-base0F -> red/orange/yellow/green/cyan/blue/
+      # magenta/brown). Packages that wrap themselves away from
+      # home-manager (see pkgs/<name>/module.nix) read this directly
+      # (via a standalone evalModules over this file alone) as their own
+      # default theme, instead of duplicating this logic themselves.
+      colors = mkOption {
+        type = types.attrsOf types.str;
+        readOnly = true;
+        default =
+          let
+            inherit ((builtins.fromJSON (
+                builtins.readFile (
+                  pkgs.runCommand "base16-scheme.json" { } ''
+                    ${pkgs.remarshal}/bin/yaml2json ${pkgs.base16-schemes}/share/themes/${config.dotfiles.theme.name}.yaml "$out"
+                  ''
+                )
+              ))) palette;
+          in
+          palette
+          // {
+            red = palette.base08;
+            orange = palette.base09;
+            yellow = palette.base0A;
+            green = palette.base0B;
+            cyan = palette.base0C;
+            blue = palette.base0D;
+            magenta = palette.base0E;
+            brown = palette.base0F;
+          };
+        description = ''
+          base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... },
+          derived from dotfiles.theme.name.
+        '';
+      };
+
       wallpapersDir = mkOption {
         type = types.str;
         default = "${wallpapers}";

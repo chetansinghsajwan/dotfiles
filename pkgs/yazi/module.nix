@@ -17,61 +17,35 @@
   wlib,
   ...
 }:
-let
-  # This repo's own default theme name (config/default.nix's
-  # dotfiles.theme.name), read via a standalone evalModules - safe
-  # because every config.dotfiles.* reference that file makes internally
-  # has its own default declared in that same file, and theme.name's own
-  # default is a plain literal, so reading it forces nothing else there
-  # (no fetchFromGitHub, no font packages).
-  defaultThemeName =
-    (lib.evalModules {
-      modules = [ ../../config ];
-      specialArgs = { inherit pkgs; };
-    }).config.dotfiles.theme.name;
-
-  # Loaded from nixpkgs' own base16-schemes package (the same one
-  # home/modules/stylix.nix points Stylix at) and expanded into named
-  # colors the same way Stylix does (base08-base0F ->
-  # red/orange/yellow/green/cyan/blue/magenta/brown).
-  defaultPalette =
-    (builtins.fromJSON (
-      builtins.readFile (
-        pkgs.runCommand "base16-scheme.json" { } ''
-          ${pkgs.remarshal}/bin/yaml2json ${pkgs.base16-schemes}/share/themes/${defaultThemeName}.yaml "$out"
-        ''
-      )
-    )).palette;
-
-  defaultColors = defaultPalette // {
-    red = defaultPalette.base08;
-    orange = defaultPalette.base09;
-    yellow = defaultPalette.base0A;
-    green = defaultPalette.base0B;
-    cyan = defaultPalette.base0C;
-    blue = defaultPalette.base0D;
-    magenta = defaultPalette.base0E;
-    brown = defaultPalette.base0F;
-  };
-in
 {
-  imports = [ wlib.wrapperModules.yazi ];
+  imports = [
+    wlib.wrapperModules.yazi
+
+    # Purely so `colors` below can default to config.dotfiles.theme.colors
+    # - the same config/default.nix option this repo's home-manager hosts
+    # already get, just merged into this wrapper module's own isolated
+    # evalModules instead of home-manager's. pkgs/lib/config are already
+    # shared module args, so this needs no separate evalModules call or
+    # specialArgs threading.
+    ../../config
+
+    # Sets config.settings.theme from config.colors.
+    ./theme.nix
+  ];
 
   options.colors = lib.mkOption {
     type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
-    default = defaultColors;
-    defaultText = lib.literalExpression "this repo's default base16 theme (config/default.nix's dotfiles.theme.name)";
+    default = config.dotfiles.theme.colors;
+    defaultText = lib.literalExpression "config.dotfiles.theme.colors";
     description = ''
       base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... }, e.g.
       `config.lib.stylix.colors.withHashtag`. Defaults to this repo's own
-      default theme; set to null to leave yazi unthemed (its own
-      defaults) instead.
+      config.dotfiles.theme.colors; set to null to leave yazi unthemed
+      (its own defaults) instead.
     '';
   };
 
   config = {
-    settings.theme = (import ./theme.nix) config.colors;
-
     # 7zz (archive listing) and ffprobe (media duration/codec) back the
     # properties panel; baking them into yazi's own PATH here means every
     # consumer gets them for free instead of having to add them to
