@@ -24,80 +24,66 @@
           "aarch64-darwin"
         ] f;
 
-      mkTheme = import ./theme.nix;
+      # The complete helix wrapper (nix-wrapper-modules' own native helix
+      # module plus this repo's customization, including its own default
+      # theme and editor sizing - see modules/module.nix), shared between
+      # the home-manager module below and a bare package build. Themed
+      # out of the box even with no caller-supplied `colors` at all - see
+      # modules/module.nix's default (config.dotfiles.theme.colors).
+      wrapperModule = ./modules/module.nix;
 
-      # This repo's own helix customization, shared between the
-      # home-manager module below and a bare package build. Doesn't
-      # include theming or the editor.{scroll-lines,line-number,rulers,
-      # text-width} settings sourced from config.dotfiles.editor: a plain
-      # wrapper module only ever sees its own submodule config, not the
-      # config of whatever imports it, so those have to come from the
-      # caller.
-      wrapperModule = ./module.nix;
+      # Builds the same wrapped helix both `lib.mkHelix` (for external
+      # callers) and `packages.default` (this flake's own standalone
+      # build) use, so there's exactly one module list to keep in sync
+      # instead of two.
+      mkHelix =
+        {
+          pkgs,
+          # base16 palette as { base00 = "#hex"; ...; base0F = "#hex"; },
+          # e.g. `config.lib.stylix.colors.withHashtag`. Overrides
+          # module.nix's own default palette when given; left alone
+          # (module.nix's default applies) when null.
+          colors ? null,
+        }:
+        wrappers.lib.evalPackage (
+          [
+            { inherit pkgs; }
+            wrapperModule
+          ]
+          ++ lib.optional (colors != null) { config.colors = colors; }
+        );
     in
     {
       lib = {
-        inherit mkTheme;
-
-        mkHelix =
-          {
-            pkgs,
-            # base16 palette as { base00 = "hex"; ...; base0F = "hex"; }
-            # WITHOUT a leading "#" (e.g. `config.lib.stylix.colors`, not
-            # `.withHashtag`). Left unthemed (helix's own defaults) when null.
-            colors ? null,
-          }:
-          wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrappers.wrapperModules.helix
-            wrapperModule
-            (mkTheme colors)
-          ];
+        inherit mkHelix;
       };
 
       # Drop-in home-manager module: `imports = [ helix-wrapped.homeModules.default ];`
       # is the whole integration - no settings or packages needed at the
-      # call site. Themes itself from Stylix when present, sizes itself
-      # from config.dotfiles.editor, and sets EDITOR/VISUAL (was
-      # programs.helix.defaultEditor).
+      # call site. Themes and sizes itself from Stylix/config.dotfiles.editor
+      # when present, and sets EDITOR/VISUAL (was programs.helix.defaultEditor).
       homeModules.default =
-        {
-          config,
-          lib,
-          ...
-        }:
-        let
-          editor = config.dotfiles.editor;
-        in
+        { config, lib, ... }:
         {
           imports = [
             (wrappers.lib.getInstallModule {
               name = "helix";
-              value = [
-                wrappers.wrapperModules.helix
-                wrapperModule
-              ];
+              value = wrapperModule;
             })
           ];
 
-          config.wrappers.helix =
-            lib.recursiveUpdate
-              (mkTheme (
-                lib.attrByPath [
-                  "lib"
-                  "stylix"
-                  "colors"
-                ] null config
-              ))
-              {
-                settings.editor = {
-                  scroll-lines = editor.scroll_lines;
-                  line-number = editor.line_number;
-                  inherit (editor) rulers;
-                  text-width = editor.text_width;
-                };
-              };
+          # Only overrides module.nix's own default palette when Stylix is
+          # actually present - otherwise leaves that default in place
+          # rather than forcing colors to null.
+          config.wrappers.helix.colors = lib.mkIf (lib.hasAttrByPath [
+            "lib"
+            "stylix"
+            "colors"
+            "withHashtag"
+          ] config) config.lib.stylix.colors.withHashtag;
 
+          # config.home.* is home-manager-only, so it can't move into
+          # module.nix the way the theme/editor-size settings did.
           config.home.sessionVariables = {
             EDITOR = "hx";
             VISUAL = "hx";
@@ -110,11 +96,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrappers.wrapperModules.helix
-            wrapperModule
-          ];
+          default = mkHelix { inherit pkgs; };
         }
       );
     };
