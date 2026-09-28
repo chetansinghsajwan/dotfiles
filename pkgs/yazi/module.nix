@@ -1,14 +1,22 @@
-# nix-wrapper-modules wrapper module: this repo's own yazi customization
-# (plugins, keymap, settings). Theming is set separately by whatever
-# imports this (see flake.nix's `homeModules.default`), since it needs the
-# outer config's `colors` - a plain wrapper module like this one only ever
-# sees its own submodule config, not the home-manager config around it.
+# nix-wrapper-modules wrapper module: pulls in nix-wrapper-modules' own
+# native yazi module (settings/keymap/theme/vfs/package options,
+# constructFiles, package default, etc.) plus this repo's own yazi
+# customization (plugins, keymap, settings) on top - so this one file is
+# the complete yazi wrapper, and callers only ever need to reference it,
+# not also list `wrappers.wrapperModules.yazi` separately. Theming is set
+# separately by whatever imports this (see flake.nix's
+# `homeModules.default`), since it needs the outer config's `colors` - a
+# plain wrapper module like this one only ever sees its own submodule
+# config, not the home-manager config around it.
 {
   config,
   pkgs,
+  wlib,
   ...
 }:
 {
+  imports = [ wlib.wrapperModules.yazi ];
+
   config = {
     # 7zz (archive listing) and ffprobe (media duration/codec) back the
     # properties panel; baking them into yazi's own PATH here means every

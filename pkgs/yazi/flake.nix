@@ -26,11 +26,12 @@
 
       mkTheme = import ./theme.nix;
 
-      # This repo's own yazi customization (plugins, keymap, settings),
-      # shared between the home-manager module below and a bare package
-      # build. Doesn't include theming: a plain wrapper module only ever
-      # sees its own submodule config, not the config of whatever imports
-      # it, so theme colors have to come from the caller.
+      # The complete yazi wrapper (nix-wrapper-modules' own native yazi
+      # module plus this repo's customization - see module.nix), shared
+      # between the home-manager module below and a bare package build.
+      # Doesn't include theming: a plain wrapper module only ever sees its
+      # own submodule config, not the config of whatever imports it, so
+      # theme colors have to come from the caller.
       wrapperModule = ./module.nix;
 
       # Builds the same wrapped yazi both `lib.mkYazi` (for external callers)
@@ -46,7 +47,6 @@
         }:
         wrappers.lib.evalPackage [
           { inherit pkgs; }
-          wrappers.wrapperModules.yazi
           wrapperModule
           { config.settings.theme = mkTheme colors; }
         ];
@@ -75,10 +75,7 @@
           imports = [
             (wrappers.lib.getInstallModule {
               name = "yazi";
-              value = [
-                wrappers.wrapperModules.yazi
-                wrapperModule
-              ];
+              value = wrapperModule;
             })
           ];
 
