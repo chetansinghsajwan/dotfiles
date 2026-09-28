@@ -24,16 +24,22 @@
           "aarch64-darwin"
         ] f;
 
-      wrapperModule = ./module.nix;
+      wrapperModule = ./modules/module.nix;
+
+      # Builds the same wrapped eza both `lib.mkEza` (for external
+      # callers) and `packages.default` (this flake's own standalone
+      # build) use, so there's exactly one module list to keep in sync
+      # instead of two.
+      mkEza =
+        { pkgs }:
+        wrappers.lib.evalPackage [
+          { inherit pkgs; }
+          wrapperModule
+        ];
     in
     {
       lib = {
-        mkEza =
-          { pkgs }:
-          wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrapperModule
-          ];
+        inherit mkEza;
       };
 
       # Drop-in home-manager module: `imports = [ eza-wrapped.homeModules.default ];`
@@ -64,10 +70,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrapperModule
-          ];
+          default = mkEza { inherit pkgs; };
         }
       );
     };
