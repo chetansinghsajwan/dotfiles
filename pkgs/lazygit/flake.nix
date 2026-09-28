@@ -24,66 +24,62 @@
           "aarch64-darwin"
         ] f;
 
-      mkTheme = import ./theme.nix;
+      # The complete lazygit wrapper (nix-wrapper-modules' generic
+      # wrapper mechanism plus this repo's customization, including its
+      # own default theme - see modules/module.nix), shared between the
+      # home-manager module below and a bare package build. Themed out of
+      # the box even with no caller-supplied `colors` at all - see
+      # modules/module.nix's default (config.dotfiles.theme.colors).
+      wrapperModule = ./modules/module.nix;
 
-      # nix-wrapper-modules doesn't ship a native lazygit wrapper module,
-      # so wrapper-module.nix stands in for one (package + settings ->
-      # config.yml). This repo's own lazygit customization, shared between
-      # the home-manager module below and a bare package build. Doesn't
-      # include theming: a plain wrapper module only ever sees its own
-      # submodule config, not the config of whatever imports it, so theme
-      # colors have to come from the caller.
-      wrapperModule = ./module.nix;
-      baseModule = ./wrapper-module.nix;
+      # Builds the same wrapped lazygit both `lib.mkLazygit` (for
+      # external callers) and `packages.default` (this flake's own
+      # standalone build) use, so there's exactly one module list to keep
+      # in sync instead of two.
+      mkLazygit =
+        {
+          pkgs,
+          # base16 palette as { base00 = "#hex"; ...; }, e.g.
+          # `config.lib.stylix.colors.withHashtag`. Overrides
+          # module.nix's own default palette when given; left alone
+          # (module.nix's default applies) when null.
+          colors ? null,
+        }:
+        wrappers.lib.evalPackage (
+          [
+            { inherit pkgs; }
+            wrapperModule
+          ]
+          ++ lib.optional (colors != null) { config.colors = colors; }
+        );
     in
     {
       lib = {
-        inherit mkTheme;
-
-        mkLazygit =
-          {
-            pkgs,
-            # base16 palette as { base00 = "#hex"; ...; }, e.g.
-            # `config.lib.stylix.colors.withHashtag`. Left unthemed (lazygit's
-            # own defaults) when null.
-            colors ? null,
-          }:
-          wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            baseModule
-            wrapperModule
-            { config.settings = mkTheme colors; }
-          ];
+        inherit mkLazygit;
       };
 
       # Drop-in home-manager module: `imports = [ lazygit-wrapped.homeModules.default ];`
       # is the whole integration - no settings or packages needed at the
       # call site. Themes itself from Stylix when present.
       homeModules.default =
-        {
-          config,
-          lib,
-          ...
-        }:
+        { config, lib, ... }:
         {
           imports = [
             (wrappers.lib.getInstallModule {
               name = "lazygit";
-              value = [
-                baseModule
-                wrapperModule
-              ];
+              value = wrapperModule;
             })
           ];
 
-          config.wrappers.lazygit.settings = mkTheme (
-            lib.attrByPath [
-              "lib"
-              "stylix"
-              "colors"
-              "withHashtag"
-            ] null config
-          );
+          # Only overrides module.nix's own default palette when Stylix is
+          # actually present - otherwise leaves that default in place
+          # rather than forcing colors to null.
+          config.wrappers.lazygit.colors = lib.mkIf (lib.hasAttrByPath [
+            "lib"
+            "stylix"
+            "colors"
+            "withHashtag"
+          ] config) config.lib.stylix.colors.withHashtag;
         };
 
       packages = forEachSystem (
@@ -92,11 +88,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            baseModule
-            wrapperModule
-          ];
+          default = mkLazygit { inherit pkgs; };
         }
       );
     };

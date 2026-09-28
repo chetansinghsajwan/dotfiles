@@ -1,8 +1,46 @@
-# This repo's own lazygit customization. Theming is set separately by
-# whatever imports this (see flake.nix's `homeModules.default`), since it
-# needs the outer config's `colors` - a plain wrapper module like this one
-# only ever sees its own submodule config, not the config around it.
+# This repo's own lazygit customization (settings, theme) plus
+# nix-wrapper-modules' generic wrapper mechanism (wrapper-module.nix,
+# since nix-wrapper-modules ships no native lazygit module) - so this one
+# file is the complete lazygit wrapper, and callers only ever need to
+# reference it, not also list wrapper-module.nix separately. Theming is
+# this module's own responsibility end to end: `colors` defaults to this
+# repo's own default base16 theme, so a standalone build is themed out of
+# the box with no outer config needed at all. Whatever imports this (see
+# flake.nix's `homeModules.default`) may still override `colors` with a
+# live palette (e.g. Stylix's) when one is available.
 {
+  config,
+  lib,
+  ...
+}:
+{
+  imports = [
+    ./wrapper-module.nix
+
+    # Purely so `colors` below can default to config.dotfiles.theme.colors
+    # - the same config/default.nix option this repo's home-manager hosts
+    # already get, just merged into this wrapper module's own isolated
+    # evalModules instead of home-manager's. lib/config are already
+    # shared module args, so this needs no separate evalModules call or
+    # specialArgs threading.
+    ../../../config
+
+    # Sets config.settings.gui.theme from config.colors.
+    ./theme.nix
+  ];
+
+  options.colors = lib.mkOption {
+    type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
+    default = config.dotfiles.theme.colors;
+    defaultText = lib.literalExpression "config.dotfiles.theme.colors";
+    description = ''
+      base16 palette as { base00 = "#hex"; ...; }, e.g.
+      `config.lib.stylix.colors.withHashtag`. Defaults to this repo's own
+      config.dotfiles.theme.colors; set to null to leave lazygit
+      unthemed (its own defaults) instead.
+    '';
+  };
+
   config = {
     settings = {
       git = {
