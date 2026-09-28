@@ -82,6 +82,18 @@
             "withHashtag"
           ] config) config.lib.stylix.colors.withHashtag;
 
+          # module.nix's own scrollLines/lineNumber/rulers/textWidth
+          # defaults are read from a standalone, isolated evaluation of
+          # config/default.nix alone - they never see this host's real
+          # dotfiles.editor.* overrides (should any host ever set one in
+          # hosts/*/default.nix), so they're explicitly recomputed here
+          # from the live values and pushed in, the same way `colors` is
+          # overridden above.
+          config.wrappers.helix.scrollLines = config.dotfiles.editor.scroll_lines;
+          config.wrappers.helix.lineNumber = config.dotfiles.editor.line_number;
+          config.wrappers.helix.rulers = config.dotfiles.editor.rulers;
+          config.wrappers.helix.textWidth = config.dotfiles.editor.text_width;
+
           # config.home.* is home-manager-only, so it can't move into
           # module.nix the way the theme/editor-size settings did.
           config.home.sessionVariables = {

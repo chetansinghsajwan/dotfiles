@@ -44,6 +44,36 @@
     '';
   };
 
+  # Separate options (rather than setting config.settings.editor.* to a
+  # whole computed value directly) so a caller can override just these
+  # four from outside without colliding with the rest of the static
+  # editor.* block below - settings is a freeform type, and multiple
+  # definition sites for the exact same leaf key aren't safely mergeable
+  # the way multiple DIFFERENT keys under the same parent are.
+  options.scrollLines = lib.mkOption {
+    type = lib.types.int;
+    default = config.dotfiles.editor.scroll_lines;
+    defaultText = lib.literalExpression "config.dotfiles.editor.scroll_lines";
+  };
+  options.lineNumber = lib.mkOption {
+    type = lib.types.enum [
+      "absolute"
+      "reative"
+    ];
+    default = config.dotfiles.editor.line_number;
+    defaultText = lib.literalExpression "config.dotfiles.editor.line_number";
+  };
+  options.rulers = lib.mkOption {
+    type = lib.types.listOf lib.types.int;
+    default = config.dotfiles.editor.rulers;
+    defaultText = lib.literalExpression "config.dotfiles.editor.rulers";
+  };
+  options.textWidth = lib.mkOption {
+    type = lib.types.int;
+    default = config.dotfiles.editor.text_width;
+    defaultText = lib.literalExpression "config.dotfiles.editor.text_width";
+  };
+
   config = {
     runtimePkgs = with pkgs; [
       nil
@@ -98,10 +128,10 @@
           ];
         };
 
-        scroll-lines = config.dotfiles.editor.scroll_lines;
-        line-number = config.dotfiles.editor.line_number;
-        inherit (config.dotfiles.editor) rulers;
-        text-width = config.dotfiles.editor.text_width;
+        scroll-lines = config.scrollLines;
+        line-number = config.lineNumber;
+        inherit (config) rulers;
+        text-width = config.textWidth;
       };
 
       keys =
