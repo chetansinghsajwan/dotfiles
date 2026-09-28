@@ -24,15 +24,13 @@
           "aarch64-darwin"
         ] f;
 
-      mkTheme = import ./theme.nix;
-
       # The complete yazi wrapper (nix-wrapper-modules' own native yazi
       # module plus this repo's customization, including its own default
-      # theme - see module.nix), shared between the home-manager module
-      # below and a bare package build. Themed out of the box even with
-      # no caller-supplied `colors` at all - see module.nix's palette.nix
-      # default.
-      wrapperModule = ./module.nix;
+      # theme - see modules/module.nix), shared between the home-manager
+      # module below and a bare package build. Themed out of the box even
+      # with no caller-supplied `colors` at all - see
+      # modules/module.nix's default (config.dotfiles.theme.colors).
+      wrapperModule = ./modules/module.nix;
 
       # Builds the same wrapped yazi both `lib.mkYazi` (for external callers)
       # and `packages.default` (this flake's own standalone build) use, so
@@ -56,7 +54,7 @@
     in
     {
       lib = {
-        inherit mkTheme mkYazi;
+        inherit mkYazi;
       };
 
       # Drop-in home-manager module: `imports = [ yazi-wrapped.homeModules.default ];`
@@ -93,7 +91,7 @@
           ] config) config.lib.stylix.colors.withHashtag;
 
           config.home.file = {
-            ".config/yazi/y.zsh" = lib.mkIf config.programs.zsh.enable { source = files.yZsh.outPath; };
+            ".config/yazi/y.sh" = lib.mkIf config.programs.zsh.enable { source = files.ySh.outPath; };
             ".config/yazi/y.fish" = lib.mkIf config.programs.fish.enable {
               source = files.yFish.outPath;
             };
@@ -101,7 +99,7 @@
           };
 
           config.wrappers.zsh.extraInitContent = lib.mkIf config.programs.zsh.enable ''
-            source ~/.config/yazi/y.zsh
+            source ~/.config/yazi/y.sh
           '';
 
           config.programs.fish.interactiveShellInit = lib.mkIf config.programs.fish.enable ''
@@ -109,7 +107,7 @@
           '';
 
           config.programs.nushell.extraConfig = lib.mkIf config.programs.nushell.enable (
-            builtins.readFile ./y.nu
+            builtins.readFile ./resources/y.nu
           );
         };
 
