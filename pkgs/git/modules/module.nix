@@ -1,12 +1,19 @@
-# This repo's own git customization. user.{name,email} and
-# credential.credentialStore (platform-dependent) are set separately by
-# whatever imports this (see flake.nix's `homeModules.default`), since
-# they need the outer home-manager config - a plain wrapper module like
-# this one only ever sees its own submodule config, not the config
-# around it.
+# nix-wrapper-modules wrapper module: pulls in nix-wrapper-modules' own
+# native git module plus this repo's customization (settings, delta
+# integration, identity, credential store) on top - so this one file is
+# the complete git wrapper, and callers only ever need to reference it,
+# not also list `wrappers.wrapperModules.git` separately. Identity and
+# credential store are this module's own responsibility end to end:
+# `userName`/`userEmail`/`credentialStore` default to this repo's own
+# config.dotfiles.user.*/config.dotfiles.system.*, so a standalone build
+# is fully configured out of the box with no outer config needed at all.
+# Whatever imports this (see flake.nix's `homeModules.default`) may
+# still override any of the three explicitly.
 {
+  config,
   lib,
   pkgs,
+  wlib,
   ...
 }:
 let
@@ -14,12 +21,83 @@ let
   lfsCmd = lib.getExe pkgs.git-lfs;
 in
 {
+  imports = [
+    wlib.wrapperModules.git
+
+    # Purely so userName/userEmail/credentialStore below can default to
+    # config.dotfiles.* - the same config/default.nix options this
+    # repo's home-manager hosts already get, just merged into this
+    # wrapper module's own isolated evalModules instead of
+    # home-manager's. pkgs/lib/config are already shared module args, so
+    # this needs no separate evalModules call or specialArgs threading.
+    ../../../config
+  ];
+
+  options.userName = lib.mkOption {
+    type = lib.types.str;
+    default = config.dotfiles.user.displayName;
+    description = "git user.name.";
+  };
+
+  options.userEmail = lib.mkOption {
+    type = lib.types.str;
+    default = config.dotfiles.user.git.email;
+    description = "git user.email.";
+  };
+
+  options.credentialStore = lib.mkOption {
+    type = lib.types.str;
+    default =
+      if config.dotfiles.system.isDarwin then
+        "keychain"
+      else if config.dotfiles.desktop.gnome.enable then
+        "secretservice"
+      else if config.dotfiles.system.isWsl then
+        "gpg"
+      else
+        "cache";
+    defaultText = lib.literalExpression ''
+      "keychain" on Darwin, "secretservice" under GNOME, "gpg" under
+      WSL, "cache" otherwise - see config.dotfiles.system.*/desktop.gnome.
+    '';
+    description = "git credential.credentialStore.";
+  };
+
   config = {
     # So `git lfs <subcommand>` resolves without needing git-lfs on the
-    # general PATH.
-    runtimePkgs = [ pkgs.git-lfs ];
+    # general PATH. ripgrep backs git.sh's fglf (fuzzy log for a chosen
+    # file) - baked in here too so it still works on a standalone
+    # install that never installed ripgrep on its own (e.g. via fzf's
+    # own module).
+    runtimePkgs = [
+      pkgs.git-lfs
+      pkgs.ripgrep
+    ];
+
+    # git.sh/git.zsh (the fgl/fgb/fgt/fgs/fgst/fglf/fgr fuzzy pickers +
+    # git.zsh's direct alt-g keybindings) baked directly into this
+    # package's own output, so a plain `nix profile
+    # install`/`home.packages`/`environment.systemPackages` install
+    # already carries them - not just a home-manager one. Whatever
+    # imports this module (see flake.nix's `homeModules.default`) still
+    # decides which shell to actually wire the sourcing into.
+    constructFiles.gitSh = {
+      relPath = "share/git/git.sh";
+      content = builtins.readFile ../resources/git.sh;
+    };
+    constructFiles.gitZsh = {
+      relPath = "share/git/git.zsh";
+      content = builtins.readFile ../resources/git.zsh;
+    };
 
     settings = {
+      user = {
+        name = config.userName;
+        email = config.userEmail;
+      };
+
+      credential.credentialStore = config.credentialStore;
+
       "credential \"https://dev.azure.com\"" = {
         useHttpPath = true;
       };
