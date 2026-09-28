@@ -24,8 +24,11 @@
           "aarch64-darwin"
         ] f;
 
-      wrapperModule = ./module.nix;
-      baseModule = ./wrapper-module.nix;
+      # The complete zed wrapper (nix-wrapper-modules' generic wrapper
+      # mechanism plus this repo's customization, including its own
+      # default terminal shell - see modules/module.nix), shared between
+      # the home-manager module below and a bare package build.
+      wrapperModule = ./modules/module.nix;
     in
     {
       lib = {
@@ -33,7 +36,6 @@
           { pkgs }:
           wrappers.lib.evalPackage [
             { inherit pkgs; }
-            baseModule
             wrapperModule
           ];
       };
@@ -54,14 +56,17 @@
           imports = [
             (wrappers.lib.getInstallModule {
               name = "zed";
-              value = [
-                baseModule
-                wrapperModule
-              ];
+              value = wrapperModule;
             })
           ];
 
-          config.wrappers.zed.userSettings.terminal.shell.program = config.dotfiles.shell.program;
+          # module.nix's own shellProgram default is read from a
+          # standalone, isolated evaluation of config/default.nix alone -
+          # it never sees this host's real dotfiles.shell.program
+          # override (should any host ever set one in
+          # hosts/*/default.nix), so it's explicitly recomputed here from
+          # the live value and pushed in.
+          config.wrappers.zed.shellProgram = config.dotfiles.shell.program;
 
           config.xdg.configFile = lib.mkIf wrapper.enable {
             "zed/settings.json".source = wrapper.wrapper.configuration.constructFiles.settings.outPath;
@@ -78,7 +83,6 @@
         {
           default = wrappers.lib.evalPackage [
             { inherit pkgs; }
-            baseModule
             wrapperModule
           ];
         }

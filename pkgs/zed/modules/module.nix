@@ -1,12 +1,41 @@
 # This repo's own zed customization (base settings + nix/cpp/cmake
 # language support, previously spread across zed/default.nix,
-# keybindings.nix, and features/{nix,cpp,cmake}.nix).
-# terminal.shell.program is set separately by whatever imports this (see
-# flake.nix's `homeModules.default`), since it needs the outer config's
-# dotfiles.shell.program - a plain wrapper module like this one only ever
-# sees its own submodule config, not the config around it.
-{ pkgs, ... }:
+# keybindings.nix, and features/{nix,cpp,cmake}.nix) plus
+# nix-wrapper-modules' generic wrapper mechanism (wrapper-module.nix,
+# since nix-wrapper-modules ships no native zed-editor module) - so this
+# one file is the complete zed wrapper, and callers only ever need to
+# reference it, not also list wrapper-module.nix separately.
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
+  imports = [
+    ./wrapper-module.nix
+
+    # Purely so `shellProgram` below can default to
+    # config.dotfiles.shell.program - the same config/default.nix option
+    # this repo's home-manager hosts already get, just merged into this
+    # wrapper module's own isolated evalModules instead of
+    # home-manager's. pkgs/lib/config are already shared module args, so
+    # this needs no separate evalModules call or specialArgs threading.
+    ../../../config
+  ];
+
+  # A separate option (rather than setting userSettings.terminal.shell.program
+  # to a whole computed value directly from outside) since userSettings'
+  # own type (plain attrs, not a freeform submodule) requires equal
+  # values across definition sites rather than recursively merging them
+  # - same reasoning as helix's scrollLines/lineNumber/rulers/textWidth.
+  options.shellProgram = lib.mkOption {
+    type = lib.types.str;
+    default = config.dotfiles.shell.program;
+    defaultText = lib.literalExpression "config.dotfiles.shell.program";
+    description = "Value for userSettings.terminal.shell.program.";
+  };
+
   config = {
     runtimePkgs = with pkgs; [
       nixd
@@ -22,6 +51,8 @@
     ];
 
     userSettings = {
+      terminal.shell.program = config.shellProgram;
+
       autosave.after_delay.milliseconds = 1000;
       format_on_save = "on";
       auto_update = false;
