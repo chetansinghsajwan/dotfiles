@@ -32,25 +32,28 @@
       # sees its own submodule config, not the config of whatever imports
       # it, so theme colors have to come from the caller.
       wrapperModule = ./module.nix;
+
+      # Builds the same wrapped yazi both `lib.mkYazi` (for external callers)
+      # and `packages.default` (this flake's own standalone build) use, so
+      # there's exactly one module list to keep in sync instead of two.
+      mkYazi =
+        {
+          pkgs,
+          # base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... },
+          # e.g. `config.lib.stylix.colors.withHashtag`. Left unthemed
+          # (yazi's own defaults) when null.
+          colors ? null,
+        }:
+        wrappers.lib.evalPackage [
+          { inherit pkgs; }
+          wrappers.wrapperModules.yazi
+          wrapperModule
+          { config.settings.theme = mkTheme colors; }
+        ];
     in
     {
       lib = {
-        inherit mkTheme;
-
-        mkYazi =
-          {
-            pkgs,
-            # base16 palette as { base00 = "#hex"; ...; cyan = "#hex"; ... },
-            # e.g. `config.lib.stylix.colors.withHashtag`. Left unthemed
-            # (yazi's own defaults) when null.
-            colors ? null,
-          }:
-          wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrappers.wrapperModules.yazi
-            wrapperModule
-            { config.settings.theme = mkTheme colors; }
-          ];
+        inherit mkTheme mkYazi;
       };
 
       # Drop-in home-manager module: `imports = [ yazi-wrapped.homeModules.default ];`
@@ -64,6 +67,10 @@
           lib,
           ...
         }:
+        let
+          wrapper = config.wrappers.yazi;
+          files = wrapper.wrapper.configuration.constructFiles;
+        in
         {
           imports = [
             (wrappers.lib.getInstallModule {
@@ -85,9 +92,11 @@
           );
 
           config.home.file = {
-            ".config/yazi/y.zsh" = lib.mkIf config.programs.zsh.enable { source = ./y.zsh; };
-            ".config/yazi/y.fish" = lib.mkIf config.programs.fish.enable { source = ./y.fish; };
-            ".config/yazi/y.nu" = lib.mkIf config.programs.nushell.enable { source = ./y.nu; };
+            ".config/yazi/y.zsh" = lib.mkIf config.programs.zsh.enable { source = files.yZsh.outPath; };
+            ".config/yazi/y.fish" = lib.mkIf config.programs.fish.enable {
+              source = files.yFish.outPath;
+            };
+            ".config/yazi/y.nu" = lib.mkIf config.programs.nushell.enable { source = files.yNu.outPath; };
           };
 
           config.wrappers.zsh.extraInitContent = lib.mkIf config.programs.zsh.enable ''
@@ -109,11 +118,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = wrappers.lib.evalPackage [
-            { inherit pkgs; }
-            wrappers.wrapperModules.yazi
-            wrapperModule
-          ];
+          default = mkYazi { inherit pkgs; };
         }
       );
     };

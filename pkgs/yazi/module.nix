@@ -35,6 +35,25 @@
       content = builtins.readFile ./init.lua;
     };
 
+    # y.zsh/y.fish/y.nu (the "cd to wherever you were when you quit yazi"
+    # shell function) baked directly into this package's own output, so a
+    # plain `nix profile install`/`home.packages`/`environment.systemPackages`
+    # install already carries them - not just a home-manager one. Whatever
+    # imports this module (see flake.nix's `homeModules.default`) still
+    # decides which shell to actually wire the sourcing into.
+    constructFiles.yZsh = {
+      relPath = "share/yazi/y.zsh";
+      content = builtins.readFile ./y.zsh;
+    };
+    constructFiles.yFish = {
+      relPath = "share/yazi/y.fish";
+      content = builtins.readFile ./y.fish;
+    };
+    constructFiles.yNu = {
+      relPath = "share/yazi/y.nu";
+      content = builtins.readFile ./y.nu;
+    };
+
     settings.yazi = {
       mgr = {
         ratio = [
