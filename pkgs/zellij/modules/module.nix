@@ -2,9 +2,45 @@
 # wrapper mechanism (wrapper-module.nix, since nix-wrapper-modules ships
 # no native zellij module) - so this one file is the complete zellij
 # wrapper, and callers only ever need to reference it, not also list
-# wrapper-module.nix separately.
+# wrapper-module.nix separately. Theming is this module's own
+# responsibility end to end: `colors` defaults to this repo's own
+# default base16 theme, so a standalone build is themed out of the box
+# with no outer config needed at all. Whatever imports this (see
+# flake.nix's `homeModules.default`) may still override `colors` with a
+# live palette (e.g. Stylix's) when one is available.
 {
-  imports = [ ./wrapper-module.nix ];
+  config,
+  lib,
+  ...
+}:
+{
+  imports = [
+    ./wrapper-module.nix
+
+    # Purely so `colors` below can default to config.dotfiles.theme.colors
+    # - the same config/default.nix option this repo's home-manager hosts
+    # already get, just merged into this wrapper module's own isolated
+    # evalModules instead of home-manager's. lib/config are already
+    # shared module args, so this needs no separate evalModules call or
+    # specialArgs threading.
+    ../../../config
+
+    # Sets config.themes.stylix and adds a `theme "stylix"` line to
+    # config.configKdl, from config.colors.
+    ./theme.nix
+  ];
+
+  options.colors = lib.mkOption {
+    type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
+    default = config.dotfiles.theme.colors;
+    defaultText = lib.literalExpression "config.dotfiles.theme.colors";
+    description = ''
+      base16 palette as { base00 = "#hex"; ...; base0F = "#hex"; }, e.g.
+      `config.lib.stylix.colors.withHashtag`. Defaults to this repo's own
+      config.dotfiles.theme.colors; set to null to leave zellij unthemed
+      (its own defaults) instead.
+    '';
+  };
 
   config = {
     # Default tab mode groups h/Left/Up/k -> previous tab, l/Right/Down/j ->

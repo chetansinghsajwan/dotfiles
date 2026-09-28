@@ -23,6 +23,12 @@
     description = "Named layouts, written to layouts/<name>.kdl as raw KDL.";
   };
 
+  options.themes = lib.mkOption {
+    type = lib.types.attrsOf lib.types.lines;
+    default = { };
+    description = "Named themes, written to themes/<name>.kdl as raw KDL.";
+  };
+
   config = {
     package = lib.mkDefault pkgs.zellij;
 
@@ -40,6 +46,13 @@
         relPath = "zellij-config/layouts/${name}.kdl";
         content = text;
       }
-    ) config.layouts;
+    ) config.layouts
+    // lib.mapAttrs' (
+      name: text:
+      lib.nameValuePair "theme_${name}" {
+        relPath = "zellij-config/themes/${name}.kdl";
+        content = text;
+      }
+    ) config.themes;
   };
 }
