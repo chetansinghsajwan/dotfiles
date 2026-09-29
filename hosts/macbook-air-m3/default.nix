@@ -1,4 +1,5 @@
 {
+  wrappedPkgs,
   nur,
   home-manager,
   nix-darwin,
@@ -19,7 +20,7 @@ nix-darwin.lib.darwinSystem {
     (localLib.mkHomeManagerModule {
       username = "kyutoo";
       extraSpecialArgs = {
-        inherit nur localLib;
+        inherit wrappedPkgs nur localLib;
       };
       imports = [
         ../../home/home.nix

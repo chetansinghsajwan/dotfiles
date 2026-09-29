@@ -4,6 +4,11 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    wrappedPkgs = {
+      url = "path:./pkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nur = {
       url = "github:nix-community/nur";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -46,6 +51,7 @@
     {
       self,
       nixpkgs,
+      wrappedPkgs,
       nur,
       stylix,
       home-manager,
@@ -71,6 +77,7 @@
       nixosConfigurations.nixos = import ./hosts/nixos {
         inherit
           nixpkgs
+          wrappedPkgs
           nur
           home-manager
           stylix
@@ -83,6 +90,7 @@
       nixosConfigurations.honor-m3 = import ./hosts/honor-m3 {
         inherit
           nixpkgs
+          wrappedPkgs
           nur
           home-manager
           stylix
@@ -95,6 +103,7 @@
       darwinConfigurations.macbook-air-m3 = import ./hosts/macbook-air-m3 {
         inherit
           nixpkgs
+          wrappedPkgs
           nur
           home-manager
           stylix
@@ -106,6 +115,7 @@
       darwinConfigurations.darwin = import ./hosts/darwin {
         inherit
           nixpkgs
+          wrappedPkgs
           nur
           home-manager
           stylix
@@ -117,6 +127,7 @@
       nixosConfigurations.wsl = import ./hosts/wsl {
         inherit
           nixpkgs
+          wrappedPkgs
           nur
           home-manager
           stylix
@@ -138,7 +149,7 @@
         ];
 
         extraSpecialArgs = {
-          inherit nur localLib caelestia-shell;
+          inherit wrappedPkgs nur localLib caelestia-shell;
         };
       };
 

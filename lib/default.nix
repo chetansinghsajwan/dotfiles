@@ -1,5 +1,14 @@
 { lib }:
-{
+rec {
+  systems = [
+    "x86_64-linux"
+    "aarch64-linux"
+    "x86_64-darwin"
+    "aarch64-darwin"
+  ];
+
+  forEachSystem = lib.genAttrs systems;
+
   # Shared home-manager wiring for a host's default.nix — keeps
   # useUserPackages/backupFileExtension/etc. from drifting between hosts.
   mkHomeManagerModule =

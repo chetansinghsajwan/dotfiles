@@ -1,4 +1,5 @@
 {
+  wrappedPkgs,
   nixpkgs,
   nur,
   home-manager,
@@ -24,7 +25,7 @@ nixpkgs.lib.nixosSystem {
     (localLib.mkHomeManagerModule {
       username = "chetansinghsajwan";
       extraSpecialArgs = {
-        inherit nur localLib caelestia-shell;
+        inherit wrappedPkgs nur localLib caelestia-shell;
       };
       imports = [
         {

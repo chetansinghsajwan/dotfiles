@@ -3,6 +3,7 @@
   pkgs,
   nur,
   lib,
+  wrappedPkgs,
   ...
 }:
 let
@@ -53,6 +54,7 @@ in
         curl
         devbox
         kanata
+        wrappedPkgs.yazi.packages.${pkgs.system}.default
       ]
       ++ lib.optionals isLinux [
         efibootmgr
@@ -98,7 +100,6 @@ in
     lazydocker.enable = true;
     lazygit.enable = true;
     superfile.enable = true;
-    yazi.enable = true;
     direnv.enable = true;
     tealdeer.enable = true;
   };

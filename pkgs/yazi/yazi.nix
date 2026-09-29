@@ -1,34 +1,8 @@
-{ config, lib, pkgs, ... }: {
-  home.packages = [
-    pkgs._7zz # archive entry/method listing for the properties panel
-    pkgs.ffmpeg-headless # ffprobe, for media duration/codec in the properties panel
-  ];
-
-  programs.yazi = {
-    enableZshIntegration = config.dotfiles.shell.program == "zsh";
-    enableFishIntegration = config.dotfiles.shell.program == "fish";
-    enableNushellIntegration = config.dotfiles.shell.program == "nushell";
-    shellWrapperName = "y";
-
-    plugins = {
-      full-border = pkgs.yaziPlugins.full-border;
-      bookmarks = pkgs.yaziPlugins.bookmarks;
-      toggle-pane = pkgs.yaziPlugins.toggle-pane;
-      properties = ./yazi/properties.yazi;
-      places = ./yazi/places.yazi;
-      linemode-toggle = ./yazi/linemode-toggle.yazi;
-      piper = pkgs.yaziPlugins.piper;
-    };
-
-    initLua = ./yazi/init.lua;
-
-    # Stylix's yazi target (modules/yazi/hm.nix) paints which.mask with a
-    # solid base02 background for legibility. That's an explicit color, not
-    # the terminal's default background, so Ghostty's opacity.terminal only
-    # applies to the rest of the UI - the which-key popup renders as an
-    # opaque box against everything else's translucency. mkForce is needed
-    # since stylix's target sets the same leaf at normal priority too.
-    theme.which.mask = lib.mkForce { };
+let
+  mkYazi = { pkgs }:
+  let
+    lib = pkgs.lib;
+    tomlFormat = pkgs.formats.toml { };
 
     settings = {
       mgr = {
@@ -51,6 +25,8 @@
         max_height = 1200;
       };
 
+      # TODO: Add op dependency
+      #
       # yazi's own default open.rules already route text/*, json, and empty
       # files to the "edit" opener (and everything else - binaries, images,
       # archives - elsewhere), so overriding what "edit" runs is enough:
@@ -76,6 +52,8 @@
             # everything else text-like to bat, so this one rule covers
             # both plain text and tabular data.
             mime = "text/*";
+
+            # TODO: Add op dependency
             run = ''piper -- pv "$1"'';
           }
           {
@@ -91,7 +69,7 @@
           {
             # yazi's own mime sniffer reports these without the "x-" IANA
             # prefix (e.g. "application/7z-compressed", not
-            # "application/x-7z-compressed") — both forms are listed since
+            # "application/x-7z-compressed") - both forms are listed since
             # that's undocumented and could vary by yazi version.
             mime = "application/{zip,tar,x-tar,7z-compressed,x-7z-compressed,gzip,x-gzip,bzip,bzip2,x-bzip,x-bzip2,xz,x-xz,zstd,rar,x-rar,x-rar-compressed,vnd.rar}";
             run = "properties archive";
@@ -121,37 +99,33 @@
       };
     };
 
+    theme = {
+      # Under Ghostty's translucent background, an unset which.mask lets the
+      # which-key popup pick up the terminal's opacity like everything else,
+      # rendering as a legible solid box only when stylix (or similar) paints
+      # an explicit background on top - left empty here since nothing does.
+      which.mask = { };
+    };
+
     keymap = {
       mgr.prepend_keymap = [
         {
-          on = [
-            "p"
-            "p"
-          ];
+          on = [ "p" "p" ];
           run = "plugin toggle-pane min-preview";
           desc = "Toggle the preview pane";
         }
         {
-          on = [
-            "p"
-            "q"
-          ];
+          on = [ "p" "q" ];
           run = "plugin places toggle";
           desc = "Toggle the quickbar (favorites/bookmarks/drives/recents)";
         }
         {
-          on = [
-            "p"
-            "m"
-          ];
+          on = [ "p" "m" ];
           run = "plugin properties toggle";
           desc = "Toggle the file metadata panel";
         }
         {
-          on = [
-            "b"
-            "s"
-          ];
+          on = [ "b" "s" ];
           run = "plugin bookmarks save";
           desc = "Save current position as a bookmark";
         }
@@ -161,18 +135,12 @@
           desc = "Jump to a bookmark";
         }
         {
-          on = [
-            "b"
-            "d"
-          ];
+          on = [ "b" "d" ];
           run = "plugin bookmarks delete";
           desc = "Delete a bookmark";
         }
         {
-          on = [
-            "b"
-            "D"
-          ];
+          on = [ "b" "D" ];
           run = "plugin bookmarks delete_all";
           desc = "Delete all bookmarks";
         }
@@ -204,26 +172,17 @@
         # for that specifically - only <C-c>, which also quits if it's
         # the last tab). t r (rename tab) is untouched.
         {
-          on = [
-            "t"
-            "n"
-          ];
+          on = [ "t" "n" ];
           run = "tab_create --current";
           desc = "Create a new tab in CWD";
         }
         {
-          on = [
-            "t"
-            "q"
-          ];
+          on = [ "t" "q" ];
           run = "close";
           desc = "Close the current tab";
         }
         {
-          on = [
-            "t"
-            "t"
-          ];
+          on = [ "t" "t" ];
           run = "noop";
         }
 
@@ -232,34 +191,22 @@
         # the fixed one-at-a-time modes yazi offers, combining whichever
         # are on into one of the linemodes init.lua generates.
         {
-          on = [
-            "m"
-            "p"
-          ];
+          on = [ "m" "p" ];
           run = "plugin linemode-toggle toggle_perm";
           desc = "Toggle permissions in the linemode";
         }
         {
-          on = [
-            "m"
-            "t"
-          ];
+          on = [ "m" "t" ];
           run = "plugin linemode-toggle toggle_time";
           desc = "Toggle time in the linemode";
         }
         {
-          on = [
-            "m"
-            "o"
-          ];
+          on = [ "m" "o" ];
           run = "plugin linemode-toggle toggle_owner";
           desc = "Toggle owner in the linemode";
         }
         {
-          on = [
-            "m"
-            "s"
-          ];
+          on = [ "m" "s" ];
           run = "plugin linemode-toggle toggle_size";
           desc = "Toggle size in the linemode";
         }
@@ -267,27 +214,61 @@
         # defaults not being reused (btime, mtime, none) still need
         # neutralizing.
         {
-          on = [
-            "m"
-            "b"
-          ];
+          on = [ "m" "b" ];
           run = "noop";
         }
         {
-          on = [
-            "m"
-            "m"
-          ];
+          on = [ "m" "m" ];
           run = "noop";
         }
         {
-          on = [
-            "m"
-            "n"
-          ];
+          on = [ "m" "n" ];
           run = "noop";
         }
       ];
     };
+
+    # yazi expects each plugin under plugins/<name>.yazi/
+    plugins = pkgs.linkFarm "yazi-plugins" {
+      "full-border.yazi" = pkgs.yaziPlugins.full-border;
+      "bookmarks.yazi" = pkgs.yaziPlugins.bookmarks;
+      "toggle-pane.yazi" = pkgs.yaziPlugins.toggle-pane;
+      "piper.yazi" = pkgs.yaziPlugins.piper;
+      "properties.yazi" = ./plugins/properties.yazi;
+      "places.yazi" = ./plugins/places.yazi;
+      "linemode-toggle.yazi" = ./plugins/linemode-toggle.yazi;
+    };
+
+    configHome = pkgs.linkFarm "yazi-config-home" {
+      "yazi.toml" = tomlFormat.generate "yazi.toml" settings;
+      "theme.toml" = tomlFormat.generate "theme.toml" theme;
+      "keymap.toml" = tomlFormat.generate "keymap.toml" keymap;
+      "init.lua" = ./init.lua;
+      "plugins" = plugins;
+    };
+  in
+  pkgs.symlinkJoin {
+    name = "yazi-wrapped-${pkgs.yazi.version}";
+    paths = [ pkgs.yazi ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      for bin in yazi ya; do
+        wrapProgram "$out/bin/$bin" \
+          --set YAZI_CONFIG_HOME ${configHome} \
+          --prefix PATH : ${
+            lib.makeBinPath [
+              pkgs._7zz # archive entry/method listing for the properties panel
+              pkgs.ffmpeg-headless # ffprobe, for media duration/codec in the properties panel
+            ]
+          }
+      done
+    '';
+
+    meta = pkgs.yazi.meta // {
+      mainProgram = "yazi";
+    };
   };
+in
+{
+  inherit mkYazi;
 }

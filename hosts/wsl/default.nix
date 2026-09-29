@@ -1,4 +1,5 @@
 {
+  wrappedPkgs,
   nixpkgs,
   nur,
   home-manager,
@@ -20,7 +21,7 @@ nixpkgs.lib.nixosSystem {
     (localLib.mkHomeManagerModule {
       username = "chetansinghsajwan";
       extraSpecialArgs = {
-        inherit nur localLib;
+        inherit wrappedPkgs nur localLib;
       };
       imports = [
         ../../home/home.nix

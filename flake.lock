@@ -417,7 +417,8 @@
         "nur": "nur",
         "silentSDDM": "silentSDDM",
         "stylix": "stylix",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix",
+        "wrappedPkgs": "wrappedPkgs"
       }
     },
     "silentSDDM": {
@@ -570,6 +571,42 @@
         "repo": "treefmt-nix",
         "type": "github"
       }
+    },
+    "wrappedPkgs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "yazi": "yazi"
+      },
+      "locked": {
+        "path": "./pkgs",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pkgs",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "yazi": {
+      "inputs": {
+        "nixpkgs": [
+          "wrappedPkgs",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./yazi",
+        "type": "path"
+      },
+      "original": {
+        "path": "./yazi",
+        "type": "path"
+      },
+      "parent": [
+        "wrappedPkgs"
+      ]
     }
   },
   "root": "root",
