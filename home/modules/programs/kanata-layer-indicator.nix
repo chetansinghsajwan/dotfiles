@@ -1,7 +1,7 @@
 {
   pkgs,
   config,
-  localLib,
+  llib,
   caelestia-shell,
   ...
 }:
@@ -222,7 +222,7 @@ let
     }
   '';
 in
-localLib.mkToggleModule config "kanata-layer-indicator" {
+llib.mkToggleModule config "kanata-layer-indicator" {
   systemd.user.services.kanata-layer-indicator = {
     Unit = {
       Description = "Persistent indicator of the active kanata layer";

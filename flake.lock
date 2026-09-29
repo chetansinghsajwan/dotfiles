@@ -245,6 +245,43 @@
         "type": "github"
       }
     },
+    "llib": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./lib",
+        "type": "path"
+      },
+      "original": {
+        "path": "./lib",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "llib_2": {
+      "inputs": {
+        "nixpkgs": [
+          "wrappedPkgs",
+          "yazi",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "../../lib",
+        "type": "path"
+      },
+      "original": {
+        "path": "../../lib",
+        "type": "path"
+      },
+      "parent": [
+        "wrappedPkgs",
+        "yazi"
+      ]
+    },
     "m3shapes": {
       "inputs": {
         "nixpkgs": [
@@ -411,6 +448,7 @@
       "inputs": {
         "caelestia-shell": "caelestia-shell",
         "home-manager": "home-manager",
+        "llib": "llib",
         "nix-darwin": "nix-darwin",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs",
@@ -591,6 +629,7 @@
     },
     "yazi": {
       "inputs": {
+        "llib": "llib_2",
         "nixpkgs": [
           "wrappedPkgs",
           "nixpkgs"

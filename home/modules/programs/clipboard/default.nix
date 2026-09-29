@@ -2,10 +2,10 @@
   config,
   pkgs,
   lib,
-  localLib,
+  llib,
   ...
 }:
-localLib.mkToggleModule config "clipboard" {
+llib.mkToggleModule config "clipboard" {
   home.file = {
     ".config/clipboard-fzf/clipboard.sh".source = ./clipboard.sh;
     ".config/clipboard-fzf/clipboard.zsh".source = ./clipboard.zsh;

@@ -2,10 +2,10 @@
   config,
   pkgs,
   lib,
-  localLib,
+  llib,
   ...
 }:
-localLib.mkToggleModule config "gnome-text-editor" {
+llib.mkToggleModule config "gnome-text-editor" {
   home.packages = [
     pkgs.gnome-text-editor
   ];

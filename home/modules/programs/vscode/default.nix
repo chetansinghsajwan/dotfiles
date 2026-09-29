@@ -1,4 +1,4 @@
-{ localLib, ... }:
+{ llib, ... }:
 {
   programs.vscode = {
     mutableExtensionsDir = false;
@@ -9,8 +9,8 @@
   };
 
   imports =
-    localLib.importDir ./modules
-    ++ localLib.importDir ./languages
-    ++ localLib.importDir ./themes
-    ++ localLib.importDir ./features;
+    llib.importDir ./modules
+    ++ llib.importDir ./languages
+    ++ llib.importDir ./themes
+    ++ llib.importDir ./features;
 }

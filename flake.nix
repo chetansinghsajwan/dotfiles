@@ -4,9 +4,15 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    llib = {
+      url = "path:./lib";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     wrappedPkgs = {
       url = "path:./pkgs";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.llib.follows = "llib";
     };
 
     nur = {
@@ -51,6 +57,7 @@
     {
       self,
       nixpkgs,
+      llib,
       wrappedPkgs,
       nur,
       stylix,
@@ -70,18 +77,16 @@
       treefmtEval = forEachSystem (
         system: treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} ./treefmt.nix
       );
-
-      localLib = import ./lib { inherit (nixpkgs) lib; };
     in
     {
       nixosConfigurations.nixos = import ./hosts/nixos {
         inherit
           nixpkgs
+          llib
           wrappedPkgs
           nur
           home-manager
           stylix
-          localLib
           caelestia-shell
           silentSDDM
           ;
@@ -90,11 +95,11 @@
       nixosConfigurations.honor-m3 = import ./hosts/honor-m3 {
         inherit
           nixpkgs
+          llib
           wrappedPkgs
           nur
           home-manager
           stylix
-          localLib
           caelestia-shell
           silentSDDM
           ;
@@ -103,36 +108,36 @@
       darwinConfigurations.macbook-air-m3 = import ./hosts/macbook-air-m3 {
         inherit
           nixpkgs
+          llib
           wrappedPkgs
           nur
           home-manager
           stylix
           nix-darwin
-          localLib
           ;
       };
 
       darwinConfigurations.darwin = import ./hosts/darwin {
         inherit
           nixpkgs
+          llib
           wrappedPkgs
           nur
           home-manager
           stylix
           nix-darwin
-          localLib
           ;
       };
 
       nixosConfigurations.wsl = import ./hosts/wsl {
         inherit
           nixpkgs
+          llib
           wrappedPkgs
           nur
           home-manager
           stylix
           nixos-wsl
-          localLib
           ;
       };
 
@@ -149,7 +154,7 @@
         ];
 
         extraSpecialArgs = {
-          inherit wrappedPkgs nur localLib caelestia-shell;
+          inherit wrappedPkgs llib nur caelestia-shell;
         };
       };
 

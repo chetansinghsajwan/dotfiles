@@ -1,9 +1,9 @@
 {
   config,
   pkgs,
-  localLib,
+  llib,
   ...
 }:
-localLib.mkToggleModule config "libreoffice" {
+llib.mkToggleModule config "libreoffice" {
   home.packages = [ pkgs.libreoffice ];
 }

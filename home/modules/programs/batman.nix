@@ -1,10 +1,10 @@
 {
   config,
   pkgs,
-  localLib,
+  llib,
   ...
 }:
-localLib.mkToggleModule config "batman" {
+llib.mkToggleModule config "batman" {
   home.packages = with pkgs; [
     bat-extras.batman
   ];

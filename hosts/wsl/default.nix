@@ -5,7 +5,7 @@
   home-manager,
   stylix,
   nixos-wsl,
-  localLib,
+  llib,
   ...
 }:
 let
@@ -18,10 +18,10 @@ nixpkgs.lib.nixosSystem {
     ./system.nix
 
     home-manager.nixosModules.home-manager
-    (localLib.mkHomeManagerModule {
+    (llib.mkHomeManagerModule {
       username = "chetansinghsajwan";
       extraSpecialArgs = {
-        inherit wrappedPkgs nur localLib;
+        inherit wrappedPkgs nur llib;
       };
       imports = [
         ../../home/home.nix

@@ -1,13 +1,13 @@
 {
   config,
   pkgs,
-  localLib,
+  llib,
   ...
 }:
 let
   vlcrcFile = "${config.home.homeDirectory}/.config/vlc/vlcrc";
 in
-localLib.mkToggleModule config "vlc" {
+llib.mkToggleModule config "vlc" {
   home.packages = with pkgs; [
     vlc
   ];

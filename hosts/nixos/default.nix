@@ -4,7 +4,7 @@
   nur,
   home-manager,
   stylix,
-  localLib,
+  llib,
   caelestia-shell,
   silentSDDM,
   ...
@@ -22,10 +22,10 @@ nixpkgs.lib.nixosSystem {
     silentSDDM.nixosModules.default
 
     home-manager.nixosModules.home-manager
-    (localLib.mkHomeManagerModule {
+    (llib.mkHomeManagerModule {
       username = "chetansinghsajwan";
       extraSpecialArgs = {
-        inherit wrappedPkgs nur localLib caelestia-shell;
+        inherit wrappedPkgs nur llib caelestia-shell;
       };
       imports = [
         {

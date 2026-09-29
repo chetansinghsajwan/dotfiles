@@ -1,13 +1,13 @@
 {
   config,
-  localLib,
+  llib,
   ...
 }:
 {
   imports = [
     ./keybindings.nix
   ]
-  ++ localLib.importDir ./features;
+  ++ llib.importDir ./features;
 
   programs.zed-editor = {
     userSettings = {

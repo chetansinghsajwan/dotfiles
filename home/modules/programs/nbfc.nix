@@ -1,7 +1,7 @@
 {
   config,
   pkgs,
-  localLib,
+  llib,
   ...
 }:
 let
@@ -15,7 +15,7 @@ let
   );
   command = "bin/nbfc_service --config-file '/home/${config.dotfiles.user.username}/.config/nbfc.json'";
 in
-localLib.mkToggleModule config "nbfc-linux" {
+llib.mkToggleModule config "nbfc-linux" {
   home.packages = [ nbfc-linux ];
 
   systemd.user.services.nbfc_service = {

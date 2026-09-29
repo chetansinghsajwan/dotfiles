@@ -1,10 +1,10 @@
 {
   config,
   pkgs,
-  localLib,
+  llib,
   ...
 }:
-localLib.mkToggleModule config "nixpkgs" {
+llib.mkToggleModule config "nixpkgs" {
   home.file = {
     ".config/nixpkgs-fzf/nixpkgs.sh".source = ./nixpkgs.sh;
     ".config/nixpkgs-fzf/nixpkgs.zsh".source = ./nixpkgs.zsh;

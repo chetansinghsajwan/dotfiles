@@ -1,10 +1,10 @@
 {
   config,
   pkgs,
-  localLib,
+  llib,
   ...
 }:
-localLib.mkToggleModule config "dconf-editor" {
+llib.mkToggleModule config "dconf-editor" {
   home.packages = with pkgs; [
     dconf-editor
   ];

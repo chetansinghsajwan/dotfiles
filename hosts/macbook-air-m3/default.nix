@@ -4,7 +4,7 @@
   home-manager,
   nix-darwin,
   stylix,
-  localLib,
+  llib,
   ...
 }:
 nix-darwin.lib.darwinSystem {
@@ -17,10 +17,10 @@ nix-darwin.lib.darwinSystem {
     }
 
     home-manager.darwinModules.home-manager
-    (localLib.mkHomeManagerModule {
+    (llib.mkHomeManagerModule {
       username = "kyutoo";
       extraSpecialArgs = {
-        inherit wrappedPkgs nur localLib;
+        inherit wrappedPkgs nur llib;
       };
       imports = [
         ../../home/home.nix

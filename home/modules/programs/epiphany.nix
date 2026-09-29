@@ -1,10 +1,10 @@
 {
   config,
   pkgs,
-  localLib,
+  llib,
   ...
 }:
-localLib.mkToggleModule config "epiphany" {
+llib.mkToggleModule config "epiphany" {
   home.packages = [
     pkgs.epiphany
   ];

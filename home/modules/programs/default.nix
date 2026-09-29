@@ -1,4 +1,4 @@
-{ localLib, ... }: {
+{ llib, ... }: {
   imports = [
     ./vscode
     ./zed
@@ -10,5 +10,5 @@
     ./pv
     ./op
   ]
-  ++ (localLib.importDir ./.);
+  ++ (llib.importDir ./.);
 }
