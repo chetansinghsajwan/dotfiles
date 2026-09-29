@@ -16,9 +16,9 @@ in rec {
   # { base00 = "#hex"; ...; base0F = "#hex"; red; orange; yellow; green;
   # cyan; blue; magenta; brown; }. The base08-base0F -> named-color mapping
   # matches what Stylix itself uses.
-  getBase16Colors = pkgs: themeName:
+  getBase16Colors = { pkgs, theme }:
     let
-      yamlFile = "${pkgs.base16-schemes}/share/themes/${themeName}.yaml";
+      yamlFile = "${pkgs.base16-schemes}/share/themes/${theme}.yaml";
 
       json = pkgs.runCommand "base16-scheme.json" {
         nativeBuildInputs = [ pkgs.yq-go ];
