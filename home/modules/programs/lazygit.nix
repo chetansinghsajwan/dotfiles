@@ -80,7 +80,6 @@ _: {
                         "stash"
                     ]
                 ];
-                switchTabsWithPanelJumpKeys = true;
             };
         };
     };
