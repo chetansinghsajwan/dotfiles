@@ -1,25 +1,25 @@
 {
-  config,
-  pkgs,
-  lib,
-  ...
+    config,
+    pkgs,
+    lib,
+    ...
 }:
 let
-  enableDev = config.dotfiles.features.dev;
-  enableGui = config.dotfiles.features.gui;
+    enableDev = config.dotfiles.features.dev;
+    enableGui = config.dotfiles.features.gui;
 in
 {
-  config = lib.mkIf enableDev {
-    home.packages = with pkgs; [
-      # cmake
-      # lldb
-      # clang
-      # llvmPackages_18.clang-tools
-    ];
+    config = lib.mkIf enableDev {
+        home.packages = with pkgs; [
+            # cmake
+            # lldb
+            # clang
+            # llvmPackages_18.clang-tools
+        ];
 
-    programs = {
-      vscode.enable = enableGui;
-      zed-editor.enable = enableGui;
+        programs = {
+            vscode.enable = enableGui;
+            zed-editor.enable = enableGui;
+        };
     };
-  };
 }

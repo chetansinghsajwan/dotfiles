@@ -1,9 +1,9 @@
 {
-  config,
-  pkgs,
-  localLib,
-  ...
+    config,
+    pkgs,
+    localLib,
+    ...
 }:
 localLib.mkToggleModule config "libreoffice" {
-  home.packages = [ pkgs.libreoffice ];
+    home.packages = [ pkgs.libreoffice ];
 }

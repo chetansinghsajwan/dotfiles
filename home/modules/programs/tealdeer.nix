@@ -1,5 +1,5 @@
 _: {
-  programs.tealdeer = {
-    settings.updates.auto_update = true;
-  };
+    programs.tealdeer = {
+        settings.updates.auto_update = true;
+    };
 }

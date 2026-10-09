@@ -1,23 +1,23 @@
 { config, ... }:
 {
-  imports = [
-    ../../config
-    ../shared.nix
-    ../locale.nix
-    ../../local.nix
-  ];
+    imports = [
+        ../../config
+        ../shared.nix
+        ../locale.nix
+        ../../local.nix
+    ];
 
-  dotfiles = {
-    features.gui = false;
-    system = {
-      isLinux = true;
-      isWsl = true;
+    dotfiles = {
+        features.gui = false;
+        system = {
+            isLinux = true;
+            isWsl = true;
+        };
     };
-  };
 
-  wsl.enable = true;
-  wsl.defaultUser = config.dotfiles.user.username;
+    wsl.enable = true;
+    wsl.defaultUser = config.dotfiles.user.username;
 
-  networking.hostName = "nixos-wsl";
-  system.stateVersion = config.dotfiles.system.stateVersion.linux;
+    networking.hostName = "nixos-wsl";
+    system.stateVersion = config.dotfiles.system.stateVersion.linux;
 }
