@@ -417,7 +417,8 @@
         "nur": "nur",
         "silentSDDM": "silentSDDM",
         "stylix": "stylix",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix",
+        "zjstatus": "zjstatus"
       }
     },
     "silentSDDM": {
@@ -569,6 +570,18 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
+      }
+    },
+    "zjstatus": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-IWu3n3yNmiKQ4Ny/JVvlFFkL5b1ONpp3jTaJI9Eti78=",
+        "type": "file",
+        "url": "https://github.com/dj95/zjstatus/releases/download/v0.25.0/zjstatus.wasm"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/dj95/zjstatus/releases/download/v0.25.0/zjstatus.wasm"
       }
     }
   },

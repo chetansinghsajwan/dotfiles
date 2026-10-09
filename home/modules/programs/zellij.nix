@@ -1,4 +1,10 @@
-{ pkgs, ... }:
+{
+    config,
+    pkgs,
+    lib,
+    zjstatus,
+    ...
+}:
 let
     # zellij-forgot shows a floating keybind cheatsheet on demand; the built-in
     # compact-bar tooltip is broken on zellij >=0.44.1 (zellij-org/zellij#5229).
@@ -6,9 +12,21 @@ let
         url = "https://github.com/karimould/zellij-forgot/releases/download/0.4.2/zellij_forgot.wasm";
         sha256 = "1ns9wjn1ncjapqpp9nn9kyhqydvl0fbnyiavd0lc3gcxa52l269i";
     };
+
+    colors = config.lib.stylix.colors.withHashtag;
+
+    # Nerd Font powerline rounded-end caps, used to draw each tab as a pill:
+    # left cap's flat edge butts against the filled name segment, right cap
+    # mirrors it on the other side.
+    pillCapLeft = builtins.fromJSON ''"\ue0b6"'';
+    pillCapRight = builtins.fromJSON ''"\ue0b4"'';
 in
 {
     programs.zellij = {
+        settings = {
+            show_startup_tips = false;
+        };
+
         # enableBashIntegration = config.dotfiles.shell.program == "bash";
         # enableZshIntegration = config.dotfiles.shell.program == "zsh";
         # enableFishIntegration = config.dotfiles.shell.program == "fish";
@@ -42,20 +60,98 @@ in
             }
         '';
 
-        # Compact bar merges the tab-bar and status-bar into a single line at the
-        # top, with a blank borderless row inserted after it so content doesn't
-        # sit flush against it.
-        layouts.default = ''
-            layout {
-                pane size=1 borderless=true {
-                    plugin location="compact-bar"
+        # zjstatus replaces the built-in compact-bar to get pill-shaped tabs -
+        # tab shape isn't configurable in zellij's own tab-bar/compact-bar,
+        # only colors are themeable there. Trade-off: compact-bar also showed
+        # contextual keybinding hints inline; zjstatus has no equivalent
+        # widget, so that's gone from the bar - zellij-forgot (Ctrl+/, above)
+        # covers it on demand instead.
+        layouts.default =
+            let
+                modes = [
+                    "normal"
+                    "locked"
+                    "pane"
+                    "tab"
+                    "resize"
+                    "scroll"
+                    "search"
+                    "enter_search"
+                    "session"
+                    "move"
+                    "rename_tab"
+                    "rename_pane"
+                    "prompt"
+                    "tmux"
+                ];
+
+                maxModesWidth = builtins.foldl' lib.max 0 (map builtins.stringLength modes);
+
+                upperPaddedModes = builtins.listToAttrs (
+                    map (
+                        m:
+                        let
+                            pad = lib.concatStrings (lib.replicate (maxModesWidth - builtins.stringLength m) " ");
+                        in
+                        {
+                            name = m;
+                            value = lib.toUpper m + pad;
+                        }
+                    ) modes
+                );
+
+                modeColors = builtins.listToAttrs (
+                    map (m: {
+                        name = m;
+                        value = if m == "normal" then colors.base0B else colors.base09;
+                    }) modes
+                );
+
+                # Powerline Glyphs
+                pg = {
+                    leftArrow = builtins.fromJSON ''"\ue0b2"'';
+                    rightArrow = builtins.fromJSON ''"\ue0b0"'';
+                };
+            in
+            ''
+                layout {
+                    pane size=1 borderless=true {
+                        plugin location="file:~/zellij-plugins/zjstatus.wasm" {
+                            format_left   "{mode}"
+                            format_center "{tabs}"
+                            format_right  "{datetime}"
+
+                            border_enabled "false"
+                            hide_frame_for_single_pane "true"
+
+                            tab_separator " "
+
+                            color_active       "${colors.base0D}"
+                            color_inactive     "${colors.base02}"
+                            color_text         "${colors.base05}"
+                            color_text_active  "${colors.base00}"
+
+                            tab_normal "#[fg=$inactive]${pillCapLeft}#[fg=$text,bg=$inactive]{name}#[fg=$inactive]${pillCapRight}"
+                            tab_active "#[fg=${colors.base0E}]${pillCapLeft}#[fg=$text_active,bg=${colors.base0E}]{name}#[fg=${colors.base0E}]${pillCapRight}"
+
+                            datetime "#[fg=$active] {format}"
+                            datetime_format "%Y %b %d %H:%M, %a"
+                            datetime_timezone "Asia/Kolkata"
+
+                            ${lib.concatStringsSep "\n" (
+                                map (
+                                    m: "mode_${m} \"#[fg=${modeColors.${m}}] ${upperPaddedModes.${m}}\"${pg.rightArrow}"
+                                ) modes
+                            )}
+                        }
+                    }
+                    pane
                 }
-                pane
-            }
-        '';
+            '';
     };
 
     home.file."zellij-plugins/zellij_forgot.wasm".source = zellij-forgot;
+    home.file."zellij-plugins/zjstatus.wasm".source = zjstatus;
 
     home.shellAliases = {
         z = "zellij";

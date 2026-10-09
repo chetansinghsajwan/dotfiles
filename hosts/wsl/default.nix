@@ -5,6 +5,7 @@
     stylix,
     nixos-wsl,
     localLib,
+    zjstatus,
     ...
 }:
 let
@@ -20,7 +21,7 @@ nixpkgs.lib.nixosSystem {
         (localLib.mkHomeManagerModule {
             username = "chetansinghsajwan";
             extraSpecialArgs = {
-                inherit nur localLib;
+                inherit nur localLib zjstatus;
             };
             imports = [
                 ../../home/home.nix
