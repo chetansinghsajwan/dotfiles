@@ -16,7 +16,7 @@
                     milliseconds = 1000;
                 };
             };
-            format_on_save = "on";
+            format_on_save = "off";
             auto_update = false;
             confirm_quit = true;
             # tab_size = 4;

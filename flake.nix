@@ -40,6 +40,15 @@
             url = "github:uiriansan/SilentSDDM";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+
+        # Non-flake single-file fetch (not pkgs.fetchurl like zellij-forgot
+        # in zellij.nix) so flake.lock pins the hash automatically instead of
+        # it being typed in by hand; bump the version in the URL and run
+        # `nix flake lock --update-input zjstatus` to update.
+        zjstatus = {
+            url = "https://github.com/dj95/zjstatus/releases/download/v0.25.0/zjstatus.wasm";
+            flake = false;
+        };
     };
 
     outputs =
@@ -54,6 +63,7 @@
             nixos-wsl,
             caelestia-shell,
             silentSDDM,
+            zjstatus,
         }:
         let
             linuxSystem = "x86_64-linux";
@@ -77,6 +87,7 @@
                     localLib
                     caelestia-shell
                     silentSDDM
+                    zjstatus
                     ;
             };
 
@@ -89,6 +100,7 @@
                     localLib
                     caelestia-shell
                     silentSDDM
+                    zjstatus
                     ;
             };
 
@@ -100,6 +112,7 @@
                     stylix
                     nix-darwin
                     localLib
+                    zjstatus
                     ;
             };
 
@@ -111,6 +124,7 @@
                     stylix
                     nix-darwin
                     localLib
+                    zjstatus
                     ;
             };
 
@@ -122,6 +136,7 @@
                     stylix
                     nixos-wsl
                     localLib
+                    zjstatus
                     ;
             };
 
@@ -138,7 +153,12 @@
                 ];
 
                 extraSpecialArgs = {
-                    inherit nur localLib caelestia-shell;
+                    inherit
+                        nur
+                        localLib
+                        caelestia-shell
+                        zjstatus
+                        ;
                 };
             };
 
