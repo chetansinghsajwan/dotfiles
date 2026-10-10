@@ -2,6 +2,7 @@
     config,
     pkgs,
     lib,
+    llib,
     zjstatus,
     ...
 }:
@@ -85,20 +86,8 @@ in
                     "tmux"
                 ];
 
-                maxModesWidth = builtins.foldl' lib.max 0 (map builtins.stringLength modes);
-
-                upperPaddedModes = builtins.listToAttrs (
-                    map (
-                        m:
-                        let
-                            pad = lib.concatStrings (lib.replicate (maxModesWidth - builtins.stringLength m) " ");
-                        in
-                        {
-                            name = m;
-                            value = lib.toUpper m + pad;
-                        }
-                    ) modes
-                );
+                upperModes = map llib.toUpperSpc modes;
+                upperPaddedModes = llib.alignLeftPad upperModes;
 
                 modeColors = builtins.listToAttrs (
                     map (m: {
@@ -117,9 +106,8 @@ in
                 layout {
                     pane size=1 borderless=true {
                         plugin location="file:~/zellij-plugins/zjstatus.wasm" {
-                            format_left   "{mode}"
-                            format_center "{tabs}"
-                            format_right  "{datetime}"
+                            format_left "{mode} {tabs}"
+                            format_right "{datetime}"
 
                             border_enabled "false"
                             hide_frame_for_single_pane "true"
@@ -139,9 +127,7 @@ in
                             datetime_timezone "Asia/Kolkata"
 
                             ${lib.concatStringsSep "\n" (
-                                map (
-                                    m: "mode_${m} \"#[fg=${modeColors.${m}}] ${upperPaddedModes.${m}}\"${pg.rightArrow}"
-                                ) modes
+                                map (m: "mode_${m} \"#[fg=${modeColors.${m}}] ${upperPaddedModes.${m}}\"${pg.rightArrow}") modes
                             )}
                         }
                     }
