@@ -31,7 +31,7 @@ standalone Home Manager. It configures three machines:
   `config.dotfiles.features.*` (dev, gui, gaming).
 - `home/modules/desktop/{gnome,hyprland}` — desktop-environment-specific
   modules.
-- `lib/default.nix` — shared helper functions (`localLib`).
+- `lib/default.nix` — shared helper functions (`llib`).
 - `treefmt.nix` — formatter/linter config (nixfmt, statix, deadnix).
 
 ## Conventions

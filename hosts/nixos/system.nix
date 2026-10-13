@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
     enableGdm = config.dotfiles.system.displayManager == "gdm";
     enableSddm = config.dotfiles.system.displayManager == "sddm";
@@ -7,18 +7,23 @@ let
 in
 {
     imports = [
-        ../../config
         ../shared.nix
         ../locale.nix
         ../kanata
-        ../../local.nix
     ];
 
     dotfiles = {
-        desktop.hyprland.enable = true;
+        system.isLinux = lib.mkForce true;
         system.displayManager = "sddm";
-        system.isLinux = true;
+        desktop.hyprland.enable = lib.mkForce true;
+
+        features.dev = lib.mkForce true;
+        features.gui = lib.mkForce true;
+
         programs.docker.enable = true;
+        # programs.kanata-layer-indicator.enable = true;
+
+        theme.fonts.rawFontScale = 1.33;
     };
 
     boot.loader = {
@@ -48,7 +53,10 @@ in
         ];
     };
 
-    networking.networkmanager.enable = true;
+    networking = {
+        hostName = "nixos";
+        networkmanager.enable = true;
+    };
 
     hardware.bluetooth.enable = true;
 
@@ -93,10 +101,6 @@ in
     };
 
     security.rtkit.enable = true;
-
-    boot.extraModprobeConfig = ''
-        options snd-intel-dspcfg dsp_driver=1
-    '';
 
     system.stateVersion = config.dotfiles.system.stateVersion.linux;
 }

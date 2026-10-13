@@ -1,20 +1,12 @@
 { lib }:
 rec {
-    # Shared home-manager wiring for a host's default.nix — keeps
-    # useUserPackages/backupFileExtension/etc. from drifting between hosts.
-    mkHomeManagerModule =
-        {
-            username,
-            imports,
-            extraSpecialArgs ? { },
-        }:
-        {
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "bak";
-            home-manager.overwriteBackup = true;
-            home-manager.extraSpecialArgs = extraSpecialArgs;
-            home-manager.users.${username}.imports = imports;
-        };
+    darwinSystems = [ "aarch64-darwin" ];
+    linuxSystems = [ "x86_64-linux" ];
+    systems = linuxSystems ++ darwinSystems;
+
+    forEachSystem = fn: lib.genAttrs systems fn;
+    forEachLinuxSystem = fn: lib.genAttrs linuxSystems fn;
+    forEachDarwinSystem = fn: lib.genAttrs darwinSystems fn;
 
     mkToggleModule = config: name: body: {
         options.dotfiles.programs.${name}.enable = lib.mkOption {
@@ -36,7 +28,8 @@ rec {
             ) (builtins.attrNames entries)
         );
 
-    maxStringLen = list:
+    maxStringLen =
+        list:
         assert lib.assertMsg (lib.isList list) "maxStringLen: expected a list";
         assert lib.assertMsg (lib.all lib.isString list) "maxStringLen: all items must be strings";
         lib.foldl' lib.max 0 (map builtins.stringLength list);
@@ -44,7 +37,8 @@ rec {
     defaultPadChar = " ";
 
     # v: string to pad, padChar: single-character padding string, width: target length
-    padLeftWith = v: padChar: width:
+    padLeftWith =
+        v: padChar: width:
         let
             padLen = width - builtins.stringLength v;
         in
@@ -52,7 +46,8 @@ rec {
 
     padLeft = v: width: padLeftWith v defaultPadChar width;
 
-    padRightWith = v: padChar: width:
+    padRightWith =
+        v: padChar: width:
         let
             padLen = width - builtins.stringLength v;
         in
@@ -60,7 +55,8 @@ rec {
 
     padRight = v: padRightWith v defaultPadChar;
 
-    padCenterWith = v: padChar: width:
+    padCenterWith =
+        v: padChar: width:
         let
             padLen = width - builtins.stringLength v;
             leftLen = padLen / 2;
@@ -69,13 +65,16 @@ rec {
         if padLen <= 0 then
             v
         else
-            lib.concatStrings (lib.replicate leftLen padChar) + v + lib.concatStrings (lib.replicate rightLen padChar);
+            lib.concatStrings (lib.replicate leftLen padChar)
+            + v
+            + lib.concatStrings (lib.replicate rightLen padChar);
 
     padCenter = v: padCenterWith v defaultPadChar;
 
     # list: list of strings, padChar: single-character padding string
     # Pads every string on the right up to the length of the longest string.
-    alignLeftPadWith = list: padChar:
+    alignLeftPadWith =
+        list: padChar:
         let
             width = maxStringLen list;
         in
@@ -85,7 +84,8 @@ rec {
 
     # list: list of strings, padChar: single-character padding string
     # Pads every string on the left up to the length of the longest string.
-    alignRightPadWith = list: padChar:
+    alignRightPadWith =
+        list: padChar:
         let
             width = maxStringLen list;
         in
@@ -95,7 +95,8 @@ rec {
 
     # list: list of strings, padChar: single-character padding string
     # Pads every string on both sides up to the length of the longest string.
-    alignCenterPadWith = list: padChar:
+    alignCenterPadWith =
+        list: padChar:
         let
             width = maxStringLen list;
         in
@@ -106,22 +107,42 @@ rec {
     # s: string to split, e.g. "camelCase", "PascalCase", "snake_case", "kebab-case"
     # Splits on "_", "-", " " and on lower/digit -> upper transitions.
     # Returns the words with their original casing intact (does not split acronym runs, e.g. "HTTPServer").
-    splitWords = s:
+    splitWords =
+        s:
         let
             len = builtins.stringLength s;
             chars = map (i: builtins.substring i 1 s) (lib.range 0 (len - 1));
             isUpper = c: c != "" && c == lib.toUpper c && c != lib.toLower c;
             isSep = c: c == "_" || c == "-" || c == " ";
 
-            step = acc: c:
+            step =
+                acc: c:
                 if isSep c then
-                    acc // { words = if acc.cur == "" then acc.words else acc.words ++ [ acc.cur ]; cur = ""; prevChar = ""; }
+                    acc
+                    // {
+                        words = if acc.cur == "" then acc.words else acc.words ++ [ acc.cur ];
+                        cur = "";
+                        prevChar = "";
+                    }
                 else if acc.cur != "" && isUpper c && !(isUpper acc.prevChar) then
-                    acc // { words = acc.words ++ [ acc.cur ]; cur = c; prevChar = c; }
+                    acc
+                    // {
+                        words = acc.words ++ [ acc.cur ];
+                        cur = c;
+                        prevChar = c;
+                    }
                 else
-                    acc // { cur = acc.cur + c; prevChar = c; };
+                    acc
+                    // {
+                        cur = acc.cur + c;
+                        prevChar = c;
+                    };
 
-            result = lib.foldl' step { words = [ ]; cur = ""; prevChar = ""; } chars;
+            result = lib.foldl' step {
+                words = [ ];
+                cur = "";
+                prevChar = "";
+            } chars;
         in
         result.words ++ (if result.cur == "" then [ ] else [ result.cur ]);
 

@@ -3,6 +3,7 @@
     pkgs,
     nur,
     lib,
+    stylix,
     ...
 }:
 let
@@ -20,11 +21,12 @@ in
     ];
 
     imports = [
-        ../config
-        ./modules/stylix.nix
-        ./modules/programs
-        ./modules/features
-        ./modules/desktop
+        stylix.homeModules.stylix
+        ./stylix.nix
+
+        ./programs
+        ./features
+        ./desktop
     ];
 
     home = {
