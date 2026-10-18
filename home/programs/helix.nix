@@ -19,19 +19,24 @@ in
                 marksman
                 vscode-langservers-extracted
                 yaml-language-server
+                docker-language-server
+                neocmakelsp
+                taplo
+                typescript-language-server
+                gopls
+                rust-analyzer
+                ruff
+                zls
             ];
 
             settings = {
                 editor = {
-                    mouse = true;
-                    middle-click-paste = false;
                     scroll-lines = editor.scroll_lines;
                     line-number = editor.line_number;
                     cursorline = true;
-                    cursorcolumn = true;
                     continue-comments = true;
                     true-color = true;
-                    inherit (editor) rulers;
+                    rulers = editor.rulers;
                     bufferline = "multiple";
                     text-width = editor.text_width;
                     color-modes = true;
@@ -42,9 +47,7 @@ in
                     popup-border = "all";
 
                     cursor-shape = {
-                        normal = "block";
                         insert = "bar";
-                        select = "underline";
                     };
 
                     auto-save = {
@@ -53,42 +56,7 @@ in
                     };
 
                     indent-guides.render = true;
-
-                    statusline = {
-                        left = [
-                            "mode"
-                            "spinner"
-                            "file-name"
-                        ];
-                        center = [ ];
-                        right = [
-                            "diagnostics"
-                            "selections"
-                            "position"
-                            "file-encoding"
-                        ];
-                    };
                 };
-
-                keys =
-                    let
-                        navigation = {
-                            "C-h" = "move_prev_word_start";
-                            "C-l" = "move_next_word_start";
-                            "C-j" = "page_cursor_half_down";
-                            "C-k" = "page_cursor_half_up";
-                            "C-A-h" = "goto_line_start";
-                            "C-A-l" = "goto_line_end";
-                            "C-A-j" = "goto_last_line";
-                            "C-A-k" = "goto_file_start";
-                            "A-j" = "goto_next_function";
-                            "A-k" = "goto_prev_function";
-                        };
-                    in
-                    {
-                        normal = navigation;
-                        select = navigation;
-                    };
             };
         };
     };
