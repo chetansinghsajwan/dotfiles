@@ -30,11 +30,6 @@
             url = "github:caelestia-dots/shell";
             inputs.nixpkgs.follows = "nixpkgs";
         };
-
-        zjstatus = {
-            url = "https://github.com/dj95/zjstatus/releases/download/v0.25.0/zjstatus.wasm";
-            flake = false;
-        };
     };
 
     outputs =
@@ -46,7 +41,6 @@
             nur,
             stylix,
             caelestia-shell,
-            zjstatus,
             ...
         }:
         let
@@ -60,7 +54,6 @@
                     llib
                     nur
                     caelestia-shell
-                    zjstatus
                     stylix
                     ;
             };

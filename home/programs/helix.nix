@@ -36,7 +36,7 @@ in
                     cursorline = true;
                     continue-comments = true;
                     true-color = true;
-                    rulers = editor.rulers;
+                    inherit (editor) rulers;
                     bufferline = "multiple";
                     text-width = editor.text_width;
                     color-modes = true;

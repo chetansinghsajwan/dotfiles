@@ -1,4 +1,8 @@
-{ osConfig ? null, lib, ... }:
+{
+    osConfig ? null,
+    lib,
+    ...
+}:
 let
     mkDefaultLeaves =
         v:

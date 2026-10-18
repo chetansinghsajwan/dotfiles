@@ -3,7 +3,6 @@
     pkgs,
     lib,
     llib,
-    zjstatus,
     ...
 }:
 let
@@ -53,7 +52,7 @@ in
                 // Ctrl+/ avoids colliding with typing a literal "?" in a pane.
                 shared_except "locked" {
                     bind "Ctrl /" {
-                        LaunchOrFocusPlugin "file:~/zellij-plugins/zellij_forgot.wasm" {
+                        LaunchOrFocusPlugin "file:${zellij-forgot}" {
                             floating true
                         }
                     }
@@ -120,7 +119,7 @@ in
             ''
                 layout {
                     pane size=1 borderless=true {
-                        plugin location="file:~/zellij-plugins/zjstatus.wasm" {
+                        plugin location="file:${pkgs.zellijPlugins.zjstatus}" {
                             format_left "{mode} {tabs}"
                             format_right "{datetime}"
 
@@ -149,9 +148,6 @@ in
                 }
             '';
     };
-
-    home.file."zellij-plugins/zellij_forgot.wasm".source = zellij-forgot;
-    home.file."zellij-plugins/zjstatus.wasm".source = zjstatus;
 
     home.shellAliases = {
         z = "zellij";
