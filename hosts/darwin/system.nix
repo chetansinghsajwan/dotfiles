@@ -1,7 +1,7 @@
 { config, lib, ... }:
 {
     imports = [
-        ../shared.nix
+        ../shared/system.nix
     ];
 
     dotfiles.system.isDarwin = lib.mkForce true;

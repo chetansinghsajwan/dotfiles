@@ -7,9 +7,9 @@ let
 in
 {
     imports = [
-        ../shared.nix
-        ../locale.nix
-        ../kanata
+        ../shared/system.nix
+        ../shared/locale.nix
+        ../shared/kanata
     ];
 
     dotfiles = {

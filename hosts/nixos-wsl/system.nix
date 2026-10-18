@@ -1,8 +1,8 @@
 { config, lib, ... }:
 {
     imports = [
-        ../shared.nix
-        ../locale.nix
+        ../shared/system.nix
+        ../shared/locale.nix
     ];
 
     dotfiles = {
