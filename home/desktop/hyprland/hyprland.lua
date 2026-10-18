@@ -12,10 +12,27 @@ hl.config({
     general = {
         gaps_in = 6,
         gaps_out = 10,
+        border_size = 3,
     },
 
     decoration = {
         rounding = 14,
+        active_opacity = 1.0,
+        inactive_opacity = 0.8,
+        dim_inactive = true,
+        blur = {
+            enabled = true,
+            size = 8,
+            passes = 3,
+            noise = 0.02,
+            contrast = 0.8,
+            brightness = 1.0,
+            vibrancy = 0.2,
+            vibrancy_darkness = 0.0,
+            new_optimizations = true,
+            xray = false,
+            popups = true,
+        },
     },
 
     dwindle = {
