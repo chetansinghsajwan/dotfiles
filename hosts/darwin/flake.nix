@@ -45,8 +45,11 @@
                 nix-darwin.lib.darwinSystem {
                     system = sys;
                     modules = [
+                        # Darwin modules
                         config.modules.default
                         ./system.nix
+
+                        # Home modules
                         home-manager.darwinModules.home-manager
                         home.homeModules.darwin.default
                     ];

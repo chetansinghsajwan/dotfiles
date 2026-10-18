@@ -23,6 +23,7 @@ in
     imports = [
         stylix.homeModules.stylix
         ./stylix.nix
+        ./options-sync.nix
 
         ./programs
         ./features

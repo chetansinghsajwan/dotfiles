@@ -55,17 +55,6 @@
                         # Home modules
                         home-manager.nixosModules.home-manager
                         home.homeModules.nixos.default
-
-                        {
-                            home-manager.users.chetansinghsajwan.imports = [
-                                {
-                                    dotfiles.system.isLinux = nixpkgs.lib.mkForce true;
-                                    dotfiles.features.gui = nixpkgs.lib.mkForce true;
-                                    dotfiles.desktop.gnome.enable = nixpkgs.lib.mkForce false;
-                                    dotfiles.desktop.hyprland.enable = nixpkgs.lib.mkForce true;
-                                }
-                            ];
-                        }
                     ];
                 };
         in

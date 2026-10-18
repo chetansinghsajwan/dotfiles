@@ -52,23 +52,6 @@
 
                         home-manager.nixosModules.home-manager
                         home.homeModules.nixos.default
-
-                        # The home-manager module tree has its own, separate
-                        # `dotfiles` instance — the overrides in ./system.nix
-                        # only apply to the NixOS one. Without this, stylix's
-                        # gtk/gnome dconf targets stay enabled by default and
-                        # activation fails on WSL (no session D-Bus/dconf).
-                        {
-                            home-manager.users.chetansinghsajwan.imports = [
-                                {
-                                    dotfiles.system.isWsl = nixpkgs.lib.mkForce true;
-                                    dotfiles.system.isLinux = nixpkgs.lib.mkForce true;
-                                    dotfiles.features.gui = nixpkgs.lib.mkForce false;
-                                    dotfiles.desktop.gnome.enable = nixpkgs.lib.mkForce false;
-                                    dotfiles.desktop.hyprland.enable = nixpkgs.lib.mkForce false;
-                                }
-                            ];
-                        }
                     ];
                 };
         in
