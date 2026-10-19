@@ -24,7 +24,8 @@ in
         programs = {
             firefox.enable = true;
             obsidian.enable = true;
-            ghostty.enable = true;
+            ghostty.enable = config.dotfiles.terminal.default == "ghostty";
+            kitty.enable = config.dotfiles.terminal.default == "kitty";
         };
     };
 }

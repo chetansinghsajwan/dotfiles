@@ -259,6 +259,7 @@ in
             default = mkOption {
                 type = types.enum [
                     "ghostty"
+                    "kitty"
                 ];
                 default = "ghostty";
             };
