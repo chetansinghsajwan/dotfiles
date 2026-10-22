@@ -57,6 +57,15 @@ in
 
                     indent-guides.render = true;
                 };
+
+                keys = {
+                    normal = {
+                        "C-j" = "page_cursor_half_down";
+                        "C-k" = "page_cursor_half_up";
+                        "C-h" = "move_prev_word_start";
+                        "C-l" = "move_next_word_start";
+                    };
+                };
             };
         };
     };
