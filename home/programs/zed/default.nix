@@ -24,6 +24,10 @@
             ensure_final_newline_on_save = true;
             git.inline_blame.enabled = true;
 
+            cursor_animation = {
+                enabled = true;
+            };
+
             terminal.shell.program = config.dotfiles.shell.program;
         };
     };
