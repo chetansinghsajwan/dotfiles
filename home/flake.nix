@@ -58,32 +58,47 @@
                     ;
             };
 
+            # Standalone profile: uses the first user declared in dotfiles.users.
+            # Under NixOS/darwin, home-manager sets these from users.users.<name>.
+            standaloneUserModule =
+                {
+                    config,
+                    lib,
+                    pkgs,
+                    ...
+                }:
+                let
+                    u = lib.head (lib.attrValues config.dotfiles.users);
+                in
+                {
+                    home.username = u.username;
+                    home.homeDirectory =
+                        if pkgs.stdenv.hostPlatform.isDarwin then "/Users/${u.homeDir}" else "/home/${u.homeDir}";
+                };
+
             mkHome =
                 { sys }:
                 home-manager.lib.homeManagerConfiguration {
                     pkgs = nixpkgs.legacyPackages.${sys};
-                    modules = homeImports;
+                    modules = homeImports ++ [ standaloneUserModule ];
                     inherit extraSpecialArgs;
                 };
-
-            homeModule = {
-                home-manager = {
-                    useUserPackages = true;
-                    backupFileExtension = "bak";
-                    overwriteBackup = true;
-                    inherit extraSpecialArgs;
-                    users.chetansinghsajwan.imports = homeImports;
-                };
-            };
         in
         {
             homeConfigurations = llib.forEachSystem (sys: {
                 default = mkHome { inherit sys; };
             });
 
-            homeModules = {
-                nixos.default = homeModule;
-                darwin.default = homeModule;
+            homeModules.default = { config, lib, ... }: {
+                home-manager = {
+                    useUserPackages = true;
+                    backupFileExtension = "bak";
+                    overwriteBackup = true;
+                    inherit extraSpecialArgs;
+                    users = lib.mapAttrs (_name: u: {
+                        imports = homeImports ++ u.homeModules;
+                    }) config.dotfiles.users;
+                };
             };
         };
 }

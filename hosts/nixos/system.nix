@@ -44,7 +44,7 @@ in
 
     users.groups.uinput = { };
     users.groups.kanata-watch = { };
-    users.users.${config.dotfiles.user.username}.extraGroups = [ "kanata-watch" ];
+    users.users = lib.mapAttrs (_: _: { extraGroups = [ "kanata-watch" ]; }) config.dotfiles.users;
 
     systemd.services.kanata-internalKeyboard.serviceConfig = {
         SupplementaryGroups = [

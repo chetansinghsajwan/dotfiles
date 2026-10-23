@@ -13,7 +13,7 @@ let
             sha256 = "sha256-+xYr2uIxfMaMAaHGvvA+0WPZjwj3wVAc34e1DWsJLqE=";
         }
     );
-    command = "bin/nbfc_service --config-file '/home/${config.dotfiles.user.username}/.config/nbfc.json'";
+    command = "bin/nbfc_service --config-file '/home/${config.home.username}/.config/nbfc.json'";
 in
 llib.mkToggleModule config "nbfc-linux" {
     home.packages = [ nbfc-linux ];

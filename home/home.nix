@@ -24,6 +24,7 @@ in
         stylix.homeModules.stylix
         ./stylix.nix
         ./options-sync.nix
+        ./user.nix
 
         ./programs
         ./features
@@ -31,13 +32,7 @@ in
     ];
 
     home = {
-        username = config.dotfiles.user.username;
-        homeDirectory =
-            if isDarwin then
-                "/Users/${config.dotfiles.user.homeDir}"
-            else
-                "/home/${config.dotfiles.user.homeDir}";
-        stateVersion = config.dotfiles.user.stateVersion;
+        stateVersion = "23.11";
 
         shellAliases = {
             cl = "clear";

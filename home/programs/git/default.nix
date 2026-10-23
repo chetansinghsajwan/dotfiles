@@ -60,8 +60,8 @@ in
                 };
 
                 user = {
-                    name = config.dotfiles.user.displayName;
-                    email = config.dotfiles.user.git.email;
+                    name = config.dotfiles.currentUser.displayName;
+                    email = config.dotfiles.currentUser.git.email;
                 };
 
                 core = {

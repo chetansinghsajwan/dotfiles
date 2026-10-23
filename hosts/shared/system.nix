@@ -10,15 +10,17 @@ let
     isDarwin = cfg.system.isDarwin;
 in
 {
-    users.users.${cfg.user.username} = {
-        home = if isDarwin then "/Users/${cfg.user.homeDir}" else "/home/${cfg.user.homeDir}";
-
-        shell = pkgs.${cfg.shell.program};
-    }
-    // lib.optionalAttrs isLinux {
-        isNormalUser = true;
-        extraGroups = cfg.system.extraGroups;
-    };
+    users.users = lib.mapAttrs (
+        _name: u:
+        {
+            home = if isDarwin then "/Users/${u.homeDir}" else "/home/${u.homeDir}";
+            shell = pkgs.${cfg.shell.program};
+        }
+        // lib.optionalAttrs isLinux {
+            isNormalUser = true;
+            inherit (u) extraGroups;
+        }
+    ) cfg.users;
 
     programs = {
         ${cfg.shell.program}.enable = true;

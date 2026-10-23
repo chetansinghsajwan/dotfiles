@@ -15,4 +15,10 @@
 # system.nix/default.nix (see hosts/*/). To win over those here, wrap the
 # value in `lib.mkForce` (this file's `lib` arg is nixpkgs.lib):
 #   { lib, ... }: { dotfiles.desktop.hyprland.shell = lib.mkForce "custom"; }
-{ }
+{
+    dotfiles.users.chetansinghsajwan = {
+        displayName = "Chetan Singh Sajwan";
+        email = "chetansinghsajwan@gmail.com";
+        noreplyEmail = "76040441+chetansinghsajwan@users.noreply.github.com";
+    };
+}

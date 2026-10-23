@@ -12,7 +12,7 @@
     };
 
     wsl.enable = true;
-    wsl.defaultUser = config.dotfiles.user.username;
+    wsl.defaultUser = lib.head (lib.attrNames config.dotfiles.users);
 
     networking.hostName = "nixos-wsl";
     system.stateVersion = config.dotfiles.system.stateVersion.linux;

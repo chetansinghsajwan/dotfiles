@@ -9,6 +9,54 @@
 }:
 let
     inherit (lib) mkOption types;
+
+    userType = types.submodule (
+        { config, name, ... }:
+        {
+            options = {
+                username = mkOption {
+                    type = types.str;
+                    default = name;
+                    readOnly = true;
+                };
+
+                displayName = mkOption {
+                    type = types.str;
+                };
+
+                email = mkOption {
+                    type = types.str;
+                };
+
+                noreplyEmail = mkOption {
+                    type = types.str;
+                    description = "GitHub-style noreply address, used for git commits by default.";
+                };
+
+                homeDir = mkOption {
+                    type = types.str;
+                    default = config.username;
+                };
+
+                git = {
+                    email = mkOption {
+                        type = types.str;
+                        default = config.noreplyEmail;
+                    };
+                };
+
+                extraGroups = mkOption {
+                    type = types.listOf types.str;
+                    default = [ "wheel" ];
+                };
+
+                homeModules = mkOption {
+                    type = types.listOf types.deferredModule;
+                    default = [ ];
+                };
+            };
+        }
+    );
 in
 {
     imports = [
@@ -16,44 +64,10 @@ in
     ];
 
     options.dotfiles = {
-
-        user = {
-            displayName = mkOption {
-                type = types.str;
-                default = "Chetan Singh Sajwan";
-            };
-
-            username = mkOption {
-                type = types.str;
-                default = "chetansinghsajwan";
-            };
-
-            email = mkOption {
-                type = types.str;
-                default = "chetansinghsajwan@gmail.com";
-            };
-
-            noreplyEmail = mkOption {
-                type = types.str;
-                default = config.dotfiles.user.email;
-            };
-
-            homeDir = mkOption {
-                type = types.str;
-                default = config.dotfiles.user.username;
-            };
-
-            stateVersion = mkOption {
-                type = types.str;
-                default = "23.11";
-            };
-
-            git = {
-                email = mkOption {
-                    type = types.str;
-                    default = "76040441+chetansinghsajwan@users.noreply.github.com";
-                };
-            };
+        users = mkOption {
+            default = { };
+            type = types.attrsOf userType;
+            description = "System users, keyed by username. Each gets a home-manager profile.";
         };
 
         theme = {
@@ -183,12 +197,6 @@ in
 
         # System-level user account settings, read by hosts/*/user.nix.
         system = {
-            extraGroups = mkOption {
-                type = types.listOf types.str;
-                default = [ "wheel" ];
-                description = "Extra groups for the system user, set per-host.";
-            };
-
             isWsl = mkOption {
                 type = types.bool;
                 default = false;

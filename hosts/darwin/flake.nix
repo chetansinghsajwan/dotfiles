@@ -51,7 +51,20 @@
 
                         # Home modules
                         home-manager.darwinModules.home-manager
-                        home.homeModules.darwin.default
+                        home.homeModules.default
+                        (
+                            { lib, ... }:
+                            {
+                                # Replaces the default user from local.nix on this host.
+                                dotfiles.users = lib.mkForce {
+                                    kyutoo = {
+                                        displayName = "Kyutoo";
+                                        email = "chetansinghsajwan@gmail.com";
+                                        noreplyEmail = "76040441+chetansinghsajwan@users.noreply.github.com";
+                                    };
+                                };
+                            }
+                        )
                     ];
                 };
         in

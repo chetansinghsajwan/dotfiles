@@ -54,7 +54,7 @@
 
                         # Home modules
                         home-manager.nixosModules.home-manager
-                        home.homeModules.nixos.default
+                        home.homeModules.default
                     ];
                 };
         in
