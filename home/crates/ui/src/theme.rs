@@ -30,6 +30,7 @@ pub struct Colors {
     pub success: Hex,
     pub info: Hex,
     pub git: GitColors,
+    pub syntax: SyntaxColors,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -127,6 +128,7 @@ impl Default for Colors {
             success: rgb(0xaa, 0xd9, 0x4c),
             info: rgb(0x95, 0xe6, 0xcb),
             git: GitColors::default(),
+            syntax: SyntaxColors::default(),
         }
     }
 }
@@ -174,5 +176,36 @@ impl Theme {
             .and_then(|p| std::fs::read_to_string(p).ok())
             .and_then(|s| serde_json::from_str(&s).ok())
             .unwrap_or_default()
+    }
+}
+
+/// Roles for syntax highlighting (mapped to scopes by consumers such as `pv`).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(default)]
+pub struct SyntaxColors {
+    pub comment: Hex,
+    pub keyword: Hex,
+    pub function: Hex,
+    pub string: Hex,
+    pub number: Hex,
+    pub type_: Hex,
+    pub constant: Hex,
+    pub variable: Hex,
+    pub operator: Hex,
+}
+
+impl Default for SyntaxColors {
+    fn default() -> Self {
+        SyntaxColors {
+            comment: rgb(0x5c, 0x67, 0x73),
+            keyword: rgb(0xff, 0x8f, 0x40),
+            function: rgb(0xff, 0xb4, 0x54),
+            string: rgb(0xaa, 0xd9, 0x4c),
+            number: rgb(0xd2, 0xa6, 0xff),
+            type_: rgb(0x59, 0xc2, 0xff),
+            constant: rgb(0xd2, 0xa6, 0xff),
+            variable: rgb(0xbf, 0xbd, 0xb6),
+            operator: rgb(0xf2, 0x93, 0x6e),
+        }
     }
 }

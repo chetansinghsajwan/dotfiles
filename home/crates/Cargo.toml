@@ -1,0 +1,3 @@
+[workspace]
+members = ["ui", "pv"]
+resolver = "3"

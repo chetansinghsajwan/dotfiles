@@ -1,7 +1,7 @@
 # Plan: standardized terminal toolset
 
 This file is the full context for the work. A new session should read it first.
-The repo is a Nix flake (see `agents.md`); this plan is about replacing and unifying the terminal tools under it. Built so far: `pv.sh` (a shell script) and the start of section 1 (`ui` crate + schema).
+The repo is a Nix flake (see `agents.md`); this plan is about replacing and unifying the terminal tools under it. Built so far: section 1 (`ui` crate + schema) and `pv` step 1 (section 2).
 
 ## Goal and principles
 
@@ -20,7 +20,7 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 | ----------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | TUI design              | tokens file + `ui` crate (to build)                       | every tool; one place for colors, borders, spacing                                                                    |
 | Picker + search         | `pick` (to build, Rust)                                   | used by every tool that needs a picker. Search (grep, symbols, buffers, etc.) is a `pick` source, not a separate tool |
-| Preview / rendering     | `pv` (to rewrite in Rust; today `home/programs/pv/pv.sh`) | bat, batman, `git-core`                                                                                               |
+| Preview / rendering     | `pv` (Rust, `home/crates/pv`; step 1 done) | bat, batman, `git-core`                                                                                               |
 | Files (browse, explore) | yazi (config/plugins now; yazi crates embedded in helix)  | eza, `pv` as previewer, `pick` as finder, tokens for theme                                                            |
 | Editing                 | helix (forked, native integration)                        | files panel, git panel, `pick`, `pv`, `ui` built in as crates                                                         |
 | Git                     | `git-panel` (to build, Rust; replaces lazygit)            | `git-core`, delta as diff renderer, embedded in helix                                                                 |
@@ -53,7 +53,7 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 ## Current repo state (as of writing)
 
 - Tools configured under `home/programs/`: helix (+ Steel plugins `helix/plugins/{helix,init,minimap}.scm`, uncommitted), yazi, zellij, lazygit, delta, bat/batman, eza, fzf, neovim, btop, tealdeer, ghostty, kitty, kanata-layer-indicator, zed, vscode, etc. `agents.md` describes an older `home/modules/...` layout; the real tree is `home/programs/`.
-- `pv` is a shell script (`home/programs/pv/pv.sh`) wrapped by `writeShellApplication`. It dispatches: tidy-viewer for CSV/TSV, bat for text, eza for directories. It is a plain PATH binary so yazi's `piper` previewer (bare `sh -c`) can call it; yazi sets `$h` to the preview height.
+- `pv` is now Rust (`home/crates/pv`), packaged by `home/programs/pv/default.nix` via `home/crates/default.nix` (one `buildRustPackage` helper per workspace crate). `pv.sh` was deleted. It is a plain PATH binary so yazi's `piper` (bare `sh -c`) can call it; piper sets `$w`/`$h` to the pane size and pv reads them.
 - Uncommitted changes in the working tree (not from this plan): `flake.lock`, `home/flake.nix`, `home/programs/helix.nix`, the helix Steel plugins.
 - Started (uncommitted): `dotfiles.ui` options (`config/options.nix`), `home/programs/ui` (theme.json export), `home/crates/ui` (Rust crate). See section 1.
 
@@ -73,7 +73,7 @@ A terminal is a character grid, so "radius" means border glyph set (rounded `╭
 
 Defined as options in `config/options.nix` under `dotfiles.ui.{chrome,layout}`; colors come from the stylix base16 scheme. `home/programs/ui/default.nix` writes `~/.config/ui/theme.json`. Groups:
 
-- `colors`: `bg fg muted accent border border_focused selection error warning success info` and `git.{added,modified,deleted,untracked,conflict,renamed}` (roles, never raw hex in a tool).
+- `colors`: `bg fg muted accent border border_focused selection error warning success info`, `syntax.{comment,keyword,function,string,number,type_,constant,variable,operator}` and `git.{added,modified,deleted,untracked,conflict,renamed}` (roles, never raw hex in a tool).
 - `chrome`: `border` (rounded|plain|double|thick), `titles`.
 - `layout`: `gap` (cells between panes), `padding_x`, `padding_y`, `sidebar_width`, `preview_percent`.
   Planned additions: focus style, icons/separators, scrollbar style, status bar layout.
@@ -85,7 +85,7 @@ Defined as options in `config/options.nix` under `dotfiles.ui.{chrome,layout}`; 
 - `layout`: `columns`, `rows`, `sidebar_main_preview`, `main_preview` split with the theme's gap and ratios. Tools get rects from here and never compute their own.
 - Rule: our tools draw only through `Pane`/`layout`/widgets built on them. No tool draws its own borders, gaps or colors.
 - Planned widgets on top: list, preview pane, prompt, status bar.
-- Crates live under `home/crates/` (not repo root) because `home` is a path sub-flake and cannot reference files outside its directory. Cargo workspace root not created yet; add `home/crates/Cargo.toml` when a second crate appears.
+- Crates live under `home/crates/` (not repo root) because `home` is a path sub-flake and cannot reference files outside its directory. Cargo workspace root is `home/crates/Cargo.toml` (members `ui`, `pv`).
 
 ### Third-party tools
 
@@ -96,7 +96,7 @@ Defined as options in `config/options.nix` under `dotfiles.ui.{chrome,layout}`; 
 
 1. Generate remaining third-party configs from the tokens: delta, bat, btop colors; zellij gap/frames and whatever else each tool exposes. Verify per-tool border options (TODO above).
 2. Add widgets to `ui` (list, preview pane, prompt, status bar).
-3. `pv` in Rust on `ui`; add the `home/crates/Cargo.toml` workspace then. Then `pick`.
+3. `pv` in Rust on `ui`. Then `pick`.
 
 ## 2. `pick`: the picker (and search)
 
@@ -125,9 +125,17 @@ Goal: every tool that needs a picker for any purpose uses `pick`. It always has 
 - yazi: calls `pick` directly (Lua plugin) until the explorer is embedded.
 - helix fork: `pick` as an in-process library replacing `helix-term`'s picker. No external-process adapter.
 
+### `pv` status (step 1 done)
+
+- Library: `pv::preview(path, &Theme, &Options{width,height}) -> Result<Vec<Line>, Error>` (ratatui lines, so it embeds in-process) and `pv::to_ansi` (truecolor SGR). CLI `pv <path>` prints ANSI, reads `$w`/`$h`, exit 1 with a message for missing/binary files.
+- Renderers done: text (syntect `default-fancy` + `two-face` syntax bundle, a syntect theme built from the `ui` `syntax` tokens, line-number gutter, 1 MB cap, binary = NUL in first 8000 bytes) and directory (compact tree: dirs first, at most 2 entries per subfolder then `…`, perms colored + relative mtime flush right).
+- Regressions vs the old shell script, to fix in the next steps: CSV/TSV is shown as plain highlighted text (tidy-viewer table dropped; step 3), no git signs in directory rows and no git changed-row highlight (step 2), no file icons in directory rows (eza icons; add icons to the tokens), no `bat` changes gutter.
+- Not verified: running under yazi's piper (the `$w`/`$h` contract is from the old script's comments), width truncation of long text lines (not done; piper/pane clips them), performance on very large directories.
+- Tested: 4 unit tests (text gutter + height, binary, dir ordering and child cap, ANSI reset); the Nix build runs them and the packaged binary was run on a directory.
+
 ### Build order
 
-1. `pv` library + CLI (port from `pv.sh`).
+1. `pv` library + CLI: text and directory done; git highlighting and CSV table remain.
 1. `pick` core: stdin in, selection out, preview via `pv`.
 1. Sources (files, buffers, git refs, grep).
 1. yazi integration; helix integration (section 4).
