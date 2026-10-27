@@ -35,7 +35,7 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 - Search is owned by the picker.
 - File explorer: stay on yazi. Embed the `yazi-*` crates as a library for the files panel inside helix. Pin versions (no API stability).
 - Editor: fork helix and integrate natively (panels, picker, previews). No zellij or key-injection workarounds.
-- Git: write our own Rust git panel on `gix` or `git2`. Replaces lazygit.
+- Git: write our own Rust git panel on `gix` (decided; `git-core` is built on it). Replaces lazygit.
 - Zellij stays, for tabs and panes only.
 - Docs: use helix in read-only mode once ready.
 - Keyboard: leave to kanata. No terminal-level or zellij-level key remapping. Considered and dropped: kitty keyboard protocol + `keyberon` in our own tools.
@@ -48,7 +48,7 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 - The tool list is incomplete: the user was going to give more tools. Covered so far: picker, TUI design, preview, files, editor, git, layout, docs, monitoring, keyboard, search. Ask for what else is in scope.
 - Helix has no stable library or plugin API; the fork must track upstream. Check how the Steel fork already used here fits as the base.
 - Exact name of the flag that disables git features (suggested: `--no-git` plus a config key).
-- `gix` vs `git2` for `git-core`.
+- (resolved) `gix` for `git-core`.
 
 ## Current repo state (as of writing)
 
@@ -85,7 +85,7 @@ Defined as options in `config/options.nix` under `dotfiles.ui.{chrome,layout}`; 
 - `layout`: `columns`, `rows`, `sidebar_main_preview`, `main_preview` split with the theme's gap and ratios. Tools get rects from here and never compute their own.
 - Rule: our tools draw only through `Pane`/`layout`/widgets built on them. No tool draws its own borders, gaps or colors.
 - Planned widgets on top: list, preview pane, prompt, status bar.
-- Crates live under `home/crates/` (not repo root) because `home` is a path sub-flake and cannot reference files outside its directory. Cargo workspace root is `home/crates/Cargo.toml` (members `ui`, `pv`).
+- Crates live under `home/crates/` (not repo root) because `home` is a path sub-flake and cannot reference files outside its directory. Cargo workspace root is `home/crates/Cargo.toml` (members `ui`, `pv`, `git-core`).
 
 ### Third-party tools
 
@@ -172,6 +172,17 @@ No workarounds. Where helix lacks a feature, fork its source and integrate our t
 - One shared Rust crate (`git-core`, on `gix` or `git2`) does repo discovery, per-file status and per-line diffs. `pv`, `pick`, the files panel and `git-panel` all use it, so git logic lives in one place.
 - Status is computed once per repo and cached, not per keystroke, so large repos stay fast in the picker.
 - Colors come from the tokens (see section 1).
+
+## 5a. `git-core` status (built, library only)
+
+Crate `home/crates/git-core`, on `gix` 0.90 (features `status, blob-diff, index, sha1, parallel`; pure Rust, no libgit2). Decision: `gix`, not `git2`.
+
+- `Repo::discover(path)` (None if not a repo or bare), `root()`, `relative(path)`.
+- `Repo::status() -> Status`: repo-wide, keyed by repo-relative path. `FileStatus{staged, unstaged}` with `Kind` = Added, Modified, Deleted, Renamed, Typechange, Untracked, Conflict. `staged` is HEAD vs index, `unstaged` is index vs work tree. `primary()` picks conflict > unstaged > staged. `Status::dir(path)` summarizes a folder from its children. Untracked files are listed individually, not collapsed. Callers must compute once and cache (section 5).
+- `Repo::line_changes(path) -> Vec<LineChange>`: work tree vs `HEAD` with the histogram diff. `LineKind` = Added, Modified, Deleted (a `Deleted` marker sits before a line, no row of its own). Missing HEAD blob (new or untracked file) = all lines Added.
+- Tests (6, real repos built with the `git` CLI, `nativeCheckInputs = [ git ]` in `home/crates/default.nix`): not a repo, clean repo, staged/unstaged/untracked/deleted + dir summary, merge conflict, line changes, untracked file.
+- Not done: ignored files (the `!` sign), submodules (default gix behavior, untested), rename detection tuning, performance on large repos (untested), a way to disable it (the `--no-git` flag belongs to the consumers; `git-core` just is not called).
+- Next: wire into `pv` (changed-row highlight in text, git signs in directory rows, `--no-git` + config key), then `pick` file mode and the files panel.
 
 ## 6. Keyboard: kanata
 

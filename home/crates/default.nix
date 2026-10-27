@@ -1,5 +1,9 @@
 # Builds one binary crate from the Cargo workspace in this directory.
-{ lib, rustPlatform }:
+{
+    lib,
+    rustPlatform,
+    git,
+}:
 name:
 rustPlatform.buildRustPackage {
     pname = name;
@@ -9,6 +13,8 @@ rustPlatform.buildRustPackage {
         filter = path: _: baseNameOf path != "target";
     };
     cargoLock.lockFile = ./Cargo.lock;
+    # git-core's tests build real repositories with the git CLI.
+    nativeCheckInputs = [ git ];
     cargoBuildFlags = [
         "--package"
         name
