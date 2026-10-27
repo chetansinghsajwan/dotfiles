@@ -23,11 +23,14 @@ pub struct Options {
     pub height: Option<u16>,
     /// Git status colors and signs.
     pub git: bool,
+    /// 1-based line to bring into view and highlight (text files). The window
+    /// is centered on it when it does not fit in `height`.
+    pub focus: Option<u32>,
 }
 
 impl Default for Options {
     fn default() -> Self {
-        Options { width: None, height: None, git: true }
+        Options { width: None, height: None, git: true, focus: None }
     }
 }
 
@@ -85,7 +88,7 @@ mod tests {
         let d = tmp("text");
         let f = d.join("a.rs");
         fs::write(&f, "fn main() {}\nlet x = 1;\nlet y = 2;\n").unwrap();
-        let lines = preview(&f, &Theme::default(), &Options { width: None, height: Some(2), git: false }).unwrap();
+        let lines = preview(&f, &Theme::default(), &Options { width: None, height: Some(2), git: false, focus: None }).unwrap();
         assert_eq!(lines.len(), 2);
         assert!(lines[0].spans[0].content.contains('1'));
     }
@@ -144,11 +147,11 @@ mod tests {
     fn text_marks_changed_rows_and_no_git_disables() {
         let d = git_repo("gtext");
         fs::write(d.join("a.txt"), "1\nX\n3\n").unwrap();
-        let on = preview(&d.join("a.txt"), &Theme::default(), &Options { width: Some(20), height: None, git: true }).unwrap();
+        let on = preview(&d.join("a.txt"), &Theme::default(), &Options { width: Some(20), height: None, git: true, focus: None }).unwrap();
         assert!(flat(&on[1]).starts_with('▎'));
         assert!(on[1].spans.iter().skip(1).all(|s| s.style.bg.is_some()), "row tinted");
         assert!(flat(&on[0]).starts_with(' ') && on[0].spans.iter().all(|s| s.style.bg.is_none()));
-        let off = preview(&d.join("a.txt"), &Theme::default(), &Options { width: Some(20), height: None, git: false }).unwrap();
+        let off = preview(&d.join("a.txt"), &Theme::default(), &Options { width: Some(20), height: None, git: false, focus: None }).unwrap();
         assert!(!flat(&off[1]).contains('▎') && off[1].spans.iter().all(|s| s.style.bg.is_none()));
     }
 
@@ -157,14 +160,36 @@ mod tests {
         let d = git_repo("gdir");
         fs::write(d.join("a.txt"), "changed\n").unwrap();
         fs::write(d.join("sub/new.txt"), "n\n").unwrap();
-        let on = preview(&d, &Theme::default(), &Options { width: Some(80), height: None, git: true }).unwrap();
+        let on = preview(&d, &Theme::default(), &Options { width: Some(80), height: None, git: true, focus: None }).unwrap();
         let text: Vec<String> = on.iter().map(flat).collect();
         assert!(text.iter().any(|l| l.contains("sub/") && l.trim_end().ends_with('•')), "{text:?}");
         assert!(text.iter().any(|l| l.contains("a.txt") && l.trim_end().ends_with('M')), "{text:?}");
-        let off = preview(&d, &Theme::default(), &Options { width: Some(80), height: None, git: false }).unwrap();
+        let off = preview(&d, &Theme::default(), &Options { width: Some(80), height: None, git: false, focus: None }).unwrap();
         assert!(off.iter().map(flat).all(|l| !l.trim_end().ends_with('M') && !l.trim_end().ends_with('•')));
     }
 
+
+    #[test]
+    fn focus_centers_window_and_highlights_row() {
+        let d = tmp("focus");
+        let f = d.join("big.txt");
+        let body: String = (1..=100).map(|n| format!("line {n}\n")).collect();
+        fs::write(&f, body).unwrap();
+        let o = Options { width: Some(20), height: Some(10), git: false, focus: Some(50) };
+        let lines = preview(&f, &Theme::default(), &o).unwrap();
+        assert_eq!(lines.len(), 10);
+        let text: Vec<String> = lines.iter().map(flat).collect();
+        assert!(text.iter().any(|l| l.contains("line 50")), "{text:?}");
+        assert!(text[0].contains("line 45") || text[0].contains("line 46"), "{text:?}");
+        let hit = lines.iter().position(|l| flat(l).contains("line 50")).unwrap();
+        assert!(lines[hit].spans.iter().all(|s| s.style.bg.is_some()));
+        assert_eq!(lines.iter().filter(|l| l.spans.iter().any(|s| s.style.bg.is_some())).count(), 1);
+        // Near the end the window is clamped, not padded.
+        let o = Options { focus: Some(100), ..o };
+        let text: Vec<String> = preview(&f, &Theme::default(), &o).unwrap().iter().map(flat).collect();
+        assert!(text.last().unwrap().contains("line 100"), "{text:?}");
+        assert_eq!(text.len(), 10);
+    }
     #[test]
     fn ansi_resets_after_styled_span() {
         let lines = vec![Line::from(ratatui::text::Span::styled("x", ratatui::style::Style::new().fg(ratatui::style::Color::Rgb(1, 2, 3))))];

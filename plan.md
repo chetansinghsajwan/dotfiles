@@ -152,7 +152,7 @@ Crate `home/crates/pick` (library + CLI), packaged by `home/programs/pick/defaul
 - Keys: type to filter; Up/Down, Ctrl-n/Ctrl-p, PageUp/PageDown; Tab marks and moves down; Enter accepts marked or highlighted; Esc / Ctrl-c / Ctrl-g cancels.
 - Git (file candidates): name colored by state plus a right-aligned sign, same signs as `pv`. Disabled by `--no-git`. Status is computed synchronously at startup (not in a thread).
 - Tested: 4 headless unit tests (filter + accept, navigation clamp + multi-select, cancel / no match, render list + preview). Run end to end in a pty with `script`: `--files` picked a file by typing a query, stdin mode picked `gamma`, Esc exited 130. The home config builds with `pick` installed (the build runs the 4 tests).
-- Not done yet (milestone 2): sources other than files, stdin and `--files --dirs` (buffers, git refs, grep via the `grep-*` crates), external preview command (`--preview-cmd`, `{}` placeholder; plan default), config file (git default key), non-path preview for plain text candidates, mouse, `--print0`, `--multi` off switch, query history, startup git status in a thread for big repos, Windows support (uses `/dev/tty`).
+- Not done yet (milestone 2): sources other than files, stdin, `--files --dirs` and grep (buffers, git refs), external preview command (`--preview-cmd`, `{}` placeholder; plan default), config file (git default key), non-path preview for plain text candidates, mouse, `--print0`, `--multi` off switch, query history, startup git status in a thread for big repos, Windows support (uses `/dev/tty`).
 - Not verified: behavior on very large candidate sets (millions), resizing, non-UTF-8 paths (they are skipped by the walker), WSL specifics beyond this machine (it ran here, which is WSL2).
 - Next: yazi integration (finder via `pick`), fzf replacement in in-scope tools, helix embedding (section 4).
 
@@ -165,6 +165,17 @@ Yazi is Rust, MIT, built on ratatui (same as the `ui` crate). Reuse in order:
 1. Decided: embed the `yazi-*` crates as a library for the files panel inside helix (section 4). No API stability, so pin versions and upgrade deliberately. Standalone yazi (steps 1-2) stays for use outside the editor.
 
 TODO before step 2: read yazi's source to count how many files touch border and layout drawing.
+
+### `pick` grep source (done)
+
+- CLI: `pick --grep [DIR]` (conflicts with `--files`). The query is a regex (smart case); an invalid regex, typical mid-typing, falls back to a literal search. Output lines are `path:line:col:text` (ripgrep `--vimgrep` format, path relative to DIR). Exit codes as before (0, 1 nothing, 130 cancel).
+- Library: `PickerOptions.mode = Mode::Grep`. Each query change cancels the running search (`AtomicBool`), clears the results (`Nucleo::restart(true)`) and starts a new search thread (`pick/src/grep.rs`, on the ripgrep `grep` crate + `ignore`, .gitignore respected, binary files skipped, 20,000 match cap, lines clipped to 400 bytes). Empty query lists nothing. In grep mode nucleo's fuzzy scoring is not used: every result is a match, so the count shows only the number of results.
+- Candidates are now `Candidate{display, loc: Option<Loc{path,line,col,text,hit}>}` (`pick/src/candidate.rs`); plain/fuzzy candidates have no `loc`. `Action::Accept` returns `Candidate::output()` strings.
+- Rows: `path:line: text` with the path colored by git state, the match in bold accent. Preview: `pv` with the new `Options.focus` (a window centered on the match line, that row highlighted with the `selection` token, gutter numbers kept); pane title `path:line`.
+- `pv` gained `Options.focus: Option<u32>` (text files only) and 1 test.
+- Tested: 5 grep unit tests (results + output format + columns, query change restarts, invalid regex fallback, preview focus window, empty query) plus the earlier 5; pty end-to-end: typed a query + Enter printed `source.rs:11:1:pub fn spawn_lines(...)`, Esc exit 130, no match exit 1.
+- Not done / not verified: no debounce (every keystroke restarts the search; fine on this repo, untested on huge trees), case and regex-mode toggles, search inside a path subset or by glob, multi-line patterns, non-UTF-8 files (skipped by the UTF8 sink), the yazi hookup for `S`/`s` (content/name search still use yazi's built-ins), stdin grep results.
+- Next: bind it in yazi (`S`), then buffers and git-ref sources, then the helix embed.
 
 ### yazi + `pick` (step 1 done)
 

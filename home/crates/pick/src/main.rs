@@ -1,5 +1,5 @@
 use clap::Parser;
-use pick::{Action, Picker, PickerOptions, source};
+use pick::{Action, Mode, Picker, PickerOptions, source};
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
 use ratatui::crossterm::event::{self, Event};
@@ -21,6 +21,10 @@ struct Cli {
     /// Pick from the files under DIR (default: current directory).
     #[arg(long, value_name = "DIR", num_args = 0..=1, default_missing_value = ".")]
     files: Option<PathBuf>,
+    /// Search file contents under DIR (default: current directory). The query is a
+    /// regex; results print as `path:line:col:text`.
+    #[arg(long, value_name = "DIR", num_args = 0..=1, default_missing_value = ".", conflicts_with = "files")]
+    grep: Option<PathBuf>,
     /// Treat stdin lines as paths (preview, git state) relative to DIR.
     #[arg(long, value_name = "DIR")]
     paths: Option<PathBuf>,
@@ -61,12 +65,13 @@ fn main() -> ExitCode {
 }
 
 fn run(cli: Cli) -> io::Result<u8> {
-    let (root, paths) = match (&cli.files, &cli.paths) {
-        (Some(d), _) | (None, Some(d)) => (d.canonicalize()?, true),
-        (None, None) => (std::env::current_dir()?, false),
+    let mode = if cli.grep.is_some() { Mode::Grep } else { Mode::Fuzzy };
+    let (root, paths) = match (&cli.files, &cli.grep, &cli.paths) {
+        (Some(d), _, _) | (None, Some(d), _) | (None, None, Some(d)) => (d.canonicalize()?, true),
+        (None, None, None) => (std::env::current_dir()?, false),
     };
-    if cli.files.is_none() && io::stdin().is_terminal() {
-        eprintln!("usage: <command> | pick [--paths DIR]   or   pick --files [DIR]");
+    if cli.files.is_none() && cli.grep.is_none() && io::stdin().is_terminal() {
+        eprintln!("usage: <command> | pick [--paths DIR]   or   pick --files [DIR]   or   pick --grep [DIR]");
         return Ok(2);
     }
 
@@ -76,13 +81,13 @@ fn run(cli: Cli) -> io::Result<u8> {
         Arc::new(move || wake.store(true, Ordering::Relaxed)) as Arc<dyn Fn() + Send + Sync>
     };
     let mut picker = Picker::new(
-        PickerOptions { paths, root: root.clone(), preview: !cli.no_preview && paths, git: !cli.no_git, query: cli.query },
+        PickerOptions { mode, paths, root: root.clone(), preview: !cli.no_preview && paths, git: !cli.no_git, query: cli.query },
         notify,
     );
-    if cli.files.is_some() {
-        source::spawn_files(picker.injector(), root, cli.dirs);
-    } else {
-        source::spawn_lines(picker.injector(), io::BufReader::new(io::stdin()));
+    match (&cli.files, mode) {
+        (Some(_), _) => source::spawn_files(picker.injector(), root, cli.dirs),
+        (None, Mode::Grep) => {} // the picker runs the search itself
+        (None, Mode::Fuzzy) => source::spawn_lines(picker.injector(), io::BufReader::new(io::stdin())),
     }
 
     // Draw on the controlling terminal so stdin can carry candidates and

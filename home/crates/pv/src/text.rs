@@ -114,10 +114,25 @@ pub fn render(path: &Path, theme: &Theme, opts: &Options) -> Result<Vec<Line<'st
     let digits = total.max(1).to_string().len();
     let gutter = Style::new().fg(theme.colors.muted.into());
     let marks = if opts.git { line_marks(path, total) } else { Vec::new() };
+    // With a focus line and a height, show a window centered on it.
+    let start = match (opts.focus, opts.height) {
+        (Some(f), Some(_)) => {
+            let centered = (f as usize).saturating_sub(1).saturating_sub(limit / 2);
+            centered.min(total.saturating_sub(limit))
+        }
+        _ => 0,
+    };
 
     let mut out = Vec::new();
-    for (i, raw) in syntect::util::LinesWithEndings::from(&text).take(limit).enumerate() {
+    for (i, raw) in syntect::util::LinesWithEndings::from(&text).enumerate() {
+        if i >= start.saturating_add(limit) {
+            break;
+        }
+        // Lines before the window still feed the highlighter's state.
         let regions = hl.highlight_line(raw, &syntaxes).map_err(|e| Error::Unsupported(e.to_string()))?;
+        if i < start {
+            continue;
+        }
         let mark = marks.get(i).copied().flatten();
         let mut spans = Vec::new();
         if opts.git {
@@ -136,9 +151,15 @@ pub fn render(path: &Path, theme: &Theme, opts: &Options) -> Result<Vec<Line<'st
             let fg = st.foreground;
             spans.push(Span::styled(piece, Style::new().fg(Color::Rgb(fg.r, fg.g, fg.b))));
         }
-        // Added/modified rows get a tinted background across the full width.
-        if let Some((kind @ (LineKind::Added | LineKind::Modified), _)) = mark {
-            let bg = git::tint(theme, git::line_color(theme, kind));
+        // The focus line wins over a git tint; both span the full width.
+        let row_bg = if opts.focus == Some(i as u32 + 1) {
+            Some(Color::from(theme.colors.selection))
+        } else if let Some((kind @ (LineKind::Added | LineKind::Modified), _)) = mark {
+            Some(git::tint(theme, git::line_color(theme, kind)))
+        } else {
+            None
+        };
+        if let Some(bg) = row_bg {
             let used: usize = spans.iter().map(|s| s.content.width()).sum();
             if let Some(w) = opts.width {
                 spans.push(Span::raw(" ".repeat((w as usize).saturating_sub(used))));

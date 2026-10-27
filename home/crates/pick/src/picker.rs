@@ -1,22 +1,37 @@
+use crate::candidate::Candidate;
+use crate::grep;
 use git_core::{Repo, Status};
 use nucleo::pattern::{CaseMatching, Normalization};
 use nucleo::{Config, Injector, Matcher, Nucleo};
 use ratatui::buffer::Buffer;
 use ratatui::crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::layout::Rect;
-use ratatui::style::{Modifier, Style};
+use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Paragraph, Widget};
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tui_input::Input;
 use tui_input::backend::crossterm::EventHandler;
 use ui::{Pane, Theme, layout};
 
+/// How the query is used.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Mode {
+    /// Fuzzy-filter the candidates pushed through `injector()`.
+    Fuzzy,
+    /// The query is a regex searched for in the files under `root`; matches are
+    /// the candidates.
+    Grep,
+}
+
 #[derive(Debug, Clone)]
 pub struct PickerOptions {
+    pub mode: Mode,
     /// Candidates are paths relative to `root`: path-aware scoring, preview and git state.
+    /// Always true in `Mode::Grep`.
     pub paths: bool,
     pub root: PathBuf,
     pub preview: bool,
@@ -28,19 +43,20 @@ pub struct PickerOptions {
 #[derive(Debug, PartialEq, Eq)]
 pub enum Action {
     None,
-    /// The user accepted: the marked candidates, or the highlighted one.
+    /// The user accepted: the marked candidates, or the highlighted one
+    /// (`Candidate::output` form).
     Accept(Vec<String>),
     Cancel,
 }
 
 struct Preview {
-    key: (String, u16, u16),
+    key: (String, u32, u16, u16),
     lines: Vec<Line<'static>>,
 }
 
 pub struct Picker {
     opts: PickerOptions,
-    nucleo: Nucleo<String>,
+    nucleo: Nucleo<Candidate>,
     matcher: Matcher,
     input: Input,
     last_query: String,
@@ -52,12 +68,17 @@ pub struct Picker {
     preview: Option<Preview>,
     /// Rows visible in the list at the last render, for paging.
     page: u32,
+    /// Stops the running grep search.
+    cancel: Arc<AtomicBool>,
 }
 
 impl Picker {
     /// `notify` is called from worker threads when results changed; the host
     /// should wake its event loop and call `tick`.
-    pub fn new(opts: PickerOptions, notify: Arc<dyn Fn() + Send + Sync>) -> Self {
+    pub fn new(mut opts: PickerOptions, notify: Arc<dyn Fn() + Send + Sync>) -> Self {
+        if opts.mode == Mode::Grep {
+            opts.paths = true;
+        }
         let config = if opts.paths { Config::DEFAULT.match_paths() } else { Config::DEFAULT };
         let git = if opts.git && opts.paths {
             Repo::discover(&opts.root).and_then(|r| r.status().ok().map(|s| (r, s)))
@@ -75,13 +96,15 @@ impl Picker {
             git,
             preview: None,
             page: 10,
+            cancel: Arc::new(AtomicBool::new(false)),
             opts,
         };
         picker.reparse();
         picker
     }
 
-    pub fn injector(&self) -> Injector<String> {
+    /// Where candidates are pushed in `Mode::Fuzzy`. (Grep mode feeds itself.)
+    pub fn injector(&self) -> Injector<Candidate> {
         self.nucleo.injector()
     }
 
@@ -96,8 +119,19 @@ impl Picker {
 
     fn reparse(&mut self) {
         let q = self.input.value().to_string();
-        let append = q.starts_with(&self.last_query) && !self.last_query.is_empty();
-        self.nucleo.pattern.reparse(0, &q, CaseMatching::Smart, Normalization::Smart, append);
+        match self.opts.mode {
+            Mode::Fuzzy => {
+                let append = q.starts_with(&self.last_query) && !self.last_query.is_empty();
+                self.nucleo.pattern.reparse(0, &q, CaseMatching::Smart, Normalization::Smart, append);
+            }
+            Mode::Grep => {
+                // Stop the old search, drop its results, start over.
+                self.cancel.store(true, Ordering::Relaxed);
+                self.cancel = Arc::new(AtomicBool::new(false));
+                self.nucleo.restart(true);
+                grep::spawn(self.opts.root.clone(), q.clone(), self.nucleo.injector(), self.cancel.clone());
+            }
+        }
         self.last_query = q;
         self.cursor = 0;
         self.offset = 0;
@@ -116,7 +150,7 @@ impl Picker {
         }
     }
 
-    fn current(&self) -> Option<String> {
+    fn current(&self) -> Option<Candidate> {
         self.nucleo.snapshot().get_matched_item(self.cursor).map(|i| i.data.clone())
     }
 
@@ -141,7 +175,7 @@ impl Picker {
             KeyCode::Char('c') | KeyCode::Char('g') if ctrl => return Action::Cancel,
             KeyCode::Enter => {
                 let picked: Vec<String> = if self.marked.is_empty() {
-                    self.current().into_iter().collect()
+                    self.current().map(|c| c.output()).into_iter().collect()
                 } else {
                     self.marked.iter().cloned().collect()
                 };
@@ -154,7 +188,7 @@ impl Picker {
             KeyCode::PageUp => self.move_by(-i64::from(self.page)),
             KeyCode::PageDown => self.move_by(i64::from(self.page)),
             KeyCode::Tab => {
-                if let Some(c) = self.current() {
+                if let Some(c) = self.current().map(|c| c.output()) {
                     if !self.marked.remove(&c) {
                         self.marked.insert(c);
                     }
@@ -186,7 +220,7 @@ impl Picker {
         Some((c, k))
     }
 
-    fn git_color(theme: &Theme, kind: git_core::Kind) -> ratatui::style::Color {
+    fn git_color(theme: &Theme, kind: git_core::Kind) -> Color {
         use git_core::Kind::*;
         let g = &theme.colors.git;
         match kind {
@@ -213,17 +247,55 @@ impl Picker {
         }
     }
 
+    /// Spans for one row: fuzzy rows highlight matched characters; grep rows
+    /// show `path:line:` then the line with the match emphasized.
+    fn row_spans(&mut self, cand: &Candidate, name_fg: Color, theme: &Theme, snap_index: u32) -> Vec<Span<'static>> {
+        let c = &theme.colors;
+        let hit = Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD);
+        if let Some(loc) = &cand.loc {
+            let mut spans = vec![
+                Span::styled(loc.path.clone(), Style::new().fg(name_fg)),
+                Span::styled(format!(":{}: ", loc.line), Style::new().fg(c.muted.into())),
+            ];
+            let (a, b) = (loc.hit.start, loc.hit.end);
+            if a < b && b <= loc.text.len() {
+                spans.push(Span::styled(loc.text[..a].to_string(), Style::new().fg(c.fg.into())));
+                spans.push(Span::styled(loc.text[a..b].to_string(), hit));
+                spans.push(Span::styled(loc.text[b..].to_string(), Style::new().fg(c.fg.into())));
+            } else {
+                spans.push(Span::styled(loc.text.clone(), Style::new().fg(c.fg.into())));
+            }
+            return spans;
+        }
+        let snap = self.nucleo.snapshot();
+        let mut indices = Vec::new();
+        if let Some(item) = snap.get_matched_item(snap_index) {
+            snap.pattern().column_pattern(0).indices(item.matcher_columns[0].slice(..), &mut self.matcher, &mut indices);
+        }
+        indices.sort_unstable();
+        indices.dedup();
+        let mut hits = indices.iter().copied().peekable();
+        let mut spans = Vec::new();
+        for (i, ch) in cand.display.chars().enumerate() {
+            let is_hit = hits.peek() == Some(&(i as u32));
+            if is_hit {
+                hits.next();
+            }
+            spans.push(Span::styled(ch.to_string(), if is_hit { hit } else { Style::new().fg(name_fg) }));
+        }
+        spans
+    }
+
     fn render_list(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme) {
         let c = &theme.colors;
-        let snap_total;
-        let snap_matched;
-        {
+        let (snap_total, snap_matched) = {
             let s = self.nucleo.snapshot();
-            snap_total = s.item_count();
-            snap_matched = s.matched_item_count();
-        }
-        let count = format!("{snap_matched}/{snap_total}");
-        let pane = Pane::new(theme).title("pick").focused(true);
+            (s.item_count(), s.matched_item_count())
+        };
+        // In grep mode every item matches, so only the item count is meaningful.
+        let count = if self.opts.mode == Mode::Grep { format!("{snap_total}") } else { format!("{snap_matched}/{snap_total}") };
+        let title = if self.opts.mode == Mode::Grep { "grep" } else { "pick" };
+        let pane = Pane::new(theme).title(title).focused(true);
         let inner = pane.inner(area);
         pane.render(area, buf);
         if inner.height < 2 {
@@ -258,44 +330,25 @@ impl Picker {
             self.offset = self.cursor + 1 - self.page;
         }
 
-        let snap = self.nucleo.snapshot();
         let end = (self.offset + self.page).min(snap_matched);
-        let mut indices = Vec::new();
         for (row, idx) in (self.offset..end).enumerate() {
-            let Some(item) = snap.get_matched_item(idx) else { break };
+            let Some(cand) = self.nucleo.snapshot().get_matched_item(idx).map(|i| i.data.clone()) else { break };
             let y = list.y + row as u16;
             let selected = idx == self.cursor;
             let base = if selected { Style::new().bg(c.selection.into()) } else { Style::new() };
             // Row background across the full width.
-            buf.set_style(Rect { y, height: 1, ..list }, base);
+            let row_area = Rect { y, height: 1, ..list };
+            buf.set_style(row_area, base);
 
-            let mut spans = Vec::new();
-            let marked = self.marked.contains(item.data);
-            spans.push(Span::styled(
+            let marked = self.marked.contains(&cand.output());
+            let mut spans = vec![Span::styled(
                 if marked { "● " } else if selected { "▸ " } else { "  " },
                 Style::new().fg(c.accent.into()),
-            ));
-            let git = self.git_state(item.data);
+            )];
+            let git = self.git_state(cand.path());
             let name_fg = git.map(|(_, k)| Self::git_color(theme, k)).unwrap_or(c.fg.into());
-
-            indices.clear();
-            snap.pattern().column_pattern(0).indices(item.matcher_columns[0].slice(..), &mut self.matcher, &mut indices);
-            indices.sort_unstable();
-            indices.dedup();
-            let mut hit = indices.iter().copied().peekable();
-            for (i, ch) in item.data.chars().enumerate() {
-                let is_hit = hit.peek() == Some(&(i as u32));
-                if is_hit {
-                    hit.next();
-                }
-                let style = if is_hit {
-                    Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD)
-                } else {
-                    Style::new().fg(name_fg)
-                };
-                spans.push(Span::styled(ch.to_string(), style));
-            }
-            Paragraph::new(Line::from(spans)).style(base).render(Rect { y, height: 1, ..list }, buf);
+            spans.extend(self.row_spans(&cand, name_fg, theme, idx));
+            Paragraph::new(Line::from(spans)).style(base).render(row_area, buf);
 
             if let Some((ch, kind)) = git {
                 let x = list.right().saturating_sub(1);
@@ -306,7 +359,13 @@ impl Picker {
 
     fn render_preview(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme) {
         let cand = self.current();
-        let title = cand.clone().unwrap_or_default();
+        let title = cand
+            .as_ref()
+            .map(|c| match &c.loc {
+                Some(l) => format!("{}:{}", l.path, l.line),
+                None => c.display.clone(),
+            })
+            .unwrap_or_default();
         let pane = Pane::new(theme).title(&title);
         let inner = pane.inner(area);
         pane.render(area, buf);
@@ -317,10 +376,16 @@ impl Picker {
         if inner.width == 0 || inner.height == 0 {
             return;
         }
-        let key = (cand.clone(), inner.width, inner.height);
+        let line = cand.loc.as_ref().map(|l| l.line).unwrap_or(0);
+        let key = (cand.path().to_string(), line, inner.width, inner.height);
         if self.preview.as_ref().map(|p| &p.key) != Some(&key) {
-            let path = self.opts.root.join(&cand);
-            let opts = pv::Options { width: Some(inner.width), height: Some(inner.height), git: self.opts.git };
+            let path = self.opts.root.join(cand.path());
+            let opts = pv::Options {
+                width: Some(inner.width),
+                height: Some(inner.height),
+                git: self.opts.git,
+                focus: cand.loc.as_ref().map(|l| l.line),
+            };
             let lines = match pv::preview(&path, theme, &opts) {
                 Ok(l) => l,
                 Err(e) => vec![Line::from(Span::styled(e.to_string(), Style::new().fg(theme.colors.muted.into())))],
@@ -343,11 +408,11 @@ mod tests {
     }
 
     fn picker(items: &[&str], paths: bool, root: PathBuf) -> Picker {
-        let opts = PickerOptions { paths, root, preview: paths, git: false, query: String::new() };
+        let opts = PickerOptions { mode: Mode::Fuzzy, paths, root, preview: paths, git: false, query: String::new() };
         let p = Picker::new(opts, Arc::new(|| {}));
         let inj = p.injector();
         for i in items {
-            inj.push(i.to_string(), |s, cols| cols[0] = s.as_str().into());
+            inj.push(Candidate::plain(*i), |c, cols| cols[0] = c.display.as_str().into());
         }
         settle(p)
     }
@@ -434,7 +499,7 @@ mod source_tests {
         std::fs::create_dir_all(d.join("sub")).unwrap();
         std::fs::write(d.join("sub/f.txt"), "x").unwrap();
         for (dirs, want) in [(false, 1u32), (true, 2u32)] {
-            let opts = PickerOptions { paths: true, root: d.clone(), preview: false, git: false, query: String::new() };
+            let opts = PickerOptions { mode: Mode::Fuzzy, paths: true, root: d.clone(), preview: false, git: false, query: String::new() };
             let mut p = Picker::new(opts, Arc::new(|| {}));
             crate::source::spawn_files(p.injector(), d.clone(), dirs);
             for _ in 0..200 {
@@ -445,7 +510,107 @@ mod source_tests {
                 }
             }
             assert_eq!(p.matched(), want, "dirs={dirs}");
-            assert_eq!(p.nucleo.snapshot().matched_items(..).any(|i| i.data.as_str() == "sub/"), dirs);
+            assert_eq!(p.nucleo.snapshot().matched_items(..).any(|i| i.data.display == "sub/"), dirs);
         }
+    }
+}
+
+#[cfg(test)]
+mod grep_tests {
+    use super::*;
+    use ratatui::crossterm::event::KeyEvent;
+
+    fn dir(name: &str) -> PathBuf {
+        let d = std::env::temp_dir().join(format!("pick-grep-{}-{name}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join("a.txt"), "one\nneedle here\nthree\n").unwrap();
+        std::fs::write(d.join("b.rs"), "fn needle() {}\n").unwrap();
+        std::fs::write(d.join("c.txt"), "nothing\n").unwrap();
+        d
+    }
+
+    fn grep_picker(root: PathBuf, query: &str) -> Picker {
+        let opts = PickerOptions { mode: Mode::Grep, paths: false, root, preview: true, git: false, query: query.into() };
+        Picker::new(opts, Arc::new(|| {}))
+    }
+
+    /// Tick until the item count is `want` and stays there, or give up.
+    fn wait_items(p: &mut Picker, want: u32) {
+        for _ in 0..300 {
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            p.nucleo.tick(10);
+            if p.nucleo.snapshot().item_count() == want {
+                std::thread::sleep(std::time::Duration::from_millis(30));
+                p.nucleo.tick(10);
+                if p.nucleo.snapshot().item_count() == want {
+                    return;
+                }
+            }
+        }
+    }
+
+    fn type_str(p: &mut Picker, s: &str) {
+        for ch in s.chars() {
+            p.handle_event(&Event::Key(KeyEvent::new(KeyCode::Char(ch), KeyModifiers::NONE)));
+        }
+    }
+
+    #[test]
+    fn finds_matches_with_location_and_output_format() {
+        let mut p = grep_picker(dir("find"), "needle");
+        wait_items(&mut p, 2);
+        let all: Vec<Candidate> = p.nucleo.snapshot().matched_items(..).map(|i| i.data.clone()).collect();
+        assert_eq!(all.len(), 2);
+        let a = all.iter().find(|c| c.path() == "a.txt").unwrap();
+        assert_eq!(a.output(), "a.txt:2:1:needle here");
+        let loc = a.loc.as_ref().unwrap();
+        assert_eq!((loc.line, loc.col, &loc.text[loc.hit.clone()]), (2, 1, "needle"));
+        let b = all.iter().find(|c| c.path() == "b.rs").unwrap();
+        assert_eq!(b.output(), "b.rs:1:4:fn needle() {}");
+    }
+
+    #[test]
+    fn changing_the_query_restarts_the_search() {
+        let mut p = grep_picker(dir("requery"), "needle");
+        wait_items(&mut p, 2);
+        type_str(&mut p, " h"); // "needle h" only matches a.txt
+        wait_items(&mut p, 1);
+        assert_eq!(p.current().unwrap().path(), "a.txt");
+        assert_eq!(p.handle_event(&Event::Key(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE))), Action::Accept(vec!["a.txt:2:1:needle here".into()]));
+    }
+
+    #[test]
+    fn invalid_regex_falls_back_to_literal() {
+        let d = dir("badre");
+        std::fs::write(d.join("p.txt"), "call(x)\n").unwrap();
+        let mut p = grep_picker(d, "call(");
+        wait_items(&mut p, 1);
+        assert_eq!(p.current().unwrap().output(), "p.txt:1:1:call(x)");
+    }
+
+    #[test]
+    fn preview_focuses_the_matching_line() {
+        let d = dir("prev");
+        let body: String = (1..=60).map(|n| if n == 40 { "needle line\n".to_string() } else { format!("filler {n}\n") }).collect();
+        std::fs::write(d.join("big.txt"), body).unwrap();
+        let mut p = grep_picker(d, "needle line");
+        wait_items(&mut p, 1);
+        let area = Rect::new(0, 0, 90, 12);
+        let mut buf = Buffer::empty(area);
+        p.render(area, &mut buf, &Theme::default());
+        let text: String = (0..12).map(|y| (0..90).map(|x| buf[(x, y)].symbol().to_string()).collect::<String>() + "\n").collect();
+        assert!(text.contains("big.txt:40"), "{text}");
+        assert!(text.contains("needle line"), "{text}");
+        assert!(text.contains("filler 38") || text.contains("filler 39"), "{text}");
+        assert!(!text.contains("filler 5\n") && !text.contains("filler 1 "), "{text}");
+    }
+
+    #[test]
+    fn empty_query_lists_nothing() {
+        let mut p = grep_picker(dir("empty"), "");
+        std::thread::sleep(std::time::Duration::from_millis(50));
+        p.nucleo.tick(10);
+        assert_eq!(p.nucleo.snapshot().item_count(), 0);
     }
 }

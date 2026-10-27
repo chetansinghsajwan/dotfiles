@@ -21,7 +21,7 @@ fn main() -> ExitCode {
         return ExitCode::from(1);
     };
     // yazi's piper sets $w and $h to the preview pane size.
-    let opts = Options { width: env_num("w"), height: env_num("h"), git };
+    let opts = Options { width: env_num("w"), height: env_num("h"), git, focus: None };
     let theme = ui::Theme::load();
     match preview(path, &theme, &opts) {
         Ok(lines) => {
