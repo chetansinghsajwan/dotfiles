@@ -122,7 +122,7 @@ Goal: every tool that needs a picker for any purpose uses `pick`. It always has 
 
 ### Consumers
 
-- yazi: calls `pick` directly (Lua plugin) until the explorer is embedded.
+- yazi: calls `pick` directly (Lua plugin, `z`) until the explorer is embedded. Done, see below.
 - helix fork: `pick` as an in-process library replacing `helix-term`'s picker. No external-process adapter.
 
 ### `pv` status (step 1 done)
@@ -152,7 +152,7 @@ Crate `home/crates/pick` (library + CLI), packaged by `home/programs/pick/defaul
 - Keys: type to filter; Up/Down, Ctrl-n/Ctrl-p, PageUp/PageDown; Tab marks and moves down; Enter accepts marked or highlighted; Esc / Ctrl-c / Ctrl-g cancels.
 - Git (file candidates): name colored by state plus a right-aligned sign, same signs as `pv`. Disabled by `--no-git`. Status is computed synchronously at startup (not in a thread).
 - Tested: 4 headless unit tests (filter + accept, navigation clamp + multi-select, cancel / no match, render list + preview). Run end to end in a pty with `script`: `--files` picked a file by typing a query, stdin mode picked `gamma`, Esc exited 130. The home config builds with `pick` installed (the build runs the 4 tests).
-- Not done yet (milestone 2): sources other than files and stdin (buffers, git refs, grep via the `grep-*` crates), external preview command (`--preview-cmd`, `{}` placeholder; plan default), config file (git default key), non-path preview for plain text candidates, mouse, `--print0`, `--multi` off switch, query history, startup git status in a thread for big repos, Windows support (uses `/dev/tty`).
+- Not done yet (milestone 2): sources other than files, stdin and `--files --dirs` (buffers, git refs, grep via the `grep-*` crates), external preview command (`--preview-cmd`, `{}` placeholder; plan default), config file (git default key), non-path preview for plain text candidates, mouse, `--print0`, `--multi` off switch, query history, startup git status in a thread for big repos, Windows support (uses `/dev/tty`).
 - Not verified: behavior on very large candidate sets (millions), resizing, non-UTF-8 paths (they are skipped by the walker), WSL specifics beyond this machine (it ran here, which is WSL2).
 - Next: yazi integration (finder via `pick`), fzf replacement in in-scope tools, helix embedding (section 4).
 
@@ -165,6 +165,15 @@ Yazi is Rust, MIT, built on ratatui (same as the `ui` crate). Reuse in order:
 1. Decided: embed the `yazi-*` crates as a library for the files panel inside helix (section 4). No API stability, so pin versions and upgrade deliberately. Standalone yazi (steps 1-2) stays for use outside the editor.
 
 TODO before step 2: read yazi's source to count how many files touch border and layout drawing.
+
+### yazi + `pick` (step 1 done)
+
+- `z` in yazi now runs the `pick` plugin (`home/programs/yazi/pick.yazi/main.lua`, registered in `yazi.nix`, key bound in `mgr.prepend_keymap`) instead of the built-in `fzf` plugin. It is adapted from yazi 26.9's own preset `fzf.lua`: `ui.hide()`, run `pick --files --dirs` in the current dir, then `cd` (folder result, detected by the trailing `/` pick adds), `reveal` (single file) or `toggle_all` (several, marked with Tab in pick).
+- `pick --dirs` (new flag, with `--files`): include folders, marked with a trailing `/`.
+- Verified by driving real yazi 26.9.1 (generated config) in a pty with `ya emit-to <id> plugin pick` and a stub `pick` on PATH: cancel (exit 130) does nothing, a folder result enters the folder, a file result reveals it (the control `cd` worked the same way). Evidence came from yazi's debug log (`YAZI_LOG=debug`, watched dirs), not from the screen.
+- NOT verified: the real `pick` UI running inside yazi's hidden terminal. In this harness no keystrokes reach any child of yazi (even a plain `read </dev/tty` stub got nothing, and `l`/`q` keys did not move yazi either), so typing a query inside yazi was not tested. `pick` alone works in a pty (section 2). Try `z` in a real terminal after activating the config.
+- yazi's other fzf-like entry points are unchanged: `f` (filter), `s` (search by name via fd), `S` (search contents via ripgrep). Content search belongs to a future `pick` grep source.
+- Next for yazi: step 2/3 (embed the `yazi-*` crates, own drawing) and the theme from tokens are untouched.
 
 ## 4. Code editor: helix (fork)
 

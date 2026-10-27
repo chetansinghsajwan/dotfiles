@@ -24,6 +24,9 @@ struct Cli {
     /// Treat stdin lines as paths (preview, git state) relative to DIR.
     #[arg(long, value_name = "DIR")]
     paths: Option<PathBuf>,
+    /// With `--files`, include folders too (marked with a trailing `/`).
+    #[arg(long)]
+    dirs: bool,
     /// Initial query.
     #[arg(long, short, default_value = "")]
     query: String,
@@ -77,7 +80,7 @@ fn run(cli: Cli) -> io::Result<u8> {
         notify,
     );
     if cli.files.is_some() {
-        source::spawn_files(picker.injector(), root);
+        source::spawn_files(picker.injector(), root, cli.dirs);
     } else {
         source::spawn_lines(picker.injector(), io::BufReader::new(io::stdin()));
     }

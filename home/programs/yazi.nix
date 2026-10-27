@@ -21,6 +21,7 @@
             bookmarks = pkgs.yaziPlugins.bookmarks;
             toggle-pane = pkgs.yaziPlugins.toggle-pane;
             properties = ./yazi/properties.yazi;
+            pick = ./yazi/pick.yazi;
             places = ./yazi/places.yazi;
             linemode-toggle = ./yazi/linemode-toggle.yazi;
             piper = pkgs.yaziPlugins.piper;
@@ -194,6 +195,12 @@
 
         keymap = {
             mgr.prepend_keymap = [
+                {
+                    # Jump to a file or folder with pick (replaces the built-in fzf).
+                    on = "z";
+                    run = "plugin pick";
+                    desc = "Jump to a file/folder via pick";
+                }
                 {
                     on = [
                         "p"

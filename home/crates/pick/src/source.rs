@@ -17,16 +17,22 @@ pub fn spawn_lines(inj: Injector<String>, reader: impl BufRead + Send + 'static)
     });
 }
 
-/// Files under `root` (respects .gitignore), as paths relative to `root`.
-pub fn spawn_files(inj: Injector<String>, root: PathBuf) {
+/// Files under `root` (respects .gitignore), as paths relative to `root`. With
+/// `dirs`, folders are included too, marked with a trailing `/`.
+pub fn spawn_files(inj: Injector<String>, root: PathBuf, dirs: bool) {
     thread::spawn(move || {
         for entry in ignore::WalkBuilder::new(&root).hidden(false).filter_entry(|e| e.file_name() != ".git").build().flatten() {
-            if !entry.file_type().is_some_and(|t| t.is_file()) {
+            let Some(ft) = entry.file_type() else { continue };
+            if entry.depth() == 0 || !(ft.is_file() || (dirs && ft.is_dir())) {
                 continue;
             }
             let rela: &Path = entry.path().strip_prefix(&root).unwrap_or(entry.path());
             if let Some(s) = rela.to_str() {
-                inj.push(s.to_string(), |s, cols| cols[0] = s.as_str().into());
+                let mut s = s.to_string();
+                if ft.is_dir() {
+                    s.push('/');
+                }
+                inj.push(s, |s, cols| cols[0] = s.as_str().into());
             }
         }
     });
