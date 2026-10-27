@@ -1,5 +1,6 @@
 //! What the picker lists. Plain candidates are just text; grep results also
-//! carry where the match is, for the preview and the output.
+//! carry where the match is, and git items what they point at, for the
+//! preview and the output.
 
 use std::ops::Range;
 
@@ -8,6 +9,7 @@ pub struct Candidate {
     /// Text shown in the list and matched against the query.
     pub display: String,
     pub loc: Option<Loc>,
+    pub git: Option<GitItem>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,25 +24,59 @@ pub struct Loc {
     pub hit: Range<usize>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GitKind {
+    Branch,
+    Remote,
+    Tag,
+    Commit,
+    Stash,
+}
+
+/// A ref, commit or stash entry.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GitItem {
+    pub kind: GitKind,
+    /// Short name (`main`, `v1`), short hash, or `stash@{0}`.
+    pub name: String,
+    /// What to preview and print: the full commit hash.
+    pub oid: String,
+    pub subject: String,
+    /// Commit time, seconds since the epoch.
+    pub time: i64,
+    /// The checked-out branch.
+    pub is_head: bool,
+}
+
 impl Candidate {
     pub fn plain(s: impl Into<String>) -> Self {
-        Candidate { display: s.into(), loc: None }
+        Candidate { display: s.into(), loc: None, git: None }
     }
 
     pub fn grep(loc: Loc) -> Self {
-        Candidate { display: format!("{}:{}: {}", loc.path, loc.line, loc.text), loc: Some(loc) }
+        Candidate { display: format!("{}:{}: {}", loc.path, loc.line, loc.text), loc: Some(loc), git: None }
     }
 
-    /// The path the preview and git state refer to.
+    /// Matched against the query as `name subject`, so either finds it.
+    pub fn git_item(item: GitItem) -> Self {
+        Candidate { display: format!("{} {}", item.name, item.subject), loc: None, git: Some(item) }
+    }
+
+    /// The path the preview and git state refer to (file candidates only).
     pub fn path(&self) -> &str {
         self.loc.as_ref().map(|l| l.path.as_str()).unwrap_or(&self.display)
     }
 
     /// What is printed on accept: `path:line:col:text` for matches (ripgrep's
-    /// `--vimgrep` format), the text itself otherwise.
+    /// `--vimgrep` format); the name for refs and stashes, the full hash for
+    /// commits; the text itself otherwise.
     pub fn output(&self) -> String {
-        match &self.loc {
-            Some(l) => format!("{}:{}:{}:{}", l.path, l.line, l.col, l.text),
+        if let Some(l) = &self.loc {
+            return format!("{}:{}:{}:{}", l.path, l.line, l.col, l.text);
+        }
+        match &self.git {
+            Some(g) if g.kind == GitKind::Commit => g.oid.clone(),
+            Some(g) => g.name.clone(),
             None => self.display.clone(),
         }
     }

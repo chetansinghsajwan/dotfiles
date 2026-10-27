@@ -1,4 +1,5 @@
 use clap::Parser;
+use pick::source::GitSource;
 use pick::{Action, Mode, Picker, PickerOptions, source};
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
@@ -25,6 +26,11 @@ struct Cli {
     /// regex; results print as `path:line:col:text`.
     #[arg(long, value_name = "DIR", num_args = 0..=1, default_missing_value = ".", conflicts_with = "files")]
     grep: Option<PathBuf>,
+    /// List git objects of the repository in the current directory: refs
+    /// (branches and tags), commits from HEAD, or stashes. Prints the ref name,
+    /// the full commit hash, or `stash@{n}`.
+    #[arg(long, value_name = "WHAT", conflicts_with_all = ["files", "grep", "paths"])]
+    git: Option<GitWhat>,
     /// Treat stdin lines as paths (preview, git state) relative to DIR.
     #[arg(long, value_name = "DIR")]
     paths: Option<PathBuf>,
@@ -70,8 +76,8 @@ fn run(cli: Cli) -> io::Result<u8> {
         (Some(d), _, _) | (None, Some(d), _) | (None, None, Some(d)) => (d.canonicalize()?, true),
         (None, None, None) => (std::env::current_dir()?, false),
     };
-    if cli.files.is_none() && cli.grep.is_none() && io::stdin().is_terminal() {
-        eprintln!("usage: <command> | pick [--paths DIR]   or   pick --files [DIR]   or   pick --grep [DIR]");
+    if cli.files.is_none() && cli.grep.is_none() && cli.git.is_none() && io::stdin().is_terminal() {
+        eprintln!("usage: <command> | pick [--paths DIR]   or   pick --files [DIR]   or   pick --grep [DIR]   or   pick --git refs|commits|stashes");
         return Ok(2);
     }
 
@@ -81,13 +87,14 @@ fn run(cli: Cli) -> io::Result<u8> {
         Arc::new(move || wake.store(true, Ordering::Relaxed)) as Arc<dyn Fn() + Send + Sync>
     };
     let mut picker = Picker::new(
-        PickerOptions { mode, paths, root: root.clone(), preview: !cli.no_preview && paths, git: !cli.no_git, query: cli.query },
+        PickerOptions { mode, paths, root: root.clone(), preview: !cli.no_preview && (paths || cli.git.is_some()), git: !cli.no_git, query: cli.query },
         notify,
     );
-    match (&cli.files, mode) {
-        (Some(_), _) => source::spawn_files(picker.injector(), root, cli.dirs),
-        (None, Mode::Grep) => {} // the picker runs the search itself
-        (None, Mode::Fuzzy) => source::spawn_lines(picker.injector(), io::BufReader::new(io::stdin())),
+    match (&cli.files, cli.git, mode) {
+        (Some(_), _, _) => source::spawn_files(picker.injector(), root, cli.dirs),
+        (None, Some(what), _) => source::spawn_git(picker.injector(), root, what.into()),
+        (None, None, Mode::Grep) => {} // the picker runs the search itself
+        (None, None, Mode::Fuzzy) => source::spawn_lines(picker.injector(), io::BufReader::new(io::stdin())),
     }
 
     // Draw on the controlling terminal so stdin can carry candidates and
@@ -135,5 +142,22 @@ fn run(cli: Cli) -> io::Result<u8> {
         }
         Action::Accept(_) => Ok(EXIT_NO_SELECTION),
         _ => Ok(EXIT_CANCEL),
+    }
+}
+
+#[derive(Clone, Copy, clap::ValueEnum)]
+enum GitWhat {
+    Refs,
+    Commits,
+    Stashes,
+}
+
+impl From<GitWhat> for GitSource {
+    fn from(w: GitWhat) -> Self {
+        match w {
+            GitWhat::Refs => GitSource::Refs,
+            GitWhat::Commits => GitSource::Commits,
+            GitWhat::Stashes => GitSource::Stashes,
+        }
     }
 }

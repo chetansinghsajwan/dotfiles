@@ -220,6 +220,19 @@ impl Picker {
         Some((c, k))
     }
 
+    /// Name color of a ref, commit or stash row.
+    fn git_item_color(theme: &Theme, g: &crate::candidate::GitItem) -> Color {
+        use crate::candidate::GitKind::*;
+        let c = &theme.colors;
+        match g.kind {
+            Branch => c.accent,
+            Remote => c.info,
+            Tag | Commit => c.warning,
+            Stash => c.git.conflict,
+        }
+        .into()
+    }
+
     fn git_color(theme: &Theme, kind: git_core::Kind) -> Color {
         use git_core::Kind::*;
         let g = &theme.colors.git;
@@ -275,13 +288,22 @@ impl Picker {
         indices.sort_unstable();
         indices.dedup();
         let mut hits = indices.iter().copied().peekable();
+        // Git items: the name part takes its kind color, the subject the text color.
+        let (name_len, name_color, rest_color) = match &cand.git {
+            Some(g) => (g.name.chars().count(), Self::git_item_color(theme, g), Color::from(c.fg)),
+            None => (usize::MAX, name_fg, name_fg),
+        };
         let mut spans = Vec::new();
+        if let Some(g) = &cand.git {
+            spans.push(Span::styled(if g.is_head { "* " } else { "  " }, Style::new().fg(c.accent.into())));
+        }
         for (i, ch) in cand.display.chars().enumerate() {
             let is_hit = hits.peek() == Some(&(i as u32));
             if is_hit {
                 hits.next();
             }
-            spans.push(Span::styled(ch.to_string(), if is_hit { hit } else { Style::new().fg(name_fg) }));
+            let base = if i < name_len { name_color } else { rest_color };
+            spans.push(Span::styled(ch.to_string(), if is_hit { hit } else { Style::new().fg(base) }));
         }
         spans
     }
@@ -361,9 +383,10 @@ impl Picker {
         let cand = self.current();
         let title = cand
             .as_ref()
-            .map(|c| match &c.loc {
-                Some(l) => format!("{}:{}", l.path, l.line),
-                None => c.display.clone(),
+            .map(|c| match (&c.loc, &c.git) {
+                (Some(l), _) => format!("{}:{}", l.path, l.line),
+                (_, Some(g)) => g.name.clone(),
+                _ => c.display.clone(),
             })
             .unwrap_or_default();
         let pane = Pane::new(theme).title(&title);
@@ -377,16 +400,20 @@ impl Picker {
             return;
         }
         let line = cand.loc.as_ref().map(|l| l.line).unwrap_or(0);
-        let key = (cand.path().to_string(), line, inner.width, inner.height);
+        let id = cand.git.as_ref().map(|g| g.oid.clone()).unwrap_or_else(|| cand.path().to_string());
+        let key = (id, line, inner.width, inner.height);
         if self.preview.as_ref().map(|p| &p.key) != Some(&key) {
-            let path = self.opts.root.join(cand.path());
             let opts = pv::Options {
                 width: Some(inner.width),
                 height: Some(inner.height),
                 git: self.opts.git,
                 focus: cand.loc.as_ref().map(|l| l.line),
             };
-            let lines = match pv::preview(&path, theme, &opts) {
+            let rendered = match &cand.git {
+                Some(g) => pv::preview_commit(&self.opts.root, &g.oid, theme, &opts),
+                None => pv::preview(&self.opts.root.join(cand.path()), theme, &opts),
+            };
+            let lines = match rendered {
                 Ok(l) => l,
                 Err(e) => vec![Line::from(Span::styled(e.to_string(), Style::new().fg(theme.colors.muted.into())))],
             };
@@ -612,5 +639,105 @@ mod grep_tests {
         std::thread::sleep(std::time::Duration::from_millis(50));
         p.nucleo.tick(10);
         assert_eq!(p.nucleo.snapshot().item_count(), 0);
+    }
+}
+
+#[cfg(test)]
+mod git_tests {
+    use super::*;
+    use crate::source::{GitSource, spawn_git};
+    use ratatui::crossterm::event::KeyEvent;
+    use std::process::Command;
+
+    fn git(dir: &std::path::Path, args: &[&str]) {
+        let ok = Command::new("git")
+            .args(["-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"])
+            .args(args)
+            .current_dir(dir)
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .env("GIT_CONFIG_SYSTEM", "/dev/null")
+            .status()
+            .unwrap()
+            .success();
+        assert!(ok, "git {args:?}");
+    }
+
+    fn repo(name: &str) -> PathBuf {
+        let d = std::env::temp_dir().join(format!("pick-git-{}-{name}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        git(&d, &["init", "-q", "-b", "main"]);
+        std::fs::write(d.join("a.txt"), "one\n").unwrap();
+        git(&d, &["add", "."]);
+        git(&d, &["commit", "-q", "-m", "first commit"]);
+        git(&d, &["tag", "v1"]);
+        std::fs::write(d.join("a.txt"), "one\ntwo\n").unwrap();
+        git(&d, &["commit", "-qam", "add the second line"]);
+        d.canonicalize().unwrap()
+    }
+
+    fn picker(root: &PathBuf, what: GitSource, query: &str) -> Picker {
+        let opts = PickerOptions { mode: Mode::Fuzzy, paths: false, root: root.clone(), preview: true, git: false, query: query.into() };
+        let mut p = Picker::new(opts, Arc::new(|| {}));
+        spawn_git(p.injector(), root.clone(), what);
+        for _ in 0..300 {
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            p.nucleo.tick(10);
+            if p.nucleo.snapshot().item_count() > 0 && !p.nucleo.tick(10).running {
+                break;
+            }
+        }
+        p
+    }
+
+    fn enter(p: &mut Picker) -> Action {
+        p.handle_event(&Event::Key(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE)))
+    }
+
+    #[test]
+    fn refs_list_branches_and_tags_and_print_names() {
+        let d = repo("refs");
+        let mut p = picker(&d, GitSource::Refs, "");
+        let names: Vec<String> = p.nucleo.snapshot().matched_items(..).map(|i| i.data.git.as_ref().unwrap().name.clone()).collect();
+        assert_eq!(names, vec!["main".to_string(), "v1".to_string()]);
+        assert_eq!(enter(&mut p), Action::Accept(vec!["main".into()])); // head branch is first
+    }
+
+    #[test]
+    fn query_matches_name_or_subject() {
+        let d = repo("query");
+        let mut p = picker(&d, GitSource::Refs, "first");
+        for _ in 0..50 {
+            p.nucleo.tick(10);
+        }
+        // The tag points at "first commit": found through the subject.
+        assert_eq!(enter(&mut p), Action::Accept(vec!["v1".into()]));
+    }
+
+    #[test]
+    fn commits_print_full_hash_and_preview_shows_the_commit() {
+        let d = repo("commits");
+        let mut p = picker(&d, GitSource::Commits, "");
+        let log = git_core::Repo::discover(&d).unwrap().commits(5).unwrap();
+        assert_eq!(log.len(), 2);
+        let Action::Accept(v) = enter(&mut p) else { panic!() };
+        assert_eq!(v, vec![log[0].oid.clone()]);
+        assert_eq!(v[0].len(), 40);
+
+        let area = Rect::new(0, 0, 100, 16);
+        let mut buf = Buffer::empty(area);
+        p.render(area, &mut buf, &Theme::default());
+        let text: String = (0..16).map(|y| (0..100).map(|x| buf[(x, y)].symbol().to_string()).collect::<String>() + "\n").collect();
+        assert!(text.contains("add the second line"), "{text}");
+        assert!(text.contains("author") && text.contains("1 file changed, +1 -0"), "{text}");
+    }
+
+    #[test]
+    fn stashes_print_their_name() {
+        let d = repo("stash");
+        std::fs::write(d.join("a.txt"), "wip\n").unwrap();
+        git(&d, &["stash", "push", "-q", "-m", "work in progress"]);
+        let mut p = picker(&d, GitSource::Stashes, "");
+        assert_eq!(enter(&mut p), Action::Accept(vec!["stash@{0}".into()]));
     }
 }

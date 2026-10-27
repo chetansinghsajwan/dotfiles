@@ -2,9 +2,11 @@
 //! and per-line changes, on `gix`. Used by `pv`, `pick`, the files panel and
 //! `git-panel` so none of them talk to git themselves.
 
+mod history;
 mod lines;
 mod status;
 
+pub use history::{CommitInfo, FileChange, RefInfo, RefKind, StashInfo};
 pub use lines::{LineChange, LineKind};
 pub use status::{FileStatus, Kind, Status};
 
@@ -60,6 +62,32 @@ impl Repo {
     /// Status of every changed path in the repo. Compute once and cache.
     pub fn status(&self) -> Result<Status, Error> {
         status::compute(&self.repo)
+    }
+
+    /// Branches, remote branches and tags: the checked-out branch first, then
+    /// local branches, remotes and tags, newest first.
+    pub fn refs(&self) -> Result<Vec<RefInfo>, Error> {
+        history::refs(&self.repo)
+    }
+
+    /// Up to `limit` commits reachable from `HEAD`, newest first.
+    pub fn commits(&self, limit: usize) -> Result<Vec<CommitInfo>, Error> {
+        history::commits(&self.repo, limit)
+    }
+
+    /// Stash entries, newest (`stash@{0}`) first.
+    pub fn stashes(&self) -> Result<Vec<StashInfo>, Error> {
+        history::stashes(&self.repo)
+    }
+
+    /// One commit by hash, ref name or any rev-spec.
+    pub fn commit(&self, rev: &str) -> Result<CommitInfo, Error> {
+        history::commit(&self.repo, rev)
+    }
+
+    /// Files changed by `rev` against its first parent, with line counts.
+    pub fn changes(&self, rev: &str) -> Result<Vec<FileChange>, Error> {
+        history::changes(&self.repo, rev)
     }
 
     /// Changed lines of `path` in the work tree compared to `HEAD`.
@@ -153,6 +181,68 @@ mod tests {
             .output();
         let s = Repo::discover(&d).unwrap().status().unwrap();
         assert_eq!(s.get(Path::new("b.txt")).unwrap().primary(), Some(Kind::Conflict));
+    }
+
+    #[test]
+    fn refs_commits_and_changes() {
+        let d = repo("history");
+        git(&d, &["tag", "v1"]);
+        git(&d, &["tag", "-a", "v1-annotated", "-m", "release"]);
+        git(&d, &["checkout", "-q", "-b", "feature"]);
+        fs::write(d.join("a.txt"), "1\n2\nX\n4\n5\nmore\n").unwrap(); // +2 -1 vs "1..5"
+        fs::write(d.join("new.txt"), "n\nn\n").unwrap();
+        git(&d, &["rm", "-q", "b.txt"]);
+        git(&d, &["add", "."]);
+        git(&d, &["commit", "-q", "-m", "second\n\nlonger body"]);
+        let r = Repo::discover(&d).unwrap();
+
+        let refs = r.refs().unwrap();
+        let names: Vec<(&str, RefKind, bool)> = refs.iter().map(|x| (x.name.as_str(), x.kind, x.is_head)).collect();
+        assert_eq!(names[0], ("feature", RefKind::Branch, true), "{names:?}");
+        assert!(names.contains(&("main", RefKind::Branch, false)));
+        assert!(names.contains(&("v1", RefKind::Tag, false)) && names.contains(&("v1-annotated", RefKind::Tag, false)));
+        // Annotated tags peel to the commit.
+        let init = r.commit("main").unwrap();
+        assert_eq!(refs.iter().find(|x| x.name == "v1-annotated").unwrap().oid, init.oid);
+        assert_eq!(refs[0].subject, "second");
+
+        let log = r.commits(10).unwrap();
+        assert_eq!(log.len(), 2);
+        assert_eq!(log[0].subject, "second");
+        assert_eq!(log[0].message, "second\n\nlonger body");
+        assert_eq!((log[0].author.as_str(), log[0].email.as_str()), ("t", "t@t"));
+        assert_eq!(log[0].parents, vec![log[1].oid.clone()]);
+        assert_eq!(r.commits(1).unwrap().len(), 1);
+
+        let ch = r.changes("HEAD").unwrap();
+        let get = |p: &str| ch.iter().find(|c| c.path == p).unwrap_or_else(|| panic!("{p} in {ch:?}"));
+        assert_eq!((get("a.txt").kind, get("a.txt").added, get("a.txt").removed), (Kind::Modified, 2, 1));
+        assert_eq!((get("new.txt").kind, get("new.txt").added), (Kind::Added, 2));
+        assert_eq!(get("b.txt").kind, Kind::Deleted);
+        // The root commit is diffed against the empty tree.
+        assert!(r.changes(&init.oid).unwrap().iter().all(|c| c.kind == Kind::Added));
+    }
+
+    #[test]
+    fn stashes_and_unborn_head() {
+        let d = repo("stash");
+        fs::write(d.join("a.txt"), "changed\n").unwrap();
+        git(&d, &["stash", "push", "-q", "-m", "wip one"]);
+        fs::write(d.join("a.txt"), "changed again\n").unwrap();
+        git(&d, &["stash", "push", "-q", "-m", "wip two"]);
+        let r = Repo::discover(&d).unwrap();
+        let s = r.stashes().unwrap();
+        assert_eq!(s.len(), 2);
+        assert_eq!((s[0].index, s[1].index), (0, 1));
+        assert!(s[0].message.contains("wip two") && s[1].message.contains("wip one"), "{s:?}");
+        assert!(r.commit(&s[0].oid).is_ok());
+
+        let e = std::env::temp_dir().join(format!("git-core-test-{}-unborn", std::process::id()));
+        let _ = fs::remove_dir_all(&e);
+        fs::create_dir_all(&e).unwrap();
+        git(&e, &["init", "-q", "-b", "main"]);
+        let r = Repo::discover(&e).unwrap();
+        assert!(r.commits(5).unwrap().is_empty() && r.refs().unwrap().is_empty() && r.stashes().unwrap().is_empty());
     }
 
     #[test]

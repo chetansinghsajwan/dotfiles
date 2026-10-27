@@ -2,6 +2,7 @@
 //! embed previews in-process; the CLI prints the same lines as ANSI.
 
 mod ansi;
+mod commit;
 mod config;
 mod dir;
 mod git;
@@ -13,6 +14,7 @@ use std::path::Path;
 use ui::Theme;
 
 pub use ansi::to_ansi;
+pub use commit::render as preview_commit;
 pub use config::Config;
 
 #[derive(Debug, Clone)]
@@ -190,6 +192,19 @@ mod tests {
         assert!(text.last().unwrap().contains("line 100"), "{text:?}");
         assert_eq!(text.len(), 10);
     }
+    #[test]
+    fn commit_preview_has_header_message_and_files() {
+        let d = git_repo("commit");
+        let lines = preview_commit(&d, "HEAD", &Theme::default(), &Options { width: Some(60), ..Options::default() }).unwrap();
+        let text: Vec<String> = lines.iter().map(flat).collect();
+        assert!(text[0].starts_with("commit ") && text[1].starts_with("author ") && text[2].starts_with("date "), "{text:?}");
+        assert!(text.iter().any(|l| l.trim() == "i"), "{text:?}");
+        assert!(text.iter().any(|l| l.contains("2 files changed, +4 -0")), "{text:?}");
+        assert!(text.iter().any(|l| l.contains("a.txt") && l.trim_end().ends_with("+3 -0") && l.len() >= 55), "{text:?}");
+        assert!(text.iter().any(|l| l.contains("sub/s.txt")), "{text:?}");
+        assert!(preview_commit(&d, "nonexistent-ref", &Theme::default(), &Options::default()).is_err());
+    }
+
     #[test]
     fn ansi_resets_after_styled_span() {
         let lines = vec![Line::from(ratatui::text::Span::styled("x", ratatui::style::Style::new().fg(ratatui::style::Color::Rgb(1, 2, 3))))];
