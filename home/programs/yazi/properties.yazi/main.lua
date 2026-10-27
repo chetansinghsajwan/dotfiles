@@ -550,6 +550,52 @@ local function setup(state)
         end
     end)
 
+    -- yazi sizes the files list's visible window from the *preview* rect's
+    -- height (it assumes the two are equal). Shrinking the preview for this
+    -- panel therefore truncated the list at the panel's top edge, leaving the
+    -- rows below it blank. Rebuild the window from the list's own height.
+    local function full_window(self)
+        local folder = self._folder
+        local files, rows = folder.files, {}
+        for i = folder.offset + 1, math.min(#files, folder.offset + self._area.h) do
+            rows[#rows + 1] = files[i]
+        end
+        return rows
+    end
+
+    Current.redraw = function(self)
+        local rows = full_window(self)
+        if #rows == 0 then
+            return self:empty()
+        end
+
+        local left, right = {}, {}
+        for _, f in ipairs(rows) do
+            local entity = Entity:new(f)
+            left[#left + 1], right[#right + 1] = entity:redraw(), Linemode:new(f):redraw()
+
+            local max = math.max(0, self._area.w - right[#right]:width())
+            left[#left]:truncate { max = max, ellipsis = entity:ellipsis(max) }
+        end
+
+        return {
+            ui.List(left):area(self._area),
+            ui.Text(right):area(self._area):align(ui.Align.RIGHT),
+            table.unpack(Dnd:new(self._area):redraw()),
+        }
+    end
+
+    Current.click = function(self, event, up)
+        if up or event.is_middle then
+            return
+        end
+
+        local f = full_window(self)[event.y - self._area.y + 1]
+        if f then
+            Entity:new(f):click(event, up)
+        end
+    end
+
     local old_build = Tab.build
 
     Tab.build = function(self, ...)
