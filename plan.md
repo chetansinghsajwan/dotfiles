@@ -174,8 +174,8 @@ TODO before step 2: read yazi's source to count how many files touch border and 
 - Rows: `path:line: text` with the path colored by git state, the match in bold accent. Preview: `pv` with the new `Options.focus` (a window centered on the match line, that row highlighted with the `selection` token, gutter numbers kept); pane title `path:line`.
 - `pv` gained `Options.focus: Option<u32>` (text files only) and 1 test.
 - Tested: 5 grep unit tests (results + output format + columns, query change restarts, invalid regex fallback, preview focus window, empty query) plus the earlier 5; pty end-to-end: typed a query + Enter printed `source.rs:11:1:pub fn spawn_lines(...)`, Esc exit 130, no match exit 1.
-- Not done / not verified: no debounce (every keystroke restarts the search; fine on this repo, untested on huge trees), case and regex-mode toggles, search inside a path subset or by glob, multi-line patterns, non-UTF-8 files (skipped by the UTF8 sink), the yazi hookup for `S`/`s` (content/name search still use yazi's built-ins), stdin grep results.
-- Next: bind it in yazi (`S`), then buffers and git-ref sources, then the helix embed.
+- Not done / not verified: no debounce (every keystroke restarts the search; fine on this repo, untested on huge trees), case and regex-mode toggles, search inside a path subset or by glob, multi-line patterns, non-UTF-8 files (skipped by the UTF8 sink), stdin grep results.
+- yazi `S` is bound to it (see the yazi section). Next: buffers and git-ref sources, then the helix embed.
 
 ### yazi + `pick` (step 1 done)
 
@@ -183,7 +183,9 @@ TODO before step 2: read yazi's source to count how many files touch border and 
 - `pick --dirs` (new flag, with `--files`): include folders, marked with a trailing `/`.
 - Verified by driving real yazi 26.9.1 (generated config) in a pty with `ya emit-to <id> plugin pick` and a stub `pick` on PATH: cancel (exit 130) does nothing, a folder result enters the folder, a file result reveals it (the control `cd` worked the same way). Evidence came from yazi's debug log (`YAZI_LOG=debug`, watched dirs), not from the screen.
 - NOT verified: the real `pick` UI running inside yazi's hidden terminal. In this harness no keystrokes reach any child of yazi (even a plain `read </dev/tty` stub got nothing, and `l`/`q` keys did not move yazi either), so typing a query inside yazi was not tested. `pick` alone works in a pty (section 2). Try `z` in a real terminal after activating the config.
-- yazi's other fzf-like entry points are unchanged: `f` (filter), `s` (search by name via fd), `S` (search contents via ripgrep). Content search belongs to a future `pick` grep source.
+- `S` in yazi now runs `plugin pick grep` (replaces yazi's ripgrep content search): `pick --grep` in the current folder; one result reveals its file, several select the distinct files (yazi cannot open at a line, so the line is dropped). `plugin pick` (key `z`) is unchanged. The plugin takes its mode from `job.args[1]`.
+- Gotcha found while testing: yazi compiles plugins with Luau, and assigning to a `for` loop variable makes the whole plugin fail to load silently (the task just hangs as "Run plugin"). Use a fresh local. `luau-analyze` (nixpkgs#luau) is a quick check for syntax errors (ignore its "Unknown global" noise).
+- Test harness caveats: keystrokes sent through `script` to yazi are real input (typing `deep` + Enter deleted my test fixture folder); `ui.hide()` hung in the harness after the first hour (a second yazi instance of the user's own was running), so the plugin was re-tested with `ui.hide()` replaced by a no-op. Verified that way: `S` passes `--grep`, a single grep result reveals the file, several results do not navigate, cancel does nothing, `z` still enters a folder result. NOT verified: `ui.hide()` + real `pick` UI in a real terminal (same as the `z` caveat above).
 - Next for yazi: step 2/3 (embed the `yazi-*` crates, own drawing) and the theme from tokens are untouched.
 
 ## 4. Code editor: helix (fork)

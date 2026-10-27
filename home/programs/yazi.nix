@@ -202,6 +202,12 @@
                     desc = "Jump to a file/folder via pick";
                 }
                 {
+                    # Search file contents with pick (replaces yazi's ripgrep search).
+                    on = "S";
+                    run = "plugin pick grep";
+                    desc = "Search file contents via pick";
+                }
+                {
                     on = [
                         "p"
                         "p"

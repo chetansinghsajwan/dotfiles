@@ -1,7 +1,10 @@
--- Jump to a file or folder with `pick` (the shared picker), replacing yazi's
--- built-in `fzf` plugin. Adapted from yazi's own preset fzf.lua (26.9): hide
+-- Jump with `pick` (the shared picker), replacing yazi's built-in `fzf` plugin
+-- and its ripgrep search. Adapted from yazi's own preset fzf.lua (26.9): hide
 -- yazi, run the picker on the terminal, then cd/reveal/select the result.
 -- `pick` draws on /dev/tty itself, so it only needs the terminal released.
+--
+--   plugin pick        fuzzy-jump to a file or folder under the current folder
+--   plugin pick grep   search file contents; reveals the file of the match
 
 local M = {}
 
@@ -9,7 +12,8 @@ local state = ya.sync(function()
 	return cx.active.current.cwd
 end)
 
-function M:entry()
+function M:entry(job)
+	local grep = job.args and job.args[1] == "grep"
 	ya.emit("escape", { visual = true })
 
 	local cwd = state()
@@ -18,18 +22,18 @@ function M:entry()
 	end
 
 	local permit = ui.hide()
-	local output, err = M.run(cwd)
+	local output, err = M.run(cwd, grep)
 	permit:drop()
 	if not output then
 		return ya.notify { title = "Pick", content = tostring(err), timeout = 5, level = "error" }
 	end
 
-	local urls = M.split_urls(cwd, output)
+	local urls = M.split_urls(cwd, output, grep)
 	if #urls == 0 then
 		return
 	elseif #urls == 1 then
-		-- pick marks folders with a trailing slash.
-		local is_dir = output:match("[/\\]%s*$") ~= nil
+		-- pick marks folders with a trailing slash. Grep results are always files.
+		local is_dir = not grep and output:match("[/\\]%s*$") ~= nil
 		return ya.emit(is_dir and "cd" or "reveal", { urls[1], raw = true })
 	end
 
@@ -44,10 +48,11 @@ function M:entry()
 end
 
 ---@param cwd Url
+---@param grep boolean
 ---@return string?, Error?
-function M.run(cwd)
+function M.run(cwd, grep)
 	local child, err = Command("pick")
-		:arg({ "--files", "--dirs" })
+		:arg(grep and { "--grep" } or { "--files", "--dirs" })
 		:cwd(tostring(cwd))
 		:stdin(Command.INHERIT)
 		:stdout(Command.PIPED)
@@ -68,11 +73,19 @@ function M.run(cwd)
 	return output.stdout, nil
 end
 
-function M.split_urls(cwd, output)
-	local t = {}
+-- One Url per distinct file. Grep lines are `path:line:col:text`; only the path is used.
+function M.split_urls(cwd, output, grep)
+	local t, seen = {}, {}
 	for line in output:gmatch("[^\r\n]+") do
-		local u = Url(line)
-		t[#t + 1] = u.is_absolute and u or cwd:resolve(u)
+		local path = line
+		if grep then
+			path = line:match("^(.-):%d+:%d+:") or line
+		end
+		if not seen[path] then
+			seen[path] = true
+			local u = Url(path)
+			t[#t + 1] = u.is_absolute and u or cwd:resolve(u)
+		end
 	end
 	return t
 end
