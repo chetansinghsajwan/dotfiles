@@ -307,7 +307,7 @@ in
                     "neovim"
                     "helix"
                 ];
-                default = "neovim";
+                default = "helix";
                 description = "Terminal editor used as the default $EDITOR (and for git).";
             };
 
