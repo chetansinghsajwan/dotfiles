@@ -209,3 +209,16 @@ impl Default for SyntaxColors {
         }
     }
 }
+
+/// Blend `over` onto `base`: `percent` of `over`, the rest `base`. Non-RGB
+/// colors return `base` unchanged.
+pub fn mix(over: Color, base: Color, percent: u8) -> Color {
+    match (over, base) {
+        (Color::Rgb(r1, g1, b1), Color::Rgb(r2, g2, b2)) => {
+            let p = u32::from(percent.min(100));
+            let m = |a: u8, b: u8| ((u32::from(a) * p + u32::from(b) * (100 - p)) / 100) as u8;
+            Color::Rgb(m(r1, r2), m(g1, g2), m(b1, b2))
+        }
+        _ => base,
+    }
+}

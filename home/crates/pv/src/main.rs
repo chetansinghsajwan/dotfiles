@@ -1,4 +1,4 @@
-use pv::{Options, preview, to_ansi};
+use pv::{Config, Options, preview, to_ansi};
 use std::path::PathBuf;
 use std::process::ExitCode;
 
@@ -7,15 +7,23 @@ fn env_num(name: &str) -> Option<u16> {
 }
 
 fn main() -> ExitCode {
-    let mut args = std::env::args_os().skip(1);
-    let (Some(path), None) = (args.next().map(PathBuf::from), args.next()) else {
-        eprintln!("usage: pv <path>");
+    let mut git = Config::load().git;
+    let mut paths = Vec::new();
+    for a in std::env::args_os().skip(1) {
+        if a == "--no-git" {
+            git = false;
+        } else {
+            paths.push(PathBuf::from(a));
+        }
+    }
+    let [path] = paths.as_slice() else {
+        eprintln!("usage: pv [--no-git] <path>");
         return ExitCode::from(1);
     };
     // yazi's piper sets $w and $h to the preview pane size.
-    let opts = Options { width: env_num("w"), height: env_num("h") };
+    let opts = Options { width: env_num("w"), height: env_num("h"), git };
     let theme = ui::Theme::load();
-    match preview(&path, &theme, &opts) {
+    match preview(path, &theme, &opts) {
         Ok(lines) => {
             print!("{}", to_ansi(&lines));
             ExitCode::SUCCESS

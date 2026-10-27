@@ -4,8 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+git-core = { version = "0.1.0", path = "../git-core" }
 ratatui = "0.30.2"
+serde = { version = "1.0.229", features = ["derive"] }
 syntect = { version = "5.3.0", default-features = false, features = ["default-fancy"] }
+toml = "1.1.8"
 two-face = { version = "0.5.2", default-features = false, features = ["syntect-fancy"] }
 ui = { version = "0.1.0", path = "../ui" }
 unicode-width = "0.2.2"

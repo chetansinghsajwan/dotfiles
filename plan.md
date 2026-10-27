@@ -129,13 +129,14 @@ Goal: every tool that needs a picker for any purpose uses `pick`. It always has 
 
 - Library: `pv::preview(path, &Theme, &Options{width,height}) -> Result<Vec<Line>, Error>` (ratatui lines, so it embeds in-process) and `pv::to_ansi` (truecolor SGR). CLI `pv <path>` prints ANSI, reads `$w`/`$h`, exit 1 with a message for missing/binary files.
 - Renderers done: text (syntect `default-fancy` + `two-face` syntax bundle, a syntect theme built from the `ui` `syntax` tokens, line-number gutter, 1 MB cap, binary = NUL in first 8000 bytes) and directory (compact tree: dirs first, at most 2 entries per subfolder then `…`, perms colored + relative mtime flush right).
-- Regressions vs the old shell script, to fix in the next steps: CSV/TSV is shown as plain highlighted text (tidy-viewer table dropped; step 3), no git signs in directory rows and no git changed-row highlight (step 2), no file icons in directory rows (eza icons; add icons to the tokens), no `bat` changes gutter.
+- Git (done, step 2): text rows changed vs HEAD get a `▎` sign (`▔`/`▁` for removed lines) and a row tint (git color at 18% over bg, padded to `$w`); directory rows get a sign column (`M + A D ? U R`, `•` for a folder with changes beneath) and the name colored by state. Disable with `--no-git` or `git = false` in `~/.config/pv/config.toml` (flag wins; default on). Status is computed once per `pv` call.
+- Regressions vs the old shell script, still open: CSV/TSV shown as plain highlighted text (tidy-viewer table dropped; step 3), no file icons in directory rows (add icons to the tokens), ignored files have no `!` sign.
 - Not verified: running under yazi's piper (the `$w`/`$h` contract is from the old script's comments), width truncation of long text lines (not done; piper/pane clips them), performance on very large directories.
-- Tested: 4 unit tests (text gutter + height, binary, dir ordering and child cap, ANSI reset); the Nix build runs them and the packaged binary was run on a directory.
+- Tested: 6 unit tests (text gutter + height, binary, dir ordering and child cap, ANSI reset, git row marks + disable, git dir signs); the Nix build runs them. The packaged binary was run on a real repo: highlight on, off via `--no-git`, off via config. `git-core`'s own tests are not run by the Nix build (helper builds `-p pv` only); run `cargo test` in `home/crates`.
 
 ### Build order
 
-1. `pv` library + CLI: text and directory done; git highlighting and CSV table remain.
+1. `pv` library + CLI: text, directory and git highlighting done; CSV table remains.
 1. `pick` core: stdin in, selection out, preview via `pv`.
 1. Sources (files, buffers, git refs, grep).
 1. yazi integration; helix integration (section 4).

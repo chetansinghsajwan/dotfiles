@@ -1,6 +1,7 @@
 //! Compact directory tree: the folder's entries, and under each subfolder at
 //! most two entries then a `…` marker. Right column: permissions + age.
 
+use crate::git::{self, Kind, Repo, Status};
 use crate::{Error, Options};
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
@@ -78,14 +79,18 @@ fn perm_spans(mode: u32, theme: &Theme) -> Vec<Span<'static>> {
     out
 }
 
-fn row(prefix: &str, e: &Entry, width: Option<u16>, theme: &Theme) -> Line<'static> {
+fn row(prefix: &str, e: &Entry, opts: &Options, state: Option<(char, Kind)>, theme: &Theme) -> Line<'static> {
+    let width = opts.width;
     let c = &theme.colors;
     let name = if e.is_dir { format!("{}/", e.name) } else { e.name.clone() };
-    let name_style = if e.is_dir {
+    let mut name_style = if e.is_dir {
         Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD)
     } else {
         Style::new().fg(c.fg.into())
     };
+    if let Some((_, kind)) = state {
+        name_style = name_style.fg(git::kind_color(theme, kind));
+    }
     let mut spans = vec![
         Span::styled(prefix.to_string(), Style::new().fg(c.muted.into())),
         Span::styled(name.clone(), name_style),
@@ -93,6 +98,13 @@ fn row(prefix: &str, e: &Entry, width: Option<u16>, theme: &Theme) -> Line<'stat
     if let Some(w) = width {
         let mut right = perm_spans(e.mode, theme);
         right.push(Span::styled(format!("  {:>8}", relative(e.mtime)), Style::new().fg(c.muted.into())));
+        if opts.git {
+            right.push(Span::raw(" "));
+            right.push(match state {
+                Some((ch, kind)) => Span::styled(ch.to_string(), Style::new().fg(git::kind_color(theme, kind))),
+                None => Span::raw(" "),
+            });
+        }
         let right_w: usize = right.iter().map(|s| s.content.width()).sum();
         let left_w = prefix.width() + name.width();
         let pad = (w as usize).saturating_sub(left_w + right_w + 2).max(1);
@@ -104,6 +116,7 @@ fn row(prefix: &str, e: &Entry, width: Option<u16>, theme: &Theme) -> Line<'stat
 
 pub fn render(path: &Path, theme: &Theme, opts: &Options) -> Result<Vec<Line<'static>>, Error> {
     let limit = opts.height.map(usize::from).unwrap_or(usize::MAX);
+    let ctx = if opts.git { git::load(path) } else { None };
     let top = entries(path);
     let mut out = Vec::new();
     for (i, e) in top.iter().enumerate() {
@@ -111,7 +124,7 @@ pub fn render(path: &Path, theme: &Theme, opts: &Options) -> Result<Vec<Line<'st
             break;
         }
         let last = i + 1 == top.len();
-        out.push(row(if last { "└── " } else { "├── " }, e, opts.width, theme));
+        out.push(row(if last { "└── " } else { "├── " }, e, opts, state_of(e, &ctx), theme));
         if e.is_dir {
             let kids = entries(&e.path);
             let lead = if last { "    " } else { "│   " };
@@ -119,7 +132,7 @@ pub fn render(path: &Path, theme: &Theme, opts: &Options) -> Result<Vec<Line<'st
                 let more = kids.len() > SUB_LIMIT;
                 let last_kid = j + 1 == SUB_LIMIT.min(kids.len()) && !more;
                 let glyph = if last_kid { "└── " } else { "├── " };
-                out.push(row(&format!("{lead}{glyph}"), k, opts.width, theme));
+                out.push(row(&format!("{lead}{glyph}"), k, opts, state_of(k, &ctx), theme));
             }
             if kids.len() > SUB_LIMIT {
                 out.push(Line::from(Span::styled(
@@ -131,4 +144,15 @@ pub fn render(path: &Path, theme: &Theme, opts: &Options) -> Result<Vec<Line<'st
     }
     out.truncate(limit);
     Ok(out)
+}
+
+/// Git sign for an entry: a file's own state, or a dot for a folder with changes beneath it.
+fn state_of(e: &Entry, ctx: &Option<(Repo, Status)>) -> Option<(char, Kind)> {
+    let (repo, status) = ctx.as_ref()?;
+    let rela = repo.relative(&e.path)?;
+    if e.is_dir {
+        status.dir(&rela).map(|k| ('•', k))
+    } else {
+        git::sign(status.get(&rela)?)
+    }
 }

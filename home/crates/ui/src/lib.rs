@@ -7,4 +7,4 @@ pub mod pane;
 pub mod theme;
 
 pub use pane::Pane;
-pub use theme::Theme;
+pub use theme::{Theme, mix};

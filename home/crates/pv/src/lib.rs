@@ -2,7 +2,9 @@
 //! embed previews in-process; the CLI prints the same lines as ANSI.
 
 mod ansi;
+mod config;
 mod dir;
+mod git;
 mod text;
 
 use ratatui::text::Line;
@@ -11,13 +13,22 @@ use std::path::Path;
 use ui::Theme;
 
 pub use ansi::to_ansi;
+pub use config::Config;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct Options {
-    /// Preview width in cells (right-aligns directory metadata). `None` = unknown.
+    /// Preview width in cells (right-aligns directory metadata, pads row tints). `None` = unknown.
     pub width: Option<u16>,
     /// Visible rows. Rendering stops after this many lines. `None` = no limit.
     pub height: Option<u16>,
+    /// Git status colors and signs.
+    pub git: bool,
+}
+
+impl Default for Options {
+    fn default() -> Self {
+        Options { width: None, height: None, git: true }
+    }
 }
 
 #[derive(Debug)]
@@ -74,7 +85,7 @@ mod tests {
         let d = tmp("text");
         let f = d.join("a.rs");
         fs::write(&f, "fn main() {}\nlet x = 1;\nlet y = 2;\n").unwrap();
-        let lines = preview(&f, &Theme::default(), &Options { width: None, height: Some(2) }).unwrap();
+        let lines = preview(&f, &Theme::default(), &Options { width: None, height: Some(2), git: false }).unwrap();
         assert_eq!(lines.len(), 2);
         assert!(lines[0].spans[0].content.contains('1'));
     }
@@ -100,6 +111,58 @@ mod tests {
         assert!(text[0].contains("sub/"));
         assert_eq!(text.iter().filter(|l| l.contains('…')).count(), 1);
         assert!(text.last().unwrap().contains("z.txt"));
+    }
+
+    fn git_repo(name: &str) -> std::path::PathBuf {
+        let d = tmp(name);
+        let run = |args: &[&str]| {
+            let ok = std::process::Command::new("git")
+                .args(["-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"])
+                .args(args)
+                .current_dir(&d)
+                .env("GIT_CONFIG_GLOBAL", "/dev/null")
+                .env("GIT_CONFIG_SYSTEM", "/dev/null")
+                .status()
+                .unwrap()
+                .success();
+            assert!(ok);
+        };
+        run(&["init", "-q", "-b", "main"]);
+        fs::write(d.join("a.txt"), "1\n2\n3\n").unwrap();
+        fs::create_dir(d.join("sub")).unwrap();
+        fs::write(d.join("sub/s.txt"), "s\n").unwrap();
+        run(&["add", "."]);
+        run(&["commit", "-q", "-m", "i"]);
+        d.canonicalize().unwrap()
+    }
+
+    fn flat(l: &Line) -> String {
+        l.spans.iter().map(|s| s.content.as_ref()).collect()
+    }
+
+    #[test]
+    fn text_marks_changed_rows_and_no_git_disables() {
+        let d = git_repo("gtext");
+        fs::write(d.join("a.txt"), "1\nX\n3\n").unwrap();
+        let on = preview(&d.join("a.txt"), &Theme::default(), &Options { width: Some(20), height: None, git: true }).unwrap();
+        assert!(flat(&on[1]).starts_with('▎'));
+        assert!(on[1].spans.iter().skip(1).all(|s| s.style.bg.is_some()), "row tinted");
+        assert!(flat(&on[0]).starts_with(' ') && on[0].spans.iter().all(|s| s.style.bg.is_none()));
+        let off = preview(&d.join("a.txt"), &Theme::default(), &Options { width: Some(20), height: None, git: false }).unwrap();
+        assert!(!flat(&off[1]).contains('▎') && off[1].spans.iter().all(|s| s.style.bg.is_none()));
+    }
+
+    #[test]
+    fn dir_shows_git_signs() {
+        let d = git_repo("gdir");
+        fs::write(d.join("a.txt"), "changed\n").unwrap();
+        fs::write(d.join("sub/new.txt"), "n\n").unwrap();
+        let on = preview(&d, &Theme::default(), &Options { width: Some(80), height: None, git: true }).unwrap();
+        let text: Vec<String> = on.iter().map(flat).collect();
+        assert!(text.iter().any(|l| l.contains("sub/") && l.trim_end().ends_with('•')), "{text:?}");
+        assert!(text.iter().any(|l| l.contains("a.txt") && l.trim_end().ends_with('M')), "{text:?}");
+        let off = preview(&d, &Theme::default(), &Options { width: Some(80), height: None, git: false }).unwrap();
+        assert!(off.iter().map(flat).all(|l| !l.trim_end().ends_with('M') && !l.trim_end().ends_with('•')));
     }
 
     #[test]
