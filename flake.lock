@@ -81,11 +81,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792123449,
-        "narHash": "sha256-A+AcxnSm6YPdZzwiMTCZ6ATmPF/vcqdAh9CekNsQodg=",
+        "lastModified": 1792841684,
+        "narHash": "sha256-e5NI28/bKQ6EmjC1E46LiSzU7yT04iXdT0T7liPSBGo=",
         "owner": "caelestia-dots",
         "repo": "cli",
-        "rev": "4eac37f14e1c8a95349e9f5f461cefef13a1ed87",
+        "rev": "679af941c03f1899d017964c654f57d71cec47e5",
         "type": "github"
       },
       "original": {
@@ -105,11 +105,11 @@
         "quickshell": "quickshell"
       },
       "locked": {
-        "lastModified": 1792251653,
-        "narHash": "sha256-ij9OjjrKldgfRC/hSlZGkMRoHcD4Wx0Mn4Ul0UY2xpM=",
+        "lastModified": 1792917524,
+        "narHash": "sha256-5iMV8fzaU2ohZiUkzxtRFEJNQiQazfNcomOqQbs4Ie0=",
         "owner": "caelestia-dots",
         "repo": "shell",
-        "rev": "71c28332e07bb51f94ff1a3608f60938b509d0ad",
+        "rev": "4b1dae84b1b3b28bf486776ba30c1c1ec74fb64d",
         "type": "github"
       },
       "original": {
@@ -288,8 +288,7 @@
           "nixpkgs"
         ],
         "nur": "nur",
-        "stylix": "stylix",
-        "zjstatus": "zjstatus"
+        "stylix": "stylix"
       },
       "locked": {
         "path": "./home",
@@ -535,11 +534,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792252401,
-        "narHash": "sha256-gwfMc9ZKPLmZhGmbpN1m7RQlc/3E8nJTB6kDOc0vQ5s=",
+        "lastModified": 1793105247,
+        "narHash": "sha256-JjCxeaTZTVxyMUuTSvNahglniTzvkV8LrVbTmT1rnRY=",
         "owner": "nix-community",
         "repo": "nur",
-        "rev": "f0056d64372242e63e43465ec6bfdd9f7fc9deb1",
+        "rev": "d6eb1075bcc92ab09e7b2b78f8c640d47480f1f1",
         "type": "github"
       },
       "original": {
@@ -584,11 +583,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792214446,
-        "narHash": "sha256-tq6x6CRG8Qikrjri59tzu9+b2gri8TjnShkGeh8kUgQ=",
+        "lastModified": 1792651682,
+        "narHash": "sha256-TiCGqLMpNIy7FERewgfKVluPsLVF96uc6x6xwZnMjdQ=",
         "ref": "refs/heads/master",
-        "rev": "2b4501a282689792b62e94f3fb30d8f512324fe6",
-        "revCount": 875,
+        "rev": "9b0f339b19057f4731bf3b48293307d7ef241671",
+        "revCount": 879,
         "type": "git",
         "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
       },
@@ -655,11 +654,11 @@
         "tinted-zed": "tinted-zed"
       },
       "locked": {
-        "lastModified": 1791574276,
-        "narHash": "sha256-UMnLnZ3JlA7UTBNNNx1rNsXYoPP/cirXLCKGiQ/yDx8=",
+        "lastModified": 1792920263,
+        "narHash": "sha256-2pkE97wOXAYIn2/Nhs9y+iR0qVT+g/3UtukXdkywxXc=",
         "owner": "danth",
         "repo": "stylix",
-        "rev": "2856c4c6a845b9bec98828ef197abe176e4806bb",
+        "rev": "3e27b6c499e507df6e3bb8eca3614f5c95e28140",
         "type": "github"
       },
       "original": {
@@ -782,18 +781,6 @@
         "owner": "chetansinghsajwan",
         "repo": "wallpapers",
         "type": "github"
-      }
-    },
-    "zjstatus": {
-      "flake": false,
-      "locked": {
-        "narHash": "sha256-IWu3n3yNmiKQ4Ny/JVvlFFkL5b1ONpp3jTaJI9Eti78=",
-        "type": "file",
-        "url": "https://github.com/dj95/zjstatus/releases/download/v0.25.0/zjstatus.wasm"
-      },
-      "original": {
-        "type": "file",
-        "url": "https://github.com/dj95/zjstatus/releases/download/v0.25.0/zjstatus.wasm"
       }
     }
   },

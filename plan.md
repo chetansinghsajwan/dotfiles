@@ -16,18 +16,18 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 
 ## Domains
 
-| Domain | Owner | Integrates / helpers |
-|---|---|---|
-| TUI design | tokens file + `ui` crate (to build) | every tool; one place for colors, borders, spacing |
-| Picker + search | `pick` (to build, Rust) | used by every tool that needs a picker. Search (grep, symbols, buffers, etc.) is a `pick` source, not a separate tool |
-| Preview / rendering | `pv` (to rewrite in Rust; today `home/programs/pv/pv.sh`) | bat, batman, `git-core` |
-| Files (browse, explore) | yazi (config/plugins now; yazi crates embedded in helix) | eza, `pv` as previewer, `pick` as finder, tokens for theme |
-| Editing | helix (forked, native integration) | files panel, git panel, `pick`, `pv`, `ui` built in as crates |
-| Git | `git-panel` (to build, Rust; replaces lazygit) | `git-core`, delta as diff renderer, embedded in helix |
-| Layout / sessions | zellij | tabs and panes only |
-| Docs / help | helix in read-only mode, once the fork is ready | tealdeer, batman until then |
-| Monitoring | btop | themed from tokens |
-| Keyboard | kanata (standalone, decided) | zellij layer pill. On WSL run `kanata.exe` on the Windows host with the shared `.kbd` config |
+| Domain                  | Owner                                                     | Integrates / helpers                                                                                                  |
+| ----------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| TUI design              | tokens file + `ui` crate (to build)                       | every tool; one place for colors, borders, spacing                                                                    |
+| Picker + search         | `pick` (to build, Rust)                                   | used by every tool that needs a picker. Search (grep, symbols, buffers, etc.) is a `pick` source, not a separate tool |
+| Preview / rendering     | `pv` (to rewrite in Rust; today `home/programs/pv/pv.sh`) | bat, batman, `git-core`                                                                                               |
+| Files (browse, explore) | yazi (config/plugins now; yazi crates embedded in helix)  | eza, `pv` as previewer, `pick` as finder, tokens for theme                                                            |
+| Editing                 | helix (forked, native integration)                        | files panel, git panel, `pick`, `pv`, `ui` built in as crates                                                         |
+| Git                     | `git-panel` (to build, Rust; replaces lazygit)            | `git-core`, delta as diff renderer, embedded in helix                                                                 |
+| Layout / sessions       | zellij                                                    | tabs and panes only                                                                                                   |
+| Docs / help             | helix in read-only mode, once the fork is ready           | tealdeer, batman until then                                                                                           |
+| Monitoring              | btop                                                      | themed from tokens                                                                                                    |
+| Keyboard                | kanata (standalone, decided)                              | zellij layer pill. On WSL run `kanata.exe` on the Windows host with the shared `.kbd` config                          |
 
 ## Decisions log
 
@@ -62,19 +62,24 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 Goal: `ui` is a framework, not a color file. Change a value once (border glyph, pane gap, padding, split ratios) and every tool built on it changes.
 A terminal is a character grid, so "radius" means border glyph set (rounded `╭╮╰╯`, plain, double, thick), and "spacing" means cells.
 
-### Status: started
-- Schema, Nix export and `ui` crate skeleton exist (below). Verified: crate builds, 2 unit tests pass, the Nix module output was checked standalone with stubbed stylix colors and its keys match the Rust structs.
-- NOT verified: full flake eval of the new module. `nix eval` through the host flakes with `--override-input` fails on an unrelated pre-existing `local.nix` store-path error, and the root flake pins the `home`/`config` path inputs in `flake.lock`, so the new `dotfiles.ui` option and module are not seen until those locks are updated (`nix flake update home config`, which also touches the already-modified `flake.lock`). Do that deliberately, then eval and build the home config.
-- Not packaged yet: no Nix package for the demo, nothing installs `ui` anywhere. Build locally with `cd home/crates/ui && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo run --example demo` (needs `~/.config/ui/theme.json` or `UI_THEME=<file>`; defaults apply if missing). Edit the JSON while it runs: the panes follow (theme mtime is polled).
+### Status: wired in (uncommitted)
+- Done and verified: crate builds, 2 unit tests pass. Locks updated (`nix flake update home config`; this also bumped stylix, nur, caelestia in the root `flake.lock`). `home/programs/ui` is imported explicitly in `home/programs/default.nix` (directories are not auto-imported, only `.nix` files). `nix eval` of `~/.config/ui/theme.json` gives the real ayu-dark colors. The full home config (`jman-nixos` user `chetansinghsajwan`) builds, and the package installs the `ui-demo` binary (Nix `buildRustPackage` from `home/crates/ui`, `cargoLock.lockFile`).
+- Consumers wired to the tokens so far: zellij `pane_frames.rounded_corners` and yazi `full-border` type follow `dotfiles.ui.chrome.border`. Colors for zellij and yazi already came from the same stylix base16 scheme as the tokens, so they match without extra work.
+- Not done: the demo was never run in a terminal (needs a TTY), the other host configs (nixos, darwin) were not built, and the home config was built but not activated. `nix flake check` was not run.
+- Gotcha: do not run `nix fmt` on the whole repo. It reformats unrelated files (neovim, user.nix, macbook flake, yazi `properties.yazi/main.lua`). Format only files you changed.
+- Run the demo: `ui-demo` (after activation), or `cd home/crates/ui && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo run --bin ui-demo`. Needs `~/.config/ui/theme.json` or `UI_THEME=<file>`; defaults apply if missing. Edit the JSON while it runs: the panes follow (theme mtime is polled).
 
 ### Schema (single source)
+
 Defined as options in `config/options.nix` under `dotfiles.ui.{chrome,layout}`; colors come from the stylix base16 scheme. `home/programs/ui/default.nix` writes `~/.config/ui/theme.json`. Groups:
+
 - `colors`: `bg fg muted accent border border_focused selection error warning success info` and `git.{added,modified,deleted,untracked,conflict,renamed}` (roles, never raw hex in a tool).
 - `chrome`: `border` (rounded|plain|double|thick), `titles`.
 - `layout`: `gap` (cells between panes), `padding_x`, `padding_y`, `sidebar_width`, `preview_percent`.
-Planned additions: focus style, icons/separators, scrollbar style, status bar layout.
+  Planned additions: focus style, icons/separators, scrollbar style, status bar layout.
 
 ### `ui` crate (`home/crates/ui`, ratatui 0.30)
+
 - `theme`: loads the JSON at runtime (`$UI_THEME`, else `$XDG_CONFIG_HOME/ui/theme.json`, else `~/.config/ui/theme.json`; missing/invalid falls back to built-in defaults).
 - `pane::Pane`: the one place a bordered, titled, padded region is drawn (border glyphs, focus color, padding from the theme). `inner(area)` gives the content rect.
 - `layout`: `columns`, `rows`, `sidebar_main_preview`, `main_preview` split with the theme's gap and ratios. Tools get rects from here and never compute their own.
@@ -83,20 +88,22 @@ Planned additions: focus style, icons/separators, scrollbar style, status bar la
 - Crates live under `home/crates/` (not repo root) because `home` is a path sub-flake and cannot reference files outside its directory. Cargo workspace root not created yet; add `home/crates/Cargo.toml` when a second crate appears.
 
 ### Third-party tools
+
 - Nix generates each config from the same tokens (yazi, zellij, delta, bat, btop; helix until the fork is ready). Colors are controllable everywhere; layout/border shape only where the tool exposes it (e.g. zellij pane frames and gaps). This is the reason the plan embeds yazi and forks helix: so the framework controls their layout directly.
 - TODO verify per tool (from memory, unverified): zellij `pane_frames.rounded_corners`, helix rounded corners, yazi (likely none), lazygit `gui.border` (until replaced).
 
 ### Next steps
-1. Update locks, eval and build the home config with the new module.
-2. Generate third-party configs from the tokens (start with colors: zellij, yazi).
-3. Package the `ui` crate in Nix (`rustPlatform.buildRustPackage`, set `cargoHash`) with the demo binary.
-4. Add widgets (list, preview pane, prompt, status bar); then `pv` and `pick` build on `ui`.
+
+1. Generate remaining third-party configs from the tokens: delta, bat, btop colors; zellij gap/frames and whatever else each tool exposes. Verify per-tool border options (TODO above).
+2. Add widgets to `ui` (list, preview pane, prompt, status bar).
+3. `pv` in Rust on `ui`; add the `home/crates/Cargo.toml` workspace then. Then `pick`.
 
 ## 2. `pick`: the picker (and search)
 
 Goal: every tool that needs a picker for any purpose uses `pick`. It always has a preview window. Search is a `pick` source.
 
 ### Contract
+
 - Input: candidates on stdin, or a named source (files, buffers, git refs, grep results, ...).
 - Preview: pluggable command, default `pv {}`; in-process via the `pv` library when embedded.
 - Output: selection on stdout (or a chooser file). Multi-select supported. Distinct exit code for cancel.
@@ -104,6 +111,7 @@ Goal: every tool that needs a picker for any purpose uses `pick`. It always has 
 - File mode highlights rows by git status (section 5).
 
 ### Implementation (Rust, reuse libraries wherever possible; crate APIs not yet verified)
+
 - Fuzzy matching: `nucleo` (same matcher helix uses).
 - TUI: `ratatui` + `crossterm`.
 - Query input: `tui-input` (or `tui-textarea`).
@@ -113,22 +121,25 @@ Goal: every tool that needs a picker for any purpose uses `pick`. It always has 
 - Packaged via Nix (`rustPlatform.buildRustPackage` or crane), wired in `home/programs/`.
 
 ### Consumers
+
 - yazi: calls `pick` directly (Lua plugin) until the explorer is embedded.
 - helix fork: `pick` as an in-process library replacing `helix-term`'s picker. No external-process adapter.
 
 ### Build order
+
 1. `pv` library + CLI (port from `pv.sh`).
-2. `pick` core: stdin in, selection out, preview via `pv`.
-3. Sources (files, buffers, git refs, grep).
-4. yazi integration; helix integration (section 4).
-5. Replace `fzf` usage in in-scope tools.
+1. `pick` core: stdin in, selection out, preview via `pv`.
+1. Sources (files, buffers, git refs, grep).
+1. yazi integration; helix integration (section 4).
+1. Replace `fzf` usage in in-scope tools.
 
 ## 3. File explorer: yazi
 
 Yazi is Rust, MIT, built on ratatui (same as the `ui` crate). Reuse in order:
+
 1. Config and plugins only: theme generated from tokens, `pv` as previewer, Lua plugin swapping its built-in find/fzf for `pick`. Border shape stays as yazi hardcodes it.
-2. Thin fork as a small patch series: replace yazi's drawing with `ui` widgets and tokens for real border control. Cost: rebasing on each upstream release, so keep patches few. Only for gaps left after step 1.
-3. Decided: embed the `yazi-*` crates as a library for the files panel inside helix (section 4). No API stability, so pin versions and upgrade deliberately. Standalone yazi (steps 1-2) stays for use outside the editor.
+1. Thin fork as a small patch series: replace yazi's drawing with `ui` widgets and tokens for real border control. Cost: rebasing on each upstream release, so keep patches few. Only for gaps left after step 1.
+1. Decided: embed the `yazi-*` crates as a library for the files panel inside helix (section 4). No API stability, so pin versions and upgrade deliberately. Standalone yazi (steps 1-2) stays for use outside the editor.
 
 TODO before step 2: read yazi's source to count how many files touch border and layout drawing.
 
@@ -161,12 +172,12 @@ Kanata stays standalone. On WSL2 a Linux kanata cannot see the Windows keyboard,
 ## Overall build order
 
 1. Tokens (Nix, JSON) and generated third-party themes.
-2. Shared crates: `ui`, `git-core`.
-3. `pv` (Rust), then `pick`.
-4. yazi integration (previewer, finder, theme).
-5. Helix fork: picker, files panel, git panel.
-6. `git-panel` standalone binary; retire lazygit.
-7. Retire fzf and neovim configs in scope (after confirming neovim).
+1. Shared crates: `ui`, `git-core`.
+1. `pv` (Rust), then `pick`.
+1. yazi integration (previewer, finder, theme).
+1. Helix fork: picker, files panel, git panel.
+1. `git-panel` standalone binary; retire lazygit.
+1. Retire fzf and neovim configs in scope (after confirming neovim).
 
 ## Working preferences
 

@@ -170,6 +170,50 @@ in
             };
         };
 
+        # Shared TUI design tokens, exported as JSON for the `ui` crate
+        # (home/programs/ui). Colors come from the stylix scheme.
+        ui = {
+            chrome = {
+                border = mkOption {
+                    type = types.enum [
+                        "rounded"
+                        "plain"
+                        "double"
+                        "thick"
+                    ];
+                    default = "rounded";
+                    description = "Border glyph set for every pane.";
+                };
+                titles = mkOption {
+                    type = types.bool;
+                    default = true;
+                };
+            };
+            layout = {
+                gap = mkOption {
+                    type = types.ints.unsigned;
+                    default = 0;
+                    description = "Cells between adjacent panes.";
+                };
+                paddingX = mkOption {
+                    type = types.ints.unsigned;
+                    default = 1;
+                };
+                paddingY = mkOption {
+                    type = types.ints.unsigned;
+                    default = 0;
+                };
+                sidebarWidth = mkOption {
+                    type = types.ints.unsigned;
+                    default = 30;
+                };
+                previewPercent = mkOption {
+                    type = types.ints.between 0 100;
+                    default = 50;
+                };
+            };
+        };
+
         features = {
             dev = mkOption {
                 type = types.bool;
