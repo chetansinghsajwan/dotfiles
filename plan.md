@@ -19,7 +19,7 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 | Domain                  | Owner                                                     | Integrates / helpers                                                                                                  |
 | ----------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | TUI design              | tokens file + `ui` crate (to build)                       | every tool; one place for colors, borders, spacing                                                                    |
-| Picker + search         | `pick` (to build, Rust)                                   | used by every tool that needs a picker. Search (grep, symbols, buffers, etc.) is a `pick` source, not a separate tool |
+| Picker + search         | `pick` (Rust, `home/crates/pick`; milestone 1 done)                                   | used by every tool that needs a picker. Search (grep, symbols, buffers, etc.) is a `pick` source, not a separate tool |
 | Preview / rendering     | `pv` (Rust, `home/crates/pv`; step 1 done) | bat, batman, `git-core`                                                                                               |
 | Files (browse, explore) | yazi (config/plugins now; yazi crates embedded in helix)  | eza, `pv` as previewer, `pick` as finder, tokens for theme                                                            |
 | Editing                 | helix (forked, native integration)                        | files panel, git panel, `pick`, `pv`, `ui` built in as crates                                                         |
@@ -85,7 +85,7 @@ Defined as options in `config/options.nix` under `dotfiles.ui.{chrome,layout}`; 
 - `layout`: `columns`, `rows`, `sidebar_main_preview`, `main_preview` split with the theme's gap and ratios. Tools get rects from here and never compute their own.
 - Rule: our tools draw only through `Pane`/`layout`/widgets built on them. No tool draws its own borders, gaps or colors.
 - Planned widgets on top: list, preview pane, prompt, status bar.
-- Crates live under `home/crates/` (not repo root) because `home` is a path sub-flake and cannot reference files outside its directory. Cargo workspace root is `home/crates/Cargo.toml` (members `ui`, `pv`, `git-core`).
+- Crates live under `home/crates/` (not repo root) because `home` is a path sub-flake and cannot reference files outside its directory. Cargo workspace root is `home/crates/Cargo.toml` (members `ui`, `pv`, `git-core`, `pick`).
 
 ### Third-party tools
 
@@ -141,6 +141,20 @@ Goal: every tool that needs a picker for any purpose uses `pick`. It always has 
 1. Sources (files, buffers, git refs, grep).
 1. yazi integration; helix integration (section 4).
 1. Replace `fzf` usage in in-scope tools.
+
+### `pick` status (milestone 1 built)
+
+Crate `home/crates/pick` (library + CLI), packaged by `home/programs/pick/default.nix`. Deps: `nucleo` 0.5 (matching, threaded, streaming), `ratatui` 0.30, `tui-input` 0.15 (shares ratatui's crossterm), `ignore` (walker), `clap`, `ui`, `pv`, `git-core`.
+
+- Library: `Picker::new(PickerOptions{paths, root, preview, git, query}, notify)`, `injector()` to stream candidates, `tick()`, `handle_event(&Event) -> Action{None, Accept(Vec<String>), Cancel}`, `render(area, buf, theme)`. This is what the helix fork embeds. CLI is a thin loop around it.
+- CLI: `pick --files [DIR]` (walk with `ignore`, .gitignore respected) or `<cmd> | pick [--paths DIR]` (`--paths` makes stdin lines paths: preview + git). `--query`, `--no-preview`, `--no-git`. Selection on stdout, one per line; exit 0 selected, 1 accepted with nothing matched, 2 usage/error, 130 cancelled. The UI draws on `/dev/tty`, so stdin and stdout stay free for candidates and the selection.
+- UI (all through `ui`): `Pane` list on the left (prompt + `matched/total` count, match characters in the accent color, selected row bg from the `selection` token, `●` marks), `layout::main_preview` split (honors gap and preview percent), preview pane renders `pv::preview` in-process (cached by candidate and size).
+- Keys: type to filter; Up/Down, Ctrl-n/Ctrl-p, PageUp/PageDown; Tab marks and moves down; Enter accepts marked or highlighted; Esc / Ctrl-c / Ctrl-g cancels.
+- Git (file candidates): name colored by state plus a right-aligned sign, same signs as `pv`. Disabled by `--no-git`. Status is computed synchronously at startup (not in a thread).
+- Tested: 4 headless unit tests (filter + accept, navigation clamp + multi-select, cancel / no match, render list + preview). Run end to end in a pty with `script`: `--files` picked a file by typing a query, stdin mode picked `gamma`, Esc exited 130. The home config builds with `pick` installed (the build runs the 4 tests).
+- Not done yet (milestone 2): sources other than files and stdin (buffers, git refs, grep via the `grep-*` crates), external preview command (`--preview-cmd`, `{}` placeholder; plan default), config file (git default key), non-path preview for plain text candidates, mouse, `--print0`, `--multi` off switch, query history, startup git status in a thread for big repos, Windows support (uses `/dev/tty`).
+- Not verified: behavior on very large candidate sets (millions), resizing, non-UTF-8 paths (they are skipped by the walker), WSL specifics beyond this machine (it ran here, which is WSL2).
+- Next: yazi integration (finder via `pick`), fzf replacement in in-scope tools, helix embedding (section 4).
 
 ## 3. File explorer: yazi
 
