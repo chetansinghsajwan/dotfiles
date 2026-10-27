@@ -6,14 +6,7 @@ in
 {
     # Shared TUI framework crate. Only the demo binary is installed for now;
     # tools (pv, pick, ...) will depend on the crate directly.
-    home.packages = [
-        (pkgs.rustPlatform.buildRustPackage {
-            pname = "ui";
-            version = "0.1.0";
-            src = ../../crates/ui;
-            cargoLock.lockFile = ../../crates/ui/Cargo.lock;
-        })
-    ];
+    home.packages = [ (pkgs.callPackage ../../crates { } "ui") ];
 
     # Single source of design tokens. Read at runtime by the `ui` crate
     # (home/crates/ui), so editing a value needs no rebuild of any tool.
@@ -30,6 +23,17 @@ in
             warning = c.base0A;
             success = c.base0B;
             info = c.base0C;
+            syntax = {
+                comment = c.base03;
+                keyword = c.base0E;
+                function = c.base0D;
+                string = c.base0B;
+                number = c.base09;
+                type_ = c.base0A;
+                constant = c.base09;
+                variable = c.base08;
+                operator = c.base0C;
+            };
             git = {
                 added = c.base0B;
                 modified = c.base0A;
