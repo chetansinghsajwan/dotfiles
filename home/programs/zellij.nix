@@ -14,6 +14,38 @@ let
     };
 
     colors = config.lib.stylix.colors.withHashtag;
+
+    # Windows-side kanata (run with --port 6666, matching the native-Linux
+    # port used in kanata-layer-indicator.nix) pushes {"LayerChange":{"new":..}}
+    # over TCP. The listener mirrors the current layer into a file that
+    # zjstatus polls. 127.0.0.1 needs WSL mirrored networking
+    # (networkingMode=mirrored in .wslconfig); override with KANATA_HOST
+    # otherwise.
+    kanataPort = 6666;
+    kanataLayerFile = "\${XDG_RUNTIME_DIR:-/tmp}/kanata-layer";
+
+    kanataListener = pkgs.writeShellScript "kanata-layer-listen" ''
+        set -uo pipefail
+        file="${kanataLayerFile}"
+
+        while true; do
+          if exec 3<>"/dev/tcp/''${KANATA_HOST:-127.0.0.1}/${toString kanataPort}"; then
+            while IFS= read -r -u3 line; do
+              layer=$(${pkgs.jq}/bin/jq -r '.LayerChange.new? // empty' <<<"$line")
+              if [ -n "$layer" ]; then
+                echo "$layer" > "$file.tmp" && mv "$file.tmp" "$file"
+                for s in $(${pkgs.zellij}/bin/zellij list-sessions -ns 2>/dev/null); do
+                  ${pkgs.zellij}/bin/zellij --session "$s" pipe "zjstatus::pipe::pipe_kanata::''${layer^^}" </dev/null >/dev/null 2>&1 &
+                done
+              fi
+            done
+            exec 3<&- 3>&-
+          fi
+          rm -f "$file"
+          sleep 2
+        done
+    '';
+
 in
 {
     programs.zellij = {
@@ -121,7 +153,7 @@ in
                     pane size=1 borderless=true {
                         plugin location="file:${pkgs.zellijPlugins.zjstatus}" {
                             format_left "{mode} {tabs}"
-                            format_right "{datetime}"
+                            format_right "{pipe_kanata} {datetime}"
 
                             border_enabled "false"
                             hide_frame_for_single_pane "true"
@@ -139,6 +171,9 @@ in
                             ${lib.concatStringsSep "\n" (map mkModeLine modes)}
                             ${lib.concatStringsSep "\n" (map mkTabLine tabs)}
 
+                            pipe_kanata_format "#[fg=$mode_normal,bg=${ribbonColor},bold] {output}#[fg=${ribbonColor},bg=default,nobold]${leftEnd}"
+                            pipe_kanata_rendermode "static"
+
                             datetime "#[fg=$active] {format}"
                             datetime_format "%Y %b %d %H:%M, %a"
                             datetime_timezone "Asia/Kolkata"
@@ -147,6 +182,16 @@ in
                     pane
                 }
             '';
+    };
+
+    systemd.user.services.kanata-layer-listen = lib.mkIf pkgs.stdenv.isLinux {
+        Unit.Description = "Mirror kanata's active layer into a file for the zellij bar";
+        Install.WantedBy = [ "default.target" ];
+        Service = {
+            ExecStart = "${kanataListener}";
+            Restart = "on-failure";
+            RestartSec = 2;
+        };
     };
 
     home.shellAliases = {
