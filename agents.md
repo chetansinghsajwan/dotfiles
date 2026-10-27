@@ -2,6 +2,12 @@
 
 Guidance for AI coding agents working in this repository.
 
+## Ongoing work
+
+Read `plan.md` first: it holds the full context, decisions and open questions
+for the terminal toolset standardization (shared TUI design, `pv`, `pick`,
+helix fork, git panel).
+
 ## What this is
 
 A personal, multi-host Nix flake configuration covering NixOS, nix-darwin, and
