@@ -8,6 +8,7 @@
         ./nixpkgs
         ./clipboard
         ./pv
+        ./pick
         ./ui
         ./op
     ]
