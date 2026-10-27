@@ -32,7 +32,14 @@
             });
         };
 
-        initLua = ./yazi/init.lua;
+        # Border glyphs follow the shared design tokens (dotfiles.ui.chrome.border).
+        initLua =
+            builtins.replaceStrings
+                [ "require(\"full-border\"):setup()" ]
+                [
+                    "require(\"full-border\"):setup { type = ui.Border.${lib.toUpper config.dotfiles.ui.chrome.border} }"
+                ]
+                (builtins.readFile ./yazi/init.lua);
 
         # Stylix's yazi target (modules/yazi/hm.nix) paints which.mask with a
         # solid base02 background for legibility. That's an explicit color, not

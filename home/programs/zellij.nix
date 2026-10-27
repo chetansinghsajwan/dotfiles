@@ -69,7 +69,7 @@ in
         extraConfig = ''
             ui {
                 pane_frames {
-                    rounded_corners true
+                    rounded_corners ${lib.boolToString (config.dotfiles.ui.chrome.border == "rounded")}
                 }
             }
             keybinds {

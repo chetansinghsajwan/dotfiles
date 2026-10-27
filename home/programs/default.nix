@@ -8,6 +8,7 @@
         ./nixpkgs
         ./clipboard
         ./pv
+        ./ui
         ./op
     ]
     ++ (llib.importDir ./.);
