@@ -1,0 +1,338 @@
+{
+    wallpapers,
+}:
+{
+    config,
+    lib,
+    pkgs,
+    ...
+}:
+let
+    inherit (lib) mkOption types;
+
+    userType = types.submodule (
+        { config, name, ... }:
+        {
+            options = {
+                username = mkOption {
+                    type = types.str;
+                    default = name;
+                    readOnly = true;
+                };
+
+                displayName = mkOption {
+                    type = types.str;
+                };
+
+                email = mkOption {
+                    type = types.str;
+                };
+
+                noreplyEmail = mkOption {
+                    type = types.str;
+                    description = "GitHub-style noreply address, used for git commits by default.";
+                };
+
+                homeDir = mkOption {
+                    type = types.str;
+                    default = config.username;
+                };
+
+                git = {
+                    email = mkOption {
+                        type = types.str;
+                        default = config.noreplyEmail;
+                    };
+                };
+
+                extraGroups = mkOption {
+                    type = types.listOf types.str;
+                    default = [ "wheel" ];
+                };
+            };
+        }
+    );
+
+    defaultUsers = {
+        chetansinghsajwan = {
+            displayName = "Chetan Singh Sajwan";
+            email = "chetansinghsajwan@gmail.com";
+            noreplyEmail = "76040441+chetansinghsajwan@users.noreply.github.com";
+        };
+    };
+in
+{
+    imports = [
+        ../local.nix
+    ];
+
+    options.dotfiles = {
+        users = mkOption {
+            default = defaultUsers;
+            type = types.attrsOf userType;
+            description = "System users, keyed by username. Each gets a home-manager profile.";
+        };
+
+        defaultUser = mkOption {
+            type = types.raw;
+            readOnly = true;
+            default = lib.head (lib.attrValues config.dotfiles.users);
+            description = "The default user in case default user is required in any case.";
+        };
+
+        theme = {
+            name = mkOption {
+                type = types.str;
+                default = "ayu-dark";
+            };
+
+            wallpapersDir = mkOption {
+                type = types.str;
+                default = "${wallpapers}";
+                description = "Directory containing all available wallpapers.";
+            };
+
+            wallpaper = mkOption {
+                type = types.str;
+                default = "${config.dotfiles.theme.wallpapersDir}/car1_ai.jpg";
+            };
+
+            cursor = {
+                theme = {
+                    name = mkOption {
+                        type = types.str;
+                        default = "Adwaita";
+                    };
+                    pkg = mkOption {
+                        type = types.package;
+                        default = pkgs.adwaita-icon-theme;
+                    };
+                    size = mkOption {
+                        type = types.int;
+                        default = 24;
+                    };
+                };
+            };
+
+            fonts = {
+                mono = {
+                    name = mkOption {
+                        type = types.str;
+                        default = "JetBrains Mono Nerd Font";
+                    };
+                    pkg = mkOption {
+                        type = types.package;
+                        default = pkgs.nerd-fonts.jetbrains-mono;
+                    };
+                };
+                sans = {
+                    name = mkOption {
+                        type = types.str;
+                        default = "Poppins";
+                    };
+                    pkg = mkOption {
+                        type = types.package;
+                        default = pkgs.poppins;
+                    };
+                };
+                serif = {
+                    name = mkOption {
+                        type = types.str;
+                        default = "Poppins";
+                    };
+                    pkg = mkOption {
+                        type = types.package;
+                        default = pkgs.poppins;
+                    };
+                };
+                sizes = {
+                    applications = mkOption {
+                        type = types.int;
+                        default = 11;
+                    };
+                    terminal = mkOption {
+                        type = types.int;
+                        default = 11;
+                    };
+                    desktop = mkOption {
+                        type = types.int;
+                        default = 11;
+                    };
+                    popups = mkOption {
+                        type = types.int;
+                        default = 11;
+                    };
+                };
+                rawFontScale = mkOption {
+                    type = types.float;
+                    default = 1.0;
+                };
+            };
+        };
+
+        features = {
+            dev = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Enable dev tools (vscode, git, helix).";
+            };
+            gui = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Enable desktop GUI apps.";
+            };
+            gaming = mkOption {
+                type = types.bool;
+                default = false;
+                description = "Enable gaming tools (proton, bottles).";
+            };
+        };
+
+        shell = {
+            program = mkOption {
+                type = types.enum [
+                    "zsh"
+                    "fish"
+                    "nushell"
+                ];
+                default = "zsh";
+            };
+            theme = mkOption {
+                type = types.enum [
+                    "starship"
+                ];
+                default = "starship";
+            };
+        };
+
+        # System-level user account settings, read by hosts/*/user.nix.
+        system = {
+            isWsl = mkOption {
+                type = types.bool;
+                default = false;
+                description = "Whether the system is running under WSL.";
+            };
+
+            isLinux = mkOption {
+                type = types.bool;
+                default = false;
+                description = "Whether the system is a Linux system.";
+            };
+
+            isDarwin = mkOption {
+                type = types.bool;
+                default = false;
+                description = "Whether the system is a macOS (Darwin) system.";
+            };
+
+            displayManager = mkOption {
+                type = types.enum [
+                    "gdm"
+                    "sddm"
+                ];
+                default = "sddm";
+                description = "Display manager to use.";
+            };
+
+            stateVersion = {
+                linux = mkOption {
+                    type = types.str;
+                    default = "23.05";
+                    description = "system.stateVersion for NixOS hosts.";
+                };
+
+                darwin = mkOption {
+                    type = types.int;
+                    default = 6;
+                    description = "system.stateVersion for nix-darwin hosts.";
+                };
+            };
+        };
+
+        desktop = {
+            gnome = {
+                enable = mkOption {
+                    type = types.bool;
+                    default = false;
+                };
+            };
+            hyprland = {
+                enable = mkOption {
+                    type = types.bool;
+                    default = false;
+                };
+
+                shell = mkOption {
+                    type = types.enum [
+                        "custom"
+                        "caelestia"
+                    ];
+                    default = "caelestia";
+                    description = "Which desktop shell ecosystem to use on top of Hyprland.";
+                };
+            };
+        };
+
+        terminal = {
+            default = mkOption {
+                type = types.enum [
+                    "ghostty"
+                    "kitty"
+                ];
+                default = "ghostty";
+            };
+        };
+
+        programs = {
+            docker = {
+                enable = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = "Whether Docker is enabled — both the system service and home-manager shell integration.";
+                };
+            };
+
+            kanata-layer-indicator = {
+                enable = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = "Whether the kanata layer indicator is enabled — both the home-manager service and the system group/udev rule it needs to read kanata's output device.";
+                };
+            };
+        };
+
+        editor = {
+            terminal = mkOption {
+                type = types.enum [
+                    "neovim"
+                    "helix"
+                ];
+                default = "neovim";
+                description = "Terminal editor used as the default $EDITOR (and for git).";
+            };
+
+            scroll_lines = mkOption {
+                type = types.int;
+                default = 5;
+            };
+
+            line_number = mkOption {
+                type = types.enum [
+                    "absolute"
+                    "reative"
+                ];
+                default = "absolute";
+            };
+
+            text_width = mkOption {
+                type = types.int;
+                default = 100;
+            };
+
+            rulers = mkOption {
+                type = types.listOf types.int;
+                default = [ config.dotfiles.editor.text_width ];
+            };
+        };
+    };
+}

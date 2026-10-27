@@ -1,0 +1,113 @@
+(defcfg
+  process-unmapped-keys yes
+)
+
+(defsrc
+  grv   1     2     3     4     5     6     7     8     9     0     -     =     bspc
+  tab   q     w     e     r     t     y     u     i     o     p     [     ]     \
+  caps  a     s     d     f     g     h     j     k     l     ;     '           ret
+  lsft  z     x     c     v     b     n     m     ,     .     /                 rsft
+  lctrl lmeta lalt              spc                                 ralt  rmeta rctrl
+)
+
+(deflayermap main
+  tab (layer-switch fallback)
+  spc (layer-switch ins)
+  e (layer-switch sym)
+  r (layer-switch num)
+  c (layer-switch fun)
+
+  a lctl
+  s lsft
+  d lalt
+  f lmet
+
+  u tab
+  i bspc
+  o del
+  p esc
+  h left
+  j down
+  k up
+  l right
+  ; ret
+  m home
+  , pgdn
+  . pgup
+  / end
+
+  ___ XX
+)
+
+(deflayermap fallback
+  caps (layer-switch main)
+  ___ _
+)
+
+(deflayermap ins
+  caps (layer-switch main)
+  _ _
+)
+
+(deflayermap sym
+  caps (layer-switch main)
+  q S-1
+  w `
+  r S-'
+  t S-3
+  y S-\
+  u S-9
+  i S-0
+  o S-,
+  p S-.
+  a S-8
+  s =
+  d -
+  f S--
+  g S-4
+  h ;
+  j {
+  k }
+  l /
+  ; \
+  z S-`
+  x S-=
+  c ,
+  v .
+  b S-2
+  n S-7
+  m [
+  , ]
+  . S-;
+  / S-/
+)
+
+(deflayermap num
+  caps (layer-switch main)
+  h 0
+  m 1
+  , 2
+  . 3
+  j 4
+  k 5
+  l 6
+  u 7
+  i 8
+  o 9
+)
+
+(deflayermap fun
+  caps (layer-switch main)
+  m f1
+  , f2
+  . f3
+  j f4
+  k f5
+  l f6
+  u f7
+  i f8
+  o f9
+  / f10
+  ; f11
+  p f12
+)
