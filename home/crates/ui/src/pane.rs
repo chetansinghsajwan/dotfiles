@@ -35,7 +35,7 @@ impl<'a> Pane<'a> {
             .borders(Borders::ALL)
             .border_type(self.theme.chrome.border_type())
             .border_style(Style::new().fg(border.into()))
-            .style(Style::new().fg(c.fg.into()).bg(c.bg.into()))
+            .style(if self.theme.chrome.transparent { Style::new().fg(c.fg.into()) } else { Style::new().fg(c.fg.into()).bg(c.bg.into()) })
             .padding(Padding::symmetric(l.padding_x, l.padding_y));
         if let (true, Some(t)) = (self.theme.chrome.titles, self.title) {
             block = block.title(t);
@@ -52,5 +52,27 @@ impl<'a> Pane<'a> {
 impl Widget for Pane<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         self.block().render(area, buf);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ratatui::style::Color;
+
+    fn bg_at(theme: &Theme, x: u16, y: u16) -> Color {
+        let area = Rect::new(0, 0, 10, 5);
+        let mut buf = Buffer::empty(area);
+        Pane::new(theme).title("t").render(area, &mut buf);
+        buf[(x, y)].bg
+    }
+
+    #[test]
+    fn transparent_panes_leave_the_terminal_background_alone() {
+        let mut t = Theme::default();
+        assert!(t.chrome.transparent, "transparent by default");
+        assert_eq!(bg_at(&t, 3, 2), Color::Reset);
+        t.chrome.transparent = false;
+        assert_eq!(bg_at(&t, 3, 2), Color::from(t.colors.bg));
     }
 }

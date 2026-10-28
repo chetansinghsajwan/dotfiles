@@ -188,6 +188,11 @@ in
                     type = types.bool;
                     default = true;
                 };
+                transparent = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = "No solid pane background: the terminal's own (translucent) background shows.";
+                };
             };
             layout = {
                 gap = mkOption {
@@ -210,6 +215,11 @@ in
                 previewPercent = mkOption {
                     type = types.ints.between 0 100;
                     default = 50;
+                };
+                popupPercent = mkOption {
+                    type = types.ints.between 10 100;
+                    default = 80;
+                    description = "Size of a popup (a picker over the editor) as a share of the screen.";
                 };
             };
         };

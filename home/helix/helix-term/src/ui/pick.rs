@@ -75,10 +75,16 @@ impl Component for PickComponent {
 
     fn render(&mut self, area: Rect, surface: &mut Surface, _cx: &mut Context) {
         self.picker.tick();
-        let r = RRect::new(0, 0, area.width, area.height);
+        // A popup over the editor: `popup_percent` of the screen, centered. Its
+        // cells replace what is underneath, and with the `transparent` token they
+        // carry no background, so the terminal's own background shows.
+        let full = RRect::new(area.x, area.y, area.width, area.height);
+        let p = tui_design::layout::popup(&self.theme, full);
+        let popup = Rect::new(p.x, p.y, p.width, p.height);
+        let r = RRect::new(0, 0, popup.width, popup.height);
         let mut buf = RBuffer::empty(r);
         self.picker.render(r, &mut buf, &self.theme);
-        copy(&buf, area, surface);
+        copy(&buf, popup, surface);
     }
 
     fn cursor(&self, _area: Rect, _editor: &helix_view::Editor) -> (Option<helix_core::Position>, CursorKind) {

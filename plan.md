@@ -73,8 +73,8 @@ A terminal is a character grid, so "radius" means border glyph set (rounded `╭
 Defined as options in `config/options.nix` under `dotfiles.ui.{chrome,layout}`; colors come from the stylix base16 scheme. `home/programs/ui/default.nix` writes `~/.config/ui/theme.json`. Groups:
 
 - `colors`: `bg fg muted accent border border_focused selection error warning success info`, `syntax.{comment,keyword,function,string,number,type_,constant,variable,operator}` and `git.{added,modified,deleted,untracked,conflict,renamed}` (roles, never raw hex in a tool).
-- `chrome`: `border` (rounded|plain|double|thick), `titles`.
-- `layout`: `gap` (cells between panes), `padding_x`, `padding_y`, `sidebar_width`, `preview_percent`.
+- `chrome`: `border` (rounded|plain|double|thick), `titles`, `transparent`.
+- `layout`: `gap` (cells between panes), `padding_x`, `padding_y`, `sidebar_width`, `preview_percent`, `popup_percent`.
   Planned additions: focus style, icons/separators, scrollbar style, status bar layout.
 
 ### `ui` crate (`home/crates/ui`, ratatui 0.30)
@@ -194,6 +194,14 @@ TODO before step 2: read yazi's source to count how many files touch border and 
 - `pick`: commit/ref/stash previews render in full and scroll: `Ctrl-d` / `Ctrl-u` scroll the preview half a page, moving to another candidate resets it. Text-file previews are still a window at the top (or around the focus line); they do not scroll yet.
 - Tested: git-core 10 tests (hunks + context + merging + new/deleted/binary), pv 10, pick 15 (adds scrolling).
 - Not done: syntax highlighting inside the patch, word-level diffs, side-by-side view, a file-by-file jump, the `delta` renderer mentioned in the domains table (pv's own renderer is used instead for now), scroll for text previews.
+
+### Popup size and transparency (done)
+
+- Two new design tokens, so the look changes in one place: `layout.popup_percent` (Nix `dotfiles.ui.layout.popupPercent`, 10-100, default 80) and `chrome.transparent` (`dotfiles.ui.chrome.transparent`, default `true`). `ui::layout::popup(theme, area)` returns the centered popup rect.
+- `ui::Pane` no longer paints a solid `bg` when `transparent` is on, so every pane (pick, the files panel, the CLI `pick`) leaves the terminal's own background, which is translucent with the Ghostty/stylix opacity, like the old fzf popup (`bg -1`). Selection rows and git change tints keep their background on purpose.
+- The helix `PickComponent` renders into the popup rect instead of the whole screen; its cells replace what is under the popup, so the editor is hidden inside it and visible around it. The file, grep and buffer pickers all use it.
+- Verified in `tmux` (real terminal emulator, 130x40): popup top border at row 4, col 13, bottom border at row 35 = 104x32 cells = 80%, centered; the editor text is visible around it; the popup's plain cells use the default background (`ESC[49m`), only the selection row and git tints set one. `ui` has tests for the popup math and for transparent vs solid panes.
+- Not done / not verified: "transparent" here means the terminal's background (the editor behind the popup is hidden); seeing the editor through the popup would need skipping empty cells, not done. The CLI `pick` (shell widgets) still fills the whole terminal (now with the terminal background); a popup size there would need an inline or overlay mode, not done. The files panel is a sidebar, not a popup, so it is not sized by the token. Opacity itself is the terminal's setting, not ours.
 
 ### Shell pickers on `pick` (done, at the user's request; shell config was otherwise out of scope)
 

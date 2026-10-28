@@ -44,7 +44,7 @@ in
             };
         };
         chrome = {
-            inherit (ui.chrome) border titles;
+            inherit (ui.chrome) border titles transparent;
         };
         layout = {
             inherit (ui.layout) gap;
@@ -52,6 +52,7 @@ in
             padding_y = ui.layout.paddingY;
             sidebar_width = ui.layout.sidebarWidth;
             preview_percent = ui.layout.previewPercent;
+            popup_percent = ui.layout.popupPercent;
         };
     };
 }

@@ -51,6 +51,9 @@ pub struct Chrome {
     pub border: String,
     /// Draw the pane title in its border.
     pub titles: bool,
+    /// No solid pane background: the terminal's own (possibly translucent)
+    /// background shows, so panes blend in like the rest of the terminal.
+    pub transparent: bool,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -64,6 +67,8 @@ pub struct Layout {
     pub sidebar_width: u16,
     /// Share of the content area given to a preview pane, in percent.
     pub preview_percent: u16,
+    /// Size of a popup (picker over the editor) as a share of the screen, in percent.
+    pub popup_percent: u16,
 }
 
 /// A `#rrggbb` color from the JSON.
@@ -148,13 +153,13 @@ impl Default for GitColors {
 
 impl Default for Chrome {
     fn default() -> Self {
-        Chrome { border: "rounded".into(), titles: true }
+        Chrome { border: "rounded".into(), titles: true, transparent: true }
     }
 }
 
 impl Default for Layout {
     fn default() -> Self {
-        Layout { gap: 0, padding_x: 1, padding_y: 0, sidebar_width: 30, preview_percent: 50 }
+        Layout { gap: 0, padding_x: 1, padding_y: 0, sidebar_width: 30, preview_percent: 50, popup_percent: 80 }
     }
 }
 
