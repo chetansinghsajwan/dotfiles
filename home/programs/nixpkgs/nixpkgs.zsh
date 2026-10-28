@@ -8,10 +8,10 @@
 # fnp prompts interactively for a search term when called with no args (see
 # nixpkgs.sh), which still works fine run this way through a ZLE widget.
 
-fzf-nix-packages-widget() { __fzf_insert_widget fnp; }
-zle -N fzf-nix-packages-widget
-bindkey '\enp' fzf-nix-packages-widget
+pick-nix-packages-widget() { __pick_insert_widget fnp; }
+zle -N pick-nix-packages-widget
+bindkey '\enp' pick-nix-packages-widget
 
-fzf-nix-installed-widget() { __fzf_insert_widget fnpi; }
-zle -N fzf-nix-installed-widget
-bindkey '\eni' fzf-nix-installed-widget
+pick-nix-installed-widget() { __pick_insert_widget fnpi; }
+zle -N pick-nix-installed-widget
+bindkey '\eni' pick-nix-installed-widget

@@ -99,7 +99,6 @@ in
         neovim.enable = config.dotfiles.editor.terminal == "neovim";
         btop.enable = true;
         eza.enable = true;
-        fzf.enable = true;
         lazydocker.enable = true;
         lazygit.enable = true;
         superfile.enable = true;

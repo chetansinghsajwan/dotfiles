@@ -27,7 +27,6 @@ in
             source ~/.config/git/git.zsh
         '';
 
-        programs.fzf.enable = true;
 
         programs.git = {
             includes = [
