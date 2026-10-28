@@ -8,20 +8,20 @@
 #
 # zsh waits up to $KEYTIMEOUT after a complete "\ed" match to see if the
 # sequence continues, so plain alt-d still falls through to kill-word when
-# nothing follows (same trick as fzf.zsh's alt-g menu vs git.zsh's chords).
+# nothing follows (same trick as pickers.zsh's alt-g menu vs git.zsh's chords).
 
-fzf-docker-ps-widget() { __fzf_insert_widget fdps; }
-zle -N fzf-docker-ps-widget
-bindkey '\edp' fzf-docker-ps-widget
+pick-docker-ps-widget() { __pick_insert_widget fdps; }
+zle -N pick-docker-ps-widget
+bindkey '\edp' pick-docker-ps-widget
 
-fzf-docker-images-widget() { __fzf_insert_widget fdimg; }
-zle -N fzf-docker-images-widget
-bindkey '\edi' fzf-docker-images-widget
+pick-docker-images-widget() { __pick_insert_widget fdimg; }
+zle -N pick-docker-images-widget
+bindkey '\edi' pick-docker-images-widget
 
-fzf-docker-volumes-widget() { __fzf_insert_widget fdvol; }
-zle -N fzf-docker-volumes-widget
-bindkey '\edv' fzf-docker-volumes-widget
+pick-docker-volumes-widget() { __pick_insert_widget fdvol; }
+zle -N pick-docker-volumes-widget
+bindkey '\edv' pick-docker-volumes-widget
 
-fzf-docker-networks-widget() { __fzf_insert_widget fdnet; }
-zle -N fzf-docker-networks-widget
-bindkey '\edn' fzf-docker-networks-widget
+pick-docker-networks-widget() { __pick_insert_widget fdnet; }
+zle -N pick-docker-networks-widget
+bindkey '\edn' pick-docker-networks-widget

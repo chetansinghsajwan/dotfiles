@@ -7,8 +7,8 @@
 }:
 llib.mkToggleModule config "clipboard" {
     home.file = {
-        ".config/clipboard-fzf/clipboard.sh".source = ./clipboard.sh;
-        ".config/clipboard-fzf/clipboard.zsh".source = ./clipboard.zsh;
+        ".config/clipboard-pick/clipboard.sh".source = ./clipboard.sh;
+        ".config/clipboard-pick/clipboard.zsh".source = ./clipboard.zsh;
     };
 
     # wl-clipboard and cliphist declared here (not just relying on the
@@ -21,15 +21,14 @@ llib.mkToggleModule config "clipboard" {
     ];
 
     programs.bash.initExtra = ''
-        source ~/.config/clipboard-fzf/clipboard.sh
+        source ~/.config/clipboard-pick/clipboard.sh
     '';
     # clipboard.zsh (ZLE widgets/bindkey) is zsh-only, so it isn't sourced into bash.
     programs.zsh.initContent = ''
-        source ~/.config/clipboard-fzf/clipboard.sh
-        source ~/.config/clipboard-fzf/clipboard.zsh
+        source ~/.config/clipboard-pick/clipboard.sh
+        source ~/.config/clipboard-pick/clipboard.zsh
     '';
 
-    programs.fzf.enable = true;
 
     # cliphist only has history to browse once something is actually watching
     # the clipboard and storing it; that requires a running Wayland session,

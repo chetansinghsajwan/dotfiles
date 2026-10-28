@@ -3,6 +3,7 @@
 
 mod candidate;
 pub mod grep;
+mod keys;
 mod picker;
 mod preview_cmd;
 pub mod source;

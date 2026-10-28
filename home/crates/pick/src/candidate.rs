@@ -11,6 +11,9 @@ pub struct Candidate {
     pub loc: Option<Loc>,
     pub git: Option<GitItem>,
     pub buffer: Option<Buffer>,
+    /// The whole input line when `display` shows only part of it (`--with-nth`);
+    /// that line is what accepting prints and what a preview command receives.
+    pub raw: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -67,20 +70,25 @@ pub struct Buffer {
 
 impl Candidate {
     pub fn plain(s: impl Into<String>) -> Self {
-        Candidate { display: s.into(), loc: None, git: None, buffer: None }
+        Candidate { display: s.into(), loc: None, git: None, buffer: None, raw: None }
     }
 
     pub fn grep(loc: Loc) -> Self {
-        Candidate { display: format!("{}:{}: {}", loc.path, loc.line, loc.text), loc: Some(loc), git: None, buffer: None }
+        Candidate { display: format!("{}:{}: {}", loc.path, loc.line, loc.text), loc: Some(loc), git: None, buffer: None, raw: None }
     }
 
     /// Matched against the query as `name subject`, so either finds it.
     pub fn git_item(item: GitItem) -> Self {
-        Candidate { display: format!("{} {}", item.name, item.subject), loc: None, git: Some(item), buffer: None }
+        Candidate { display: format!("{} {}", item.name, item.subject), loc: None, git: Some(item), buffer: None, raw: None }
+    }
+
+    /// Show `display` but keep the whole `line` for output and previews.
+    pub fn with_raw(display: impl Into<String>, line: impl Into<String>) -> Self {
+        Candidate { display: display.into(), loc: None, git: None, buffer: None, raw: Some(line.into()) }
     }
 
     pub fn buffer(display: impl Into<String>, buffer: Buffer) -> Self {
-        Candidate { display: display.into(), loc: None, git: None, buffer: Some(buffer) }
+        Candidate { display: display.into(), loc: None, git: None, buffer: Some(buffer), raw: None }
     }
 
     /// The path the preview and git state refer to (file candidates only).
@@ -97,6 +105,9 @@ impl Candidate {
     pub fn output(&self) -> String {
         if let Some(b) = &self.buffer {
             return b.value.clone();
+        }
+        if let Some(raw) = &self.raw {
+            return raw.clone();
         }
         if let Some(l) = &self.loc {
             return format!("{}:{}:{}:{}", l.path, l.line, l.col, l.text);

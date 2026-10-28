@@ -1,55 +1,6 @@
-# Base fzf wrapper
-function __fzf() {
-    local label=""
-    local multi=1
-
-    # Parse named options
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-        --label)
-            label="$2"
-            shift 2
-            ;;
-        --no-multi)
-            multi=0
-            shift
-            ;;
-        --)
-            shift
-            break
-            ;; # remaining args passed straight to fzf
-        *) break ;;
-        esac
-    done
-
-    # Tracks current multi/single-select state across alt-m presses;
-    # fzf has no native "toggle-multi" action, only change-multi (on/off).
-    # alt-m, not ctrl-t: zellij's default keymap grabs ctrl-t globally to
-    # enter tab mode before it ever reaches fzf.
-    local multi_state
-    multi_state=$(mktemp)
-    echo "$multi" >"$multi_state"
-
-    local multi_toggle_bind="alt-m:transform:if [ \"\$(cat '$multi_state')\" = 1 ]; then printf 0 > '$multi_state'; echo 'change-multi(0)'; else printf 1 > '$multi_state'; echo 'change-multi'; fi"
-
-    # Static defaults (popup size, border, layout, preview window, the
-    # constant binds) live in programs.fzf.defaultOptions (-> FZF_DEFAULT_OPTS)
-    # instead of here; only the per-invocation dynamic bits stay in this array.
-    local args=(
-        --bind "$multi_toggle_bind"
-    )
-
-    [[ -n $label ]] && args+=(--border-label " $label ")
-    [[ $multi -eq 1 ]] && args+=(--multi)
-
-    # Any leftover args (after --) get appended, allowing overrides/extras
-    fzf "${args[@]}" "$@"
-
-    rm -f "$multi_state"
-}
-
-# The pickers below run on `pick` (the shared picker, see plan.md). `__fzf`
-# above stays for the modules that still need fzf-only features.
+# Shell pickers on `pick` (the shared picker). Sourced into bash and zsh;
+# the zsh-only keybindings are in pickers.zsh. The git, docker, nixpkgs and
+# clipboard modules add their own pickers the same way.
 
 # ff - fuzzy file search; -d/--dirs also lists folders
 function ff() {
@@ -131,7 +82,3 @@ function fh() {
     sed -E 's/^: [0-9]+:[0-9]+;//' "$histfile" | tac | awk '!seen[$0]++' | pick --title "History"
 }
 
-# fgl / fgb / fgs - git commits, branches and tags, stashes (in the current repo)
-function fgl() { pick --git commits --title "Commits"; }
-function fgb() { pick --git refs --title "Branches and Tags"; }
-function fgs() { pick --git stashes --title "Stashes"; }

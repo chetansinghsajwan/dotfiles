@@ -7,12 +7,38 @@ use std::io::BufRead;
 use std::path::{Path, PathBuf};
 use std::thread;
 
+/// How input lines become candidates.
+#[derive(Debug, Clone, Default)]
+pub struct LineFormat {
+    /// Show only this field (1-based) and match against it; the whole line is
+    /// still what accepting prints and what a preview command receives.
+    pub with_nth: Option<usize>,
+    /// Field separator for `with_nth` (default: whitespace).
+    pub delimiter: Option<String>,
+}
+
+fn candidate(line: String, fmt: &LineFormat) -> Candidate {
+    let Some(n) = fmt.with_nth.filter(|&n| n >= 1) else { return Candidate::plain(line) };
+    let field = match fmt.delimiter.as_deref().filter(|d| !d.is_empty()) {
+        Some(d) => line.split(d).nth(n - 1),
+        None => line.split_whitespace().nth(n - 1),
+    }
+    .unwrap_or("")
+    .to_string();
+    Candidate::with_raw(field, line)
+}
+
 /// Lines from a reader (e.g. stdin), one candidate per line.
 pub fn spawn_lines(inj: Injector<Candidate>, reader: impl BufRead + Send + 'static) {
+    spawn_lines_with(inj, reader, LineFormat::default());
+}
+
+/// Like `spawn_lines`, with a field shown instead of the whole line.
+pub fn spawn_lines_with(inj: Injector<Candidate>, reader: impl BufRead + Send + 'static, fmt: LineFormat) {
     thread::spawn(move || {
         for line in reader.lines().map_while(Result::ok) {
             if !line.is_empty() {
-                inj.push(Candidate::plain(line), |c, cols| cols[0] = c.display.as_str().into());
+                inj.push(candidate(line, &fmt), |c, cols| cols[0] = c.display.as_str().into());
             }
         }
     });

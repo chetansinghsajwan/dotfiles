@@ -61,7 +61,8 @@ impl Component for PickComponent {
             Action::Cancel => EventResult::Consumed(Some(Box::new(|compositor, _| {
                 compositor.pop();
             }))),
-            Action::Accept(sel) => {
+            // `--expect` keys are a CLI feature; inside the editor they accept like Enter.
+            Action::Accept(sel) | Action::AcceptWith(_, sel) => {
                 let on_accept = self.on_accept.take();
                 EventResult::Consumed(Some(Box::new(move |compositor, cx| {
                     compositor.pop();

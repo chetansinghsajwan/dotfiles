@@ -1,39 +1,37 @@
-# ZLE widgets wiring fzf.sh's picker functions (now `pick`-backed) into zsh keybindings.
-# Kept separate from fzf.sh since ZLE/bindkey are zsh-only, while fzf.sh's
-# functions are sourced into bash too.
+# ZLE widgets wiring pickers.sh's picker functions (all `pick`-backed) into zsh
+# keybindings. Kept separate from pickers.sh since ZLE/bindkey are zsh-only,
+# while pickers.sh's functions are sourced into bash too.
 
-__fzf_insert_widget() {
+__pick_insert_widget() {
     local result
     result=$("$1")
     [[ -n $result ]] && LBUFFER="${LBUFFER}${result}"
     zle reset-prompt
 }
 
-fzf-file-widget() { __fzf_insert_widget ff; }
-zle -N fzf-file-widget
+pick-file-widget() { __pick_insert_widget ff; }
+zle -N pick-file-widget
 # alt-t, not ctrl-t: zellij's default keymap grabs ctrl-t globally to enter
 # tab mode before it ever reaches the shell.
-bindkey '\et' fzf-file-widget
+bindkey '\et' pick-file-widget
 
-fzf-history-widget() { __fzf_insert_widget fh; }
-zle -N fzf-history-widget
-bindkey '^R' fzf-history-widget
+pick-history-widget() { __pick_insert_widget fh; }
+zle -N pick-history-widget
+bindkey '^R' pick-history-widget
 
-# home-manager's own fzf integration (programs.fzf.enableZshIntegration)
-# binds alt-c to its own plain cd widget; override it to match the polish
-# alt-t/ctrl-r get, and to actually cd instead of just inserting text.
-fzf-cd-widget() {
+# alt-c: pick a folder and cd into it (instead of inserting its name).
+pick-cd-widget() {
     local dir
     dir=$(pick --files --only-dirs --title "Directories")
     [[ -n $dir ]] && cd -- "$dir"
     zle reset-prompt
 }
-zle -N fzf-cd-widget
-bindkey '\ec' fzf-cd-widget
+zle -N pick-cd-widget
+bindkey '\ec' pick-cd-widget
 
 # Everything else lives behind one menu instead of claiming more ctrl-key
 # slots — pick the picker, then its result is inserted like the above.
-__fzf_menu_dispatch() {
+__pick_menu_dispatch() {
     local -a items=(
         "fgl   git commits"
         "fgb   git branches and tags"
@@ -74,8 +72,8 @@ __fzf_menu_dispatch() {
     esac
 }
 
-fzf-menu-widget() { __fzf_insert_widget __fzf_menu_dispatch; }
-zle -N fzf-menu-widget
+pick-menu-widget() { __pick_insert_widget __pick_menu_dispatch; }
+zle -N pick-menu-widget
 # alt-g, not ctrl-g: zellij's default keymap grabs ctrl-g globally to switch
 # to locked mode before it ever reaches the shell.
-bindkey '\eg' fzf-menu-widget
+bindkey '\eg' pick-menu-widget

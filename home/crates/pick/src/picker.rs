@@ -46,6 +46,9 @@ pub enum Action {
     /// The user accepted: the marked candidates, or the highlighted one
     /// (`Candidate::output` form).
     Accept(Vec<String>),
+    /// One of the `--expect` keys was pressed: its name and the selection
+    /// (like `Accept`). The host runs the action tied to the key.
+    AcceptWith(String, Vec<String>),
     Cancel,
 }
 
@@ -76,6 +79,10 @@ pub struct Picker {
     title: Option<String>,
     /// External preview command for candidates that are plain text (`--preview-cmd`).
     preview_cmd: Option<crate::preview_cmd::PreviewCmd>,
+    /// Keys that accept and report themselves (`--expect`).
+    expect: Vec<(String, KeyEvent)>,
+    /// Fixed lines under the prompt (`--header-lines`).
+    header: Vec<String>,
     /// Preview rows visible at the last render, for paging.
     pheight: usize,
 }
@@ -108,6 +115,8 @@ impl Picker {
             pscroll: 0,
             title: None,
             preview_cmd: None,
+            expect: Vec::new(),
+            header: Vec::new(),
             pheight: 10,
             opts,
         };
@@ -118,6 +127,23 @@ impl Picker {
     /// Where candidates are pushed in `Mode::Fuzzy`. (Grep mode feeds itself.)
     pub fn injector(&self) -> Injector<Candidate> {
         self.nucleo.injector()
+    }
+
+    /// Keys (`ctrl-e`, `alt-x`, `f2`, ...) that accept and report themselves
+    /// through `Action::AcceptWith`. Fails on a name that is not understood.
+    pub fn set_expect(&mut self, keys: &[String]) -> Result<(), String> {
+        let mut out = Vec::new();
+        for k in keys {
+            let ev = crate::keys::parse(k).ok_or_else(|| format!("unknown key: {k}"))?;
+            out.push((k.clone(), ev));
+        }
+        self.expect = out;
+        Ok(())
+    }
+
+    /// Fixed lines shown under the prompt, e.g. a table's column names.
+    pub fn set_header(&mut self, lines: Vec<String>) {
+        self.header = lines;
     }
 
     /// Title of the list pane instead of `pick` / `grep`.
@@ -208,6 +234,16 @@ impl Picker {
             return Action::None;
         }
         let ctrl = modifiers.contains(KeyModifiers::CONTROL);
+        // `--expect` keys accept and report which key was used.
+        if let Some((name, _)) = self.expect.iter().find(|(_, want)| crate::keys::matches(&KeyEvent::new(*code, *modifiers), want)) {
+            let name = name.clone();
+            let picked: Vec<String> = if self.marked.is_empty() {
+                self.current().map(|c| c.output()).into_iter().collect()
+            } else {
+                self.marked.iter().cloned().collect()
+            };
+            return Action::AcceptWith(name, picked);
+        }
         match code {
             KeyCode::Esc => return Action::Cancel,
             KeyCode::Char('c') | KeyCode::Char('g') if ctrl => return Action::Cancel,
@@ -386,7 +422,12 @@ impl Picker {
             }
         }
 
-        let list = Rect { y: inner.y + 1, height: inner.height - 1, ..inner };
+        // Header lines sit between the prompt and the list.
+        let header_rows = (self.header.len() as u16).min(inner.height.saturating_sub(2));
+        for (i, h) in self.header.iter().take(usize::from(header_rows)).enumerate() {
+            buf.set_stringn(inner.x + 2, inner.y + 1 + i as u16, h, usize::from(inner.width.saturating_sub(2)), Style::new().fg(c.muted.into()));
+        }
+        let list = Rect { y: inner.y + 1 + header_rows, height: inner.height - 1 - header_rows, ..inner };
         self.page = u32::from(list.height).max(1);
         // Keep the cursor inside the window.
         if self.cursor < self.offset {
@@ -458,7 +499,8 @@ impl Picker {
                 (None, Some(b)) => pv::preview_text(std::path::Path::new(cand.path()), b.text.as_bytes(), theme, &opts),
                 // Plain text with an external preview command: its output, colors kept.
                 (None, None) if self.preview_cmd.is_some() && cand.loc.is_none() => {
-                    let out = self.preview_cmd.as_ref().map(|p| p.run(&cand.display)).unwrap_or_default();
+                    let line = cand.raw.as_deref().unwrap_or(&cand.display);
+                    let out = self.preview_cmd.as_ref().map(|p| p.run(line)).unwrap_or_default();
                     Ok(ui::ansi::parse(&out))
                 }
                 (None, None) => pv::preview(&self.opts.root.join(cand.path()), theme, &opts),
@@ -978,5 +1020,72 @@ mod cmd_tests {
         let mut names: Vec<String> = p.nucleo.snapshot().matched_items(..).map(|i| i.data.display.clone()).collect();
         names.sort();
         assert_eq!(names, vec!["a/".to_string(), "a/b/".to_string()]);
+    }
+}
+
+#[cfg(test)]
+mod shell_tests {
+    use super::*;
+    use crate::source::LineFormat;
+    use ratatui::crossterm::event::KeyEvent;
+
+    fn picker_from(lines: &[&str], fmt: LineFormat) -> Picker {
+        let opts = PickerOptions { mode: Mode::Fuzzy, paths: false, root: std::env::temp_dir(), preview: false, git: false, query: String::new() };
+        let mut p = Picker::new(opts, Arc::new(|| {}));
+        let items: Vec<Candidate> = lines
+            .iter()
+            .map(|l| match fmt.with_nth {
+                Some(n) => Candidate::with_raw(l.split_whitespace().nth(n - 1).unwrap_or(""), *l),
+                None => Candidate::plain(*l),
+            })
+            .collect();
+        crate::source::push_candidates(&p.injector(), items);
+        p.set_cursor(0);
+        p
+    }
+
+    fn key(code: KeyCode, m: KeyModifiers) -> Event {
+        Event::Key(KeyEvent::new(code, m))
+    }
+
+    fn draw(p: &mut Picker) -> String {
+        let area = Rect::new(0, 0, 100, 12);
+        let mut b = Buffer::empty(area);
+        p.render(area, &mut b, &Theme::default());
+        (0..12).map(|y| (0..100).map(|x| b[(x, y)].symbol().to_string()).collect::<String>() + "\n").collect()
+    }
+
+    #[test]
+    fn expect_keys_accept_and_report_the_key() {
+        let mut p = picker_from(&["alpha", "beta"], LineFormat::default());
+        p.set_expect(&["ctrl-e".to_string(), "f2".to_string()]).unwrap();
+        assert_eq!(p.handle_event(&key(KeyCode::Char('e'), KeyModifiers::CONTROL)), Action::AcceptWith("ctrl-e".into(), vec!["alpha".into()]));
+        p.handle_event(&key(KeyCode::Down, KeyModifiers::NONE));
+        assert_eq!(p.handle_event(&key(KeyCode::F(2), KeyModifiers::NONE)), Action::AcceptWith("f2".into(), vec!["beta".into()]));
+        // Enter still accepts normally, and a plain `e` still types.
+        assert_eq!(p.handle_event(&key(KeyCode::Enter, KeyModifiers::NONE)), Action::Accept(vec!["beta".into()]));
+        assert!(p.set_expect(&["bogus-key".to_string()]).is_err());
+    }
+
+    #[test]
+    fn header_lines_sit_under_the_prompt_and_are_not_candidates() {
+        let mut p = picker_from(&["row one", "row two"], LineFormat::default());
+        p.set_header(vec!["ID   NAME   STATUS".to_string()]);
+        let text = draw(&mut p);
+        let lines: Vec<&str> = text.lines().collect();
+        let h = lines.iter().position(|l| l.contains("ID   NAME   STATUS")).expect("header drawn");
+        let r = lines.iter().position(|l| l.contains("row one")).expect("rows drawn");
+        assert!(h < r && lines[1].contains('>'), "{text}");
+        assert!(text.contains("2/2"), "{text}");
+    }
+
+    #[test]
+    fn with_nth_shows_one_field_but_prints_and_previews_the_whole_line() {
+        let mut p = picker_from(&["nginx\t/nix/store/aaa-nginx", "curl\t/nix/store/bbb-curl"], LineFormat { with_nth: Some(1), delimiter: None });
+        p.set_preview_command("printf 'PATH=%s' {2}", None);
+        let text = draw(&mut p);
+        assert!(text.contains("nginx") && !text.contains("aaa-nginx\n") , "{text}");
+        assert!(text.contains("PATH=/nix/store/aaa-nginx"), "{text}");
+        assert_eq!(p.handle_event(&key(KeyCode::Enter, KeyModifiers::NONE)), Action::Accept(vec!["nginx\t/nix/store/aaa-nginx".into()]));
     }
 }

@@ -7,7 +7,7 @@ use ratatui::crossterm::event::{self, Event};
 use ratatui::crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode};
 use ratatui::crossterm::execute;
 use std::fs::OpenOptions;
-use std::io::{self, IsTerminal, Write};
+use std::io::{self, BufRead, IsTerminal, Write};
 use std::path::PathBuf;
 use std::process::ExitCode;
 use std::sync::Arc;
@@ -50,6 +50,17 @@ struct Cli {
     /// Field separator for `{N}` in `--preview-cmd` (default: whitespace).
     #[arg(long, value_name = "SEP")]
     delimiter: Option<String>,
+    /// Show only the N-th field of each stdin line (split on `--delimiter`, default
+    /// whitespace); accepting still prints the whole line.
+    #[arg(long, value_name = "N")]
+    with_nth: Option<usize>,
+    /// Treat the first N stdin lines as a fixed header above the list.
+    #[arg(long, value_name = "N", default_value_t = 0)]
+    header_lines: usize,
+    /// Keys that accept and print their name on the first output line (before the
+    /// selection), e.g. `--expect ctrl-e,ctrl-x`; an empty first line means Enter.
+    #[arg(long, value_name = "KEYS", value_delimiter = ',')]
+    expect: Vec<String>,
     /// Initial query.
     #[arg(long, short, default_value = "")]
     query: String,
@@ -106,6 +117,10 @@ fn run(cli: Cli) -> io::Result<u8> {
     if let Some(title) = &cli.title {
         picker.set_title(title.clone());
     }
+    if let Err(e) = picker.set_expect(&cli.expect) {
+        eprintln!("pick: {e}");
+        return Ok(2);
+    }
     if let Some(cmd) = &cli.preview_cmd {
         picker.set_preview_command(cmd.clone(), cli.delimiter.clone());
     }
@@ -114,7 +129,21 @@ fn run(cli: Cli) -> io::Result<u8> {
         (Some(_), _, _) => source::spawn_files(picker.injector(), root, cli.dirs),
         (None, Some(what), _) => source::spawn_git(picker.injector(), root, what.into()),
         (None, None, Mode::Grep) => {} // the picker runs the search itself
-        (None, None, Mode::Fuzzy) => source::spawn_lines(picker.injector(), io::BufReader::new(io::stdin())),
+        (None, None, Mode::Fuzzy) => {
+            let mut reader = io::BufReader::new(io::stdin());
+            // The first lines are a fixed header, not candidates.
+            let mut header = Vec::new();
+            for _ in 0..cli.header_lines {
+                let mut line = String::new();
+                if reader.read_line(&mut line)? == 0 {
+                    break;
+                }
+                header.push(line.trim_end_matches(['\n', '\r']).to_string());
+            }
+            picker.set_header(header);
+            let fmt = source::LineFormat { with_nth: cli.with_nth, delimiter: cli.delimiter.clone() };
+            source::spawn_lines_with(picker.injector(), reader, fmt);
+        }
     }
 
     // Draw on the controlling terminal so stdin can carry candidates and
@@ -145,6 +174,7 @@ fn run(cli: Cli) -> io::Result<u8> {
                     Action::None => {}
                     Action::Cancel => break Action::Cancel,
                     Action::Accept(v) => break Action::Accept(v),
+                    Action::AcceptWith(k, v) => break Action::AcceptWith(k, v),
                 }
             }
         }
@@ -152,17 +182,24 @@ fn run(cli: Cli) -> io::Result<u8> {
     };
     drop(tty_term);
 
-    match result {
-        Action::Accept(sel) if !sel.is_empty() => {
-            let mut out = io::stdout().lock();
-            for s in sel {
-                writeln!(out, "{s}")?;
-            }
-            Ok(0)
-        }
-        Action::Accept(_) => Ok(EXIT_NO_SELECTION),
-        _ => Ok(EXIT_CANCEL),
+    // With `--expect`, the first line names the key used (empty for Enter).
+    let expecting = !cli.expect.is_empty();
+    let (key, selection) = match result {
+        Action::Accept(sel) => (String::new(), sel),
+        Action::AcceptWith(k, sel) => (k, sel),
+        _ => return Ok(EXIT_CANCEL),
+    };
+    if selection.is_empty() && key.is_empty() {
+        return Ok(EXIT_NO_SELECTION);
     }
+    let mut out = io::stdout().lock();
+    if expecting {
+        writeln!(out, "{key}")?;
+    }
+    for s in selection {
+        writeln!(out, "{s}")?;
+    }
+    Ok(0)
 }
 
 #[derive(Clone, Copy, clap::ValueEnum)]
