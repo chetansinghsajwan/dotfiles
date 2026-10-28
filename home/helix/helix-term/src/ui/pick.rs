@@ -40,6 +40,12 @@ impl PickComponent {
         start(&picker);
         PickComponent { picker, theme: tui_design::Theme::load(), on_accept: Some(Box::new(on_accept)) }
     }
+
+    /// Put the cursor on the `index`-th entry (the previous buffer, say).
+    pub fn with_cursor(mut self, index: u32) -> Self {
+        self.picker.set_cursor(index);
+        self
+    }
 }
 
 impl Component for PickComponent {

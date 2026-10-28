@@ -114,6 +114,19 @@ impl Picker {
         self.nucleo.injector()
     }
 
+    /// Put the cursor on the `index`-th result (0-based), e.g. to preselect the
+    /// previous buffer. Takes effect once the candidates are in (see `tick`).
+    pub fn set_cursor(&mut self, index: u32) {
+        // Let the matcher finish the candidates pushed so far (a few ms at most).
+        for _ in 0..40 {
+            if !self.nucleo.tick(5).running {
+                break;
+            }
+        }
+        self.cursor = index;
+        self.clamp();
+    }
+
     /// Advance the matcher. Returns true if the result list changed (redraw).
     pub fn tick(&mut self) -> bool {
         let changed = self.nucleo.tick(10).changed;
@@ -305,6 +318,9 @@ impl Picker {
         if let Some(g) = &cand.git {
             spans.push(Span::styled(if g.is_head { "* " } else { "  " }, Style::new().fg(c.accent.into())));
         }
+        if let Some(b) = &cand.buffer {
+            spans.push(Span::styled(format!("{:<2} ", b.flags), Style::new().fg(c.warning.into())));
+        }
         for (i, ch) in cand.display.chars().enumerate() {
             let is_hit = hits.peek() == Some(&(i as u32));
             if is_hit {
@@ -415,11 +431,13 @@ impl Picker {
                 width: Some(inner.width),
                 height: if cand.git.is_some() { None } else { Some(inner.height) },
                 git: self.opts.git,
-                focus: cand.loc.as_ref().map(|l| l.line),
+                focus: cand.loc.as_ref().map(|l| l.line).or(cand.buffer.as_ref().and_then(|b| b.focus)),
             };
-            let rendered = match &cand.git {
-                Some(g) => pv::preview_commit(&self.opts.root, &g.oid, theme, &opts),
-                None => pv::preview(&self.opts.root.join(cand.path()), theme, &opts),
+            let rendered = match (&cand.git, &cand.buffer) {
+                (Some(g), _) => pv::preview_commit(&self.opts.root, &g.oid, theme, &opts),
+                // An open buffer: its text as shown in the editor, unsaved changes included.
+                (None, Some(b)) => pv::preview_text(std::path::Path::new(cand.path()), b.text.as_bytes(), theme, &opts),
+                (None, None) => pv::preview(&self.opts.root.join(cand.path()), theme, &opts),
             };
             let lines = match rendered {
                 Ok(l) => l,
@@ -791,5 +809,72 @@ mod git_tests {
         git(&d, &["stash", "push", "-q", "-m", "work in progress"]);
         let mut p = picker(&d, GitSource::Stashes, "");
         assert_eq!(enter(&mut p), Action::Accept(vec!["stash@{0}".into()]));
+    }
+}
+
+#[cfg(test)]
+mod buffer_tests {
+    use super::*;
+    use crate::candidate::Buffer as BufferInfo;
+    use ratatui::crossterm::event::KeyEvent;
+
+    fn buf(value: &str, flags: &str, path: Option<&str>, focus: Option<u32>, text: &str) -> Candidate {
+        Candidate::buffer(
+            path.unwrap_or("[scratch]"),
+            BufferInfo { value: value.into(), path: path.map(Into::into), flags: flags.into(), focus, text: text.into() },
+        )
+    }
+
+    fn picker(root: std::path::PathBuf, items: Vec<Candidate>) -> Picker {
+        let opts = PickerOptions { mode: Mode::Fuzzy, paths: true, root, preview: true, git: false, query: String::new() };
+        let mut p = Picker::new(opts, Arc::new(|| {}));
+        let inj = p.injector();
+        for c in items {
+            inj.push(c, |c, cols| cols[0] = c.display.as_str().into());
+        }
+        for _ in 0..100 {
+            if !p.nucleo.tick(10).running {
+                break;
+            }
+        }
+        p.set_cursor(0);
+        p
+    }
+
+    fn draw(p: &mut Picker) -> String {
+        let area = Rect::new(0, 0, 100, 14);
+        let mut b = Buffer::empty(area);
+        p.render(area, &mut b, &Theme::default());
+        (0..14).map(|y| (0..100).map(|x| b[(x, y)].symbol().to_string()).collect::<String>() + "\n").collect()
+    }
+
+    #[test]
+    fn buffers_show_flags_preview_unsaved_text_and_print_their_id() {
+        let d = std::env::temp_dir().join(format!("pick-buf-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join("a.txt"), "on disk\n").unwrap();
+        let mut p = picker(
+            d,
+            vec![
+                buf("7", "+*", Some("a.txt"), Some(2), "first\nUNSAVED edit\nthird\n"),
+                buf("3", "", None, None, "scratch text\n"),
+            ],
+        );
+        let text = draw(&mut p);
+        assert!(text.contains("+*") && text.contains("a.txt") && text.contains("[scratch]"), "{text}");
+        assert!(text.contains("UNSAVED edit") && !text.contains("on disk"), "{text}");
+        // Accepting returns the id the host gave, not the display text.
+        assert_eq!(p.handle_event(&Event::Key(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE))), Action::Accept(vec!["7".into()]));
+    }
+
+    #[test]
+    fn set_cursor_preselects_the_previous_buffer_and_clamps() {
+        let d = std::env::temp_dir();
+        let mut p = picker(d.clone(), vec![buf("1", "*", Some("a"), None, "x"), buf("2", "", Some("b"), None, "y"), buf("3", "", Some("c"), None, "z")]);
+        p.set_cursor(1);
+        assert_eq!(p.handle_event(&Event::Key(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE))), Action::Accept(vec!["2".into()]));
+        p.set_cursor(99);
+        assert_eq!(p.handle_event(&Event::Key(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE))), Action::Accept(vec!["3".into()]));
     }
 }

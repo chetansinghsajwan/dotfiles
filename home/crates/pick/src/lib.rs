@@ -6,5 +6,5 @@ pub mod grep;
 mod picker;
 pub mod source;
 
-pub use candidate::{Candidate, GitItem, GitKind, Loc};
+pub use candidate::{Buffer, Candidate, GitItem, GitKind, Loc};
 pub use picker::{Action, Mode, Picker, PickerOptions};

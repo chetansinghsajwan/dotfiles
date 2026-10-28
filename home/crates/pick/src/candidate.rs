@@ -10,6 +10,7 @@ pub struct Candidate {
     pub display: String,
     pub loc: Option<Loc>,
     pub git: Option<GitItem>,
+    pub buffer: Option<Buffer>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,22 +49,45 @@ pub struct GitItem {
     pub is_head: bool,
 }
 
+/// An open editor buffer. The host (an editor embedding `pick`) fills it in;
+/// `display` is the buffer's name and is what the query matches.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Buffer {
+    /// What accepting returns: an id the host maps back to the buffer.
+    pub value: String,
+    /// Path relative to the picker root, for the git state; `None` for scratch buffers.
+    pub path: Option<String>,
+    /// Flags shown before the name, e.g. `+` modified, `*` current.
+    pub flags: String,
+    /// 1-based line to bring into view in the preview (the cursor line).
+    pub focus: Option<u32>,
+    /// The buffer's text as shown in the editor (unsaved changes included).
+    pub text: std::sync::Arc<str>,
+}
+
 impl Candidate {
     pub fn plain(s: impl Into<String>) -> Self {
-        Candidate { display: s.into(), loc: None, git: None }
+        Candidate { display: s.into(), loc: None, git: None, buffer: None }
     }
 
     pub fn grep(loc: Loc) -> Self {
-        Candidate { display: format!("{}:{}: {}", loc.path, loc.line, loc.text), loc: Some(loc), git: None }
+        Candidate { display: format!("{}:{}: {}", loc.path, loc.line, loc.text), loc: Some(loc), git: None, buffer: None }
     }
 
     /// Matched against the query as `name subject`, so either finds it.
     pub fn git_item(item: GitItem) -> Self {
-        Candidate { display: format!("{} {}", item.name, item.subject), loc: None, git: Some(item) }
+        Candidate { display: format!("{} {}", item.name, item.subject), loc: None, git: Some(item), buffer: None }
+    }
+
+    pub fn buffer(display: impl Into<String>, buffer: Buffer) -> Self {
+        Candidate { display: display.into(), loc: None, git: None, buffer: Some(buffer) }
     }
 
     /// The path the preview and git state refer to (file candidates only).
     pub fn path(&self) -> &str {
+        if let Some(b) = &self.buffer {
+            return b.path.as_deref().unwrap_or(&self.display);
+        }
         self.loc.as_ref().map(|l| l.path.as_str()).unwrap_or(&self.display)
     }
 
@@ -71,6 +95,9 @@ impl Candidate {
     /// `--vimgrep` format); the name for refs and stashes, the full hash for
     /// commits; the text itself otherwise.
     pub fn output(&self) -> String {
+        if let Some(b) = &self.buffer {
+            return b.value.clone();
+        }
         if let Some(l) = &self.loc {
             return format!("{}:{}:{}:{}", l.path, l.line, l.col, l.text);
         }

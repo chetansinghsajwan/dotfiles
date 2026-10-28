@@ -93,3 +93,10 @@ pub fn spawn_git(inj: Injector<Candidate>, root: PathBuf, what: GitSource) {
         }
     });
 }
+
+/// Push ready-made candidates (e.g. an editor's open buffers) in order.
+pub fn push_candidates(inj: &Injector<Candidate>, items: Vec<Candidate>) {
+    for c in items {
+        inj.push(c, |c, cols| cols[0] = c.display.as_str().into());
+    }
+}

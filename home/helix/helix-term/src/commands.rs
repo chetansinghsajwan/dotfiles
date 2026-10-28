@@ -3203,7 +3203,88 @@ fn file_explorer_in_current_directory(cx: &mut Context) {
     }
 }
 
+/// Text of `doc` as shown in the editor, capped so huge buffers stay cheap.
+fn buffer_text(doc: &Document) -> String {
+    const CAP: usize = 1 << 20;
+    let mut text = String::new();
+    for chunk in doc.text().chunks() {
+        if text.len() + chunk.len() > CAP {
+            break;
+        }
+        text.push_str(chunk);
+    }
+    text
+}
+
+/// The buffer picker: the shared `pick` component. Buffers are listed most
+/// recently used first with `+` (modified) and `*` (current) flags, the previous
+/// buffer is preselected, and the preview shows the buffer's text as it is in
+/// the editor, unsaved changes included.
 fn buffer_picker(cx: &mut Context) {
+    use pick::{source, Buffer, Candidate, Mode, PickerOptions};
+    let current = view!(cx.editor).doc;
+
+    let mut docs: Vec<&Document> = cx.editor.documents.values().collect();
+    docs.sort_unstable_by_key(|doc| std::cmp::Reverse(doc.focused_at));
+
+    let candidates: Vec<Candidate> = docs
+        .iter()
+        .map(|doc| {
+            let path = doc
+                .path()
+                .map(|p| helix_stdx::path::get_relative_path(p).to_string_lossy().into_owned());
+            let mut flags = String::new();
+            if doc.is_modified() {
+                flags.push('+');
+            }
+            if doc.id() == current {
+                flags.push('*');
+            }
+            let focus = doc
+                .selections()
+                .values()
+                .next()
+                .map(|s| s.primary().cursor_line(doc.text().slice(..)) as u32 + 1);
+            Candidate::buffer(
+                path.clone().unwrap_or_else(|| SCRATCH_BUFFER_NAME.to_string()),
+                Buffer {
+                    value: doc.id().to_string(),
+                    path,
+                    flags,
+                    focus,
+                    text: buffer_text(doc).into(),
+                },
+            )
+        })
+        .collect();
+    // Like helix: the previous buffer (second in MRU order) is preselected.
+    let cursor = u32::from(candidates.len() > 1);
+
+    let opts = PickerOptions {
+        mode: Mode::Fuzzy,
+        paths: true,
+        root: helix_stdx::env::current_working_dir(),
+        preview: true,
+        git: true,
+        query: String::new(),
+    };
+    let picker = ui::pick::PickComponent::new(
+        opts,
+        move |p| source::push_candidates(&p.injector(), candidates),
+        |_compositor, cx, picked| {
+            let Some(id) = picked.first() else { return };
+            let found = cx.editor.documents.values().find(|d| d.id().to_string() == *id).map(|d| d.id());
+            if let Some(id) = found {
+                cx.editor.switch(id, Action::Replace);
+            }
+        },
+    )
+    .with_cursor(cursor);
+    cx.push_layer(Box::new(picker));
+}
+
+#[allow(dead_code)] // helix's own implementation, replaced by the `pick` one below
+fn buffer_picker_builtin(cx: &mut Context) {
     let current = view!(cx.editor).doc;
 
     struct BufferMeta {

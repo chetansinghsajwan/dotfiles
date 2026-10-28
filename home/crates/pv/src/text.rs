@@ -94,10 +94,18 @@ fn line_marks(path: &Path, total: usize) -> Vec<Option<(LineKind, char)>> {
 pub fn render(path: &Path, theme: &Theme, opts: &Options) -> Result<Vec<Line<'static>>, Error> {
     let mut buf = Vec::new();
     std::fs::File::open(path)?.take(MAX_BYTES).read_to_end(&mut buf)?;
-    if is_binary(&buf) {
+    render_bytes(path, &buf, theme, opts, opts.git)
+}
+
+/// Render `buf` as the contents of `path` (which only picks the syntax and,
+/// with `git_marks`, the file to compare against `HEAD`). Used for text that
+/// is not on disk as shown, e.g. an editor buffer with unsaved changes.
+pub fn render_bytes(path: &Path, buf: &[u8], theme: &Theme, opts: &Options, git_marks: bool) -> Result<Vec<Line<'static>>, Error> {
+    let buf = &buf[..buf.len().min(MAX_BYTES as usize)];
+    if is_binary(buf) {
         return Err(Error::Unsupported("binary".into()));
     }
-    let text = String::from_utf8_lossy(&buf);
+    let text = String::from_utf8_lossy(buf);
 
     let syntaxes: SyntaxSet = two_face::syntax::extra_newlines();
     let syntax = syntaxes
@@ -113,7 +121,7 @@ pub fn render(path: &Path, theme: &Theme, opts: &Options) -> Result<Vec<Line<'st
     let total = text.lines().count();
     let digits = total.max(1).to_string().len();
     let gutter = Style::new().fg(theme.colors.muted.into());
-    let marks = if opts.git { line_marks(path, total) } else { Vec::new() };
+    let marks = if git_marks && opts.git { line_marks(path, total) } else { Vec::new() };
     // With a focus line and a height, show a window centered on it.
     let start = match (opts.focus, opts.height) {
         (Some(f), Some(_)) => {

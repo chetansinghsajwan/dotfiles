@@ -61,6 +61,12 @@ impl std::fmt::Display for Error {
     }
 }
 
+/// Preview text that is not (as shown) on disk, e.g. an editor buffer with
+/// unsaved changes. `name` only picks the syntax; there are no git marks.
+pub fn preview_text(name: &Path, text: &[u8], theme: &Theme, opts: &Options) -> Result<Vec<Line<'static>>, Error> {
+    text::render_bytes(name, text, theme, opts, false)
+}
+
 /// Render a preview of `path`.
 pub fn preview(path: &Path, theme: &Theme, opts: &Options) -> Result<Vec<Line<'static>>, Error> {
     let meta = std::fs::metadata(path)?;
@@ -219,6 +225,20 @@ mod tests {
         // A height clamps the whole preview, patch included.
         let short = preview_commit(&d, "HEAD", &Theme::default(), &Options { height: Some(12), ..o }).unwrap();
         assert_eq!(short.len(), 12);
+    }
+
+    #[test]
+    fn preview_text_renders_given_text_not_the_file() {
+        let d = git_repo("memtext");
+        // The file on disk says "1 2 3"; the buffer in memory differs.
+        let lines = preview_text(&d.join("a.txt"), b"one\nedited line\nthree\n", &Theme::default(), &Options { width: Some(30), focus: Some(2), ..Options::default() }).unwrap();
+        let text: Vec<String> = lines.iter().map(flat).collect();
+        assert!(text.iter().any(|l| l.contains("edited line")), "{text:?}");
+        assert!(!text.iter().any(|l| l.trim_end().ends_with(" 1") && l.contains(" 1 1")));
+        // The focus row is highlighted; no git marks even though the file differs from HEAD.
+        assert!(lines[1].spans.iter().all(|s| s.style.bg.is_some()) && lines[0].spans.iter().all(|s| s.style.bg.is_none()));
+        assert!(!flat(&lines[1]).contains('▎'));
+        assert!(matches!(preview_text(Path::new("x"), &[0, 1, 2], &Theme::default(), &Options::default()), Err(Error::Unsupported(_))));
     }
 
     #[test]
