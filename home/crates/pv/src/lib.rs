@@ -206,6 +206,22 @@ mod tests {
     }
 
     #[test]
+    fn commit_preview_shows_the_patch() {
+        let d = git_repo("patch");
+        let o = Options { width: Some(50), ..Options::default() };
+        let lines = preview_commit(&d, "HEAD", &Theme::default(), &o).unwrap();
+        let text: Vec<String> = lines.iter().map(flat).collect();
+        let at = |s: &str| text.iter().position(|l| l.contains(s)).unwrap_or_else(|| panic!("{s} in {text:?}"));
+        assert!(at("@@ -0,0 +1,3 @@") > at("2 files changed"));
+        let row = at("+ 1");
+        assert!(lines[row].spans.iter().all(|s| s.style.bg.is_some()), "added rows are tinted");
+        assert!(flat(&lines[row]).len() >= 49, "padded to the pane width");
+        // A height clamps the whole preview, patch included.
+        let short = preview_commit(&d, "HEAD", &Theme::default(), &Options { height: Some(12), ..o }).unwrap();
+        assert_eq!(short.len(), 12);
+    }
+
+    #[test]
     fn ansi_resets_after_styled_span() {
         let lines = vec![Line::from(ratatui::text::Span::styled("x", ratatui::style::Style::new().fg(ratatui::style::Color::Rgb(1, 2, 3))))];
         assert_eq!(to_ansi(&lines), "\x1b[38;2;1;2;3mx\x1b[0m\n");

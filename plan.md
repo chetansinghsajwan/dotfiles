@@ -175,7 +175,7 @@ TODO before step 2: read yazi's source to count how many files touch border and 
 - `pv` gained `Options.focus: Option<u32>` (text files only) and 1 test.
 - Tested: 5 grep unit tests (results + output format + columns, query change restarts, invalid regex fallback, preview focus window, empty query) plus the earlier 5; pty end-to-end: typed a query + Enter printed `source.rs:11:1:pub fn spawn_lines(...)`, Esc exit 130, no match exit 1.
 - Not done / not verified: no debounce (every keystroke restarts the search; fine on this repo, untested on huge trees), case and regex-mode toggles, search inside a path subset or by glob, multi-line patterns, non-UTF-8 files (skipped by the UTF8 sink), stdin grep results.
-- yazi `S` is bound to it (see the yazi section). Next: patch rendering in `pv`, then the helix embed.
+- yazi `S` is bound to it (see the yazi section). Patch rendering is done. Next: the helix embed.
 
 ### `pick` git sources (done)
 
@@ -185,8 +185,16 @@ TODO before step 2: read yazi's source to count how many files touch border and 
 - `git-core` gained read-only history: `Repo::refs()`, `commits(limit)`, `stashes()`, `commit(rev)`, `changes(rev)` (files changed vs the first parent with `+added -removed` counts, root commit vs the empty tree). `gix` feature `revision` added.
 - `pv` gained `pv::preview_commit(root, rev, theme, opts)`: header (hash, author, UTC date + age), message, `N files changed, +a -r`, then one row per file (`A/M/D/R` sign in the git color, counts right-aligned to the pane width). `pick` shows it for ref, commit and stash rows.
 - Tested: git-core 8 tests (adds refs incl. annotated tag peeling, log + message + parents + limit, per-file changes incl. add/modify/delete and the root commit, stashes, unborn repo), pick 14 (adds refs order and printed names, query by subject, commit hash + preview content, stash name), pv 9 (adds commit preview + UTC date formatting). Real pty runs: refs, commits, stashes, and a query picked the matching commit.
-- Not done / not verified: the commit preview shows no patch yet (only stats; a colored unified diff needs gix blob-diff text output and is the next preview step), remote-tracking branches are listed by the code but not covered by a test (no remote in the fixtures), rename detection is whatever gix's default tree diff reports, signed or merge commits (a merge diffs against its first parent only), commit history is not streamed past 5,000, ref/commit rows have no age column, the `stash` entry's preview shows the stash commit (its work-tree changes vs the parent).
+- Not done / not verified: remote-tracking branches are listed by the code but not covered by a test (no remote in the fixtures), rename detection is whatever gix's default tree diff reports, signed or merge commits (a merge diffs against its first parent only), commit history is not streamed past 5,000, ref/commit rows have no age column, the `stash` entry's preview shows the stash commit (its work-tree changes vs the parent).
 - Next: patch rendering in `pv` (shared with the future git panel), then the helix embed.
+
+### Patch rendering (done)
+
+- `git-core`: `Repo::patch(rev) -> Vec<FilePatch{path, kind, binary, hunks: Vec<Hunk{old_start, old_len, new_start, new_len, lines: Vec<PatchLine{kind: Context|Added|Removed, text}>}>}>`. Histogram diff, 3 lines of context, changes whose context would touch are merged into one hunk, start 0 means that side is empty (new/deleted file), binary files have no hunks. The root commit diffs against the empty tree; a merge diffs against its first parent only.
+- `pv::preview_commit` now draws the patch under the file list: per file a header (kind sign + path), `@@ -a,b +c,d @@` in the info color, rows with a line-number gutter, `+`/`-` sign and the added/removed rows tinted across the full width with the git tokens. `Options.height` clamps the whole preview; without a height at most 4000 lines are drawn. Context lines are not syntax highlighted (plain text color).
+- `pick`: commit/ref/stash previews render in full and scroll: `Ctrl-d` / `Ctrl-u` scroll the preview half a page, moving to another candidate resets it. Text-file previews are still a window at the top (or around the focus line); they do not scroll yet.
+- Tested: git-core 10 tests (hunks + context + merging + new/deleted/binary), pv 10, pick 15 (adds scrolling).
+- Not done: syntax highlighting inside the patch, word-level diffs, side-by-side view, a file-by-file jump, the `delta` renderer mentioned in the domains table (pv's own renderer is used instead for now), scroll for text previews.
 
 ### yazi + `pick` (step 1 done)
 

@@ -156,7 +156,15 @@ fn blob(repo: &gix::Repository, id: gix::ObjectId) -> Vec<u8> {
     repo.find_blob(id).map(|b| b.detach().data).unwrap_or_default()
 }
 
-pub(crate) fn changes(repo: &gix::Repository, rev: &str) -> Result<Vec<FileChange>, Error> {
+/// A changed file's contents on both sides of a commit.
+struct Side {
+    path: String,
+    kind: Kind,
+    before: Vec<u8>,
+    after: Vec<u8>,
+}
+
+fn sides(repo: &gix::Repository, rev: &str) -> Result<Vec<Side>, Error> {
     let id = repo.rev_parse_single(rev).map_err(err)?;
     let commit = repo.find_commit(id).map_err(err)?;
     let new_tree = commit.tree().map_err(err)?;
@@ -183,10 +191,124 @@ pub(crate) fn changes(repo: &gix::Repository, rev: &str) -> Result<Vec<FileChang
             }
             _ => continue, // trees, submodules
         };
-        let binary = before.contains(&0) || after.contains(&0);
-        let (added, removed) = if binary { (0, 0) } else { line_counts(&before, &after) };
-        out.push(FileChange { path, kind, added, removed, binary });
+        out.push(Side { path, kind, before, after });
     }
     out.sort_by(|a, b| a.path.cmp(&b.path));
     Ok(out)
+}
+
+pub(crate) fn changes(repo: &gix::Repository, rev: &str) -> Result<Vec<FileChange>, Error> {
+    Ok(sides(repo, rev)?
+        .into_iter()
+        .map(|s| {
+            let binary = s.before.contains(&0) || s.after.contains(&0);
+            let (added, removed) = if binary { (0, 0) } else { line_counts(&s.before, &s.after) };
+            FileChange { path: s.path, kind: s.kind, added, removed, binary }
+        })
+        .collect())
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PatchKind {
+    Context,
+    Added,
+    Removed,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PatchLine {
+    pub kind: PatchKind,
+    pub text: String,
+}
+
+/// One `@@ -old_start,old_len +new_start,new_len @@` block. A start of 0 means
+/// that side is empty (new or deleted file).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Hunk {
+    pub old_start: u32,
+    pub old_len: u32,
+    pub new_start: u32,
+    pub new_len: u32,
+    pub lines: Vec<PatchLine>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FilePatch {
+    pub path: String,
+    pub kind: Kind,
+    pub binary: bool,
+    pub hunks: Vec<Hunk>,
+}
+
+/// Lines of context around each change.
+const CONTEXT: usize = 3;
+
+fn split_lines(b: &[u8]) -> Vec<String> {
+    b.lines().map(|l| l.to_str_lossy().into_owned()).collect()
+}
+
+fn hunks(before: &[u8], after: &[u8]) -> Vec<Hunk> {
+    let (old, new) = (split_lines(before), split_lines(after));
+    let input = InternedInput::new(before, after);
+    let diff = Diff::compute(Algorithm::Histogram, &input);
+    let raw: Vec<_> = diff.hunks().collect();
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < raw.len() {
+        // Merge changes whose context would touch or overlap.
+        let mut j = i;
+        while j + 1 < raw.len() && (raw[j + 1].before.start as usize).saturating_sub(raw[j].before.end as usize) <= 2 * CONTEXT {
+            j += 1;
+        }
+        let first = &raw[i];
+        let last = &raw[j];
+        let lead = CONTEXT.min(first.before.start as usize);
+        let old_from = first.before.start as usize - lead;
+        let new_from = first.after.start as usize - lead;
+        let old_to = (last.before.end as usize + CONTEXT).min(old.len());
+
+        let mut lines = Vec::new();
+        let ctx = |lines: &mut Vec<PatchLine>, from: usize, to: usize| {
+            for l in &old[from..to] {
+                lines.push(PatchLine { kind: PatchKind::Context, text: l.clone() });
+            }
+        };
+        ctx(&mut lines, old_from, first.before.start as usize);
+        for k in i..=j {
+            let h = &raw[k];
+            for l in &old[h.before.start as usize..h.before.end as usize] {
+                lines.push(PatchLine { kind: PatchKind::Removed, text: l.clone() });
+            }
+            for l in &new[h.after.start as usize..h.after.end as usize] {
+                lines.push(PatchLine { kind: PatchKind::Added, text: l.clone() });
+            }
+            if k < j {
+                ctx(&mut lines, h.before.end as usize, raw[k + 1].before.start as usize);
+            }
+        }
+        ctx(&mut lines, last.before.end as usize, old_to);
+
+        let old_len = old_to - old_from;
+        let new_len = lines.iter().filter(|l| l.kind != PatchKind::Removed).count();
+        out.push(Hunk {
+            old_start: if old_len == 0 { 0 } else { old_from as u32 + 1 },
+            old_len: old_len as u32,
+            new_start: if new_len == 0 { 0 } else { new_from as u32 + 1 },
+            new_len: new_len as u32,
+            lines,
+        });
+        i = j + 1;
+    }
+    out
+}
+
+pub(crate) fn patch(repo: &gix::Repository, rev: &str) -> Result<Vec<FilePatch>, Error> {
+    Ok(sides(repo, rev)?
+        .into_iter()
+        .map(|s| {
+            let binary = s.before.contains(&0) || s.after.contains(&0);
+            let hunks = if binary { Vec::new() } else { hunks(&s.before, &s.after) };
+            FilePatch { path: s.path, kind: s.kind, binary, hunks }
+        })
+        .collect())
 }

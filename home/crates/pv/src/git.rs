@@ -4,7 +4,7 @@ use ratatui::style::Color;
 use std::path::Path;
 use ui::Theme;
 
-pub use git_core::{Kind, LineKind, Repo, Status};
+pub use git_core::{Kind, LineKind, PatchKind, Repo, Status};
 
 pub fn kind_color(theme: &Theme, kind: Kind) -> Color {
     let g = &theme.colors.git;

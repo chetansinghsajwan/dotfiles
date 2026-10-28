@@ -6,7 +6,7 @@ mod history;
 mod lines;
 mod status;
 
-pub use history::{CommitInfo, FileChange, RefInfo, RefKind, StashInfo};
+pub use history::{CommitInfo, FileChange, FilePatch, Hunk, PatchKind, PatchLine, RefInfo, RefKind, StashInfo};
 pub use lines::{LineChange, LineKind};
 pub use status::{FileStatus, Kind, Status};
 
@@ -88,6 +88,12 @@ impl Repo {
     /// Files changed by `rev` against its first parent, with line counts.
     pub fn changes(&self, rev: &str) -> Result<Vec<FileChange>, Error> {
         history::changes(&self.repo, rev)
+    }
+
+    /// The patch of `rev` against its first parent: per file, hunks with 3
+    /// lines of context. Binary files have no hunks.
+    pub fn patch(&self, rev: &str) -> Result<Vec<FilePatch>, Error> {
+        history::patch(&self.repo, rev)
     }
 
     /// Changed lines of `path` in the work tree compared to `HEAD`.
@@ -221,6 +227,81 @@ mod tests {
         assert_eq!(get("b.txt").kind, Kind::Deleted);
         // The root commit is diffed against the empty tree.
         assert!(r.changes(&init.oid).unwrap().iter().all(|c| c.kind == Kind::Added));
+    }
+
+    #[test]
+    fn patch_has_hunks_with_context() {
+        let d = repo("patch");
+        let base: String = (1..=20).map(|n| format!("{n}\n")).collect();
+        fs::write(d.join("long.txt"), &base).unwrap();
+        git(&d, &["add", "."]);
+        git(&d, &["commit", "-q", "-m", "base"]);
+        // Change line 5 and line 18 (far apart: two hunks), add a file, delete one.
+        let changed: String = (1..=20).map(|n| if n == 5 { "FIVE\n".into() } else if n == 18 { "EIGHTEEN\n".into() } else { format!("{n}\n") }).collect();
+        fs::write(d.join("long.txt"), changed).unwrap();
+        fs::write(d.join("new.txt"), "x\ny\n").unwrap();
+        git(&d, &["rm", "-q", "b.txt"]);
+        git(&d, &["add", "."]);
+        git(&d, &["commit", "-q", "-m", "change"]);
+
+        let r = Repo::discover(&d).unwrap();
+        let p = r.patch("HEAD").unwrap();
+        let file = |n: &str| p.iter().find(|f| f.path == n).unwrap();
+
+        let long = file("long.txt");
+        assert_eq!(long.hunks.len(), 2, "{long:?}");
+        let h = &long.hunks[0];
+        assert_eq!((h.old_start, h.old_len, h.new_start, h.new_len), (2, 7, 2, 7));
+        let shape: Vec<(PatchKind, &str)> = h.lines.iter().map(|l| (l.kind, l.text.as_str())).collect();
+        assert_eq!(
+            shape,
+            vec![
+                (PatchKind::Context, "2"),
+                (PatchKind::Context, "3"),
+                (PatchKind::Context, "4"),
+                (PatchKind::Removed, "5"),
+                (PatchKind::Added, "FIVE"),
+                (PatchKind::Context, "6"),
+                (PatchKind::Context, "7"),
+                (PatchKind::Context, "8"),
+            ]
+        );
+        assert_eq!((long.hunks[1].old_start, long.hunks[1].old_len), (15, 6)); // 15..20, ends at EOF
+
+        let new = file("new.txt");
+        assert_eq!(new.hunks.len(), 1);
+        assert_eq!((new.hunks[0].old_start, new.hunks[0].old_len, new.hunks[0].new_start, new.hunks[0].new_len), (0, 0, 1, 2));
+        assert!(new.hunks[0].lines.iter().all(|l| l.kind == PatchKind::Added));
+        let gone = file("b.txt");
+        assert_eq!((gone.kind, gone.hunks[0].new_len), (Kind::Deleted, 0));
+
+        // Counts of every hunk are consistent with its lines.
+        for f in &p {
+            for h in &f.hunks {
+                let old = h.lines.iter().filter(|l| l.kind != PatchKind::Added).count() as u32;
+                let new = h.lines.iter().filter(|l| l.kind != PatchKind::Removed).count() as u32;
+                assert_eq!((old, new), (h.old_len, h.new_len));
+            }
+        }
+    }
+
+    #[test]
+    fn nearby_changes_merge_into_one_hunk_and_binary_has_none() {
+        let d = repo("merge");
+        let base: String = (1..=12).map(|n| format!("{n}\n")).collect();
+        fs::write(d.join("m.txt"), &base).unwrap();
+        fs::write(d.join("bin.dat"), [0u8, 1, 2]).unwrap();
+        git(&d, &["add", "."]);
+        git(&d, &["commit", "-q", "-m", "base"]);
+        let changed: String = (1..=12).map(|n| if n == 3 || n == 8 { "Z\n".into() } else { format!("{n}\n") }).collect();
+        fs::write(d.join("m.txt"), changed).unwrap();
+        fs::write(d.join("bin.dat"), [0u8, 9, 9, 9]).unwrap();
+        git(&d, &["commit", "-qam", "edit"]);
+        let p = Repo::discover(&d).unwrap().patch("HEAD").unwrap();
+        // Lines 3 and 8 are 4 apart (<= 6): one hunk.
+        assert_eq!(p.iter().find(|f| f.path == "m.txt").unwrap().hunks.len(), 1);
+        let bin = p.iter().find(|f| f.path == "bin.dat").unwrap();
+        assert!(bin.binary && bin.hunks.is_empty());
     }
 
     #[test]

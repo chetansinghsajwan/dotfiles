@@ -70,6 +70,10 @@ pub struct Picker {
     page: u32,
     /// Stops the running grep search.
     cancel: Arc<AtomicBool>,
+    /// First visible preview row (commit previews scroll).
+    pscroll: usize,
+    /// Preview rows visible at the last render, for paging.
+    pheight: usize,
 }
 
 impl Picker {
@@ -97,6 +101,8 @@ impl Picker {
             preview: None,
             page: 10,
             cancel: Arc::new(AtomicBool::new(false)),
+            pscroll: 0,
+            pheight: 10,
             opts,
         };
         picker.reparse();
@@ -185,6 +191,8 @@ impl Picker {
             KeyCode::Down => self.move_by(1),
             KeyCode::Char('p') if ctrl => self.move_by(-1),
             KeyCode::Char('n') if ctrl => self.move_by(1),
+            KeyCode::Char('d') if ctrl => self.pscroll += (self.pheight / 2).max(1),
+            KeyCode::Char('u') if ctrl => self.pscroll = self.pscroll.saturating_sub((self.pheight / 2).max(1)),
             KeyCode::PageUp => self.move_by(-i64::from(self.page)),
             KeyCode::PageDown => self.move_by(i64::from(self.page)),
             KeyCode::Tab => {
@@ -405,7 +413,7 @@ impl Picker {
         if self.preview.as_ref().map(|p| &p.key) != Some(&key) {
             let opts = pv::Options {
                 width: Some(inner.width),
-                height: Some(inner.height),
+                height: if cand.git.is_some() { None } else { Some(inner.height) },
                 git: self.opts.git,
                 focus: cand.loc.as_ref().map(|l| l.line),
             };
@@ -418,9 +426,17 @@ impl Picker {
                 Err(e) => vec![Line::from(Span::styled(e.to_string(), Style::new().fg(theme.colors.muted.into())))],
             };
             self.preview = Some(Preview { key, lines });
+            self.pscroll = 0;
         }
+        self.pheight = usize::from(inner.height);
         if let Some(p) = &self.preview {
-            Paragraph::new(p.lines.clone()).render(inner, buf);
+            // Only commit previews scroll; the rest are already windowed to the pane.
+            let skip = if cand.git.is_some() { self.pscroll.min(p.lines.len().saturating_sub(1)) } else { 0 };
+            if cand.git.is_some() {
+                self.pscroll = skip;
+            }
+            let shown: Vec<Line<'static>> = p.lines.iter().skip(skip).take(usize::from(inner.height)).cloned().collect();
+            Paragraph::new(shown).render(inner, buf);
         }
     }
 }
@@ -730,6 +746,42 @@ mod git_tests {
         let text: String = (0..16).map(|y| (0..100).map(|x| buf[(x, y)].symbol().to_string()).collect::<String>() + "\n").collect();
         assert!(text.contains("add the second line"), "{text}");
         assert!(text.contains("author") && text.contains("1 file changed, +1 -0"), "{text}");
+    }
+
+    #[test]
+    fn commit_preview_scrolls_with_ctrl_d_and_u() {
+        let d = repo("scroll");
+        // A commit with a long patch.
+        let body: String = (1..=80).map(|n| format!("line {n}\n")).collect();
+        std::fs::write(d.join("long.txt"), body).unwrap();
+        git(&d, &["add", "."]);
+        git(&d, &["commit", "-q", "-m", "long file"]);
+        let mut p = picker(&d, GitSource::Commits, "");
+        let area = Rect::new(0, 0, 100, 16);
+        let draw = |p: &mut Picker| -> String {
+            let mut buf = Buffer::empty(area);
+            p.render(area, &mut buf, &Theme::default());
+            (0..16).map(|y| (0..100).map(|x| buf[(x, y)].symbol().to_string()).collect::<String>() + "\n").collect()
+        };
+        let top = draw(&mut p);
+        assert!(top.contains("long file") && !top.contains("line 70"), "{top}");
+        let ctrl = |c| Event::Key(KeyEvent::new(KeyCode::Char(c), KeyModifiers::CONTROL));
+        for _ in 0..12 {
+            p.handle_event(&ctrl('d'));
+            draw(&mut p);
+        }
+        let deep = draw(&mut p);
+        assert!(deep.contains("line 70") || deep.contains("line 7"), "{deep}");
+        for _ in 0..40 {
+            p.handle_event(&ctrl('u'));
+        }
+        assert!(draw(&mut p).contains("long file"));
+        // Moving to another commit resets the scroll.
+        p.handle_event(&ctrl('d'));
+        draw(&mut p);
+        p.handle_event(&Event::Key(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE)));
+        draw(&mut p);
+        assert_eq!(p.pscroll, 0);
     }
 
     #[test]

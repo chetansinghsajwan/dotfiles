@@ -1,6 +1,6 @@
 //! Commit preview: header, message, and the files it changed with line counts.
 
-use crate::git::{self, Kind, Repo};
+use crate::git::{self, Kind, PatchKind, Repo};
 use crate::{Error, Options};
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
@@ -96,10 +96,99 @@ pub fn render(root: &Path, rev: &str, theme: &Theme, opts: &Options) -> Result<V
         }
         out.push(Line::from(spans));
     }
-    if let Some(h) = opts.height {
-        out.truncate(usize::from(h));
+    let limit = opts.height.map(usize::from).unwrap_or(MAX_LINES);
+    if out.len() < limit {
+        let rest = limit - out.len();
+        out.extend(patch_lines(&repo, rev, theme, opts, rest));
     }
+    out.truncate(limit);
     Ok(out)
+}
+
+
+/// Most lines drawn when the caller gives no height.
+const MAX_LINES: usize = 4000;
+
+/// The patch under the file list: a header per file, `@@` hunk headers, and
+/// added/removed rows tinted across the full width.
+fn patch_lines(repo: &Repo, rev: &str, theme: &Theme, opts: &Options, limit: usize) -> Vec<Line<'static>> {
+    let c = &theme.colors;
+    let Ok(files) = repo.patch(rev) else { return Vec::new() };
+    let mut out: Vec<Line<'static>> = Vec::new();
+    let digits = files
+        .iter()
+        .flat_map(|f| &f.hunks)
+        .map(|h| h.old_start.max(h.new_start) + h.old_len.max(h.new_len))
+        .max()
+        .unwrap_or(1)
+        .to_string()
+        .len();
+    let pad_to = |spans: &mut Vec<Span<'static>>, bg: ratatui::style::Color| {
+        let used: usize = spans.iter().map(|s| s.content.width()).sum();
+        if let Some(w) = opts.width {
+            spans.push(Span::raw(" ".repeat((w as usize).saturating_sub(used))));
+        }
+        for s in spans.iter_mut() {
+            s.style = s.style.bg(bg);
+        }
+    };
+
+    for f in &files {
+        if out.len() >= limit {
+            break;
+        }
+        out.push(Line::default());
+        let kind_color = git::kind_color(theme, f.kind);
+        out.push(Line::from(vec![
+            Span::styled(format!("{} ", sign(f.kind)), Style::new().fg(kind_color)),
+            Span::styled(f.path.clone(), Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD)),
+        ]));
+        if f.binary {
+            out.push(Line::from(Span::styled("  binary file not shown", Style::new().fg(c.muted.into()))));
+            continue;
+        }
+        for h in &f.hunks {
+            out.push(Line::from(Span::styled(
+                format!("@@ -{},{} +{},{} @@", h.old_start, h.old_len, h.new_start, h.new_len),
+                Style::new().fg(c.info.into()),
+            )));
+            let (mut old_no, mut new_no) = (h.old_start, h.new_start);
+            for l in &h.lines {
+                if out.len() >= limit {
+                    return out;
+                }
+                let text = l.text.replace('\t', "    ");
+                let (no, sign, color, tint) = match l.kind {
+                    PatchKind::Context => {
+                        let n = new_no;
+                        old_no += 1;
+                        new_no += 1;
+                        (n, ' ', c.fg, None)
+                    }
+                    PatchKind::Added => {
+                        let n = new_no;
+                        new_no += 1;
+                        (n, '+', c.git.added, Some(git::tint(theme, c.git.added.into())))
+                    }
+                    PatchKind::Removed => {
+                        let n = old_no;
+                        old_no += 1;
+                        (n, '-', c.git.deleted, Some(git::tint(theme, c.git.deleted.into())))
+                    }
+                };
+                let mut spans = vec![
+                    Span::styled(format!("{no:>digits$} "), Style::new().fg(c.muted.into())),
+                    Span::styled(sign.to_string(), Style::new().fg(color.into())),
+                    Span::styled(format!(" {text}"), Style::new().fg(c.fg.into())),
+                ];
+                if let Some(bg) = tint {
+                    pad_to(&mut spans, bg);
+                }
+                out.push(Line::from(spans));
+            }
+        }
+    }
+    out
 }
 
 #[cfg(test)]
