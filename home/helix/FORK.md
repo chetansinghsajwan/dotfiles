@@ -30,3 +30,10 @@ crates (`../crates`) and the Nix build live in one repository.
   toolchain (nixpkgs cargo ignores the pin).
 - **Upgrading helix:** rebase the changes above onto the new upstream tag; the
   patch is small and confined to `helix-term`.
+
+## Nix
+
+`../helix-fork.nix` builds this tree together with `../crates` (the path
+dependencies need both) and reuses nixpkgs' helix wrapper for the runtime and
+grammars. Enable it with `dotfiles.editor.helixFork = true`. The base tag must
+match the helix version in nixpkgs; rebase this fork first when nixpkgs moves.

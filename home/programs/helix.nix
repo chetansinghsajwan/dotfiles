@@ -12,6 +12,9 @@ in
         programs.helix = {
             defaultEditor = editor.terminal == "helix";
 
+            # Opt-in: our fork with the shared picker (see home/helix/FORK.md).
+            package = lib.mkIf editor.helixFork (pkgs.callPackage ../helix-fork.nix { });
+
             extraPackages = with pkgs; [
                 nil
                 lua-language-server
