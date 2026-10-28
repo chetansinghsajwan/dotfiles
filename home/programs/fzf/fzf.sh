@@ -48,15 +48,18 @@ function __fzf() {
     rm -f "$multi_state"
 }
 
-# ff - fuzzy file search
+# The pickers below run on `pick` (the shared picker, see plan.md). `__fzf`
+# above stays for the modules that still need fzf-only features.
+
+# ff - fuzzy file search; -d/--dirs also lists folders
 function ff() {
-    local start_mode=0
     local search_dir="."
+    local args=(--title "Files")
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
         -d | --dirs)
-            start_mode=1
+            args+=(--dirs)
             shift
             ;;
         *)
@@ -66,85 +69,27 @@ function ff() {
         esac
     done
 
-    # Tracks which search mode (files vs dirs) is active across ctrl-d presses;
-    # fzf has no native "toggle-search-mode" action, so we reload the list and
-    # let a mode-aware --preview command pick the right previewer at render time.
-    # (A change-preview baked into the same transform as reload would resolve {}
-    # against the stale pre-reload selection instead of the new item.)
-    local mode_state
-    mode_state=$(mktemp)
-    echo "$start_mode" >"$mode_state"
-
-    local files_cmd="fd --type f --type l --base-directory '$search_dir'"
-    local dirs_cmd="fd --type d --type l --base-directory '$search_dir'"
-    local file_preview="bat --color=always --line-range :50 --style=numbers '$search_dir'/{}"
-    local dir_preview="eza -lah --color=always --icons=always --git '$search_dir'/{}"
-    local preview_cmd="if [ \"\$(cat '$mode_state')\" = 1 ]; then $dir_preview; else $file_preview; fi"
-
-    local mode_toggle_bind="ctrl-d:transform:if [ \"\$(cat '$mode_state')\" = 0 ]; then printf 1 > '$mode_state'; echo 'reload($dirs_cmd)'; else printf 0 > '$mode_state'; echo 'reload($files_cmd)'; fi"
-
-    local init_cmd="$files_cmd"
-    [[ $start_mode -eq 1 ]] && init_cmd="$dirs_cmd"
-
-    eval "$init_cmd" | __fzf \
-        --label "Files" \
-        -- \
-        --preview "$preview_cmd" \
-        --bind "$mode_toggle_bind" \
-        --bind "ctrl-e:become(\${EDITOR:-nvim} '$search_dir'/{})"
-
-    rm -f "$mode_state"
+    pick --files "$search_dir" "${args[@]}"
 }
 
-# fs - fuzzy text search (live ripgrep across file contents)
+# fs - live text search across file contents (regex, smart case)
 function fs() {
-    local search_dir="."
-    [[ -n $1 ]] && search_dir="$1"
-
-    # "." would make rg print a "./" prefix on every path (same issue ff hit
-    # with find/fd), so only pass a path arg when searching outside pwd.
-    local rg_cmd="rg --column --line-number --no-heading --color=always --smart-case --"
-    if [[ $search_dir != "." ]]; then
-        rg_cmd="$rg_cmd {q} '$search_dir'"
-    else
-        rg_cmd="$rg_cmd {q}"
-    fi
-
-    # --disabled hands filtering to rg (reloaded on every keystroke) instead
-    # of fzf's own fuzzy matcher, since rg is doing real regex search here.
-    # shellcheck disable=SC2016 # single-quoted: this is fzf's bind action, expanded by fzf itself
-    : | __fzf \
-        --label "Text Search" \
-        --no-multi \
-        -- \
-        --ansi \
-        --disabled \
-        --delimiter : \
-        --bind "start:reload:$rg_cmd" \
-        --bind "change:reload:sleep 0.1; $rg_cmd || true" \
-        --preview 'bat --color=always --highlight-line {2} {1}' \
-        --preview-window 'right:60%:noborder:+{2}-5' \
-        --bind 'ctrl-e:become(${EDITOR:-nvim} +{2} {1})'
+    pick --grep "${1:-.}" --title "Text Search"
 }
 
 # fp - fuzzy process search
 function fp() {
-    ps -eo pid,ppid,user,pcpu,pmem,etime,comm --sort=-pcpu | __fzf \
-        --label "Processes" \
-        -- \
-        --header-lines 1 \
-        --preview 'ps -p {1} -o pid,ppid,user,stat,pcpu,pmem,etime,args --no-headers'
+    ps -eo pid,ppid,user,pcpu,pmem,etime,comm --sort=-pcpu | tail -n +2 | pick \
+        --title "Processes" \
+        --preview-cmd 'ps -p {1} -o pid,ppid,user,stat,pcpu,pmem,etime,args --no-headers'
 }
 
 # fe - fuzzy environment variable search
 function fe() {
-    env | sort | __fzf \
-        --label "Environment" \
-        -- \
+    env | sort | pick \
+        --title "Environment" \
         --delimiter '=' \
-        --with-nth '{1}' \
-        --preview-window right:60%:noborder:wrap \
-        --preview 'echo {2..} | tr : "\n"'
+        --preview-cmd 'echo {2..} | tr : "\n"'
 }
 
 # fcmd - fuzzy search available commands (builtins, functions, aliases, PATH executables)
@@ -159,21 +104,17 @@ function fcmd() {
         else
             compgen -c
         fi
-    } | sort -u | __fzf \
-        --label "Commands" \
-        --no-multi \
-        -- \
-        --preview 'type {1} 2>/dev/null'
+    } | sort -u | pick \
+        --title "Commands" \
+        --preview-cmd 'type {1} 2>/dev/null'
 }
 
 # fssh - fuzzy ssh host search
 function fssh() {
     awk '/^Host / {for (i=2;i<=NF;i++) if ($i !~ /[*?]/) print $i}' ~/.ssh/config 2>/dev/null |
-        sort -u | __fzf \
-        --label "SSH Hosts" \
-        --no-multi \
-        -- \
-        --preview "awk -v h={1} '/^Host / {p=0; for (i=2;i<=NF;i++) if (\$i==h) p=1} p' ~/.ssh/config"
+        sort -u | pick \
+        --title "SSH Hosts" \
+        --preview-cmd 'awk -v h={1} '\''/^Host / {p=0; for (i=2;i<=NF;i++) if ($i==h) p=1} p'\'' ~/.ssh/config'
 }
 
 # fh - fuzzy history search
@@ -187,9 +128,10 @@ function fh() {
     local histfile="@histfile@"
     # tac before dedup so the kept copy of a repeated command is its most
     # recent run, not its first-ever one.
-    sed -E 's/^: [0-9]+:[0-9]+;//' "$histfile" | tac | awk '!seen[$0]++' | __fzf \
-        --label "History" \
-        --no-multi \
-        -- \
-        --scheme history
+    sed -E 's/^: [0-9]+:[0-9]+;//' "$histfile" | tac | awk '!seen[$0]++' | pick --title "History"
 }
+
+# fgl / fgb / fgs - git commits, branches and tags, stashes (in the current repo)
+function fgl() { pick --git commits --title "Commits"; }
+function fgb() { pick --git refs --title "Branches and Tags"; }
+function fgs() { pick --git stashes --title "Stashes"; }
