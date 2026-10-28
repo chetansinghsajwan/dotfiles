@@ -12,7 +12,7 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 - Write our own tools in Rust. Reuse existing libraries as much as possible.
 - Terminal only. GUI apps (zed, vscode, gnome apps, browsers, etc.) are out of scope.
 - Must work on WSL as well as NixOS and macOS (current machine is WSL2).
-- Out of scope: shell and prompt configuration (zsh, starship, direnv). Not part of this work.
+- Out of scope: shell and prompt configuration (zsh, starship, direnv), except the picker keybindings the user asked to move to `pick`.
 
 ## Domains
 
@@ -139,7 +139,7 @@ Goal: every tool that needs a picker for any purpose uses `pick`. It always has 
 1. `pick` core: stdin in, selection out, preview via `pv`.
 1. Sources (files, git refs, grep: done). Open-editor buffers are not a standalone source: the helix fork feeds them in when it embeds `pick`.
 1. yazi integration; helix integration (section 4).
-1. Replace `fzf` usage in in-scope tools.
+1. Replace `fzf` usage in in-scope tools (shell pickers done; `nixpkgs` and `clipboard` modules still on `__fzf`).
 
 ### `pick` status (milestone 1 built)
 
@@ -194,6 +194,14 @@ TODO before step 2: read yazi's source to count how many files touch border and 
 - `pick`: commit/ref/stash previews render in full and scroll: `Ctrl-d` / `Ctrl-u` scroll the preview half a page, moving to another candidate resets it. Text-file previews are still a window at the top (or around the focus line); they do not scroll yet.
 - Tested: git-core 10 tests (hunks + context + merging + new/deleted/binary), pv 10, pick 15 (adds scrolling).
 - Not done: syntax highlighting inside the patch, word-level diffs, side-by-side view, a file-by-file jump, the `delta` renderer mentioned in the domains table (pv's own renderer is used instead for now), scroll for text previews.
+
+### Shell pickers on `pick` (done, at the user's request; shell config was otherwise out of scope)
+
+- `home/programs/fzf/fzf.sh` and `fzf.zsh` (still the module name, sourced into bash and zsh): the keybound pickers now call `pick`. `Ctrl-R` history (`fh`: history file, deduped most-recent-first), `Alt-T` files (`ff`, `-d/--dirs` includes folders), `Alt-C` cd (`pick --files --only-dirs`, then `cd`), `Alt-G` menu (`pick`) with `fs` text search (`pick --grep`), `fp` processes, `fe` environment, `fcmd` commands, `fssh` ssh hosts, and new `fgl` commits, `fgb` branches and tags, `fgs` stashes (`pick --git ...`). The widgets' wiring (insert the result at the cursor, `zle reset-prompt`) is unchanged.
+- `pick` additions for this: `--title`, `--only-dirs` (with `--files`), `--preview-cmd CMD` with `--delimiter SEP` (the command runs through `sh -c`, `{}` is the highlighted line, `{N}` its N-th field, `{N..}` from the N-th field on, all shell-quoted; output is parsed for colors with the new shared `ui::ansi::parse`; 1.5 s timeout; scrolls with Ctrl-d / Ctrl-u). Library setters `Picker::set_title` and `set_preview_command`; the options struct is unchanged.
+- Dropped versus fzf: `Ctrl-D` files/folders toggle and `Ctrl-E` open-in-editor inside the file picker, `Alt-M` multi toggle (Tab always marks), `fp` header row, `fe` showing names only (it now shows `NAME=value`), `fp`/`fe`/`fcmd`/`fssh` previews run via `sh`, so zsh-only functions and aliases are not visible to `fcmd`'s `type`. `fzf` itself stays installed because `home/programs/nixpkgs/nixpkgs.sh` and `home/programs/clipboard/` still use the `__fzf` wrapper (kept in `fzf.sh`); migrating those, and removing fzf, is open.
+- Verified: `bash -n` and `zsh -n` on both scripts; in a pty with the debug `pick` on PATH (bash and zsh): `fh` returned the right deduped history entry, `ff` and `ff -d`, `fs` returned `sub/c.txt:1:7:...`, `fgl` and `fgb` in this repo, `fssh`, `fp`, `fe` (query `HOME`), `fcmd` under zsh. NOT verified: the ZLE widgets themselves inside an interactive zsh (they call the same functions), anything in zellij, the Nix build of the new scripts until the build below finishes.
+- Known quirk: with `^` anchors and uppercase letters the query matches nothing (`^home` works, `^HOME` does not; `$`, `!` and `'` work). Looks like `nucleo`'s smart-case handling; not investigated.
 
 ### yazi + `pick` (step 1 done)
 

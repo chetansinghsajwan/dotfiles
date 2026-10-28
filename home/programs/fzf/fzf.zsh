@@ -1,4 +1,4 @@
-# ZLE widgets wiring fzf.sh's picker functions into zsh keybindings.
+# ZLE widgets wiring fzf.sh's picker functions (now `pick`-backed) into zsh keybindings.
 # Kept separate from fzf.sh since ZLE/bindkey are zsh-only, while fzf.sh's
 # functions are sourced into bash too.
 
@@ -24,7 +24,7 @@ bindkey '^R' fzf-history-widget
 # alt-t/ctrl-r get, and to actually cd instead of just inserting text.
 fzf-cd-widget() {
     local dir
-    dir=$(fd)
+    dir=$(pick --files --only-dirs --title "Directories")
     [[ -n $dir ]] && cd -- "$dir"
     zle reset-prompt
 }
@@ -35,10 +35,10 @@ bindkey '\ec' fzf-cd-widget
 # slots — pick the picker, then its result is inserted like the above.
 __fzf_menu_dispatch() {
     local -a items=(
-        "fgl   git log/commits"
-        "fgb   git branch"
+        "fgl   git commits"
+        "fgb   git branches and tags"
         "fgt   git tag"
-        "fgs   git stash"
+        "fgs   git stashes"
         "fgst  git status"
         "fglf  git log (file)"
         "fgr   git reflog"
@@ -56,7 +56,7 @@ __fzf_menu_dispatch() {
     done
 
     local choice
-    choice=$(printf '%s\n' "${available[@]}" | __fzf --label "Fzf Menu" --no-multi)
+    choice=$(printf '%s\n' "${available[@]}" | pick --title "Menu")
 
     case "$choice" in
     fgl\ *) fgl ;;

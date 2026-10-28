@@ -37,6 +37,19 @@ struct Cli {
     /// With `--files`, include folders too (marked with a trailing `/`).
     #[arg(long)]
     dirs: bool,
+    /// With `--files`, list only folders (marked with a trailing `/`).
+    #[arg(long, requires = "files", conflicts_with = "dirs")]
+    only_dirs: bool,
+    /// Title of the list pane.
+    #[arg(long)]
+    title: Option<String>,
+    /// Preview each highlighted line with this shell command; `{}` is the line,
+    /// `{N}` its N-th field, `{N..}` from the N-th field on.
+    #[arg(long, value_name = "CMD")]
+    preview_cmd: Option<String>,
+    /// Field separator for `{N}` in `--preview-cmd` (default: whitespace).
+    #[arg(long, value_name = "SEP")]
+    delimiter: Option<String>,
     /// Initial query.
     #[arg(long, short, default_value = "")]
     query: String,
@@ -90,7 +103,14 @@ fn run(cli: Cli) -> io::Result<u8> {
         PickerOptions { mode, paths, root: root.clone(), preview: !cli.no_preview && (paths || cli.git.is_some()), git: !cli.no_git, query: cli.query },
         notify,
     );
+    if let Some(title) = &cli.title {
+        picker.set_title(title.clone());
+    }
+    if let Some(cmd) = &cli.preview_cmd {
+        picker.set_preview_command(cmd.clone(), cli.delimiter.clone());
+    }
     match (&cli.files, cli.git, mode) {
+        (Some(_), _, _) if cli.only_dirs => source::spawn_dirs(picker.injector(), root),
         (Some(_), _, _) => source::spawn_files(picker.injector(), root, cli.dirs),
         (None, Some(what), _) => source::spawn_git(picker.injector(), root, what.into()),
         (None, None, Mode::Grep) => {} // the picker runs the search itself

@@ -2,6 +2,7 @@
 //! screen splitting in `layout`. Tools draw through these and never compute
 //! their own borders, colors or gaps.
 
+pub mod ansi;
 pub mod layout;
 pub mod pane;
 pub mod theme;

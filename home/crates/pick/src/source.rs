@@ -21,10 +21,19 @@ pub fn spawn_lines(inj: Injector<Candidate>, reader: impl BufRead + Send + 'stat
 /// Files under `root` (respects .gitignore), as paths relative to `root`. With
 /// `dirs`, folders are included too, marked with a trailing `/`.
 pub fn spawn_files(inj: Injector<Candidate>, root: PathBuf, dirs: bool) {
+    walk(inj, root, true, dirs);
+}
+
+/// Only the folders under `root`, marked with a trailing `/`.
+pub fn spawn_dirs(inj: Injector<Candidate>, root: PathBuf) {
+    walk(inj, root, false, true);
+}
+
+fn walk(inj: Injector<Candidate>, root: PathBuf, files: bool, dirs: bool) {
     thread::spawn(move || {
         for entry in ignore::WalkBuilder::new(&root).hidden(false).filter_entry(|e| e.file_name() != ".git").build().flatten() {
             let Some(ft) = entry.file_type() else { continue };
-            if entry.depth() == 0 || !(ft.is_file() || (dirs && ft.is_dir())) {
+            if entry.depth() == 0 || !((files && ft.is_file()) || (dirs && ft.is_dir())) {
                 continue;
             }
             let rela: &Path = entry.path().strip_prefix(&root).unwrap_or(entry.path());

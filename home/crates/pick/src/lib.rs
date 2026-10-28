@@ -4,6 +4,7 @@
 mod candidate;
 pub mod grep;
 mod picker;
+mod preview_cmd;
 pub mod source;
 
 pub use candidate::{Buffer, Candidate, GitItem, GitKind, Loc};
