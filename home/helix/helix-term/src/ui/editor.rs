@@ -1371,7 +1371,26 @@ impl Component for EditorView {
                         }
                     }
                     files::Action::Close => sidebar.focused = false,
-                    files::Action::None => {}
+                    // A new file is for editing: open it and hand focus to the editor.
+                    files::Action::Created(path, false) => {
+                        sidebar.focused = false;
+                        if let Err(e) = cx.editor.open(&path, helix_view::editor::Action::Replace) {
+                            cx.editor.set_error(format!("Failed to open {}: {e}", path.display()));
+                        }
+                    }
+                    // Open buffers follow renames and moves (a folder moves its files too).
+                    files::Action::Moved(moves) => {
+                        for doc in cx.editor.documents.values_mut() {
+                            let Some(old) = doc.path().cloned() else { continue };
+                            for (from, to) in &moves {
+                                if let Ok(rest) = old.strip_prefix(from) {
+                                    doc.set_path(Some(&to.join(rest)));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    files::Action::Created(..) | files::Action::Deleted(_) | files::Action::None => {}
                 }
                 return EventResult::Consumed(None);
             }

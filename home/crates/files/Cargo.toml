@@ -7,4 +7,6 @@ edition = "2024"
 git-core = { version = "0.1.0", path = "../git-core" }
 ignore = "0.4.34"
 ratatui = "0.30.2"
+trash = "5.2.9"
+tui-input = "0.15.5"
 ui = { version = "0.1.0", path = "../ui" }
