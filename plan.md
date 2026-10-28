@@ -46,15 +46,14 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 - Neovim: not decided. Presumably dropped since helix is the editor and neovim is the only other terminal editor. Confirm before removing `home/programs/neovim*`.
 - Terminal emulator: ghostty, kitty and gnome-terminal are all configured. Not decided. (Was only relevant for kitty keyboard protocol, now dropped, so low priority.)
 - The tool list is incomplete: the user was going to give more tools. Covered so far: picker, TUI design, preview, files, editor, git, layout, docs, monitoring, keyboard, search. Ask for what else is in scope.
-- Helix has no stable library or plugin API; the fork must track upstream. Check how the Steel fork already used here fits as the base.
+- Helix has no stable library or plugin API; the fork must track upstream (rebase on each release).
 - Exact name of the flag that disables git features (suggested: `--no-git` plus a config key).
 - (resolved) `gix` for `git-core`.
 
 ## Current repo state (as of writing)
 
-- Tools configured under `home/programs/`: helix (+ Steel plugins `helix/plugins/{helix,init,minimap}.scm`, uncommitted), yazi, zellij, lazygit, delta, bat/batman, eza, fzf, neovim, btop, tealdeer, ghostty, kitty, kanata-layer-indicator, zed, vscode, etc. `agents.md` describes an older `home/modules/...` layout; the real tree is `home/programs/`.
+- Tools configured under `home/programs/`: helix (plain nixpkgs helix 25.07.1; the Steel fork and plugins were dropped in commit 55e0025), yazi, zellij, lazygit, delta, bat/batman, eza, fzf, neovim, btop, tealdeer, ghostty, kitty, kanata-layer-indicator, zed, vscode, etc. `agents.md` describes an older `home/modules/...` layout; the real tree is `home/programs/`.
 - `pv` is now Rust (`home/crates/pv`), packaged by `home/programs/pv/default.nix` via `home/crates/default.nix` (one `buildRustPackage` helper per workspace crate). `pv.sh` was deleted. It is a plain PATH binary so yazi's `piper` (bare `sh -c`) can call it; piper sets `$w`/`$h` to the pane size and pv reads them.
-- Uncommitted changes in the working tree (not from this plan): `flake.lock`, `home/flake.nix`, `home/programs/helix.nix`, the helix Steel plugins.
 - Started (uncommitted): `dotfiles.ui` options (`config/options.nix`), `home/programs/ui` (theme.json export), `home/crates/ui` (Rust crate). See section 1.
 
 ## 1. TUI design: a UI framework (`ui`)
@@ -212,13 +211,24 @@ TODO before step 2: read yazi's source to count how many files touch border and 
 No workarounds. Where helix lacks a feature, fork its source and integrate our tools natively.
 
 - Fork helix. Keep the fork diff small: new code lives in our own crates (`ui`, `pick`, `pv`, `git-core`, files explorer, `git-panel`), and the helix patch is only glue.
-- Pickers: replace `helix-term`'s picker component with `pick` as a library, drawn through `ui`.
+- Pickers: replace `helix-term`'s picker component with `pick` as a library, drawn through `ui`. Started: file picker and global search (see status below).
 - Files panel: new sidebar component in `helix-term`'s compositor, backed by the embedded `yazi-*` crates.
 - Git panel: new sidebar component, backed by `git-panel` / `git-core`.
 - Previews: `pv` as a library, in-process.
 - Theme and borders: read from the tokens via `ui`, so helix follows the design.
 - Read-only mode doubles as the docs viewer.
 - Helix has no sidebar or panel system today, hence the fork.
+
+### Helix fork status (spike done: pickers embedded)
+
+- Location: vendored in this repo at `home/helix/` (source only, no upstream history; see `home/helix/FORK.md` for the upstream base, the exact list of our changes and how to diff against upstream). It sits under `home/` next to `home/crates/` because `home` is a path sub-flake and a Nix package must see both. Based on tag 25.07.1 (the version nixpkgs ships here). An older working clone with the two original commits is still at `/home/chetansinghsajwan/src/helix` (branch `pick-integration`), not needed any more. Dotfiles do NOT use the fork yet: the installed `hx` is still nixpkgs helix.
+- The fork's `helix-term/Cargo.toml` now uses relative path dependencies on `../../crates/{pick,ui}` (`ui` renamed `tui-design` because helix-term has its own `ui` module). Still open: a Nix package for the fork (crane or `buildRustPackage` from `home/`, plus helix's runtime and grammars), not written. `treefmt.nix` excludes `home/helix/**` so the formatters and linters skip the vendored source.
+- How it integrates (all in `helix-term`): `src/ui/pick.rs` is a `Component` that owns a `pick::Picker`. Helix and `pick` use different TUI stacks (helix-tui, a tui-rs fork + crossterm 0.28 + helix input types, vs ratatui 0.30 + crossterm 0.29), so the component converts helix key events to crossterm ones, renders the picker into a ratatui buffer and copies that buffer cell by cell (color, modifiers, underline) onto the helix surface. The picker thread wakes the editor through `helix_event::request_redraw`. Layout, colors, borders and gap all come from the shared `ui` tokens, not from the helix theme. Accept runs a callback that pops the layer and opens the files.
+- Wired: file picker (`space f`, `space F`, buffer-directory picker) via `pick_files`, and global search (`space /`) via `pick` in grep mode, opening the match at its line and column. helix's own `global_search` is kept as `global_search_builtin` (dead code, to keep the diff small); the old file picker code is untouched.
+- Build: `HELIX_DISABLE_AUTO_GRAMMAR_BUILD=1 cargo build -p helix-term` (helix's `build.rs` otherwise tries to fetch grammars and one grammar repo 404s). Debug build ~3 min. The repo pins `rust-toolchain.toml` to 1.82; `gix` needs a newer compiler (build used nixpkgs cargo, so the pin is ignored) — bump the pin in the fork.
+- Verified: `cargo check` and a debug build pass. Ran the built `hx` in a pty (script, empty config dir, `HELIX_RUNTIME` = the fork's runtime): Space opens the helix menu, `f` opens the `pick` UI listing the workspace files with the preview showing the file, typing a query + Enter opens the file (shown in helix's statusline). 
+- NOT verified / not done: grep mode inside helix (the code path compiles, was not run), multi-select open, mouse, resize while open, the helix `[editor.file-picker]` settings (hidden files, .ignore files, symlinks, max depth) are ignored by `pick`'s own walker, helix's own key conventions (Ctrl-s/Ctrl-v split open, Alt-, etc.) are not implemented in `pick`, remaining helix pickers still use helix's own implementation (buffers, symbols, jumplist, changed files, diagnostics, `:open <dir>` at `commands.rs` ~1367 and ~1404, LSP pickers), no files panel (embedded yazi crates), no git panel, no tests in the fork, no Nix build, never ran against the user's real helix config, rebase onto newer helix releases not tried.
+- Next: buffer picker fed from `cx.editor` (the reason `pick` has no standalone buffers source), the helix file-picker settings, split-open keys, then the files panel (yazi crates), then the git panel.
 
 ## 5. Git status highlighting (cross-cutting)
 
