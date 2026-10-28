@@ -861,6 +861,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "files"
+version = "0.1.0"
+dependencies = [
+ "git-core",
+ "ignore",
+ "ratatui",
+ "ui",
+]
+
+[[package]]
 name = "filetime"
 version = "0.2.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2905,6 +2915,7 @@ dependencies = [
  "content_inspector",
  "crossterm 0.28.1",
  "fern",
+ "files",
  "futures-util",
  "grep-regex",
  "grep-searcher",

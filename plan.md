@@ -206,13 +206,24 @@ TODO before step 2: read yazi's source to count how many files touch border and 
 - Test harness caveats: keystrokes sent through `script` to yazi are real input (typing `deep` + Enter deleted my test fixture folder); `ui.hide()` hung in the harness after the first hour (a second yazi instance of the user's own was running), so the plugin was re-tested with `ui.hide()` replaced by a no-op. Verified that way: `S` passes `--grep`, a single grep result reveals the file, several results do not navigate, cancel does nothing, `z` still enters a folder result. NOT verified: `ui.hide()` + real `pick` UI in a real terminal (same as the `z` caveat above).
 - Next for yazi: step 2/3 (embed the `yazi-*` crates, own drawing) and the theme from tokens are untouched.
 
+## 3a. Files panel: own `files` crate (decided, milestone 1 done)
+
+Decision (user, after research): the panel is our own Rust library, NOT embedded yazi. Why: even the lowest yazi crates (`yazi-shared`, `yazi-fs`) depend on `mlua` (Lua 5.5, C build), the yazi workspace locks 557 packages, startup needs about 12 global `init()` calls (tty, emulator queries, vfs, Lua runner, image adapter, watcher, ...) plus global config/theme/keymap statics loaded from `~/.config/yazi`, and it assumes it owns the terminal and its own tokio runtime. This replaces the earlier "embed `yazi-*` crates" decision (sections 3 and 4). Yazi stays as the standalone file manager outside helix.
+
+- Crate `home/crates/files` (ratatui 0.30, `ignore`, `git-core`, `ui`): `Panel::new(root, PanelOptions{hidden, git})`, `handle_event(&Event) -> Action{None, Open(path), Close}`, `render(area, buf, theme, focused)`, `reveal(path)`, `refresh()`, `current()`. Folders first, lazily expanded, `.gitignore` respected (via `ignore`, `.git` skipped), dot files toggled with `.`, git colors plus signs (`•` for a folder with changes beneath it) from `git-core`, drawn through `ui::Pane` so borders, colors and the sidebar width (`layout.sidebar_width`) come from the tokens.
+- Keys: `j`/`k`/arrows/Ctrl-n/Ctrl-p, PageUp/PageDown, `g`/`G`, `l`/Right/Enter expand a folder or open a file, `h`/Left collapse or go to the parent, Space toggles, `.` hidden files, `r` refresh, Esc/`q` leave the panel.
+- Helix: `home/helix/helix-term/src/ui/files_panel.rs` (bridge like `pick.rs`) and `EditorView` (`ui/editor.rs`) reserve `sidebar_width` columns on the left (the editor area, bufferline and views shrink), render the panel, and route keys to it while it has focus. `space e` runs `files_panel` (command in `commands.rs`): open on the current file with focus, focus it again if it is open but unfocused, close it if focused. Esc or `q` returns focus to the editor and keeps the panel open. `space E` is still helix's own explorer.
+- `git-core` gained `FileStatus::sign()` (the one-cell state sign, moved out of `pv`; `pv` now calls it). `pick` still has its own copy in `git_state`, to be switched.
+- Tested: 6 `files` unit tests (ordering, hidden toggle, expand/collapse/parent, open + close actions, reveal + refresh keeps the cursor, `.gitignore` + git state rendering, pane rendering and scrolling). In a pty with the debug build of helix: `space e` opened the panel (title and `docs/` row visible), `k` + Enter expanded `src/`, `j` + Enter opened `src/main.rs`, and an edit typed afterwards landed in `main.rs`.
+- Not done (milestone 2): file operations (create, rename, delete, copy, move; need a prompt widget and `trash`/`fs_extra`-style crates), live refresh on disk changes (`notify`; today press `r`), mouse, icons from the tokens, a preview, a standalone `files` binary, closing the panel on open, the helix file-picker settings. Not built or tested through Nix yet (the fork package needs a rebuild).
+
 ## 4. Code editor: helix (fork)
 
 No workarounds. Where helix lacks a feature, fork its source and integrate our tools natively.
 
 - Fork helix. Keep the fork diff small: new code lives in our own crates (`ui`, `pick`, `pv`, `git-core`, files explorer, `git-panel`), and the helix patch is only glue.
 - Pickers: replace `helix-term`'s picker component with `pick` as a library, drawn through `ui`. Started: file picker and global search (see status below).
-- Files panel: new sidebar component in `helix-term`'s compositor, backed by the embedded `yazi-*` crates.
+- Files panel: sidebar in `helix-term`, backed by our own `files` crate (see 3a; the embedded-yazi idea was dropped).
 - Git panel: new sidebar component, backed by `git-panel` / `git-core`.
 - Previews: `pv` as a library, in-process.
 - Theme and borders: read from the tokens via `ui`, so helix follows the design.

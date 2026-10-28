@@ -44,6 +44,8 @@ pub struct EditorView {
     spinners: ProgressSpinners,
     /// Tracks if the terminal window is focused by reaction to terminal focus events
     terminal_focused: bool,
+    /// The files panel (sidebar), when open.
+    files: Option<super::files_panel::FilesSidebar>,
 }
 
 #[derive(Debug, Clone)]
@@ -67,6 +69,29 @@ impl EditorView {
             completion: None,
             spinners: ProgressSpinners::default(),
             terminal_focused: true,
+            files: None,
+        }
+    }
+
+    /// `space e`: open the files panel on the current file, focus it, or close it
+    /// when it already has focus.
+    pub fn toggle_files_panel(&mut self, root: std::path::PathBuf, current: Option<&std::path::Path>) {
+        match self.files.as_mut() {
+            None => {
+                let mut sidebar = super::files_panel::FilesSidebar::new(root);
+                if let Some(path) = current {
+                    sidebar.reveal(path);
+                }
+                sidebar.focused = true;
+                self.files = Some(sidebar);
+            }
+            Some(sidebar) if !sidebar.focused => {
+                if let Some(path) = current {
+                    sidebar.reveal(path);
+                }
+                sidebar.focused = true;
+            }
+            Some(_) => self.files = None,
         }
     }
 
@@ -1335,6 +1360,23 @@ impl Component for EditorView {
             jobs: context.jobs,
         };
 
+        // The files panel takes the keys while it has focus.
+        if let (Some(sidebar), Event::Key(key)) = (self.files.as_mut(), event) {
+            if sidebar.focused {
+                match sidebar.handle_key(key) {
+                    files::Action::Open(path) => {
+                        sidebar.focused = false;
+                        if let Err(e) = cx.editor.open(&path, helix_view::editor::Action::Replace) {
+                            cx.editor.set_error(format!("Failed to open {}: {e}", path.display()));
+                        }
+                    }
+                    files::Action::Close => sidebar.focused = false,
+                    files::Action::None => {}
+                }
+                return EventResult::Consumed(None);
+            }
+        }
+
         match event {
             Event::Paste(contents) => {
                 self.handle_non_key_input(&mut cx);
@@ -1507,11 +1549,20 @@ impl Component for EditorView {
             editor_area = editor_area.clip_top(1);
         }
 
+        // the files panel reserves columns on the left
+        let panel_width = self.files.as_ref().map_or(0, |s| s.width().min(area.width / 2));
+        let panel_area = Rect::new(area.x, area.y, panel_width, area.height.saturating_sub(1));
+        editor_area = editor_area.clip_left(panel_width);
+
         // if the terminal size suddenly changed, we need to trigger a resize
         cx.editor.resize(editor_area);
 
         if use_bufferline {
-            Self::render_bufferline(cx.editor, area.with_height(1), surface);
+            Self::render_bufferline(cx.editor, area.clip_left(panel_width).with_height(1), surface);
+        }
+
+        if let Some(sidebar) = self.files.as_mut() {
+            sidebar.render(panel_area, surface);
         }
 
         for (view, is_focused) in cx.editor.tree.views() {

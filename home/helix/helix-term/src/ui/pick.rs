@@ -87,7 +87,7 @@ impl Component for PickComponent {
 }
 
 /// helix key event to the crossterm one `pick` consumes.
-fn to_crossterm(key: &KeyEvent) -> Option<ct::KeyEvent> {
+pub(crate) fn to_crossterm(key: &KeyEvent) -> Option<ct::KeyEvent> {
     let code = match key.code {
         KeyCode::Backspace => ct::KeyCode::Backspace,
         KeyCode::Enter => ct::KeyCode::Enter,
@@ -164,7 +164,7 @@ fn modifier(m: RModifier) -> Modifier {
 }
 
 /// Copy a ratatui buffer (origin 0,0) onto the helix surface at `area`.
-fn copy(buf: &RBuffer, area: Rect, surface: &mut Surface) {
+pub(crate) fn copy(buf: &RBuffer, area: Rect, surface: &mut Surface) {
     for y in 0..area.height {
         for x in 0..area.width {
             let src = &buf[(x, y)];

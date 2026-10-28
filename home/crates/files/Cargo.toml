@@ -1,0 +1,10 @@
+[package]
+name = "files"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+git-core = { version = "0.1.0", path = "../git-core" }
+ignore = "0.4.34"
+ratatui = "0.30.2"
+ui = { version = "0.1.0", path = "../ui" }

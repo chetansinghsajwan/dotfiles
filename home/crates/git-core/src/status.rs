@@ -121,3 +121,31 @@ pub(crate) fn compute(repo: &gix::Repository) -> Result<Status, Error> {
     }
     Ok(out)
 }
+
+impl FileStatus {
+    /// One-cell sign for the file's state: unstaged and untracked first, then
+    /// staged (`M` modified, `A` added, `D` deleted, `R` renamed, `?` untracked,
+    /// `U` conflict, `+` staged change). Shared by every tool that draws git state.
+    pub fn sign(&self) -> Option<(char, Kind)> {
+        use Kind::*;
+        if let Some(k) = self.unstaged {
+            let c = match k {
+                Conflict => 'U',
+                Untracked => '?',
+                Deleted => 'D',
+                Added => 'A',
+                Renamed => 'R',
+                Modified | Typechange => 'M',
+            };
+            return Some((c, k));
+        }
+        let k = self.staged?;
+        let c = match k {
+            Added => 'A',
+            Deleted => 'D',
+            Conflict => 'U',
+            _ => '+',
+        };
+        Some((c, k))
+    }
+}

@@ -399,6 +399,7 @@ impl MappableCommand {
         file_picker_in_current_buffer_directory, "Open file picker at current buffer's directory",
         file_picker_in_current_directory, "Open file picker at current working directory",
         file_explorer, "Open file explorer in workspace root",
+        files_panel, "Toggle the files panel (sidebar)",
         file_explorer_in_current_buffer_directory, "Open file explorer at current buffer's directory",
         file_explorer_in_current_directory, "Open file explorer at current working directory",
         code_action, "Perform code action",
@@ -3149,6 +3150,21 @@ fn file_picker_in_current_directory(cx: &mut Context) {
         return;
     }
     pick_files(cx, cwd);
+}
+
+/// Toggle the files panel: the shared `files` browser as a sidebar.
+fn files_panel(cx: &mut Context) {
+    let root = find_workspace().0;
+    if !root.exists() {
+        cx.editor.set_error("Workspace directory does not exist");
+        return;
+    }
+    let current = doc!(cx.editor).path().cloned();
+    cx.callback.push(Box::new(move |compositor, _cx| {
+        if let Some(view) = compositor.find::<ui::EditorView>() {
+            view.toggle_files_panel(root, current.as_deref());
+        }
+    }));
 }
 
 fn file_explorer(cx: &mut Context) {

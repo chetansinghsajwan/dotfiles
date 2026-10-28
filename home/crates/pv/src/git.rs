@@ -29,28 +29,9 @@ pub fn line_color(theme: &Theme, kind: LineKind) -> Color {
     .into()
 }
 
-/// One-cell sign for a file's state: unstaged and untracked first, then staged.
+/// One-cell sign for a file's state (shared with every tool, see `git-core`).
 pub fn sign(status: &git_core::FileStatus) -> Option<(char, Kind)> {
-    use Kind::*;
-    if let Some(k) = status.unstaged {
-        let c = match k {
-            Conflict => 'U',
-            Untracked => '?',
-            Deleted => 'D',
-            Added => 'A',
-            Renamed => 'R',
-            Modified | Typechange => 'M',
-        };
-        return Some((c, k));
-    }
-    let k = status.staged?;
-    let c = match k {
-        Added => 'A',
-        Deleted => 'D',
-        Conflict => 'U',
-        _ => '+',
-    };
-    Some((c, k))
+    status.sign()
 }
 
 /// The repo containing `path` and its status, computed once.
