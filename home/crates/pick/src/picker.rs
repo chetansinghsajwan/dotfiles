@@ -430,6 +430,21 @@ impl Picker {
     /// With `leaf` (the hierarchy view) the folders above the item are already
     /// drawn as header rows, so only the file name (or `line:` for a match) shows.
     fn row_spans(&mut self, cand: &Candidate, name_fg: Color, theme: &Theme, snap_index: u32, leaf: bool) -> Vec<Span<'static>> {
+        let mut spans = Vec::new();
+        // Path rows get a file icon; a grep match under its file header (the hierarchy view) does not.
+        if self.opts.paths && !(leaf && cand.loc.is_some()) {
+            let path = cand.path();
+            let icon = match path.strip_suffix('/') {
+                Some(dir) => ui::icons::dir(dir.rsplit('/').next().unwrap_or(dir), false),
+                None => ui::icons::file(path.rsplit('/').next().unwrap_or(path), false),
+            };
+            spans.push(Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)));
+        }
+        spans.extend(self.row_spans_inner(cand, name_fg, theme, snap_index, leaf));
+        spans
+    }
+
+    fn row_spans_inner(&mut self, cand: &Candidate, name_fg: Color, theme: &Theme, snap_index: u32, leaf: bool) -> Vec<Span<'static>> {
         let c = &theme.colors;
         let hit = Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD);
         if let Some(loc) = &cand.loc {
@@ -588,11 +603,14 @@ impl Picker {
             let row_area = Rect { y, height: 1, ..list };
             match row {
                 crate::tree::Row::Dir { depth, label } => {
+                    // In grep mode the header is a file, otherwise a folder.
+                    let last = label.rsplit('/').next().unwrap_or(label);
+                    let icon = if self.opts.mode == Mode::Grep { ui::icons::file(last, false) } else { ui::icons::dir(last, true) };
                     let line = Line::from(vec![
                         Span::raw("  "),
                         Span::raw(" ".repeat(usize::from(*depth) * 2)),
-                        Span::styled("▾ ", Style::new().fg(c.muted.into())),
-                        Span::styled(format!("{label}/"), Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD)),
+                        Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
+                        Span::styled(label.clone(), Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD)),
                     ]);
                     Paragraph::new(line).render(row_area, buf);
                 }
@@ -1288,13 +1306,13 @@ mod tree_tests {
         let l = lines(&mut p);
         let find = |s: &str| l.iter().position(|r| r.contains(s)).unwrap_or_else(|| panic!("{s} in {l:#?}"));
         // docs/guide merged into one header; folders first, items after, README last.
-        assert!(find("docs/guide/") < find("x.md") && find("x.md") < find("src/"));
-        assert!(find("src/") < find("ui/") && find("ui/") < find("c.rs") && find("c.rs") < find("a.rs") && find("a.rs") < find("README.md"));
+        assert!(find(" docs/guide") < find("x.md") && find("x.md") < find(" src"));
+        assert!(find(" src") < find(" ui") && find(" ui") < find("c.rs") && find("c.rs") < find("a.rs") && find("a.rs") < find("README.md"));
         // The folders are headers, so file rows do not repeat them.
         assert!(!l.iter().any(|r| r.contains("src/ui/c.rs") || r.contains("src/a.rs") || r.contains("docs/guide/x.md")), "{l:#?}");
         // Indentation: c.rs sits deeper than a.rs.
         let col = |s: &str| { let row = &l[find(s)]; row[..row.find(s).unwrap()].chars().count() };
-        assert!(col("c.rs") > col("a.rs") && col("a.rs") > col("src/"));
+        assert!(col("c.rs") > col("a.rs") && col("a.rs") > col(" src"));
     }
 
     #[test]
@@ -1326,7 +1344,7 @@ mod tree_tests {
             p.nucleo.tick(10);
         }
         let l = lines(&mut p);
-        assert!(l.iter().any(|r| r.contains("docs/guide/")) && l.iter().any(|r| r.contains("x.md")), "{l:#?}");
+        assert!(l.iter().any(|r| r.contains("docs/guide")) && l.iter().any(|r| r.contains("x.md")), "{l:#?}");
         assert!(!l.iter().any(|r| r.contains("README") || r.contains("c.rs")), "{l:#?}");
         assert_eq!(accept(&mut p), vec!["docs/guide/x.md".to_string()]);
 
@@ -1379,7 +1397,7 @@ mod tree_tests {
         let l = lines(&mut p);
         let pos = |s: &str| l.iter().position(|r| r.contains(s)).unwrap_or_else(|| panic!("{s} in {l:#?}"));
         // `src/one.rs` is a header (merged chain), its two matches are rows beneath it.
-        assert!(pos("src/one.rs/") < pos("1: needle a") && pos("1: needle a") < pos("3: needle b") && pos("3: needle b") < pos("top.txt/"), "{l:#?}");
+        assert!(pos(" src/one.rs") < pos("1: needle a") && pos("1: needle a") < pos("3: needle b") && pos("3: needle b") < pos(" top.txt"), "{l:#?}");
         // Accepting a match still prints path:line:col:text.
         p.handle_event(&key(KeyCode::Down));
         let got = accept(&mut p);

@@ -82,7 +82,8 @@ fn perm_spans(mode: u32, theme: &Theme) -> Vec<Span<'static>> {
 fn row(prefix: &str, e: &Entry, opts: &Options, state: Option<(char, Kind)>, theme: &Theme) -> Line<'static> {
     let width = opts.width;
     let c = &theme.colors;
-    let name = if e.is_dir { format!("{}/", e.name) } else { e.name.clone() };
+    let name = e.name.clone();
+    let icon = if e.is_dir { ui::icons::dir(&e.name, false) } else { ui::icons::file(&e.name, e.mode & 0o111 != 0) };
     let mut name_style = if e.is_dir {
         Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD)
     } else {
@@ -93,6 +94,7 @@ fn row(prefix: &str, e: &Entry, opts: &Options, state: Option<(char, Kind)>, the
     }
     let mut spans = vec![
         Span::styled(prefix.to_string(), Style::new().fg(c.muted.into())),
+        Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
         Span::styled(name.clone(), name_style),
     ];
     if let Some(w) = width {
@@ -106,7 +108,7 @@ fn row(prefix: &str, e: &Entry, opts: &Options, state: Option<(char, Kind)>, the
             });
         }
         let right_w: usize = right.iter().map(|s| s.content.width()).sum();
-        let left_w = prefix.width() + name.width();
+        let left_w = prefix.width() + 2 + name.width();
         let pad = (w as usize).saturating_sub(left_w + right_w + 2).max(1);
         spans.push(Span::raw(" ".repeat(pad)));
         spans.extend(right);
