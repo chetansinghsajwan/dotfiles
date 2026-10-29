@@ -43,6 +43,20 @@ pub enum Action {
     Deleted(Vec<PathBuf>),
 }
 
+/// Whether a file has an execute bit (always false off Unix).
+fn is_executable(path: &Path) -> bool {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::metadata(path).is_ok_and(|m| m.permissions().mode() & 0o111 != 0)
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = path;
+        false
+    }
+}
+
 struct Row {
     path: PathBuf,
     name: String,
@@ -560,11 +574,17 @@ impl Panel {
             if self.clip.as_ref().is_some_and(|k| k.cut && k.paths.contains(&row.path)) {
                 name_style = name_style.add_modifier(Modifier::DIM);
             }
+            let icon = if row.is_dir {
+                ui::icons::dir(&row.name, self.expanded.contains(&row.path))
+            } else {
+                ui::icons::file(&row.name, is_executable(&row.path))
+            };
             let mark = if self.marked.contains(&row.path) { "● " } else { "  " };
             let line = Line::from(vec![
                 Span::styled(mark, Style::new().fg(c.accent.into())),
                 Span::raw(" ".repeat(usize::from(row.depth) * 2)),
                 Span::styled(arrow, Style::new().fg(c.muted.into())),
+                Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
                 Span::styled(if row.is_dir { format!("{}/", row.name) } else { row.name.clone() }, name_style),
             ]);
             Paragraph::new(line).style(base).render(area, buf);

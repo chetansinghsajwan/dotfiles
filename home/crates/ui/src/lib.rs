@@ -3,6 +3,8 @@
 //! their own borders, colors or gaps.
 
 pub mod ansi;
+pub mod icons;
+mod icons_data;
 pub mod layout;
 pub mod popup;
 pub mod pane;

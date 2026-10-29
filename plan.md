@@ -356,3 +356,10 @@ Kanata stays standalone. On WSL2 a Linux kanata cannot see the Windows keyboard,
 - Confirm the approach with the user before implementing; don't split files into several without being asked.
 - Keep caution callouts short; the repo is git-tracked and reversible.
 - Keep this plan file the single source of context; update it as decisions change.
+
+## 3b. Explorer: standalone replacement for yazi (decided)
+
+Decision (user): the `files` explorer becomes the one explorer everywhere (helix panel, other tools, standalone CLI) and replaces yazi. Layout: tree plus a `pv` preview pane (not miller columns).
+Required before yazi can go: core file ops (done in `files`), cd on exit and `--chooser-file`, preview pane via `pv`, open-with, bulk rename, tabs, icons, search (via `pick`), git markers (done).
+- Icons: done. `ui::icons::{dir,file}` (Nerd Font glyph + color), the same set as yazi, generated into `home/crates/ui/src/icons_data.rs` from yazi's preset theme (MIT). Lookup: folder name, exact file name, extension (all lowercase), then executable / plain fallbacks. Drawn in the `files` panel before the name. Not done: an on/off token, icons in `pick` and `pv` directory rows.
+- Next: standalone binary (`files` CLI) with preview pane, cd-on-exit and chooser file; then search via `pick`, open-with, bulk rename, tabs.
