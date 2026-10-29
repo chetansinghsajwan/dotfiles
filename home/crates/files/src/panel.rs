@@ -659,7 +659,7 @@ impl Panel {
                 Span::raw(" ".repeat(usize::from(row.depth) * 2)),
                 Span::styled(arrow, Style::new().fg(c.muted.into())),
                 Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
-                Span::styled(if row.is_dir { format!("{}/", row.name) } else { row.name.clone() }, name_style),
+                Span::styled(row.name.clone(), name_style),
             ]);
             Paragraph::new(line).style(base).render(area, buf);
 
@@ -783,7 +783,7 @@ mod tests {
         let row = |y: u16| (0..30).map(|x| buf[(x, y)].symbol().to_string()).collect::<String>();
         let text: Vec<String> = (0..8).map(row).collect();
         // src has an untracked file beneath it (dot), README.md is modified (M).
-        assert!(text.iter().any(|l| l.contains("src/") && l.trim_end().trim_end_matches('│').trim_end().ends_with('•')), "{text:?}");
+        assert!(text.iter().any(|l| l.contains("src") && l.trim_end().trim_end_matches('│').trim_end().ends_with('•')), "{text:?}");
         assert!(text.iter().any(|l| l.contains("README.md") && l.contains('M')), "{text:?}");
     }
 
@@ -798,12 +798,12 @@ mod tests {
         let mut buf = Buffer::empty(area);
         p.render(area, &mut buf, &Theme::default(), true);
         let all: String = (0..8).map(|y| (0..30).map(|x| buf[(x, y)].symbol().to_string()).collect::<String>() + "\n").collect();
-        assert!(all.contains("files-test-") && all.contains("docs/"), "{all}");
+        assert!(all.contains("files-test-") && all.contains("docs"), "{all}");
         p.handle_event(&key(KeyCode::Char('G')));
         let mut buf = Buffer::empty(area);
         p.render(area, &mut buf, &Theme::default(), true);
         let all: String = (0..8).map(|y| (0..30).map(|x| buf[(x, y)].symbol().to_string()).collect::<String>() + "\n").collect();
-        assert!(all.contains("file29.txt") && !all.contains("docs/"), "{all}");
+        assert!(all.contains("file29.txt") && !all.contains("docs"), "{all}");
     }
 
     fn type_text(p: &mut Panel, s: &str) {

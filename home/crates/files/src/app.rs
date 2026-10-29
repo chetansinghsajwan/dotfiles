@@ -1,3 +1,4 @@
+use files::meta::{self, DirSize, Meta};
 use files::{Action, Panel, PanelOptions, Search, ops};
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
@@ -39,12 +40,15 @@ struct App {
     tabs: Vec<Panel>,
     active: usize,
     preview: Option<Preview>,
+    show_meta: bool,
+    meta: Option<(PathBuf, Option<Meta>)>,
+    dirsize: Option<DirSize>,
 }
 
 pub fn run(opts: Options) -> io::Result<u8> {
     let dir = opts.dir.canonicalize()?;
     let panel_opts = PanelOptions { hidden: opts.hidden, git: opts.git };
-    let mut app = App { theme: Theme::load(), tabs: vec![Panel::new(dir, panel_opts)], active: 0, preview: None, opts };
+    let mut app = App { theme: Theme::load(), tabs: vec![Panel::new(dir, panel_opts)], active: 0, preview: None, show_meta: true, meta: None, dirsize: None, opts };
 
     // Draw on the controlling terminal so stdout stays free for the caller.
     let tty = OpenOptions::new().read(true).write(true).open("/dev/tty")?;
@@ -84,15 +88,18 @@ impl App {
 
     fn event_loop(&mut self, term: &mut Term) -> io::Result<u8> {
         let mut dirty = true;
+        let mut shown = None;
         loop {
             if dirty {
                 term.draw(|f| {
                     let area = f.area();
                     self.render(area, f.buffer_mut());
                 })?;
-                dirty = false;
+                shown = self.dirsize.as_ref().map(DirSize::state);
             }
-            if !event::poll(Duration::from_millis(200))? {
+            if !event::poll(Duration::from_millis(100))? {
+                // A folder size still being counted changes what is on screen.
+                dirty = self.dirsize.as_ref().map(DirSize::state) != shown;
                 continue;
             }
             let ev = event::read()?;
@@ -114,6 +121,10 @@ impl App {
         }
         if !self.panel().is_busy() && !modifiers.contains(KeyModifiers::CONTROL) {
             match code {
+                KeyCode::Char('m') => {
+                    self.show_meta = !self.show_meta;
+                    return Ok(None);
+                }
                 KeyCode::Char('t') => {
                     let root = self.panel().root().to_path_buf();
                     self.tabs.push(Panel::new(root, PanelOptions { hidden: self.opts.hidden, git: self.opts.git }));
@@ -227,6 +238,7 @@ impl App {
     fn render_preview(&mut self, area: Rect, buf: &mut Buffer) {
         let current = self.tabs[self.active].current().map(Path::to_path_buf);
         let theme = self.theme.clone();
+        let area = self.render_meta(area, buf, current.as_deref());
         let title = current.as_ref().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
         let pane = Pane::new(&theme).title(&title);
         let inner = pane.inner(area);
@@ -302,4 +314,29 @@ fn bulk_rename(root: &Path, paths: &[PathBuf]) -> Result<usize, String> {
     let moves = ops::plan_bulk_rename(root, paths, &edited?)?;
     ops::apply_moves(&moves).map_err(|e| e.to_string())?;
     Ok(moves.len())
+}
+
+impl App {
+    /// Draw the properties pane at the bottom of `area`; returns what is left for the preview.
+    fn render_meta(&mut self, area: Rect, buf: &mut Buffer, current: Option<&Path>) -> Rect {
+        if !self.show_meta {
+            return area;
+        }
+        if self.meta.as_ref().map(|(p, _)| p.as_path()) != current {
+            self.meta = current.map(|p| (p.to_path_buf(), Meta::read(p).ok()));
+            self.dirsize = match &self.meta {
+                Some((p, Some(m))) if m.is_dir => Some(DirSize::spawn(p.clone())),
+                _ => None,
+            };
+        }
+        let rows = self.meta.as_ref().and_then(|(_, m)| m.as_ref()).map_or(1, Meta::height);
+        let height = (rows + 2).min(area.height / 2);
+        if height < 3 {
+            return area;
+        }
+        let split = Rect { y: area.bottom() - height, height, ..area };
+        let meta = self.meta.as_ref().and_then(|(_, m)| m.as_ref());
+        meta::render(split, buf, &self.theme, meta, self.dirsize.as_ref().map(DirSize::state));
+        Rect { height: area.height - height, ..area }
+    }
 }

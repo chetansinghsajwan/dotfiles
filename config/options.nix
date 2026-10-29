@@ -376,7 +376,7 @@ in
 
             helixFork = mkOption {
                 type = types.bool;
-                default = false;
+                default = true;
                 description = "Use our helix fork (home/helix, with the shared pick picker) instead of the nixpkgs helix.";
             };
 
