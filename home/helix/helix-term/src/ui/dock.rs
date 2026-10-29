@@ -9,6 +9,7 @@ use super::pick::{copy, to_crossterm};
 use helix_view::editor::DocksConfig;
 use helix_view::graphics::Rect;
 use helix_view::input::KeyEvent;
+use helix_view::Editor;
 use ratatui::buffer::Buffer as RBuffer;
 use ratatui::layout::Rect as RRect;
 use ratatui::style::{Modifier, Style as RStyle};
@@ -38,6 +39,8 @@ pub enum PanelEvent {
     None,
     /// Open this file.
     Open(PathBuf),
+    /// Open this file at a 1-based line and column.
+    OpenAt { path: PathBuf, line: u32, col: u32 },
     /// Give the keyboard back to the editor.
     Unfocus,
     /// A file or folder was created.
@@ -49,7 +52,8 @@ pub enum PanelEvent {
 /// A panel that can sit in a dock.
 pub trait DockPanel {
     fn id(&self) -> &'static str;
-    fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool);
+    /// `editor` is there for panels that show editor state (diagnostics).
+    fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool, editor: &Editor);
     fn handle_key(&mut self, key: ct::KeyEvent) -> PanelEvent;
     /// Show this file (the file explorer expands to it).
     fn reveal(&mut self, _path: &Path) {}
@@ -62,7 +66,7 @@ impl DockPanel for FilesDock {
         "files"
     }
 
-    fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool) {
+    fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool, _editor: &Editor) {
         self.0.render(area, buf, theme, focused);
     }
 
@@ -89,7 +93,7 @@ impl DockPanel for GitDock {
         "git"
     }
 
-    fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool) {
+    fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool, _editor: &Editor) {
         self.0.render_compact(area, buf, theme, focused);
     }
 
@@ -102,8 +106,59 @@ impl DockPanel for GitDock {
     }
 }
 
+/// The problems of the workspace (what the language servers reported), as a list
+/// grouped by file.
+struct DiagnosticsDock(diagnostics_panel::Panel);
+
+/// What the language servers reported, flattened for the panel.
+fn diagnostics_of(editor: &Editor) -> Vec<diagnostics_panel::Item> {
+    use diagnostics_panel::{Item, Severity};
+    use helix_lsp::lsp::DiagnosticSeverity as Sev;
+    let mut out = Vec::new();
+    for (uri, list) in &editor.diagnostics {
+        let Some(path) = uri.as_path() else { continue };
+        for (d, _provider) in list {
+            let severity = match d.severity {
+                Some(s) if s == Sev::ERROR => Severity::Error,
+                Some(s) if s == Sev::WARNING => Severity::Warning,
+                Some(s) if s == Sev::HINT => Severity::Hint,
+                _ => Severity::Info,
+            };
+            out.push(Item {
+                path: path.to_path_buf(),
+                line: d.range.start.line + 1,
+                col: d.range.start.character + 1,
+                severity,
+                message: d.message.clone(),
+                source: d.source.clone(),
+            });
+        }
+    }
+    out
+}
+
+impl DockPanel for DiagnosticsDock {
+    fn id(&self) -> &'static str {
+        "diagnostics"
+    }
+
+    fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool, editor: &Editor) {
+        self.0.set_items(diagnostics_of(editor));
+        self.0.render(area, buf, theme, focused);
+    }
+
+    fn handle_key(&mut self, key: ct::KeyEvent) -> PanelEvent {
+        match self.0.handle_event(&ct::Event::Key(key)) {
+            diagnostics_panel::Action::Open { path, line, col } => PanelEvent::OpenAt { path, line, col },
+            diagnostics_panel::Action::Close => PanelEvent::Unfocus,
+            diagnostics_panel::Action::None => PanelEvent::None,
+        }
+    }
+}
+
 fn make_panel(id: &str, root: &Path) -> Option<Box<dyn DockPanel>> {
     match id {
+        "diagnostics" => Some(Box::new(DiagnosticsDock(diagnostics_panel::Panel::new(root)))),
         "files" => Some(Box::new(FilesDock(files::Panel::new(root, files::PanelOptions::default())))),
         "git" => git_panel::Panel::new(root).map(|p| Box::new(GitDock(p)) as Box<dyn DockPanel>),
         _ => None,
@@ -279,7 +334,7 @@ impl Docks {
         (if self.left.shown() { w } else { 0 }, if self.right.shown() { w } else { 0 }, if self.bottom.shown() { h } else { 0 })
     }
 
-    pub fn render(&mut self, wb: &tui_design::layout::Workbench, surface: &mut Surface) {
+    pub fn render(&mut self, wb: &tui_design::layout::Workbench, surface: &mut Surface, editor: &Editor) {
         let theme = self.theme().clone();
         let root = self.root.clone().unwrap_or_default();
         for (side, rect) in [(Side::Left, wb.left), (Side::Right, wb.right), (Side::Bottom, wb.bottom)] {
@@ -291,7 +346,7 @@ impl Docks {
             let local = RRect::new(0, 0, rect.width, rect.height);
             let mut buf = RBuffer::empty(local);
             match d.active_panel(&root) {
-                Some(panel) => panel.render(&mut buf, local, &theme, focused),
+                Some(panel) => panel.render(&mut buf, local, &theme, focused, editor),
                 None => buf.set_string(1, 0, "unavailable here", RStyle::new().fg(theme.colors.muted.into())),
             }
             d.draw_tabs(&mut buf, local, &theme);

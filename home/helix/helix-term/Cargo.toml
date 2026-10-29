@@ -60,6 +60,7 @@ tui = { path = "../helix-tui", package = "helix-tui", default-features = false, 
 pick = { path = "../../crates/pick" }
 files = { path = "../../crates/files" }
 git-panel = { path = "../../crates/git-panel" }
+diagnostics-panel = { path = "../../crates/diagnostics-panel" }
 tui-design = { path = "../../crates/ui", package = "ui" }
 ratatui = "0.30"
 crossterm = { version = "0.28", features = ["event-stream"] }

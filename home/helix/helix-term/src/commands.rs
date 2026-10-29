@@ -401,6 +401,7 @@ impl MappableCommand {
         file_explorer, "Open file explorer in workspace root",
         files_panel, "Show the file explorer in its dock",
         git_dock, "Show the changed files in their dock",
+        diagnostics_dock, "Show the problems (diagnostics) in their dock",
         dock_left, "Toggle the left dock",
         dock_right, "Toggle the right dock",
         dock_bottom, "Toggle the bottom dock",
@@ -3212,6 +3213,11 @@ fn files_panel(cx: &mut Context) {
 /// Show the changed-files list in the dock it is assigned to (`space g` is the full popup).
 fn git_dock(cx: &mut Context) {
     dock_action(cx, DockAction::Show("git"));
+}
+
+/// Show the workspace problems in the dock they are assigned to (the bottom dock by default).
+fn diagnostics_dock(cx: &mut Context) {
+    dock_action(cx, DockAction::Show("diagnostics"));
 }
 
 fn dock_left(cx: &mut Context) {

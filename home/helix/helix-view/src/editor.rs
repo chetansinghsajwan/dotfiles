@@ -969,7 +969,8 @@ impl From<LineEndingConfig> for LineEnding {
 
 /// The panels assigned to each dock (the left and right sidebars and the bottom
 /// panel). A dock with several panels shows one at a time; `[` and `]` switch.
-/// Known panels: `files` (file explorer) and `git` (changed files).
+/// Known panels: `files` (file explorer), `git` (changed files) and `diagnostics`
+/// (the problems the language servers reported).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case", default)]
 pub struct DocksConfig {
@@ -980,7 +981,7 @@ pub struct DocksConfig {
 
 impl Default for DocksConfig {
     fn default() -> Self {
-        DocksConfig { left: vec!["files".into()], right: vec!["git".into()], bottom: Vec::new() }
+        DocksConfig { left: vec!["files".into()], right: vec!["git".into()], bottom: vec!["diagnostics".into()] }
     }
 }
 

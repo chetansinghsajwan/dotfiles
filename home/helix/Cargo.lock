@@ -694,6 +694,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "diagnostics-panel"
+version = "0.1.0"
+dependencies = [
+ "ratatui",
+ "ui",
+ "unicode-width 0.2.3",
+]
+
+[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2928,6 +2937,7 @@ dependencies = [
  "chrono",
  "content_inspector",
  "crossterm 0.28.1",
+ "diagnostics-panel",
  "fern",
  "files",
  "futures-util",

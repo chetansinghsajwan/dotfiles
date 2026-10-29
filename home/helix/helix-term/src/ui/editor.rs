@@ -1409,6 +1409,21 @@ impl Component for EditorView {
                             }
                         }
                     }
+                    // A problem from the diagnostics panel: open the file at the place.
+                    PanelEvent::OpenAt { path, line, col } => {
+                        self.docks.unfocus();
+                        match cx.editor.open(&path, helix_view::editor::Action::Replace) {
+                            Ok(_) => {
+                                let (view, doc) = current!(cx.editor);
+                                let text = doc.text();
+                                let l = (line as usize).saturating_sub(1).min(text.len_lines().saturating_sub(1));
+                                let pos = (text.line_to_char(l) + (col as usize).saturating_sub(1)).min(text.len_chars());
+                                doc.set_selection(view.id, Selection::point(pos));
+                                helix_view::align_view(doc, view, helix_view::Align::Center);
+                            }
+                            Err(e) => cx.editor.set_error(format!("Failed to open {}: {e}", path.display())),
+                        }
+                    }
                     PanelEvent::Created(..) | PanelEvent::Unfocus | PanelEvent::None => {}
                 }
                 return EventResult::Consumed(None);
@@ -1637,7 +1652,7 @@ impl Component for EditorView {
             self.render_view(cx.editor, doc, view, view_area, surface, is_focused);
         }
 
-        self.docks.render(&wb, surface);
+        self.docks.render(&wb, surface, cx.editor);
         if boxed {
             let focused = self.docks.focused_side().is_none();
             super::dock::draw_border(surface, outer, self.docks.theme(), focused);

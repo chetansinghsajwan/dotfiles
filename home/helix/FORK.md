@@ -41,7 +41,7 @@ match the helix version in nixpkgs; rebase this fork first when nixpkgs moves.
 ## Later changes (docks, panels, popups)
 
 - `helix-term/src/ui/dock.rs` (new): left, right and bottom docks with the `files`
-  and `git` panels, assigned through `editor.docks`; `helix-view/src/editor.rs`
+  `git` and `diagnostics` panels, assigned through `editor.docks`; `helix-view/src/editor.rs`
   gets `DocksConfig` for that.
 - `helix-term/src/ui/editor.rs`: `EditorView` lays out the docks
   (`tui_design::layout::workbench`), routes keys to a focused dock and stretches
@@ -49,7 +49,7 @@ match the helix version in nixpkgs; rebase this fork first when nixpkgs moves.
 - `helix-term/src/ui/git_panel.rs` and `ui/pick.rs` (popups), `commands.rs`
   (`git_panel`, `files_panel`, `dock_*`, `buffer_picker`, ...) and
   `keymap/default.rs` (`space g`, `space 1/2/3`, ...).
-- Path dependencies now also include `../../crates/files` and
+- Path dependencies now also include `../../crates/files`, `../../crates/diagnostics-panel` and
   `../../crates/git-panel`.
 - `helix-view/src/view.rs`: `View::bottom_margin` (rows between text and status line
   that belong to the frame around the editor), used by `inner_area()` and
