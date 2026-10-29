@@ -637,9 +637,14 @@ impl Panel {
             self.offset = self.cursor + 1 - self.page;
         }
 
+        // Rows span the pane's padding too, so the highlight reaches one cell past the text on both sides.
+        let left = inner.x.saturating_sub(area.x + 1).min(1);
+        let right = area.right().saturating_sub(inner.right() + 1).min(1);
+        let row_area = Rect { x: inner.x - left, width: inner.width + left + right, ..inner };
+
         for (i, row) in self.rows.iter().enumerate().skip(self.offset).take(self.page) {
             let y = inner.y + (i - self.offset) as u16;
-            let area = Rect { y, height: 1, ..inner };
+            let area = Rect { y, height: 1, ..row_area };
             let selected = i == self.cursor;
             let git = self.git_state(row);
             // The whole row takes a faded tint of its git color; the hovered row is a faded blue (the accent).
@@ -670,14 +675,14 @@ impl Panel {
                 ui::icons::file(&row.name, is_executable(&row.path))
             };
             let line = Line::from(vec![
-                Span::raw(" ".repeat(usize::from(row.depth) * 2)),
+                Span::raw(" ".repeat(usize::from(row.depth) * 2 + usize::from(left == 0))),
                 Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
                 Span::styled(row.name.clone(), name_style),
             ]);
             Paragraph::new(line).style(base).render(area, buf);
 
             if let Some((ch, kind)) = git {
-                let x = inner.right().saturating_sub(1);
+                let x = area.right().saturating_sub(1 + right);
                 buf.set_string(x, y, ch.to_string(), base.fg(Self::git_color(theme, kind)));
             }
         }
