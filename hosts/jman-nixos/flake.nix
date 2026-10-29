@@ -12,7 +12,6 @@
             module = { lib, ... }: {
                 networking.hostName = lib.mkForce hostname;
                 dotfiles = {
-                    editor.helixFork = lib.mkForce true;
                     features = {
                         dev = lib.mkForce true;
                         gui = lib.mkForce false;
