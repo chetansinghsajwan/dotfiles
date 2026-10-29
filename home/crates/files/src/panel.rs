@@ -537,9 +537,21 @@ impl Panel {
         let (repo, status) = self.git.as_ref()?;
         let rela = repo.relative(&row.path)?;
         if row.is_dir {
-            status.dir(&rela).map(|k| ('•', k))
+            status.dir(&rela).map(|k| (Self::kind_char(k), k))
         } else {
             status.get(&rela)?.sign()
+        }
+    }
+
+    /// The sign letter for a kind (yazi's: `?` untracked, `M` modified, `A` added, `D` deleted, `R` renamed, `U` conflict).
+    fn kind_char(kind: Kind) -> char {
+        match kind {
+            Kind::Added => 'A',
+            Kind::Modified | Kind::Typechange => 'M',
+            Kind::Deleted => 'D',
+            Kind::Renamed => 'R',
+            Kind::Untracked => '?',
+            Kind::Conflict => 'U',
         }
     }
 
@@ -629,10 +641,17 @@ impl Panel {
             let y = inner.y + (i - self.offset) as u16;
             let area = Rect { y, height: 1, ..inner };
             let selected = i == self.cursor;
-            let base = if selected && focused { Style::new().bg(c.selection.into()).add_modifier(Modifier::BOLD) } else { Style::new() };
+            let git = self.git_state(row);
+            // The whole row takes a faded tint of its git color; the hovered row is the selection color with a little of it.
+            let tint = git.map(|(_, k)| Self::git_color(theme, k));
+            let base = match (selected && focused, tint) {
+                (true, Some(t)) => Style::new().bg(ui::mix(t, c.selection.into(), 25)).add_modifier(Modifier::BOLD),
+                (true, None) => Style::new().bg(c.selection.into()).add_modifier(Modifier::BOLD),
+                (false, Some(t)) => Style::new().bg(ui::mix(t, c.bg.into(), 14)),
+                (false, None) => Style::new(),
+            };
             buf.set_style(area, base);
 
-            let git = self.git_state(row);
             let color = git.map(|(_, k)| Self::git_color(theme, k)).unwrap_or(if row.is_dir { c.accent.into() } else { c.fg.into() });
             let mut name_style = Style::new().fg(color);
             if row.is_dir {
@@ -776,8 +795,8 @@ mod tests {
         p.render(area, &mut buf, &Theme::default(), true);
         let row = |y: u16| (0..30).map(|x| buf[(x, y)].symbol().to_string()).collect::<String>();
         let text: Vec<String> = (0..8).map(row).collect();
-        // src has an untracked file beneath it (dot), README.md is modified (M).
-        assert!(text.iter().any(|l| l.contains("src") && l.trim_end().trim_end_matches('│').trim_end().ends_with('•')), "{text:?}");
+        // src has an untracked file beneath it (`?`), README.md is modified (M).
+        assert!(text.iter().any(|l| l.contains("src") && l.trim_end().trim_end_matches('│').trim_end().ends_with('?')), "{text:?}");
         assert!(text.iter().any(|l| l.contains("README.md") && l.contains('M')), "{text:?}");
     }
 
