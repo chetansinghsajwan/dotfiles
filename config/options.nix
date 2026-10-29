@@ -385,17 +385,17 @@ in
                 left = mkOption {
                     type = types.listOf types.str;
                     default = [ "files" ];
-                    description = "Panels in the left dock of the helix fork (files, git).";
+                    description = "Panels in the left dock of the helix fork (files, git, diagnostics).";
                 };
                 right = mkOption {
                     type = types.listOf types.str;
                     default = [ "git" ];
-                    description = "Panels in the right dock of the helix fork (files, git).";
+                    description = "Panels in the right dock of the helix fork (files, git, diagnostics).";
                 };
                 bottom = mkOption {
                     type = types.listOf types.str;
-                    default = [ ];
-                    description = "Panels in the bottom dock of the helix fork (files, git).";
+                    default = [ "diagnostics" ];
+                    description = "Panels in the bottom dock of the helix fork (files, git, diagnostics).";
                 };
             };
 
