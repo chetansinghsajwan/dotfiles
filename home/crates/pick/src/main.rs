@@ -61,6 +61,10 @@ struct Cli {
     /// selection), e.g. `--expect ctrl-e,ctrl-x`; an empty first line means Enter.
     #[arg(long, value_name = "KEYS", value_delimiter = ',')]
     expect: Vec<String>,
+    /// List files and grep results in one flat list instead of a directory hierarchy
+    /// (the default for `--files`, `--paths` and `--grep`).
+    #[arg(long)]
+    flat: bool,
     /// Stay in this terminal instead of opening a floating pane. Inside zellij,
     /// `pick` opens a popup (a floating pane, sized by the `popup_percent` design
     /// token) by default; `PICK_NO_POPUP=1` also turns it off.
@@ -128,6 +132,8 @@ fn run(cli: Cli) -> io::Result<u8> {
         PickerOptions { mode, paths, root: root.clone(), preview: !cli.no_preview && (paths || cli.git.is_some()), git: !cli.no_git, query: cli.query },
         notify,
     );
+    // Path lists read better as a hierarchy; folder listings and plain text stay flat.
+    picker.set_tree(!cli.flat && ((cli.files.is_some() && !cli.dirs && !cli.only_dirs) || cli.paths.is_some() || cli.grep.is_some()));
     if let Some(title) = &cli.title {
         picker.set_title(title.clone());
     }

@@ -3075,7 +3075,8 @@ fn pick_files(cx: &mut Context, root: PathBuf) {
         opts,
         move |p| source::spawn_files(p.injector(), walk_root, false),
         move |_compositor, cx, picked| open_picked(cx, &root, picked),
-    );
+    )
+    .with_tree(true);
     cx.push_layer(Box::new(picker));
 }
 
@@ -3113,7 +3114,8 @@ fn global_search(cx: &mut Context) {
         let pos = (text.line_to_char(line) + col.saturating_sub(1)).min(text.len_chars());
         doc.set_selection(view.id, Selection::point(pos));
         align_view(doc, view, Align::Center);
-    });
+    })
+    .with_tree(true);
     cx.push_layer(Box::new(picker));
 }
 

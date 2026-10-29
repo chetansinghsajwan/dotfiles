@@ -195,6 +195,14 @@ TODO before step 2: read yazi's source to count how many files touch border and 
 - Tested: git-core 10 tests (hunks + context + merging + new/deleted/binary), pv 10, pick 15 (adds scrolling).
 - Not done: syntax highlighting inside the patch, word-level diffs, side-by-side view, a file-by-file jump, the `delta` renderer mentioned in the domains table (pv's own renderer is used instead for now), scroll for text previews.
 
+### Directory hierarchy in the list (done)
+
+- Path candidates are shown as a tree: folders as header rows (`▾ src/`), items indented beneath, a folder that holds only one folder merged into one header (`docs/guide/`), folders first (case-insensitive), items by name. Fuzzy filtering still works: only matches and their folders show, and the cursor starts on the best match wherever it is drawn. Up/Down/PageUp/PageDown/Tab walk the items in drawing order (headers are not selectable). Match highlighting applies to the file name; git colors and signs stay on the item rows. Grep results group the same way: the file is the header (merged with its folders), its matches are rows `LINE: text` beneath it, ordered by line.
+- On by default for `pick --files` (without `--dirs`/`--only-dirs`), `--paths` and `--grep`, and for helix's file picker (`space f`) and global search; `--flat` turns it off. Library: `Picker::set_tree(bool)` (helix: `PickComponent::with_tree`). It stays flat for buffers, git objects, plain text lists, folder listings, and result sets over 20,000 (`tree_limit`).
+- Code: `pick/src/tree.rs` (pure model: a trie of folders, chain merging, draw order) and `render_tree_rows` / `refresh_tree` in `picker.rs`; the tree is rebuilt only when the results change. In tree mode `offset` counts rows, not results.
+- Tested: 3 unit tests for the model and 5 for the picker (structure and indentation, navigation order and what Enter prints, filtering and best-match start, the flat fallbacks, grep grouping); 38 `pick` tests pass. Looked at in `tmux` (`pick --files pick`): header, indented files, git signs, filtering.
+- Not done: collapsing and expanding folders from the keyboard, folder-level git state on the header rows, highlighting matches that fall in the folder part of a path (only the file name is highlighted), a tree for `--dirs` listings and buffers.
+
 ### CLI popup inside zellij (done)
 
 - Inside zellij (`$ZELLIJ` set) the CLI `pick` no longer takes over the terminal: it re-runs itself in a floating pane (`zellij run --floating --blocking --close-on-exit --borderless true --width/--height P% --x/--y (100-P)/2% --cwd <cwd> -- sh -c ...`), `P` being the `layout.popup_percent` design token (default 80), and relays the result. A real overlay: the shell and its output stay visible around it. Every shell picker (Ctrl-R, Alt-T, Alt-C, the menu, the git/docker/nixpkgs/clipboard ones) and yazi's `z` / `S` get it without changes.

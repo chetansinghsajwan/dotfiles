@@ -7,6 +7,7 @@ pub mod popup;
 mod keys;
 mod picker;
 mod preview_cmd;
+mod tree;
 pub mod source;
 
 pub use candidate::{Buffer, Candidate, GitItem, GitKind, Loc};

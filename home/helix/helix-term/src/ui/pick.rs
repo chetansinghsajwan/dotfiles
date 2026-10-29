@@ -46,6 +46,12 @@ impl PickComponent {
         self.picker.set_cursor(index);
         self
     }
+
+    /// Show the list as a directory hierarchy (files, grep results).
+    pub fn with_tree(mut self, on: bool) -> Self {
+        self.picker.set_tree(on);
+        self
+    }
 }
 
 impl Component for PickComponent {

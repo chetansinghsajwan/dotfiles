@@ -85,6 +85,13 @@ pub struct Picker {
     header: Vec<String>,
     /// Preview rows visible at the last render, for paging.
     pheight: usize,
+    /// Show path candidates as a directory hierarchy (see `set_tree`).
+    tree_on: bool,
+    /// The hierarchy of the current results; `None` when the list is flat.
+    tree: Option<crate::tree::Tree>,
+    tree_dirty: bool,
+    /// Above this many results the list stays flat (a tree of everything is no help).
+    tree_limit: u32,
 }
 
 impl Picker {
@@ -117,6 +124,10 @@ impl Picker {
             preview_cmd: None,
             expect: Vec::new(),
             header: Vec::new(),
+            tree_on: false,
+            tree: None,
+            tree_dirty: true,
+            tree_limit: 20_000,
             pheight: 10,
             opts,
         };
@@ -177,8 +188,74 @@ impl Picker {
         let changed = self.nucleo.tick(10).changed;
         if changed {
             self.clamp();
+            self.tree_dirty = true;
         }
         changed
+    }
+
+    /// Show path candidates (files, grep results) as a directory hierarchy:
+    /// folders as header rows, items indented beneath, folders holding a single
+    /// folder merged. Up/Down walk the items in drawing order; the cursor still
+    /// starts on the best match. Candidates that are not plain file paths
+    /// (buffers, git objects, folders) and result sets above a limit keep the
+    /// flat list.
+    pub fn set_tree(&mut self, on: bool) {
+        self.tree_on = on;
+        self.tree_dirty = true;
+        self.offset = 0;
+    }
+
+    /// Where a candidate sits in the hierarchy: its folders and a sort key within
+    /// the folder. `None` for candidates that have no place in a path tree.
+    fn tree_entry(idx: u32, c: &Candidate) -> Option<crate::tree::Entry> {
+        if c.buffer.is_some() || c.git.is_some() {
+            return None;
+        }
+        let split = |p: &str| -> Vec<String> { p.split('/').filter(|s| !s.is_empty() && *s != ".").map(String::from).collect() };
+        if let Some(loc) = &c.loc {
+            // A grep match: the file is the folder, its matches the items.
+            return Some(crate::tree::Entry { idx, dirs: split(&loc.path), sort: format!("{:010}", loc.line) });
+        }
+        if c.display.ends_with('/') {
+            return None;
+        }
+        let mut parts = split(&c.display);
+        let name = parts.pop()?;
+        Some(crate::tree::Entry { idx, dirs: parts, sort: name.to_lowercase() })
+    }
+
+    /// Rebuild the hierarchy if the results changed since the last time.
+    fn refresh_tree(&mut self) {
+        if !self.tree_dirty {
+            return;
+        }
+        self.tree_dirty = false;
+        if !self.tree_on {
+            self.tree = None;
+            return;
+        }
+        let n = self.matched();
+        if n == 0 || n > self.tree_limit {
+            self.tree = None;
+            return;
+        }
+        let snap = self.nucleo.snapshot();
+        let mut entries = Vec::with_capacity(n as usize);
+        for idx in 0..n {
+            let Some(item) = snap.get_matched_item(idx) else { continue };
+            match Self::tree_entry(idx, item.data) {
+                Some(e) => entries.push(e),
+                None => {
+                    self.tree = None;
+                    return;
+                }
+            }
+        }
+        let was_tree = self.tree.is_some();
+        self.tree = Some(crate::tree::build(entries));
+        if !was_tree {
+            self.offset = 0;
+        }
     }
 
     fn reparse(&mut self) {
@@ -199,6 +276,7 @@ impl Picker {
         self.last_query = q;
         self.cursor = 0;
         self.offset = 0;
+        self.tree_dirty = true;
     }
 
     fn matched(&self) -> u32 {
@@ -219,6 +297,16 @@ impl Picker {
     }
 
     fn move_by(&mut self, delta: i64) {
+        self.refresh_tree();
+        // In the hierarchy, Up/Down walk the items in the order they are drawn.
+        if let Some(tree) = &self.tree {
+            if let Some(&pos) = tree.pos_of.get(&self.cursor) {
+                let last = tree.order.len() as i64 - 1;
+                let to = (pos as i64 + delta).clamp(0, last) as usize;
+                self.cursor = tree.order[to];
+                return;
+            }
+        }
         let n = i64::from(self.matched());
         if n == 0 {
             return;
@@ -338,14 +426,20 @@ impl Picker {
 
     /// Spans for one row: fuzzy rows highlight matched characters; grep rows
     /// show `path:line:` then the line with the match emphasized.
-    fn row_spans(&mut self, cand: &Candidate, name_fg: Color, theme: &Theme, snap_index: u32) -> Vec<Span<'static>> {
+    ///
+    /// With `leaf` (the hierarchy view) the folders above the item are already
+    /// drawn as header rows, so only the file name (or `line:` for a match) shows.
+    fn row_spans(&mut self, cand: &Candidate, name_fg: Color, theme: &Theme, snap_index: u32, leaf: bool) -> Vec<Span<'static>> {
         let c = &theme.colors;
         let hit = Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD);
         if let Some(loc) = &cand.loc {
-            let mut spans = vec![
-                Span::styled(loc.path.clone(), Style::new().fg(name_fg)),
-                Span::styled(format!(":{}: ", loc.line), Style::new().fg(c.muted.into())),
-            ];
+            let mut spans = Vec::new();
+            if !leaf {
+                spans.push(Span::styled(loc.path.clone(), Style::new().fg(name_fg)));
+                spans.push(Span::styled(format!(":{}: ", loc.line), Style::new().fg(c.muted.into())));
+            } else {
+                spans.push(Span::styled(format!("{}: ", loc.line), Style::new().fg(c.muted.into())));
+            }
             let (a, b) = (loc.hit.start, loc.hit.end);
             if a < b && b <= loc.text.len() {
                 spans.push(Span::styled(loc.text[..a].to_string(), Style::new().fg(c.fg.into())));
@@ -376,10 +470,15 @@ impl Picker {
         if let Some(b) = &cand.buffer {
             spans.push(Span::styled(format!("{:<2} ", b.flags), Style::new().fg(c.warning.into())));
         }
+        // In the hierarchy only the file name is drawn; match positions still refer to the full path.
+        let skip = if leaf { cand.display.rfind('/').map(|i| cand.display[..=i].chars().count()).unwrap_or(0) } else { 0 };
         for (i, ch) in cand.display.chars().enumerate() {
             let is_hit = hits.peek() == Some(&(i as u32));
             if is_hit {
                 hits.next();
+            }
+            if i < skip {
+                continue;
             }
             let base = if i < name_len { name_color } else { rest_color };
             spans.push(Span::styled(ch.to_string(), if is_hit { hit } else { Style::new().fg(base) }));
@@ -429,6 +528,11 @@ impl Picker {
         }
         let list = Rect { y: inner.y + 1 + header_rows, height: inner.height - 1 - header_rows, ..inner };
         self.page = u32::from(list.height).max(1);
+        self.refresh_tree();
+        if self.tree.is_some() {
+            self.render_tree_rows(list, buf, theme);
+            return;
+        }
         // Keep the cursor inside the window.
         if self.cursor < self.offset {
             self.offset = self.cursor;
@@ -453,12 +557,66 @@ impl Picker {
             )];
             let git = self.git_state(cand.path());
             let name_fg = git.map(|(_, k)| Self::git_color(theme, k)).unwrap_or(c.fg.into());
-            spans.extend(self.row_spans(&cand, name_fg, theme, idx));
+            spans.extend(self.row_spans(&cand, name_fg, theme, idx, false));
             Paragraph::new(Line::from(spans)).style(base).render(row_area, buf);
 
             if let Some((ch, kind)) = git {
                 let x = list.right().saturating_sub(1);
                 buf.set_string(x, y, ch.to_string(), base.fg(Self::git_color(theme, kind)));
+            }
+        }
+    }
+
+    /// The list as a directory hierarchy: folder header rows with the items
+    /// indented beneath them. `offset` counts rows here, not results.
+    fn render_tree_rows(&mut self, list: Rect, buf: &mut Buffer, theme: &Theme) {
+        let c = &theme.colors;
+        let rows: Vec<crate::tree::Row> = {
+            let Some(tree) = self.tree.as_ref() else { return };
+            // Keep the cursor's row inside the window.
+            let crow = tree.row_of.get(&self.cursor).copied().unwrap_or(0) as u32;
+            if crow < self.offset {
+                self.offset = crow;
+            } else if crow >= self.offset + self.page {
+                self.offset = crow + 1 - self.page;
+            }
+            tree.rows.iter().skip(self.offset as usize).take(self.page as usize).cloned().collect()
+        };
+
+        for (i, row) in rows.iter().enumerate() {
+            let y = list.y + i as u16;
+            let row_area = Rect { y, height: 1, ..list };
+            match row {
+                crate::tree::Row::Dir { depth, label } => {
+                    let line = Line::from(vec![
+                        Span::raw("  "),
+                        Span::raw(" ".repeat(usize::from(*depth) * 2)),
+                        Span::styled("▾ ", Style::new().fg(c.muted.into())),
+                        Span::styled(format!("{label}/"), Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD)),
+                    ]);
+                    Paragraph::new(line).render(row_area, buf);
+                }
+                crate::tree::Row::Item { idx, depth } => {
+                    let Some(cand) = self.nucleo.snapshot().get_matched_item(*idx).map(|it| it.data.clone()) else { continue };
+                    let selected = *idx == self.cursor;
+                    let base = if selected { Style::new().bg(c.selection.into()) } else { Style::new() };
+                    buf.set_style(row_area, base);
+
+                    let marked = self.marked.contains(&cand.output());
+                    let mut spans = vec![
+                        Span::styled(if marked { "● " } else if selected { "▸ " } else { "  " }, Style::new().fg(c.accent.into())),
+                        Span::raw(" ".repeat(usize::from(*depth) * 2 + 2)),
+                    ];
+                    let git = self.git_state(cand.path());
+                    let name_fg = git.map(|(_, k)| Self::git_color(theme, k)).unwrap_or(c.fg.into());
+                    spans.extend(self.row_spans(&cand, name_fg, theme, *idx, true));
+                    Paragraph::new(Line::from(spans)).style(base).render(row_area, buf);
+
+                    if let Some((ch, kind)) = git {
+                        let x = list.right().saturating_sub(1);
+                        buf.set_string(x, y, ch.to_string(), base.fg(Self::git_color(theme, kind)));
+                    }
+                }
             }
         }
     }
@@ -1087,5 +1245,144 @@ mod shell_tests {
         assert!(text.contains("nginx") && !text.contains("aaa-nginx\n") , "{text}");
         assert!(text.contains("PATH=/nix/store/aaa-nginx"), "{text}");
         assert_eq!(p.handle_event(&key(KeyCode::Enter, KeyModifiers::NONE)), Action::Accept(vec!["nginx\t/nix/store/aaa-nginx".into()]));
+    }
+}
+
+#[cfg(test)]
+mod tree_tests {
+    use super::*;
+    use ratatui::crossterm::event::KeyEvent;
+
+    fn files(paths: &[&str]) -> Picker {
+        let opts = PickerOptions { mode: Mode::Fuzzy, paths: true, root: std::env::temp_dir().join("pick-tree-none"), preview: false, git: false, query: String::new() };
+        let mut p = Picker::new(opts, Arc::new(|| {}));
+        crate::source::push_candidates(&p.injector(), paths.iter().map(|s| Candidate::plain(*s)).collect());
+        p.set_cursor(0);
+        p.set_tree(true);
+        p
+    }
+
+    fn key(code: KeyCode) -> Event {
+        Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
+    }
+
+    fn lines(p: &mut Picker) -> Vec<String> {
+        let area = Rect::new(0, 0, 60, 14);
+        let mut b = Buffer::empty(area);
+        p.render(area, &mut b, &Theme::default());
+        (0..14).map(|y| (0..60).map(|x| b[(x, y)].symbol().to_string()).collect::<String>().trim_end().to_string()).collect()
+    }
+
+    fn accept(p: &mut Picker) -> Vec<String> {
+        match p.handle_event(&key(KeyCode::Enter)) {
+            Action::Accept(v) => v,
+            other => panic!("{other:?}"),
+        }
+    }
+
+    const SET: [&str; 4] = ["README.md", "src/ui/c.rs", "src/a.rs", "docs/guide/x.md"];
+
+    #[test]
+    fn list_is_a_hierarchy_with_leaf_names_only() {
+        let mut p = files(&SET);
+        let l = lines(&mut p);
+        let find = |s: &str| l.iter().position(|r| r.contains(s)).unwrap_or_else(|| panic!("{s} in {l:#?}"));
+        // docs/guide merged into one header; folders first, items after, README last.
+        assert!(find("docs/guide/") < find("x.md") && find("x.md") < find("src/"));
+        assert!(find("src/") < find("ui/") && find("ui/") < find("c.rs") && find("c.rs") < find("a.rs") && find("a.rs") < find("README.md"));
+        // The folders are headers, so file rows do not repeat them.
+        assert!(!l.iter().any(|r| r.contains("src/ui/c.rs") || r.contains("src/a.rs") || r.contains("docs/guide/x.md")), "{l:#?}");
+        // Indentation: c.rs sits deeper than a.rs.
+        let col = |s: &str| { let row = &l[find(s)]; row[..row.find(s).unwrap()].chars().count() };
+        assert!(col("c.rs") > col("a.rs") && col("a.rs") > col("src/"));
+    }
+
+    #[test]
+    fn up_and_down_walk_the_items_in_drawing_order_and_accept_prints_the_path() {
+        let mut p = files(&SET);
+        // The cursor starts on the best match (the first result: README.md).
+        assert_eq!(accept(&mut p), vec!["README.md".to_string()]);
+        // Drawing order: docs/guide/x.md, src/ui/c.rs, src/a.rs, README.md.
+        p.handle_event(&key(KeyCode::Up));
+        assert_eq!(accept(&mut p), vec!["src/a.rs".to_string()]);
+        p.handle_event(&key(KeyCode::Up));
+        assert_eq!(accept(&mut p), vec!["src/ui/c.rs".to_string()]);
+        p.handle_event(&key(KeyCode::Up));
+        p.handle_event(&key(KeyCode::Up)); // stops at the first item
+        assert_eq!(accept(&mut p), vec!["docs/guide/x.md".to_string()]);
+        for _ in 0..9 {
+            p.handle_event(&key(KeyCode::Down));
+        }
+        assert_eq!(accept(&mut p), vec!["README.md".to_string()]);
+    }
+
+    #[test]
+    fn filtering_keeps_only_matches_and_their_folders_and_starts_on_the_best_match() {
+        let mut p = files(&SET);
+        for c in "guide".chars() {
+            p.handle_event(&key(KeyCode::Char(c)));
+        }
+        for _ in 0..50 {
+            p.nucleo.tick(10);
+        }
+        let l = lines(&mut p);
+        assert!(l.iter().any(|r| r.contains("docs/guide/")) && l.iter().any(|r| r.contains("x.md")), "{l:#?}");
+        assert!(!l.iter().any(|r| r.contains("README") || r.contains("c.rs")), "{l:#?}");
+        assert_eq!(accept(&mut p), vec!["docs/guide/x.md".to_string()]);
+
+        // With several matches the cursor starts on the best one, wherever it is drawn.
+        let mut p = files(&SET);
+        for c in "c.rs".chars() {
+            p.handle_event(&key(KeyCode::Char(c)));
+        }
+        for _ in 0..50 {
+            p.nucleo.tick(10);
+        }
+        assert_eq!(accept(&mut p), vec!["src/ui/c.rs".to_string()]);
+    }
+
+    #[test]
+    fn stays_flat_when_disabled_when_too_big_or_when_candidates_are_not_plain_paths() {
+        let mut p = files(&SET);
+        p.set_tree(false);
+        let l = lines(&mut p);
+        assert!(l.iter().any(|r| r.contains("src/ui/c.rs")), "flat list shows full paths: {l:#?}");
+
+        let mut p = files(&SET);
+        p.tree_limit = 3; // four results: over the limit
+        let l = lines(&mut p);
+        assert!(l.iter().any(|r| r.contains("src/ui/c.rs")) && !l.iter().any(|r| r.contains("▾")), "{l:#?}");
+
+        // A folder candidate (trailing slash) has no place in the hierarchy.
+        let mut p = files(&["a/", "a/b.rs"]);
+        let l = lines(&mut p);
+        assert!(!l.iter().any(|r| r.contains("▾")), "{l:#?}");
+    }
+
+    #[test]
+    fn grep_results_are_grouped_under_their_file() {
+        let d = std::env::temp_dir().join(format!("pick-tree-grep-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(d.join("src")).unwrap();
+        std::fs::write(d.join("src/one.rs"), "needle a\nfiller\nneedle b\n").unwrap();
+        std::fs::write(d.join("top.txt"), "needle c\n").unwrap();
+        let opts = PickerOptions { mode: Mode::Grep, paths: true, root: d, preview: false, git: false, query: "needle".into() };
+        let mut p = Picker::new(opts, Arc::new(|| {}));
+        p.set_tree(true);
+        for _ in 0..300 {
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            p.nucleo.tick(10);
+            if p.nucleo.snapshot().item_count() >= 3 {
+                break;
+            }
+        }
+        let l = lines(&mut p);
+        let pos = |s: &str| l.iter().position(|r| r.contains(s)).unwrap_or_else(|| panic!("{s} in {l:#?}"));
+        // `src/one.rs` is a header (merged chain), its two matches are rows beneath it.
+        assert!(pos("src/one.rs/") < pos("1: needle a") && pos("1: needle a") < pos("3: needle b") && pos("3: needle b") < pos("top.txt/"), "{l:#?}");
+        // Accepting a match still prints path:line:col:text.
+        p.handle_event(&key(KeyCode::Down));
+        let got = accept(&mut p);
+        assert!(got[0].starts_with("src/one.rs:") || got[0].starts_with("top.txt:"), "{got:?}");
     }
 }
