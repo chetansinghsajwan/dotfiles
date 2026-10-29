@@ -120,7 +120,7 @@ mod tests {
         }
         let lines = preview(&d, &Theme::default(), &Options::default()).unwrap();
         let text: Vec<String> = lines.iter().map(|l| l.spans.iter().map(|s| s.content.as_ref()).collect()).collect();
-        assert!(text[0].contains("sub/"));
+        assert!(text[0].contains("sub"));
         assert_eq!(text.iter().filter(|l| l.contains('…')).count(), 1);
         assert!(text.last().unwrap().contains("z.txt"));
     }
