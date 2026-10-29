@@ -221,6 +221,11 @@ in
                     default = 80;
                     description = "Size of a popup (a picker over the editor) as a share of the screen.";
                 };
+                bottomHeight = mkOption {
+                    type = types.ints.positive;
+                    default = 12;
+                    description = "Height of a bottom dock, in rows.";
+                };
             };
         };
 
@@ -369,6 +374,24 @@ in
                 type = types.bool;
                 default = false;
                 description = "Use our helix fork (home/helix, with the shared pick picker) instead of the nixpkgs helix.";
+            };
+
+            docks = {
+                left = mkOption {
+                    type = types.listOf types.str;
+                    default = [ "files" ];
+                    description = "Panels in the left dock of the helix fork (files, git).";
+                };
+                right = mkOption {
+                    type = types.listOf types.str;
+                    default = [ "git" ];
+                    description = "Panels in the right dock of the helix fork (files, git).";
+                };
+                bottom = mkOption {
+                    type = types.listOf types.str;
+                    default = [ ];
+                    description = "Panels in the bottom dock of the helix fork (files, git).";
+                };
             };
 
             scroll_lines = mkOption {

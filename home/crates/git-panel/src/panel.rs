@@ -363,16 +363,22 @@ impl Panel {
         }
     }
 
+    /// Only the file list (no diff pane), for a narrow dock; `focused` colors
+    /// the border like any focused pane.
+    pub fn render_compact(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool) {
+        self.render_list(area, buf, theme, focused);
+    }
+
     pub fn render(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme) {
         let [list_area, preview_area] = layout::main_preview(theme, area);
-        self.render_list(list_area, buf, theme);
+        self.render_list(list_area, buf, theme, true);
         self.render_preview(preview_area, buf, theme);
     }
 
-    fn render_list(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme) {
+    fn render_list(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool) {
         let c = &theme.colors;
         let title = format!("git: {}", self.branch);
-        let pane = Pane::new(theme).title(&title).focused(true);
+        let pane = Pane::new(theme).title(&title).focused(focused);
         let mut inner = pane.inner(area);
         pane.render(area, buf);
         if inner.height == 0 || inner.width < 6 {

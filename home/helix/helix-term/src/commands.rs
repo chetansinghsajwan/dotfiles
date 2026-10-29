@@ -399,7 +399,11 @@ impl MappableCommand {
         file_picker_in_current_buffer_directory, "Open file picker at current buffer's directory",
         file_picker_in_current_directory, "Open file picker at current working directory",
         file_explorer, "Open file explorer in workspace root",
-        files_panel, "Toggle the files panel (sidebar)",
+        files_panel, "Show the file explorer in its dock",
+        git_dock, "Show the changed files in their dock",
+        dock_left, "Toggle the left dock",
+        dock_right, "Toggle the right dock",
+        dock_bottom, "Toggle the bottom dock",
         git_panel, "Open the git panel (status, diff, stage, commit)",
         file_explorer_in_current_buffer_directory, "Open file explorer at current buffer's directory",
         file_explorer_in_current_directory, "Open file explorer at current working directory",
@@ -3168,19 +3172,58 @@ fn git_panel(cx: &mut Context) {
     }
 }
 
-/// Toggle the files panel: the shared `files` browser as a sidebar.
-fn files_panel(cx: &mut Context) {
+/// What a dock command does.
+#[derive(Clone, Copy)]
+enum DockAction {
+    /// Open and focus a dock, or close it when it already has focus.
+    Toggle(ui::dock::Side),
+    /// Show a panel in the dock it is assigned to (`editor.docks`).
+    Show(&'static str),
+}
+
+fn dock_action(cx: &mut Context, action: DockAction) {
     let root = find_workspace().0;
     if !root.exists() {
         cx.editor.set_error("Workspace directory does not exist");
         return;
     }
     let current = doc!(cx.editor).path().cloned();
-    cx.callback.push(Box::new(move |compositor, _cx| {
-        if let Some(view) = compositor.find::<ui::EditorView>() {
-            view.toggle_files_panel(root, current.as_deref());
+    let docks = cx.editor.config().docks.clone();
+    cx.callback.push(Box::new(move |compositor, cx| {
+        let Some(view) = compositor.find::<ui::EditorView>() else { return };
+        let found = match action {
+            DockAction::Toggle(side) => view.dock_toggle(side, &docks, root, current.as_deref()),
+            DockAction::Show(id) => view.dock_show(id, &docks, root, current.as_deref()),
+        };
+        if !found {
+            cx.editor.set_error(match action {
+                DockAction::Toggle(_) => "No panel is assigned to that dock (see editor.docks)".to_string(),
+                DockAction::Show(id) => format!("The {id} panel is not assigned to a dock (see editor.docks)"),
+            });
         }
     }));
+}
+
+/// Show the file explorer (`space e`) in the dock it is assigned to.
+fn files_panel(cx: &mut Context) {
+    dock_action(cx, DockAction::Show("files"));
+}
+
+/// Show the changed-files list in the dock it is assigned to (`space g` is the full popup).
+fn git_dock(cx: &mut Context) {
+    dock_action(cx, DockAction::Show("git"));
+}
+
+fn dock_left(cx: &mut Context) {
+    dock_action(cx, DockAction::Toggle(ui::dock::Side::Left));
+}
+
+fn dock_right(cx: &mut Context) {
+    dock_action(cx, DockAction::Toggle(ui::dock::Side::Right));
+}
+
+fn dock_bottom(cx: &mut Context) {
+    dock_action(cx, DockAction::Toggle(ui::dock::Side::Bottom));
 }
 
 fn file_explorer(cx: &mut Context) {

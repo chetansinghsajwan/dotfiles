@@ -69,6 +69,8 @@ pub struct Layout {
     pub preview_percent: u16,
     /// Size of a popup (picker over the editor) as a share of the screen, in percent.
     pub popup_percent: u16,
+    /// Height of a bottom dock, in rows.
+    pub bottom_height: u16,
 }
 
 /// A `#rrggbb` color from the JSON.
@@ -159,7 +161,7 @@ impl Default for Chrome {
 
 impl Default for Layout {
     fn default() -> Self {
-        Layout { gap: 0, padding_x: 1, padding_y: 0, sidebar_width: 30, preview_percent: 50, popup_percent: 80 }
+        Layout { gap: 0, padding_x: 1, padding_y: 0, sidebar_width: 30, preview_percent: 50, popup_percent: 80, bottom_height: 12 }
     }
 }
 

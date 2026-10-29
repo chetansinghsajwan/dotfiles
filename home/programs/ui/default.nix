@@ -53,6 +53,7 @@ in
             sidebar_width = ui.layout.sidebarWidth;
             preview_percent = ui.layout.previewPercent;
             popup_percent = ui.layout.popupPercent;
+            bottom_height = ui.layout.bottomHeight;
         };
     };
 }

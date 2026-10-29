@@ -359,6 +359,8 @@ pub struct Config {
     pub smart_tab: Option<SmartTabConfig>,
     /// Draw border around popups.
     pub popup_border: PopupBorderConfig,
+    /// Which panels sit in the left, right and bottom docks.
+    pub docks: DocksConfig,
     /// Which indent heuristic to use when a new line is inserted
     #[serde(default)]
     pub indent_heuristic: IndentationHeuristic,
@@ -965,6 +967,23 @@ impl From<LineEndingConfig> for LineEnding {
     }
 }
 
+/// The panels assigned to each dock (the left and right sidebars and the bottom
+/// panel). A dock with several panels shows one at a time; `[` and `]` switch.
+/// Known panels: `files` (file explorer) and `git` (changed files).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case", default)]
+pub struct DocksConfig {
+    pub left: Vec<String>,
+    pub right: Vec<String>,
+    pub bottom: Vec<String>,
+}
+
+impl Default for DocksConfig {
+    fn default() -> Self {
+        DocksConfig { left: vec!["files".into()], right: vec!["git".into()], bottom: Vec::new() }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum PopupBorderConfig {
@@ -1029,6 +1048,7 @@ impl Default for Config {
             trim_trailing_whitespace: false,
             smart_tab: Some(SmartTabConfig::default()),
             popup_border: PopupBorderConfig::None,
+            docks: DocksConfig::default(),
             indent_heuristic: IndentationHeuristic::default(),
             jump_label_alphabet: ('a'..='z').collect(),
             inline_diagnostics: InlineDiagnosticsConfig::default(),

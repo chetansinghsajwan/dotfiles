@@ -44,8 +44,23 @@ pub struct EditorView {
     spinners: ProgressSpinners,
     /// Tracks if the terminal window is focused by reaction to terminal focus events
     terminal_focused: bool,
-    /// The files panel (sidebar), when open.
-    files: Option<super::files_panel::FilesSidebar>,
+    /// The left, right and bottom docks and the panels in them.
+    docks: super::dock::Docks,
+    /// Where the status line may run under the side docks, see `render`.
+    ribbon: Ribbon,
+}
+
+/// Columns for the bottom ribbon (the status lines). With no bottom dock the
+/// left- and right-most views' status lines are stretched under the side docks,
+/// so the ribbon runs the full width at the very bottom.
+#[derive(Debug, Clone, Copy, Default)]
+struct Ribbon {
+    extend: bool,
+    editor_left: u16,
+    editor_right: u16,
+    editor_bottom: u16,
+    screen_left: u16,
+    screen_right: u16,
 }
 
 #[derive(Debug, Clone)]
@@ -69,30 +84,23 @@ impl EditorView {
             completion: None,
             spinners: ProgressSpinners::default(),
             terminal_focused: true,
-            files: None,
+            docks: Default::default(),
+            ribbon: Ribbon::default(),
         }
     }
 
-    /// `space e`: open the files panel on the current file, focus it, or close it
-    /// when it already has focus.
-    pub fn toggle_files_panel(&mut self, root: std::path::PathBuf, current: Option<&std::path::Path>) {
-        match self.files.as_mut() {
-            None => {
-                let mut sidebar = super::files_panel::FilesSidebar::new(root);
-                if let Some(path) = current {
-                    sidebar.reveal(path);
-                }
-                sidebar.focused = true;
-                self.files = Some(sidebar);
-            }
-            Some(sidebar) if !sidebar.focused => {
-                if let Some(path) = current {
-                    sidebar.reveal(path);
-                }
-                sidebar.focused = true;
-            }
-            Some(_) => self.files = None,
-        }
+    /// Open and focus a dock (`space 1` / `2` / `3`), or close it when it already
+    /// has focus. `false` if no panel is assigned to it.
+    pub fn dock_toggle(&mut self, side: super::dock::Side, cfg: &helix_view::editor::DocksConfig, root: std::path::PathBuf, current: Option<&std::path::Path>) -> bool {
+        self.docks.configure(cfg, root);
+        self.docks.toggle(side, current)
+    }
+
+    /// Show a panel by name in the dock it is assigned to (`space e` for `files`).
+    /// `false` if no dock holds it.
+    pub fn dock_show(&mut self, id: &str, cfg: &helix_view::editor::DocksConfig, root: std::path::PathBuf, current: Option<&std::path::Path>) -> bool {
+        self.docks.configure(cfg, root);
+        self.docks.show_panel(id, current)
     }
 
     pub fn spinners_mut(&mut self) -> &mut ProgressSpinners {
@@ -239,10 +247,21 @@ impl EditorView {
             Self::render_diagnostics(doc, view, inner, surface, theme);
         }
 
-        let statusline_area = view
+        let mut statusline_area = view
             .area
             .clip_top(view.area.height.saturating_sub(1))
             .clip_bottom(1); // -1 from bottom to remove commandline
+
+        // With no bottom dock the left- and right-most views' status lines run
+        // under the side docks, so the ribbon spans the whole width at the bottom.
+        if self.ribbon.extend && view.area.bottom() == self.ribbon.editor_bottom {
+            let right = statusline_area.right();
+            if view.area.x == self.ribbon.editor_left {
+                statusline_area.x = self.ribbon.screen_left;
+            }
+            let right = if view.area.right() == self.ribbon.editor_right { self.ribbon.screen_right } else { right };
+            statusline_area.width = right.saturating_sub(statusline_area.x);
+        }
 
         let mut context =
             statusline::RenderContext::new(editor, doc, view, is_focused, &self.spinners);
@@ -1360,26 +1379,26 @@ impl Component for EditorView {
             jobs: context.jobs,
         };
 
-        // The files panel takes the keys while it has focus.
-        if let (Some(sidebar), Event::Key(key)) = (self.files.as_mut(), event) {
-            if sidebar.focused {
-                match sidebar.handle_key(key) {
-                    files::Action::Open(path) => {
-                        sidebar.focused = false;
+        // A focused dock (sidebar or bottom panel) takes the keys.
+        if let Event::Key(key) = event {
+            if let Some(panel_event) = self.docks.handle_key(key) {
+                use super::dock::PanelEvent;
+                match panel_event {
+                    PanelEvent::Open(path) => {
+                        self.docks.unfocus();
                         if let Err(e) = cx.editor.open(&path, helix_view::editor::Action::Replace) {
                             cx.editor.set_error(format!("Failed to open {}: {e}", path.display()));
                         }
                     }
-                    files::Action::Close => sidebar.focused = false,
                     // A new file is for editing: open it and hand focus to the editor.
-                    files::Action::Created(path, false) => {
-                        sidebar.focused = false;
+                    PanelEvent::Created(path, false) => {
+                        self.docks.unfocus();
                         if let Err(e) = cx.editor.open(&path, helix_view::editor::Action::Replace) {
                             cx.editor.set_error(format!("Failed to open {}: {e}", path.display()));
                         }
                     }
                     // Open buffers follow renames and moves (a folder moves its files too).
-                    files::Action::Moved(moves) => {
+                    PanelEvent::Moved(moves) => {
                         for doc in cx.editor.documents.values_mut() {
                             let Some(old) = doc.path().cloned() else { continue };
                             for (from, to) in &moves {
@@ -1390,7 +1409,7 @@ impl Component for EditorView {
                             }
                         }
                     }
-                    files::Action::Created(..) | files::Action::Deleted(_) | files::Action::None => {}
+                    PanelEvent::Created(..) | PanelEvent::Unfocus | PanelEvent::None => {}
                 }
                 return EventResult::Consumed(None);
             }
@@ -1562,32 +1581,33 @@ impl Component for EditorView {
             _ => false,
         };
 
-        // -1 for commandline and -1 for bufferline
-        let mut editor_area = area.clip_bottom(1);
+        // The docks (left and right sidebars, bottom panel) take room around the
+        // editor; -1 for the command line.
+        let main = area.clip_bottom(1);
+        let (left, right, bottom) = self.docks.sizes();
+        let wb = tui_design::layout::workbench(super::dock::to_ratatui(main), left, right, bottom);
+        let editor_full = super::dock::from_ratatui(wb.editor);
+        let mut editor_area = editor_full;
+        // -1 for bufferline
         if use_bufferline {
             editor_area = editor_area.clip_top(1);
         }
-
-        // the files panel reserves columns on the left
-        let panel_width = self.files.as_ref().map_or(0, |s| s.width().min(area.width / 2));
-        let panel_area = Rect::new(area.x, area.y, panel_width, area.height.saturating_sub(1));
-        editor_area = editor_area.clip_left(panel_width);
+        self.ribbon = Ribbon { extend: wb.ribbon_free, editor_left: editor_full.x, editor_right: editor_full.right(), editor_bottom: editor_full.bottom(), screen_left: main.x, screen_right: main.right() };
 
         // if the terminal size suddenly changed, we need to trigger a resize
         cx.editor.resize(editor_area);
 
         if use_bufferline {
-            Self::render_bufferline(cx.editor, area.clip_left(panel_width).with_height(1), surface);
-        }
-
-        if let Some(sidebar) = self.files.as_mut() {
-            sidebar.render(panel_area, surface);
+            Self::render_bufferline(cx.editor, editor_full.with_height(1), surface);
         }
 
         for (view, is_focused) in cx.editor.tree.views() {
             let doc = cx.editor.document(view.doc).unwrap();
-            self.render_view(cx.editor, doc, view, area, surface, is_focused);
+            // Splits are separated inside the editor area; its edges are not splits.
+            self.render_view(cx.editor, doc, view, editor_full, surface, is_focused);
         }
+
+        self.docks.render(&wb, surface);
 
         if config.auto_info {
             if let Some(mut info) = cx.editor.autoinfo.take() {
