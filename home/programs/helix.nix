@@ -2,6 +2,7 @@
     config,
     lib,
     pkgs,
+    crane,
     ...
 }:
 let
@@ -13,7 +14,7 @@ in
             defaultEditor = editor.terminal == "helix";
 
             # Opt-in: our fork with the shared picker (see home/helix/FORK.md).
-            package = lib.mkIf editor.helixFork (pkgs.callPackage ../helix-fork.nix { });
+            package = lib.mkIf editor.helixFork (pkgs.callPackage ../helix-fork.nix { craneLib = crane.mkLib pkgs; });
 
             extraPackages = with pkgs; [
                 nil
@@ -50,6 +51,8 @@ in
                     popup-border = "all";
 
                     # Dock panels exist only in our fork; stock helix rejects the key.
+                    leader = lib.mkIf editor.helixFork editor.leader;
+
                     docks = lib.mkIf editor.helixFork {
                         inherit (editor.docks) left right bottom;
                     };
