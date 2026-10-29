@@ -1,4 +1,4 @@
-//! Popup mode: inside zellij, `pick` re-runs itself in a floating pane (a real
+//! Popup mode: inside zellij, a tool (`pick`, `git-panel`) re-runs itself in a floating pane (a real
 //! overlay: the screen behind it is untouched) and relays the result. Input and
 //! output go through temp files because a new pane does not share this
 //! process's stdin and stdout; the exit code comes back through a file too.

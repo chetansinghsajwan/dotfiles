@@ -45,7 +45,7 @@ pub(crate) fn compute(repo: &gix::Repository, root: &Path, rela: &Path) -> Resul
     Ok(out)
 }
 
-fn head_blob(repo: &gix::Repository, rela: &Path) -> Option<Vec<u8>> {
+pub(crate) fn head_blob(repo: &gix::Repository, rela: &Path) -> Option<Vec<u8>> {
     let tree = repo.head_commit().ok()?.tree().ok()?;
     let entry = tree.lookup_entry_by_path(rela).ok()??;
     Some(entry.object().ok()?.detach().data)

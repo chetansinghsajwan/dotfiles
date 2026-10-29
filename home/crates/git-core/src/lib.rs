@@ -5,10 +5,12 @@
 mod history;
 mod lines;
 mod status;
+mod worktree;
 
 pub use history::{CommitInfo, FileChange, FilePatch, Hunk, PatchKind, PatchLine, RefInfo, RefKind, StashInfo};
 pub use lines::{LineChange, LineKind};
 pub use status::{FileStatus, Kind, Status};
+pub use worktree::Side;
 
 use std::path::{Path, PathBuf};
 
@@ -109,6 +111,18 @@ mod tests {
     use std::fs;
     use std::process::Command;
 
+    /// Commits made through `Repo::create_commit` use the ambient git identity,
+    /// which a clean build sandbox does not have.
+    fn identity() {
+        static ONCE: std::sync::Once = std::sync::Once::new();
+        ONCE.call_once(|| {
+            for (k, v) in [("GIT_AUTHOR_NAME", "t"), ("GIT_AUTHOR_EMAIL", "t@t"), ("GIT_COMMITTER_NAME", "t"), ("GIT_COMMITTER_EMAIL", "t@t")] {
+                // SAFETY: set once, before any test spawns git, to constants.
+                unsafe { std::env::set_var(k, v) };
+            }
+        });
+    }
+
     fn git(dir: &Path, args: &[&str]) {
         let ok = Command::new("git")
             .args(["-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"])
@@ -123,6 +137,7 @@ mod tests {
     }
 
     fn repo(name: &str) -> PathBuf {
+        identity();
         let d = std::env::temp_dir().join(format!("git-core-test-{}-{name}", std::process::id()));
         let _ = fs::remove_dir_all(&d);
         fs::create_dir_all(&d).unwrap();
@@ -302,6 +317,87 @@ mod tests {
         assert_eq!(p.iter().find(|f| f.path == "m.txt").unwrap().hunks.len(), 1);
         let bin = p.iter().find(|f| f.path == "bin.dat").unwrap();
         assert!(bin.binary && bin.hunks.is_empty());
+    }
+
+    #[test]
+    fn diff_file_shows_staged_and_unstaged_sides() {
+        let d = repo("diffside");
+        fs::write(d.join("a.txt"), "1\n2\nTHREE\n4\n5\n").unwrap();
+        git(&d, &["add", "a.txt"]); // staged: line 3 changed
+        fs::write(d.join("a.txt"), "1\n2\nTHREE\n4\n5\nsix\n").unwrap(); // unstaged: line 6 added
+        fs::write(d.join("new.txt"), "n1\nn2\n").unwrap(); // untracked
+        let r = Repo::discover(&d).unwrap();
+
+        let staged = r.diff_file(Path::new("a.txt"), Side::Staged).unwrap();
+        assert_eq!(staged.kind, Kind::Modified);
+        let adds: Vec<&str> = staged.hunks[0].lines.iter().filter(|l| l.kind == PatchKind::Added).map(|l| l.text.as_str()).collect();
+        assert_eq!(adds, vec!["THREE"]);
+
+        let unstaged = r.diff_file(Path::new("a.txt"), Side::Unstaged).unwrap();
+        let adds: Vec<&str> = unstaged.hunks[0].lines.iter().filter(|l| l.kind == PatchKind::Added).map(|l| l.text.as_str()).collect();
+        assert_eq!(adds, vec!["six"]);
+
+        let untracked = r.diff_file(Path::new("new.txt"), Side::Unstaged).unwrap();
+        assert_eq!(untracked.kind, Kind::Untracked);
+        assert_eq!(untracked.hunks[0].lines.len(), 2);
+        // A new file staged shows as added; unborn-HEAD style "no staged change" is empty.
+        git(&d, &["add", "new.txt"]);
+        assert_eq!(r.diff_file(Path::new("new.txt"), Side::Staged).unwrap().kind, Kind::Added);
+        assert!(r.diff_file(Path::new("b.txt"), Side::Staged).unwrap().hunks.is_empty());
+        assert_eq!(r.branch().as_deref(), Some("main"));
+    }
+
+    #[test]
+    fn stage_unstage_discard_and_commit() {
+        let d = repo("writes");
+        fs::write(d.join("a.txt"), "changed\n").unwrap();
+        fs::write(d.join("new.txt"), "n\n").unwrap();
+        fs::remove_file(d.join("b.txt")).unwrap();
+        let r = Repo::discover(&d).unwrap();
+        let kind = |r: &Repo, p: &str| r.status().unwrap().get(Path::new(p)).copied();
+
+        r.stage(&[PathBuf::from("a.txt"), PathBuf::from("new.txt"), PathBuf::from("b.txt")]).unwrap();
+        assert_eq!(kind(&r, "a.txt").unwrap().staged, Some(Kind::Modified));
+        assert_eq!(kind(&r, "new.txt").unwrap().staged, Some(Kind::Added));
+        assert_eq!(kind(&r, "b.txt").unwrap().staged, Some(Kind::Deleted), "deletions stage too");
+
+        r.unstage(&[PathBuf::from("new.txt")]).unwrap();
+        assert_eq!(kind(&r, "new.txt").unwrap().unstaged, Some(Kind::Untracked));
+        assert!(kind(&r, "new.txt").unwrap().staged.is_none());
+
+        // Discard restores a tracked file; an untracked one is deleted.
+        fs::write(d.join("a.txt"), "scribble\n").unwrap();
+        r.discard(Path::new("a.txt"), false).unwrap();
+        assert_eq!(fs::read_to_string(d.join("a.txt")).unwrap(), "changed\n"); // back to the staged content
+        r.discard(Path::new("new.txt"), true).unwrap();
+        assert!(!d.join("new.txt").exists());
+
+        assert!(r.create_commit("  ").is_err(), "empty message");
+        let summary = r.create_commit("second\n\nbody").unwrap();
+        assert!(summary.ends_with(" second"), "{summary}");
+        assert!(r.status().unwrap().is_empty());
+        assert_eq!(r.commits(3).unwrap()[0].subject, "second");
+        // Nothing staged: git refuses and the reason comes back.
+        assert!(r.create_commit("again").is_err());
+
+        r.stage_all().unwrap();
+        r.unstage_all().unwrap();
+        assert!(r.status().unwrap().is_empty());
+    }
+
+    #[test]
+    fn unstage_works_before_the_first_commit() {
+        let d = std::env::temp_dir().join(format!("git-core-test-{}-unborn2", std::process::id()));
+        let _ = fs::remove_dir_all(&d);
+        fs::create_dir_all(&d).unwrap();
+        git(&d, &["init", "-q", "-b", "main"]);
+        fs::write(d.join("f.txt"), "x\n").unwrap();
+        let r = Repo::discover(&d).unwrap();
+        r.stage(&[PathBuf::from("f.txt")]).unwrap();
+        assert_eq!(r.status().unwrap().get(Path::new("f.txt")).unwrap().staged, Some(Kind::Added));
+        r.unstage(&[PathBuf::from("f.txt")]).unwrap();
+        assert!(r.status().unwrap().get(Path::new("f.txt")).unwrap().staged.is_none());
+        assert!(r.create_commit("first").is_err(), "nothing staged");
     }
 
     #[test]

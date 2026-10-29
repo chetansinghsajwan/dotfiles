@@ -115,9 +115,9 @@ fn run(cli: Cli) -> io::Result<u8> {
     }
 
     // Inside zellij: open as a floating popup and relay the result.
-    if pick::popup::wanted(cli.no_popup) {
+    if ui::popup::wanted(cli.no_popup) {
         let percent = ui::Theme::load().layout.popup_percent;
-        match pick::popup::run(std::env::args_os().skip(1).collect(), percent) {
+        match ui::popup::run(std::env::args_os().skip(1).collect(), percent) {
             Ok(code) => return Ok(u8::try_from(code).unwrap_or(EXIT_CANCEL)),
             Err(e) => eprintln!("pick: popup unavailable ({e}); using this terminal"),
         }

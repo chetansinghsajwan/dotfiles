@@ -4,6 +4,7 @@
 
 pub mod ansi;
 pub mod layout;
+pub mod popup;
 pub mod pane;
 pub mod theme;
 

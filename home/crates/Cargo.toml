@@ -1,3 +1,3 @@
 [workspace]
-members = ["ui", "pv", "git-core", "pick", "files"]
+members = ["ui", "pv", "git-core", "pick", "files", "git-panel"]
 resolver = "3"

@@ -41,6 +41,8 @@ fn sign(kind: Kind) -> char {
         Kind::Added => 'A',
         Kind::Deleted => 'D',
         Kind::Renamed => 'R',
+        Kind::Untracked => '?',
+        Kind::Conflict => 'U',
         _ => 'M',
     }
 }
@@ -112,8 +114,14 @@ const MAX_LINES: usize = 4000;
 /// The patch under the file list: a header per file, `@@` hunk headers, and
 /// added/removed rows tinted across the full width.
 fn patch_lines(repo: &Repo, rev: &str, theme: &Theme, opts: &Options, limit: usize) -> Vec<Line<'static>> {
-    let c = &theme.colors;
     let Ok(files) = repo.patch(rev) else { return Vec::new() };
+    patch_lines_from(&files, theme, opts, limit)
+}
+
+/// The rows of `files` as a patch: a header per file, `@@` hunk headers, and
+/// added/removed rows tinted across the full width.
+fn patch_lines_from(files: &[git_core::FilePatch], theme: &Theme, opts: &Options, limit: usize) -> Vec<Line<'static>> {
+    let c = &theme.colors;
     let mut out: Vec<Line<'static>> = Vec::new();
     let digits = files
         .iter()
@@ -133,7 +141,7 @@ fn patch_lines(repo: &Repo, rev: &str, theme: &Theme, opts: &Options, limit: usi
         }
     };
 
-    for f in &files {
+    for f in files {
         if out.len() >= limit {
             break;
         }
@@ -201,4 +209,23 @@ mod tests {
         assert_eq!(utc(1_793_108_415), "2026-10-27 13:40");
         assert_eq!(utc(951_782_400 + 3600 * 5 + 60 * 7), "2000-02-29 05:07"); // leap day
     }
+}
+
+/// Preview of one file's uncommitted change in the repository at `root`:
+/// `side` picks staged (HEAD against the index) or unstaged (index against the
+/// work tree). `rela` is relative to the work tree.
+pub fn render_file_diff(root: &Path, rela: &Path, side: git_core::Side, theme: &Theme, opts: &Options) -> Result<Vec<Line<'static>>, Error> {
+    let repo = Repo::discover(root).ok_or(Error::NotFound)?;
+    let patch = repo.diff_file(rela, side).map_err(|e| Error::Unsupported(e.to_string()))?;
+    let limit = opts.height.map(usize::from).unwrap_or(MAX_LINES);
+    let mut lines = patch_lines_from(std::slice::from_ref(&patch), theme, opts, limit + 1);
+    // The patch starts with a blank separator line; a single file does not need it.
+    if lines.first().is_some_and(|l| l.spans.is_empty()) {
+        lines.remove(0);
+    }
+    if !patch.binary && patch.hunks.is_empty() {
+        lines.push(Line::from(Span::styled("no changes", Style::new().fg(theme.colors.muted.into()))));
+    }
+    lines.truncate(limit);
+    Ok(lines)
 }

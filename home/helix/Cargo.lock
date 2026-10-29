@@ -1032,6 +1032,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "git-panel"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "git-core",
+ "pv",
+ "ratatui",
+ "tui-input",
+ "ui",
+]
+
+[[package]]
 name = "gix"
 version = "0.72.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2919,6 +2931,7 @@ dependencies = [
  "fern",
  "files",
  "futures-util",
+ "git-panel",
  "grep-regex",
  "grep-searcher",
  "helix-core",

@@ -59,6 +59,7 @@ tui = { path = "../helix-tui", package = "helix-tui", default-features = false, 
 # Shared terminal toolkit (dotfiles/home/crates): picker, preview, design tokens, git.
 pick = { path = "../../crates/pick" }
 files = { path = "../../crates/files" }
+git-panel = { path = "../../crates/git-panel" }
 tui-design = { path = "../../crates/ui", package = "ui" }
 ratatui = "0.30"
 crossterm = { version = "0.28", features = ["event-stream"] }

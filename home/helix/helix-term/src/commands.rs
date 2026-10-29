@@ -400,6 +400,7 @@ impl MappableCommand {
         file_picker_in_current_directory, "Open file picker at current working directory",
         file_explorer, "Open file explorer in workspace root",
         files_panel, "Toggle the files panel (sidebar)",
+        git_panel, "Open the git panel (status, diff, stage, commit)",
         file_explorer_in_current_buffer_directory, "Open file explorer at current buffer's directory",
         file_explorer_in_current_directory, "Open file explorer at current working directory",
         code_action, "Perform code action",
@@ -3152,6 +3153,19 @@ fn file_picker_in_current_directory(cx: &mut Context) {
         return;
     }
     pick_files(cx, cwd);
+}
+
+/// The git panel: changed files by section with their diff, stage, unstage,
+/// discard and commit (the shared `git-panel`, as a popup). It replaces the
+/// changed-files picker on `space g`.
+fn git_panel(cx: &mut Context) {
+    // The workspace, or else the folder of the current buffer.
+    let from_buffer = doc!(cx.editor).path().and_then(|p| p.parent().map(|d| d.to_path_buf()));
+    let panel = ui::git_panel::GitPanelComponent::new(&find_workspace().0).or_else(|| from_buffer.and_then(|d| ui::git_panel::GitPanelComponent::new(&d)));
+    match panel {
+        Some(panel) => cx.push_layer(Box::new(panel)),
+        None => cx.editor.set_error("Not a git repository"),
+    }
 }
 
 /// Toggle the files panel: the shared `files` browser as a sidebar.

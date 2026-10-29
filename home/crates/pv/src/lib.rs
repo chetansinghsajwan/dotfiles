@@ -15,6 +15,7 @@ use ui::Theme;
 
 pub use ansi::to_ansi;
 pub use commit::render as preview_commit;
+pub use commit::render_file_diff as preview_diff;
 pub use config::Config;
 
 #[derive(Debug, Clone)]
@@ -239,6 +240,36 @@ mod tests {
         assert!(lines[1].spans.iter().all(|s| s.style.bg.is_some()) && lines[0].spans.iter().all(|s| s.style.bg.is_none()));
         assert!(!flat(&lines[1]).contains('▎'));
         assert!(matches!(preview_text(Path::new("x"), &[0, 1, 2], &Theme::default(), &Options::default()), Err(Error::Unsupported(_))));
+    }
+
+    #[test]
+    fn file_diff_preview_shows_the_chosen_side() {
+        let d = git_repo("filediff");
+        fs::write(d.join("a.txt"), "1\nSTAGED\n3\n").unwrap();
+        let run = |args: &[&str]| {
+            assert!(std::process::Command::new("git")
+                .args(["-c", "user.name=t", "-c", "user.email=t@t"])
+                .args(args)
+                .current_dir(&d)
+                .env("GIT_CONFIG_GLOBAL", "/dev/null")
+                .env("GIT_CONFIG_SYSTEM", "/dev/null")
+                .status()
+                .unwrap()
+                .success());
+        };
+        run(&["add", "a.txt"]);
+        fs::write(d.join("a.txt"), "1\nSTAGED\n3\nUNSTAGED\n").unwrap();
+        let o = Options { width: Some(40), ..Options::default() };
+        let text = |side| -> Vec<String> { preview_diff(&d, Path::new("a.txt"), side, &Theme::default(), &o).unwrap().iter().map(flat).collect() };
+
+        let staged = text(git_core::Side::Staged);
+        assert!(staged[0].contains("a.txt"), "no blank first line: {staged:?}");
+        assert!(staged.iter().any(|l| l.contains("STAGED")) && !staged.iter().any(|l| l.contains("UNSTAGED")), "{staged:?}");
+        let unstaged = text(git_core::Side::Unstaged);
+        assert!(unstaged.iter().any(|l| l.contains("+ UNSTAGED")) && !unstaged.iter().any(|l| l.contains("- ")), "{unstaged:?}");
+        // A file with no change on that side says so.
+        let none = preview_diff(&d, Path::new("sub/s.txt"), git_core::Side::Staged, &Theme::default(), &o).unwrap();
+        assert!(flat(none.last().unwrap()).contains("no changes"));
     }
 
     #[test]

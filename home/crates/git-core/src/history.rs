@@ -247,7 +247,7 @@ fn split_lines(b: &[u8]) -> Vec<String> {
     b.lines().map(|l| l.to_str_lossy().into_owned()).collect()
 }
 
-fn hunks(before: &[u8], after: &[u8]) -> Vec<Hunk> {
+pub(crate) fn hunks(before: &[u8], after: &[u8]) -> Vec<Hunk> {
     let (old, new) = (split_lines(before), split_lines(after));
     let input = InternedInput::new(before, after);
     let diff = Diff::compute(Algorithm::Histogram, &input);
