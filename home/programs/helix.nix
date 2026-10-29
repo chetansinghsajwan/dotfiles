@@ -49,6 +49,11 @@ in
                     trim-trailing-whitespace = true;
                     popup-border = "all";
 
+                    # Dock panels exist only in our fork; stock helix rejects the key.
+                    docks = lib.mkIf editor.helixFork {
+                        inherit (editor.docks) left right bottom;
+                    };
+
                     cursor-shape = {
                         insert = "bar";
                     };
