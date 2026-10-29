@@ -9,6 +9,7 @@
         ./clipboard
         ./pv
         ./pick
+        ./git-panel
         ./ui
         ./op
     ]
