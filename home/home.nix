@@ -101,7 +101,6 @@ in
         lazydocker.enable = true;
         lazygit.enable = true;
         superfile.enable = true;
-        yazi.enable = true;
         direnv.enable = true;
         tealdeer.enable = true;
     };

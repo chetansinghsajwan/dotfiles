@@ -41,6 +41,12 @@ pub enum Action {
     Moved(Vec<(PathBuf, PathBuf)>),
     /// Files were trashed or deleted.
     Deleted(Vec<PathBuf>),
+    /// The user asked to search: the host runs `pick` and calls `reveal` with the result.
+    Search(Search),
+    /// Rename these paths together by editing their names in a text editor.
+    BulkRename(Vec<PathBuf>),
+    /// Open this path with this command (typed in the `open with` prompt).
+    OpenWith(PathBuf, String),
 }
 
 /// Whether a file has an execute bit (always false off Unix).
@@ -57,6 +63,15 @@ fn is_executable(path: &Path) -> bool {
     }
 }
 
+/// What to search for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Search {
+    /// File names under the root.
+    Files,
+    /// File contents under the root.
+    Grep,
+}
+
 struct Row {
     path: PathBuf,
     name: String,
@@ -68,6 +83,7 @@ enum PromptKind {
     /// Create inside this folder; a trailing `/` makes a folder.
     Create(PathBuf),
     Rename(PathBuf),
+    OpenWith(PathBuf),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -189,6 +205,36 @@ impl Panel {
         }
     }
 
+    /// Make `dir` the root of the tree (cd).
+    pub fn set_root(&mut self, dir: PathBuf) {
+        let dir = dir.canonicalize().unwrap_or(dir);
+        self.root = dir;
+        self.expanded.clear();
+        self.marked.clear();
+        self.cursor = 0;
+        self.offset = 0;
+        self.refresh();
+    }
+
+    /// Show a message (or error) in the footer until the next key.
+    pub fn notify(&mut self, msg: impl Into<String>, error: bool) {
+        self.say(msg, error);
+    }
+
+    /// Forget marks and cancel nothing else: call after the host acted on them.
+    pub fn clear_marks(&mut self) {
+        self.marked.clear();
+    }
+
+    /// The marked rows, or the one under the cursor.
+    pub fn targets(&self) -> Vec<PathBuf> {
+        if self.marked.is_empty() {
+            self.current().map(|p| vec![p.to_path_buf()]).unwrap_or_default()
+        } else {
+            self.marked.iter().cloned().collect()
+        }
+    }
+
     /// Path under the cursor.
     pub fn current(&self) -> Option<&Path> {
         self.rows.get(self.cursor).map(|r| r.path.as_path())
@@ -226,15 +272,6 @@ impl Panel {
         }
     }
 
-    /// The marked rows, or the one under the cursor.
-    fn targets(&self) -> Vec<PathBuf> {
-        if self.marked.is_empty() {
-            self.current().map(|p| vec![p.to_path_buf()]).unwrap_or_default()
-        } else {
-            self.marked.iter().cloned().collect()
-        }
-    }
-
     /// Where `a` and `p` put things: the folder under the cursor, else its parent.
     fn target_dir(&self) -> PathBuf {
         match self.rows.get(self.cursor) {
@@ -246,6 +283,11 @@ impl Panel {
 
     fn say(&mut self, msg: impl Into<String>, error: bool) {
         self.message = Some((msg.into(), error));
+    }
+
+    /// Whether a prompt or a confirmation is open (keys belong to it, not to the host).
+    pub fn is_busy(&self) -> bool {
+        !matches!(self.mode, Mode::Normal)
     }
 
     /// Whether a prompt is taking typed text (so keys like space are text, not commands).
@@ -332,6 +374,32 @@ impl Panel {
                 }
             }
             KeyCode::Char('p') => return self.paste(),
+            KeyCode::Char('/') => return Action::Search(Search::Files),
+            KeyCode::Char('S') => return Action::Search(Search::Grep),
+            KeyCode::Char('B') => {
+                let t = self.targets();
+                if !t.is_empty() {
+                    return Action::BulkRename(t);
+                }
+            }
+            KeyCode::Char('O') => {
+                if let Some(row) = self.rows.get(self.cursor) {
+                    self.mode = Mode::Prompt(PromptKind::OpenWith(row.path.clone()), Input::default());
+                }
+            }
+            KeyCode::Char('L') => {
+                if let Some(row) = self.rows.get(self.cursor).filter(|r| r.is_dir) {
+                    let dir = row.path.clone();
+                    self.set_root(dir);
+                }
+            }
+            KeyCode::Char('H') => {
+                if let Some(parent) = self.root.parent().map(Path::to_path_buf) {
+                    let old = self.root.clone();
+                    self.set_root(parent);
+                    self.reveal(&old);
+                }
+            }
             _ => {}
         }
         Action::None
@@ -345,6 +413,7 @@ impl Panel {
                 match kind {
                     PromptKind::Create(dir) => self.create(&dir, &value),
                     PromptKind::Rename(from) => self.rename(&from, &value),
+                    PromptKind::OpenWith(path) => Action::OpenWith(path, value),
                 }
             }
             _ => {
@@ -495,6 +564,7 @@ impl Panel {
                 let label = match kind {
                     PromptKind::Create(_) => "new: ",
                     PromptKind::Rename(_) => "rename: ",
+                    PromptKind::OpenWith(_) => "open with: ",
                 };
                 Some(Line::from(vec![
                     Span::styled(label, Style::new().fg(c.accent.into())),
@@ -530,7 +600,11 @@ impl Panel {
             let footer_area = Rect { y, height: 1, ..inner };
             Paragraph::new(line).render(footer_area, buf);
             if let Mode::Prompt(kind, input) = &self.mode {
-                let label = if matches!(kind, PromptKind::Create(_)) { 5 } else { 8 };
+                let label = match kind {
+                    PromptKind::Create(_) => 5,
+                    PromptKind::Rename(_) => 8,
+                    PromptKind::OpenWith(_) => 11,
+                };
                 let x = inner.x + label + input.visual_cursor() as u16;
                 if x < inner.right() {
                     if let Some(cell) = buf.cell_mut((x, y)) {

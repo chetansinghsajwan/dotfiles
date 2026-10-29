@@ -129,6 +129,58 @@ pub fn trash(paths: &[PathBuf]) -> Result<(), String> {
     trash::delete_all(paths).map_err(|e| e.to_string())
 }
 
+/// Names to show in the editor for a bulk rename: each path relative to `base`.
+pub fn bulk_rename_text(base: &Path, paths: &[PathBuf]) -> String {
+    paths.iter().map(|p| format!("{}\n", p.strip_prefix(base).unwrap_or(p).display())).collect()
+}
+
+/// Read back an edited bulk-rename text (one new path per line, relative to `base`,
+/// same order as `olds`) and return the `(from, to)` pairs that change. Fails, and
+/// changes nothing, on a wrong line count, a bad or duplicate name, or a name that
+/// exists and is not itself being renamed away.
+pub fn plan_bulk_rename(base: &Path, olds: &[PathBuf], edited: &str) -> Result<Vec<(PathBuf, PathBuf)>, String> {
+    let lines: Vec<&str> = edited.lines().collect();
+    if lines.len() != olds.len() {
+        return Err(format!("expected {} names, got {}", olds.len(), lines.len()));
+    }
+    let mut moves = Vec::new();
+    let mut seen = std::collections::BTreeSet::new();
+    for (old, line) in olds.iter().zip(&lines) {
+        let rela = check_relative(line).map_err(|e| format!("{line:?}: {e}"))?;
+        let new = base.join(rela);
+        if !seen.insert(new.clone()) {
+            return Err(format!("{line:?} appears twice"));
+        }
+        if new != *old {
+            moves.push((old.clone(), new));
+        }
+    }
+    for (_, to) in &moves {
+        if to.symlink_metadata().is_ok() && !olds.contains(to) {
+            return Err(format!("{} already exists", to.strip_prefix(base).unwrap_or(to).display()));
+        }
+    }
+    Ok(moves)
+}
+
+/// Carry out moves from `plan_bulk_rename`. Everything first moves to a temporary
+/// name beside its source, so swaps and chains (`a→b`, `b→a`) work.
+pub fn apply_moves(moves: &[(PathBuf, PathBuf)]) -> io::Result<()> {
+    let mut staged = Vec::new();
+    for (i, (from, to)) in moves.iter().enumerate() {
+        let tmp = from.with_file_name(format!(".files-bulk-{}-{i}", std::process::id()));
+        std::fs::rename(from, &tmp)?;
+        staged.push((tmp, to));
+    }
+    for (tmp, to) in staged {
+        if let Some(parent) = to.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        std::fs::rename(&tmp, to)?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -221,5 +273,31 @@ mod tests {
             Ok(()) => assert!(!f.exists()),
             Err(e) => eprintln!("trash unavailable here: {e}"),
         }
+    }
+
+    #[test]
+    fn bulk_rename_plans_swaps_and_refuses_bad_edits() {
+        let d = dir("bulk");
+        for n in ["a", "b", "c"] {
+            fs::write(d.join(n), n).unwrap();
+        }
+        let olds = vec![d.join("a"), d.join("b")];
+        assert_eq!(bulk_rename_text(&d, &olds), "a\nb\n");
+        // A swap is allowed and works through temporary names.
+        let moves = plan_bulk_rename(&d, &olds, "b\na\n").unwrap();
+        assert_eq!(moves.len(), 2);
+        apply_moves(&moves).unwrap();
+        assert_eq!(fs::read_to_string(d.join("a")).unwrap(), "b");
+        assert_eq!(fs::read_to_string(d.join("b")).unwrap(), "a");
+        // Unchanged lines make no moves; a new folder is created on demand.
+        assert!(plan_bulk_rename(&d, &olds, "a\nb\n").unwrap().is_empty());
+        apply_moves(&plan_bulk_rename(&d, &olds, "a\nsub/x\n").unwrap()).unwrap();
+        assert!(d.join("sub/x").is_file());
+        // Refusals.
+        let olds = vec![d.join("a"), d.join("c")];
+        assert!(plan_bulk_rename(&d, &olds, "a\n").is_err()); // line count
+        assert!(plan_bulk_rename(&d, &olds, "z\nz\n").is_err()); // duplicate
+        assert!(plan_bulk_rename(&d, &olds, "a\n../up\n").is_err()); // escapes
+        assert!(plan_bulk_rename(&d, &olds, "sub/x\nc\n").is_err()); // exists, not renamed away
     }
 }

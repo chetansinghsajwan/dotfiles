@@ -735,8 +735,10 @@ dependencies = [
 name = "files"
 version = "0.1.0"
 dependencies = [
+ "clap",
  "git-core",
  "ignore",
+ "pv",
  "ratatui",
  "trash",
  "tui-input",

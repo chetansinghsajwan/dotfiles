@@ -5,4 +5,4 @@
 pub mod ops;
 mod panel;
 
-pub use panel::{Action, Panel, PanelOptions};
+pub use panel::{Action, Panel, PanelOptions, Search};

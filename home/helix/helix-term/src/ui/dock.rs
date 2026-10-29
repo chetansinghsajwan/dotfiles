@@ -84,7 +84,7 @@ impl DockPanel for FilesDock {
             files::Action::Close => PanelEvent::Unfocus,
             files::Action::Created(p, d) => PanelEvent::Created(p, d),
             files::Action::Moved(m) => PanelEvent::Moved(m),
-            files::Action::Deleted(_) | files::Action::None => PanelEvent::None,
+            _ => PanelEvent::None,
         }
     }
 
