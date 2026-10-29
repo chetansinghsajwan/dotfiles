@@ -240,7 +240,11 @@ impl App {
         let theme = self.theme.clone();
         let area = self.render_meta(area, buf, current.as_deref());
         let title = current.as_ref().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-        let pane = Pane::new(&theme).title(&title);
+        let pane = match current.as_deref() {
+            Some(p) if p.is_dir() => Pane::new(&theme).title(&title).icon(ui::icons::dir(&title, false)),
+            Some(_) => Pane::new(&theme).title(&title).icon(ui::icons::file(&title, false)),
+            None => Pane::new(&theme).title(&title),
+        };
         let inner = pane.inner(area);
         pane.render(area, buf);
         let Some(path) = current else { return };

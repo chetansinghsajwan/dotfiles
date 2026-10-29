@@ -600,7 +600,8 @@ impl Panel {
     pub fn render(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool) {
         let c = &theme.colors;
         let title = self.root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| "/".into());
-        let pane = Pane::new(theme).title(&title).focused(focused);
+        let icon = ui::icons::dir(&title, true);
+        let pane = Pane::new(theme).title(&title).icon(icon).focused(focused);
         let mut inner = pane.inner(area);
         pane.render(area, buf);
         if inner.height == 0 || inner.width < 4 {
