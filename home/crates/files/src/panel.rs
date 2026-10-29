@@ -1,3 +1,5 @@
+use crate::bookmarks::{self, Bookmarks};
+use crate::meta;
 use crate::ops;
 use git_core::{Kind, Repo, Status};
 use ignore::WalkBuilder;
@@ -19,13 +21,20 @@ pub struct PanelOptions {
     pub hidden: bool,
     /// Git status colors and signs.
     pub git: bool,
+    /// Size and modified-time columns (toggle with `c`).
+    pub columns: bool,
+    /// Where bookmarks are kept (`None`: in memory only).
+    pub bookmarks: Option<PathBuf>,
 }
 
 impl Default for PanelOptions {
     fn default() -> Self {
-        PanelOptions { hidden: false, git: true }
+        PanelOptions { hidden: false, git: true, columns: false, bookmarks: bookmarks::default_path() }
     }
 }
+
+/// Cells taken by the size and modified-time columns: `size(5) time(11)` and a gap.
+const COLS_WIDTH: u16 = 5 + 1 + 11 + 1;
 
 /// What the host should do after an event.
 #[derive(Debug, PartialEq, Eq)]
@@ -77,6 +86,8 @@ struct Row {
     name: String,
     depth: u16,
     is_dir: bool,
+    size: u64,
+    modified: Option<std::time::SystemTime>,
 }
 
 enum PromptKind {
@@ -92,8 +103,17 @@ enum ConfirmKind {
     Delete,
 }
 
+/// Waiting for the key that names a bookmark.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum BookmarkOp {
+    Set,
+    Jump,
+    Delete,
+}
+
 enum Mode {
     Normal,
+    Bookmark(BookmarkOp),
     Prompt(PromptKind, Input),
     Confirm(ConfirmKind, Vec<PathBuf>),
 }
@@ -119,12 +139,14 @@ pub struct Panel {
     clip: Option<Clip>,
     /// Last result or error, shown in the footer until the next key.
     message: Option<(String, bool)>,
+    bookmarks: Bookmarks,
 }
 
 impl Panel {
     pub fn new(root: impl Into<PathBuf>, opts: PanelOptions) -> Self {
         let root = root.into();
         let root = root.canonicalize().unwrap_or(root);
+        let opts_bookmarks = opts.bookmarks.clone();
         let mut p = Panel {
             root,
             opts,
@@ -138,6 +160,7 @@ impl Panel {
             marked: BTreeSet::new(),
             clip: None,
             message: None,
+            bookmarks: Bookmarks::load(opts_bookmarks),
         };
         p.refresh();
         p
@@ -170,6 +193,8 @@ impl Panel {
             .map(|e| Row {
                 name: e.file_name().to_string_lossy().into_owned(),
                 is_dir: e.file_type().is_some_and(|t| t.is_dir()),
+                size: e.metadata().map(|m| m.len()).unwrap_or(0),
+                modified: e.metadata().ok().and_then(|m| m.modified().ok()),
                 path: e.into_path(),
                 depth: 0,
             })
@@ -303,6 +328,7 @@ impl Panel {
         match std::mem::replace(&mut self.mode, Mode::Normal) {
             Mode::Prompt(kind, input) => return self.prompt_key(kind, input, ev, key),
             Mode::Confirm(kind, targets) => return self.confirm_key(kind, targets, key),
+            Mode::Bookmark(op) => return self.bookmark_key(op, key),
             Mode::Normal => {}
         }
         self.message = None;
@@ -374,6 +400,10 @@ impl Panel {
                 }
             }
             KeyCode::Char('p') => return self.paste(),
+            KeyCode::Char('m') => self.mode = Mode::Bookmark(BookmarkOp::Set),
+            KeyCode::Char('\'') => self.mode = Mode::Bookmark(BookmarkOp::Jump),
+            KeyCode::Char('M') => self.mode = Mode::Bookmark(BookmarkOp::Delete),
+            KeyCode::Char('c') => self.opts.columns = !self.opts.columns,
             KeyCode::Char('/') => return Action::Search(Search::Files),
             KeyCode::Char('S') => return Action::Search(Search::Grep),
             KeyCode::Char('B') => {
@@ -422,6 +452,30 @@ impl Panel {
                 Action::None
             }
         }
+    }
+
+    fn bookmark_key(&mut self, op: BookmarkOp, key: &KeyEvent) -> Action {
+        let KeyCode::Char(c) = key.code else { return Action::None };
+        match op {
+            BookmarkOp::Set => {
+                let dir = self.target_dir();
+                match self.bookmarks.set(c, dir.clone()) {
+                    Ok(()) => self.say(format!("bookmark {c}: {}", dir.display()), false),
+                    Err(e) => self.say(format!("bookmark not saved: {e}"), true),
+                }
+            }
+            BookmarkOp::Jump => match self.bookmarks.get(c).map(Path::to_path_buf) {
+                Some(dir) if dir.is_dir() => self.set_root(dir),
+                Some(dir) => self.say(format!("{} is gone", dir.display()), true),
+                None => self.say(format!("no bookmark {c}"), true),
+            },
+            BookmarkOp::Delete => match self.bookmarks.remove(c) {
+                Ok(true) => self.say(format!("removed bookmark {c}"), false),
+                Ok(false) => self.say(format!("no bookmark {c}"), true),
+                Err(e) => self.say(format!("bookmark not saved: {e}"), true),
+            },
+        }
+        Action::None
     }
 
     fn confirm_key(&mut self, kind: ConfirmKind, targets: Vec<PathBuf>, key: &KeyEvent) -> Action {
@@ -592,6 +646,20 @@ impl Panel {
                 let verb = if *kind == ConfirmKind::Trash { "Trash" } else { "Delete permanently" };
                 Some(Line::from(Span::styled(format!("{verb} {what}? (y/n)"), Style::new().fg(c.warning.into()))))
             }
+            Mode::Bookmark(op) => {
+                let verb = match op {
+                    BookmarkOp::Set => "save here as",
+                    BookmarkOp::Jump => "go to",
+                    BookmarkOp::Delete => "remove",
+                };
+                let mut spans = vec![Span::styled(format!("{verb}: "), Style::new().fg(c.accent.into()))];
+                for (k, p) in self.bookmarks.iter() {
+                    let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| p.display().to_string());
+                    spans.push(Span::styled(format!("{k}"), Style::new().fg(c.warning.into())));
+                    spans.push(Span::styled(format!(" {name}  "), Style::new().fg(c.muted.into())));
+                }
+                Some(Line::from(spans))
+            }
             Mode::Normal => self.message.as_ref().map(|(m, err)| Line::from(Span::styled(m.clone(), Style::new().fg(if *err { c.error } else { c.muted }.into())))),
         }
     }
@@ -680,7 +748,15 @@ impl Panel {
                 Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
                 Span::styled(row.name.clone(), name_style),
             ]);
-            Paragraph::new(line).style(base).render(area, buf);
+            // Size and modified-time columns sit left of the git sign, when there is room.
+            let cols = if self.opts.columns && area.width >= 44 { COLS_WIDTH } else { 0 };
+            let text_area = Rect { width: area.width - cols, ..area };
+            Paragraph::new(line).style(base).render(text_area, buf);
+            if cols > 0 {
+                let size = if row.is_dir { String::new() } else { meta::size_short(row.size) };
+                let x = area.right().saturating_sub(cols + 1 + right);
+                buf.set_string(x, y, format!("{size:>5} {:<11}", meta::time_short(row.modified)), base.fg(c.muted.into()));
+            }
 
             if let Some((ch, kind)) = git {
                 let x = area.right().saturating_sub(1 + right);
@@ -717,7 +793,7 @@ mod tests {
     }
 
     fn panel(d: &Path) -> Panel {
-        Panel::new(d, PanelOptions { hidden: false, git: false })
+        Panel::new(d, PanelOptions { hidden: false, git: false, columns: false, bookmarks: None })
     }
 
     #[test]
@@ -957,5 +1033,45 @@ mod tests {
         p.handle_event(&key(KeyCode::Char('y')));
         p.handle_event(&key(KeyCode::Char('p')));
         assert!(draw(&mut p).contains("pasted 1 item"));
+    }
+
+    #[test]
+    fn bookmarks_save_jump_and_delete() {
+        let d = tree("bookmarks");
+        let mut p = panel(&d);
+        p.handle_event(&key(KeyCode::Char('m')));
+        p.handle_event(&key(KeyCode::Char('a'))); // bookmark a = docs
+        p.handle_event(&key(KeyCode::Char('\'')));
+        p.handle_event(&key(KeyCode::Char('a')));
+        assert_eq!(p.root(), d.join("docs"));
+        p.handle_event(&key(KeyCode::Char('H'))); // up again
+        assert_eq!(p.root(), d);
+        p.handle_event(&key(KeyCode::Char('M')));
+        p.handle_event(&key(KeyCode::Char('a'))); // delete it
+        p.handle_event(&key(KeyCode::Char('\'')));
+        p.handle_event(&key(KeyCode::Char('a')));
+        assert_eq!(p.root(), d, "a deleted bookmark goes nowhere");
+        // The footer waits for the key and lists the bookmarks.
+        p.handle_event(&key(KeyCode::Char('m')));
+        assert!(p.is_busy());
+        p.handle_event(&key(KeyCode::Esc));
+    }
+
+    #[test]
+    fn columns_show_size_and_time_for_files_when_wide() {
+        let d = tree("columns");
+        std::fs::write(d.join("README.md"), vec![b'x'; 2048]).unwrap();
+        let mut p = Panel::new(&d, PanelOptions { hidden: false, git: false, columns: true, bookmarks: None });
+        let area = Rect::new(0, 0, 70, 8);
+        let mut buf = Buffer::empty(area);
+        p.render(area, &mut buf, &Theme::default(), true);
+        let text: Vec<String> = (0..8).map(|y| (0..70).map(|x| buf[(x, y)].symbol().to_string()).collect()).collect();
+        assert!(text.iter().any(|l| l.contains("README.md") && l.contains("2.0K")), "{text:?}");
+        // Narrow panes (a sidebar) drop the columns.
+        let area = Rect::new(0, 0, 30, 8);
+        let mut buf = Buffer::empty(area);
+        p.render(area, &mut buf, &Theme::default(), true);
+        let text: Vec<String> = (0..8).map(|y| (0..30).map(|x| buf[(x, y)].symbol().to_string()).collect()).collect();
+        assert!(!text.iter().any(|l| l.contains("2.0K")), "{text:?}");
     }
 }

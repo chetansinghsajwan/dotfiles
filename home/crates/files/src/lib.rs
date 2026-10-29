@@ -3,6 +3,7 @@
 //! editors embed as a sidebar; a standalone binary can wrap it later.
 
 pub mod ops;
+pub mod bookmarks;
 pub mod meta;
 mod panel;
 

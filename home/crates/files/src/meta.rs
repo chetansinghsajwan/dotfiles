@@ -184,6 +184,31 @@ impl Drop for DirSize {
     }
 }
 
+/// A size in at most five cells for a column: `512`, `1.2K`, `15M`.
+pub fn size_short(n: u64) -> String {
+    const UNITS: [&str; 5] = ["", "K", "M", "G", "T"];
+    let mut v = n as f64;
+    let mut i = 0;
+    while v >= 1024.0 && i < UNITS.len() - 1 {
+        v /= 1024.0;
+        i += 1;
+    }
+    if i == 0 {
+        n.to_string()
+    } else if v < 10.0 {
+        format!("{v:.1}{}", UNITS[i])
+    } else {
+        format!("{:.0}{}", v, UNITS[i])
+    }
+}
+
+/// A modification time for a column, 11 cells: `MM-DD HH:MM` this year, `YY-MM-DD` before.
+pub fn time_short(t: Option<SystemTime>) -> String {
+    let Some(t) = t else { return String::new() };
+    let local: DateTime<Local> = t.into();
+    if local.format("%Y").to_string() == Local::now().format("%Y").to_string() { local.format("%m-%d %H:%M").to_string() } else { local.format("%y-%m-%d").to_string() }
+}
+
 pub fn human(n: u64) -> String {
     const UNITS: [&str; 5] = ["B", "KiB", "MiB", "GiB", "TiB"];
     let mut v = n as f64;
@@ -301,6 +326,9 @@ mod tests {
 
     #[test]
     fn human_sizes() {
+        assert_eq!(size_short(0), "0");
+        assert_eq!(size_short(1536), "1.5K");
+        assert_eq!(size_short(15 << 20), "15M");
         assert_eq!(human(0), "0 B");
         assert_eq!(human(1023), "1023 B");
         assert_eq!(human(1536), "1.5 KiB");

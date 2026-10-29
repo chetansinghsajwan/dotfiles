@@ -47,7 +47,7 @@ struct App {
 
 pub fn run(opts: Options) -> io::Result<u8> {
     let dir = opts.dir.canonicalize()?;
-    let panel_opts = PanelOptions { hidden: opts.hidden, git: opts.git };
+    let panel_opts = PanelOptions { hidden: opts.hidden, git: opts.git, columns: true, ..PanelOptions::default() };
     let mut app = App { theme: Theme::load(), tabs: vec![Panel::new(dir, panel_opts)], active: 0, preview: None, show_meta: true, meta: None, dirsize: None, opts };
 
     // Draw on the controlling terminal so stdout stays free for the caller.
@@ -121,13 +121,13 @@ impl App {
         }
         if !self.panel().is_busy() && !modifiers.contains(KeyModifiers::CONTROL) {
             match code {
-                KeyCode::Char('m') => {
+                KeyCode::Char('i') => {
                     self.show_meta = !self.show_meta;
                     return Ok(None);
                 }
                 KeyCode::Char('t') => {
                     let root = self.panel().root().to_path_buf();
-                    self.tabs.push(Panel::new(root, PanelOptions { hidden: self.opts.hidden, git: self.opts.git }));
+                    self.tabs.push(Panel::new(root, PanelOptions { hidden: self.opts.hidden, git: self.opts.git, columns: true, ..PanelOptions::default() }));
                     self.active = self.tabs.len() - 1;
                     return Ok(None);
                 }
