@@ -55,6 +55,10 @@ pub trait DockPanel {
     /// `editor` is there for panels that show editor state (diagnostics).
     fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool, editor: &Editor);
     fn handle_key(&mut self, key: ct::KeyEvent) -> PanelEvent;
+    /// Whether typed text is expected (a prompt is open): then the leader key is a character, not the leader.
+    fn is_typing(&self) -> bool {
+        false
+    }
     /// Show this file (the file explorer expands to it).
     fn reveal(&mut self, _path: &Path) {}
 }
@@ -68,6 +72,10 @@ impl DockPanel for FilesDock {
 
     fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool, _editor: &Editor) {
         self.0.render(area, buf, theme, focused);
+    }
+
+    fn is_typing(&self) -> bool {
+        self.0.is_typing()
     }
 
     fn handle_key(&mut self, key: ct::KeyEvent) -> PanelEvent {
@@ -95,6 +103,10 @@ impl DockPanel for GitDock {
 
     fn render(&mut self, buf: &mut RBuffer, area: RRect, theme: &tui_design::Theme, focused: bool, _editor: &Editor) {
         self.0.render_compact(area, buf, theme, focused);
+    }
+
+    fn is_typing(&self) -> bool {
+        self.0.is_typing()
     }
 
     fn handle_key(&mut self, key: ct::KeyEvent) -> PanelEvent {
@@ -355,11 +367,15 @@ impl Docks {
     }
 
     /// Route a key to the focused dock. `None` if no dock has the keyboard.
-    pub fn handle_key(&mut self, key: &KeyEvent) -> Option<PanelEvent> {
+    pub fn handle_key(&mut self, key: &KeyEvent, leader: &KeyEvent) -> Option<PanelEvent> {
         let side = self.focused_side()?;
         let ev = to_crossterm(key)?;
         let root = self.root.clone().unwrap_or_default();
         let d = self.dock(side);
+        // The leader key always reaches the editor, unless a prompt is typing.
+        if key == leader && !d.active_panel(&root).is_some_and(|p| p.is_typing()) {
+            return None;
+        }
         // `[` and `]` switch between the panels of a dock.
         match ev.code {
             ct::KeyCode::Char('[') if ev.modifiers.is_empty() => {

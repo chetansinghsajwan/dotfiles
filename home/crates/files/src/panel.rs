@@ -234,6 +234,11 @@ impl Panel {
         self.message = Some((msg.into(), error));
     }
 
+    /// Whether a prompt is taking typed text (so keys like space are text, not commands).
+    pub fn is_typing(&self) -> bool {
+        matches!(self.mode, Mode::Prompt(..))
+    }
+
     pub fn handle_event(&mut self, ev: &Event) -> Action {
         let Event::Key(key @ KeyEvent { kind, .. }) = ev else { return Action::None };
         if *kind == KeyEventKind::Release {

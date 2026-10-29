@@ -200,6 +200,11 @@ impl Panel {
         }
     }
 
+    /// Whether the commit message is being typed (so keys like space are text, not commands).
+    pub fn is_typing(&self) -> bool {
+        matches!(self.mode, Mode::Commit(..))
+    }
+
     pub fn handle_event(&mut self, ev: &Event) -> Action {
         let Event::Key(key @ KeyEvent { kind, .. }) = ev else { return Action::None };
         if *kind == KeyEventKind::Release {

@@ -1379,9 +1379,11 @@ impl Component for EditorView {
             jobs: context.jobs,
         };
 
-        // A focused dock (sidebar or bottom panel) takes the keys.
-        if let Event::Key(key) = event {
-            if let Some(panel_event) = self.docks.handle_key(key) {
+        // A focused dock (sidebar or bottom panel) takes the keys, except while a
+        // leader sequence is in progress.
+        if let (Event::Key(key), true) = (event, self.keymaps.pending().is_empty()) {
+            let leader = cx.editor.config().leader.parse::<KeyEvent>().unwrap_or_else(|_| key!(' '));
+            if let Some(panel_event) = self.docks.handle_key(key, &leader) {
                 use super::dock::PanelEvent;
                 match panel_event {
                     PanelEvent::Open(path) => {
@@ -1597,33 +1599,41 @@ impl Component for EditorView {
         };
 
         // The docks (left and right sidebars, bottom panel) take room around the
-        // editor; -1 for the command line.
+        // editor and the ribbon (the status lines) is the very bottom row, below
+        // everything; -1 for the command line.
         let main = area.clip_bottom(1);
         let (left, right, bottom) = self.docks.sizes();
         let wb = tui_design::layout::workbench(super::dock::to_ratatui(main), left, right, bottom);
-        let box_rect = super::dock::from_ratatui(wb.editor);
+        let outer = super::dock::from_ratatui(wb.editor);
+        let ribbon_row = super::dock::from_ratatui(wb.ribbon);
 
         // The editor sits in a bordered box like the docks, with the tabs inside at
         // its top, unless there is no room or the theme turns the box off.
-        let boxed = self.docks.editor_box() && box_rect.width >= 24 && box_rect.height >= 8;
-        // With no bottom dock the status lines keep the very bottom row, below the
-        // box: the views reach that row and the box's bottom border takes the row
-        // above it (the views' bottom margin). Otherwise the status lines are inside.
-        let status_below = boxed && wb.ribbon_free;
-        let outer = if status_below { box_rect.clip_bottom(1) } else { box_rect };
+        let boxed = self.docks.editor_box() && outer.width >= 24 && outer.height >= 8;
         let inner = if boxed { Rect::new(outer.x + 1, outer.y + 1, outer.width - 2, outer.height - 2) } else { outer };
         let tabs = if use_bufferline { 1 } else { 0 };
         let mut view_area = inner.clip_top(tabs);
-        if status_below {
-            view_area.height += 2; // the border row and the status row below the text
+        // The views reach down to the ribbon row, which holds their status lines.
+        // Between their text and that row lie the box's bottom border and the bottom
+        // dock: the views' bottom margin.
+        let mut margin = 0;
+        if ribbon_row.height > 0 {
+            margin = ribbon_row.y.saturating_sub(inner.bottom());
+            view_area.height = ribbon_row.bottom().saturating_sub(view_area.y);
         }
-        self.ribbon = Ribbon { extend: wb.ribbon_free, editor_left: view_area.x, editor_right: view_area.right(), editor_bottom: view_area.bottom(), screen_left: main.x, screen_right: main.right() };
+        self.ribbon = Ribbon {
+            extend: ribbon_row.height > 0,
+            editor_left: view_area.x,
+            editor_right: view_area.right(),
+            editor_bottom: view_area.bottom(),
+            screen_left: main.x,
+            screen_right: main.right(),
+        };
 
         // if the terminal size suddenly changed, we need to trigger a resize
         cx.editor.resize(view_area);
 
-        // Views at the bottom edge leave the border row between text and status line.
-        let margin = u16::from(status_below);
+        // Views at the bottom edge leave the rows between text and status line to the box border and the bottom dock.
         let mut margins_changed = false;
         for (view, _) in cx.editor.tree.views_mut() {
             let m = if view.area.bottom() == view_area.bottom() { margin } else { 0 };

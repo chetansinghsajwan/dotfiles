@@ -381,6 +381,12 @@ in
                 description = "Use our helix fork (home/helix, with the shared pick picker) instead of the nixpkgs helix.";
             };
 
+            leader = mkOption {
+                type = types.str;
+                default = "space";
+                description = "Key that opens the leader menu in the helix fork; docks pass it through even when focused.";
+            };
+
             docks = {
                 left = mkOption {
                     type = types.listOf types.str;

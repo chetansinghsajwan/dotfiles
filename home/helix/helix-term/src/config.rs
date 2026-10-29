@@ -114,6 +114,8 @@ impl Config {
             (Err(err), Err(_)) => return Err(err),
         };
 
+        let mut res = res;
+        keymap::apply_leader(&mut res.keys, &res.editor.leader);
         Ok(res)
     }
 

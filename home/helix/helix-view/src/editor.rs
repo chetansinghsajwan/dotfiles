@@ -361,6 +361,9 @@ pub struct Config {
     pub popup_border: PopupBorderConfig,
     /// Which panels sit in the left, right and bottom docks.
     pub docks: DocksConfig,
+    /// The key that opens the leader menu (default `space`). The docks pass it to
+    /// the editor even when focused.
+    pub leader: String,
     /// Which indent heuristic to use when a new line is inserted
     #[serde(default)]
     pub indent_heuristic: IndentationHeuristic,
@@ -1050,6 +1053,7 @@ impl Default for Config {
             smart_tab: Some(SmartTabConfig::default()),
             popup_border: PopupBorderConfig::None,
             docks: DocksConfig::default(),
+            leader: "space".to_string(),
             indent_heuristic: IndentationHeuristic::default(),
             jump_label_alphabet: ('a'..='z').collect(),
             inline_diagnostics: InlineDiagnosticsConfig::default(),

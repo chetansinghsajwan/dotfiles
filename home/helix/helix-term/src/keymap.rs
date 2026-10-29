@@ -612,3 +612,21 @@ mod tests {
         assert_eq!(toml::from_str(keys), Ok(expectation));
     }
 }
+
+/// Move the leader menu (bound to `space` by default) to the `leader` key, in
+/// the normal and select keymaps. User bindings under `space` come along.
+pub fn apply_leader(keys: &mut HashMap<Mode, KeyTrie>, leader: &str) {
+    let Ok(leader) = leader.parse::<KeyEvent>() else { return };
+    let space = key!(' ');
+    if leader == space {
+        return;
+    }
+    for mode in [Mode::Normal, Mode::Select] {
+        let Some(KeyTrie::Node(node)) = keys.get_mut(&mode) else { continue };
+        if let Some(menu) = node.map.remove(&space) {
+            node.order.retain(|k| *k != space);
+            node.map.insert(leader, menu);
+            node.order.push(leader);
+        }
+    }
+}

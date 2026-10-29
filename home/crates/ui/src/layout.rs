@@ -109,49 +109,48 @@ mod popup_tests {
     }
 }
 
-/// Where the docks and the editor go (see `workbench`).
+/// Where the docks, the editor and the ribbon go (see `workbench`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Workbench {
     pub left: Rect,
     pub right: Rect,
     pub bottom: Rect,
-    /// What is left for the editor's views.
+    /// What is left for the editor (its box, tabs and text).
     pub editor: Rect,
-    /// No bottom dock: the row under the side docks is free, so the left- and
-    /// right-most views' status lines can run the full width at the very bottom.
-    pub ribbon_free: bool,
+    /// The very bottom row, full width: the status lines. Empty (height 0) only
+    /// when there is no room for it.
+    pub ribbon: Rect,
 }
 
-/// Split `main` into a left dock, a right dock, a bottom dock and the editor,
-/// like the side bars and panel of VS Code or Zed. The sizes are widths and a
-/// height in cells; 0 means the dock is closed. Docks never take more than a
-/// third of the width each or half of the height, and the editor keeps a
-/// minimum size.
+/// Split `main` into a left dock, a right dock, a bottom dock, the editor and the
+/// ribbon, like the side bars, panel and status bar of VS Code or Zed. The sizes
+/// are widths and a height in cells; 0 means the dock is closed. Docks never take
+/// more than a third of the width each or half of the height, and the editor
+/// keeps a minimum size.
 ///
-/// The side docks run from the top down to just above the bottom row, so that
-/// row stays free for the editor's status line across the whole width. With a
-/// bottom dock open, that dock sits under the editor between the side docks,
-/// which then run all the way down.
+/// The ribbon is always the last row of `main`, across the whole width, below
+/// every dock. The side docks run from the top down to just above it, and the
+/// bottom dock sits under the editor between the side docks.
 pub fn workbench(main: Rect, left: u16, right: u16, bottom: u16) -> Workbench {
     const MIN_EDITOR_WIDTH: u16 = 20;
     const MIN_EDITOR_HEIGHT: u16 = 4;
-    let third = main.width / 3;
+    let ribbon_h = u16::from(main.height > MIN_EDITOR_HEIGHT);
+    let body = Rect { height: main.height - ribbon_h, ..main };
+    let third = body.width / 3;
     let mut left = left.min(third);
     let mut right = right.min(third);
-    while main.width.saturating_sub(left + right) < MIN_EDITOR_WIDTH.min(main.width) && (left > 0 || right > 0) {
+    while body.width.saturating_sub(left + right) < MIN_EDITOR_WIDTH.min(body.width) && (left > 0 || right > 0) {
         if left >= right { left -= 1 } else { right -= 1 }
     }
-    let bottom = bottom.min(main.height / 2).min(main.height.saturating_sub(MIN_EDITOR_HEIGHT));
-    let ribbon_free = bottom == 0;
-    let side_h = if ribbon_free { main.height.saturating_sub(1) } else { main.height };
-    let mid_x = main.x + left;
-    let mid_w = main.width - left - right;
+    let bottom = bottom.min(body.height / 2).min(body.height.saturating_sub(MIN_EDITOR_HEIGHT));
+    let mid_x = body.x + left;
+    let mid_w = body.width - left - right;
     Workbench {
-        left: Rect { x: main.x, y: main.y, width: left, height: if left == 0 { 0 } else { side_h } },
-        right: Rect { x: main.right() - right, y: main.y, width: right, height: if right == 0 { 0 } else { side_h } },
-        bottom: Rect { x: mid_x, y: main.bottom() - bottom, width: if bottom == 0 { 0 } else { mid_w }, height: bottom },
-        editor: Rect { x: mid_x, y: main.y, width: mid_w, height: main.height - bottom },
-        ribbon_free,
+        left: Rect { x: body.x, y: body.y, width: left, height: if left == 0 { 0 } else { body.height } },
+        right: Rect { x: body.right() - right, y: body.y, width: right, height: if right == 0 { 0 } else { body.height } },
+        bottom: Rect { x: mid_x, y: body.bottom() - bottom, width: if bottom == 0 { 0 } else { mid_w }, height: bottom },
+        editor: Rect { x: mid_x, y: body.y, width: mid_w, height: body.height - bottom },
+        ribbon: Rect { x: main.x, y: body.bottom(), width: main.width, height: ribbon_h },
     }
 }
 
@@ -160,47 +159,53 @@ mod workbench_tests {
     use super::*;
 
     #[test]
-    fn side_docks_stop_above_the_ribbon_row_and_the_editor_takes_the_rest() {
+    fn the_ribbon_is_the_whole_bottom_row_and_the_docks_stop_above_it() {
         let main = Rect::new(0, 0, 120, 40);
         let w = workbench(main, 30, 25, 0);
-        assert_eq!(w.left, Rect::new(0, 0, 30, 39), "one row short: that row is the ribbon");
+        assert_eq!(w.ribbon, Rect::new(0, 39, 120, 1));
+        assert_eq!(w.left, Rect::new(0, 0, 30, 39));
         assert_eq!(w.right, Rect::new(95, 0, 25, 39));
-        assert_eq!(w.editor, Rect::new(30, 0, 65, 40), "the editor owns the bottom row, so its status line can be extended");
-        assert!(w.ribbon_free);
+        assert_eq!(w.editor, Rect::new(30, 0, 65, 39));
         assert_eq!(w.bottom.height, 0);
     }
 
     #[test]
-    fn a_bottom_dock_sits_between_the_side_docks_which_then_run_all_the_way_down() {
+    fn a_bottom_dock_sits_under_the_editor_and_the_ribbon_stays_below_it() {
         let w = workbench(Rect::new(0, 0, 120, 40), 30, 25, 12);
-        assert_eq!(w.bottom, Rect::new(30, 28, 65, 12));
-        assert_eq!(w.editor, Rect::new(30, 0, 65, 28));
-        assert_eq!((w.left.height, w.right.height), (40, 40));
-        assert!(!w.ribbon_free);
+        assert_eq!(w.bottom, Rect::new(30, 27, 65, 12));
+        assert_eq!(w.editor, Rect::new(30, 0, 65, 27));
+        assert_eq!((w.left.height, w.right.height), (39, 39));
+        assert_eq!(w.ribbon, Rect::new(0, 39, 120, 1), "never moves");
+        assert_eq!(w.bottom.bottom(), w.ribbon.y, "the dock ends right above the ribbon");
     }
 
     #[test]
     fn closed_docks_take_no_room_and_big_ones_are_limited() {
         let main = Rect::new(2, 1, 90, 30);
         let w = workbench(main, 0, 0, 0);
-        assert_eq!(w.editor, main);
-        assert_eq!((w.left.width, w.right.width), (0, 0));
-        assert_eq!((w.left.height, w.right.height), (0, 0));
+        assert_eq!(w.editor, Rect::new(2, 1, 90, 29));
+        assert_eq!(w.ribbon, Rect::new(2, 30, 90, 1));
+        assert_eq!((w.left.width, w.right.width, w.left.height, w.right.height), (0, 0, 0, 0));
         // At most a third of the width per side and half of the height.
         let w = workbench(main, 80, 80, 100);
         assert_eq!((w.left.width, w.right.width), (30, 30));
-        assert_eq!(w.bottom.height, 15);
+        assert_eq!(w.bottom.height, 14);
         assert!(w.editor.width >= 20);
         // The pieces never overlap or leave the area.
-        for r in [w.left, w.right, w.bottom, w.editor] {
+        for r in [w.left, w.right, w.bottom, w.editor, w.ribbon] {
             assert!(r.x >= main.x && r.right() <= main.right() && r.y >= main.y && r.bottom() <= main.bottom(), "{r:?}");
         }
-        assert!(w.left.right() <= w.editor.x && w.editor.right() <= w.right.x && w.editor.bottom() <= w.bottom.y);
+        assert!(w.left.right() <= w.editor.x && w.editor.right() <= w.right.x && w.editor.bottom() <= w.bottom.y && w.bottom.bottom() <= w.ribbon.y);
     }
 
     #[test]
-    fn tiny_screens_keep_a_usable_editor() {
+    fn tiny_screens_keep_a_usable_editor_and_drop_the_ribbon_last() {
         let w = workbench(Rect::new(0, 0, 40, 10), 30, 30, 8);
         assert!(w.editor.width >= 20 && w.editor.height >= 4, "{w:?}");
+        assert_eq!(w.ribbon.height, 1);
+        // With almost no rows left there is no ribbon, and nothing overlaps.
+        let w = workbench(Rect::new(0, 0, 40, 4), 10, 10, 10);
+        assert_eq!(w.ribbon.height, 0);
+        assert_eq!(w.editor.height, 4);
     }
 }
