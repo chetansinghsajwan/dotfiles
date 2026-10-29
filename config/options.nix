@@ -368,7 +368,6 @@ in
         editor = {
             terminal = mkOption {
                 type = types.enum [
-                    "neovim"
                     "helix"
                 ];
                 default = "helix";

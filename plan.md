@@ -43,16 +43,15 @@ The repo is a Nix flake (see `agents.md`); this plan is about replacing and unif
 
 ## Open questions
 
-- Neovim: not decided. Presumably dropped since helix is the editor and neovim is the only other terminal editor. Confirm before removing `home/programs/neovim*`.
-- Terminal emulator: ghostty, kitty and gnome-terminal are all configured. Not decided. (Was only relevant for kitty keyboard protocol, now dropped, so low priority.)
-- The tool list is incomplete: the user was going to give more tools. Covered so far: picker, TUI design, preview, files, editor, git, layout, docs, monitoring, keyboard, search. Ask for what else is in scope.
+- Neovim: dropped (module, config and stylix target removed). Terminal emulator: depends on the environment, keep all configured.
+- Tool list: final for now (decided by the user).
 - Helix has no stable library or plugin API; the fork must track upstream (rebase on each release).
 - Exact name of the flag that disables git features (suggested: `--no-git` plus a config key).
 - (resolved) `gix` for `git-core`.
 
 ## Current repo state (as of writing)
 
-- Tools configured under `home/programs/`: helix (plain nixpkgs helix 25.07.1; the Steel fork and plugins were dropped in commit 55e0025), yazi, zellij, lazygit, delta, bat/batman, eza, fzf, neovim, btop, tealdeer, ghostty, kitty, kanata-layer-indicator, zed, vscode, etc. `agents.md` describes an older `home/modules/...` layout; the real tree is `home/programs/`.
+- Tools configured under `home/programs/`: helix (plain nixpkgs helix 25.07.1; the Steel fork and plugins were dropped in commit 55e0025), yazi, zellij, lazygit, delta, bat/batman, eza, fzf, btop, tealdeer, ghostty, kitty, kanata-layer-indicator, zed, vscode, etc. `agents.md` describes an older `home/modules/...` layout; the real tree is `home/programs/`.
 - `pv` is now Rust (`home/crates/pv`), packaged by `home/programs/pv/default.nix` via `home/crates/default.nix` (one `buildRustPackage` helper per workspace crate). `pv.sh` was deleted. It is a plain PATH binary so yazi's `piper` (bare `sh -c`) can call it; piper sets `$w`/`$h` to the pane size and pv reads them.
 - Started (uncommitted): `dotfiles.ui` options (`config/options.nix`), `home/programs/ui` (theme.json export), `home/crates/ui` (Rust crate). See section 1.
 

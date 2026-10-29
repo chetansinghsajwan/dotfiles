@@ -7,7 +7,6 @@
 let
     isWSL = config.dotfiles.system.isWsl;
     editorCommand = {
-        neovim = "nvim";
         helix = "hx";
     };
 in
