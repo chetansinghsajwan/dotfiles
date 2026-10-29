@@ -629,21 +629,18 @@ impl Panel {
             let y = inner.y + (i - self.offset) as u16;
             let area = Rect { y, height: 1, ..inner };
             let selected = i == self.cursor;
-            let base = if selected && focused { Style::new().bg(c.selection.into()) } else { Style::new() };
+            let base = if selected && focused { Style::new().bg(c.selection.into()).add_modifier(Modifier::BOLD) } else { Style::new() };
             buf.set_style(area, base);
 
             let git = self.git_state(row);
             let color = git.map(|(_, k)| Self::git_color(theme, k)).unwrap_or(if row.is_dir { c.accent.into() } else { c.fg.into() });
-            let arrow = if !row.is_dir {
-                "  "
-            } else if self.expanded.contains(&row.path) {
-                "▾ "
-            } else {
-                "▸ "
-            };
             let mut name_style = Style::new().fg(color);
             if row.is_dir {
                 name_style = name_style.add_modifier(Modifier::BOLD);
+            }
+            // Marked rows: yellow (yazi's selected color) and underlined (no column is spent on a marker).
+            if self.marked.contains(&row.path) {
+                name_style = name_style.fg(c.warning.into()).add_modifier(Modifier::UNDERLINED);
             }
             if self.clip.as_ref().is_some_and(|k| k.cut && k.paths.contains(&row.path)) {
                 name_style = name_style.add_modifier(Modifier::DIM);
@@ -653,11 +650,8 @@ impl Panel {
             } else {
                 ui::icons::file(&row.name, is_executable(&row.path))
             };
-            let mark = if self.marked.contains(&row.path) { "● " } else { "  " };
             let line = Line::from(vec![
-                Span::styled(mark, Style::new().fg(c.accent.into())),
                 Span::raw(" ".repeat(usize::from(row.depth) * 2)),
-                Span::styled(arrow, Style::new().fg(c.muted.into())),
                 Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
                 Span::styled(row.name.clone(), name_style),
             ]);
