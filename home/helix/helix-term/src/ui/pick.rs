@@ -133,7 +133,7 @@ pub(crate) fn to_crossterm(key: &KeyEvent) -> Option<ct::KeyEvent> {
     Some(ct::KeyEvent::new(code, modifiers))
 }
 
-fn color(c: RColor) -> Color {
+pub(crate) fn color(c: RColor) -> Color {
     match c {
         RColor::Reset => Color::Reset,
         RColor::Black => Color::Black,

@@ -13,6 +13,7 @@ use ratatui::buffer::Buffer as RBuffer;
 use ratatui::layout::Rect as RRect;
 use ratatui::style::{Modifier, Style as RStyle};
 use ratatui::crossterm::event as ct;
+use ratatui::widgets::Widget;
 use std::path::{Path, PathBuf};
 use tui::buffer::Buffer as Surface;
 
@@ -183,7 +184,7 @@ pub struct Docks {
 }
 
 impl Docks {
-    fn theme(&mut self) -> &tui_design::Theme {
+    pub fn theme(&mut self) -> &tui_design::Theme {
         self.theme.get_or_insert_with(tui_design::Theme::load)
     }
 
@@ -321,5 +322,35 @@ impl Docks {
             d.focused = false;
         }
         Some(event)
+    }
+}
+
+impl Docks {
+    /// Whether the editor is drawn in a bordered box (the `editor_box` token).
+    pub fn editor_box(&mut self) -> bool {
+        self.theme().chrome.editor_box
+    }
+}
+
+/// Draw only the border of `rect` over what is already on the surface (the
+/// editor's text inside stays), with the focus color when `focused`.
+pub fn draw_border(surface: &mut Surface, rect: Rect, theme: &tui_design::Theme, focused: bool) {
+    if rect.width < 2 || rect.height < 2 {
+        return;
+    }
+    let local = RRect::new(0, 0, rect.width, rect.height);
+    let mut buf = RBuffer::empty(local);
+    tui_design::Pane::new(theme).focused(focused).render(local, &mut buf);
+    let (w, h) = (rect.width, rect.height);
+    for y in 0..h {
+        for x in 0..w {
+            if x == 0 || y == 0 || x == w - 1 || y == h - 1 {
+                let src = &buf[(x, y)];
+                if let Some(dst) = surface.get_mut(rect.x + x, rect.y + y) {
+                    dst.set_symbol(src.symbol());
+                    dst.fg = super::pick::color(src.fg);
+                }
+            }
+        }
     }
 }

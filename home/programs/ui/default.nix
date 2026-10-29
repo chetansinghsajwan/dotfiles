@@ -45,6 +45,7 @@ in
         };
         chrome = {
             inherit (ui.chrome) border titles transparent;
+            editor_box = ui.chrome.editorBox;
         };
         layout = {
             inherit (ui.layout) gap;

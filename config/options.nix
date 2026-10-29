@@ -193,6 +193,11 @@ in
                     default = true;
                     description = "No solid pane background: the terminal's own (translucent) background shows.";
                 };
+                editorBox = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = "Draw the editor (tabs and text) in a bordered box like the docks.";
+                };
             };
             layout = {
                 gap = mkOption {

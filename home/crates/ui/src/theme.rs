@@ -54,6 +54,8 @@ pub struct Chrome {
     /// No solid pane background: the terminal's own (possibly translucent)
     /// background shows, so panes blend in like the rest of the terminal.
     pub transparent: bool,
+    /// Draw the editor (tabs and text) in a bordered box like the docks.
+    pub editor_box: bool,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -155,7 +157,7 @@ impl Default for GitColors {
 
 impl Default for Chrome {
     fn default() -> Self {
-        Chrome { border: "rounded".into(), titles: true, transparent: true }
+        Chrome { border: "rounded".into(), titles: true, transparent: true, editor_box: true }
     }
 }
 

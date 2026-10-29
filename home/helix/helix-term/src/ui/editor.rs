@@ -1586,28 +1586,62 @@ impl Component for EditorView {
         let main = area.clip_bottom(1);
         let (left, right, bottom) = self.docks.sizes();
         let wb = tui_design::layout::workbench(super::dock::to_ratatui(main), left, right, bottom);
-        let editor_full = super::dock::from_ratatui(wb.editor);
-        let mut editor_area = editor_full;
-        // -1 for bufferline
-        if use_bufferline {
-            editor_area = editor_area.clip_top(1);
+        let box_rect = super::dock::from_ratatui(wb.editor);
+
+        // The editor sits in a bordered box like the docks, with the tabs inside at
+        // its top, unless there is no room or the theme turns the box off.
+        let boxed = self.docks.editor_box() && box_rect.width >= 24 && box_rect.height >= 8;
+        // With no bottom dock the status lines keep the very bottom row, below the
+        // box: the views reach that row and the box's bottom border takes the row
+        // above it (the views' bottom margin). Otherwise the status lines are inside.
+        let status_below = boxed && wb.ribbon_free;
+        let outer = if status_below { box_rect.clip_bottom(1) } else { box_rect };
+        let inner = if boxed { Rect::new(outer.x + 1, outer.y + 1, outer.width - 2, outer.height - 2) } else { outer };
+        let tabs = if use_bufferline { 1 } else { 0 };
+        let mut view_area = inner.clip_top(tabs);
+        if status_below {
+            view_area.height += 2; // the border row and the status row below the text
         }
-        self.ribbon = Ribbon { extend: wb.ribbon_free, editor_left: editor_full.x, editor_right: editor_full.right(), editor_bottom: editor_full.bottom(), screen_left: main.x, screen_right: main.right() };
+        self.ribbon = Ribbon { extend: wb.ribbon_free, editor_left: view_area.x, editor_right: view_area.right(), editor_bottom: view_area.bottom(), screen_left: main.x, screen_right: main.right() };
 
         // if the terminal size suddenly changed, we need to trigger a resize
-        cx.editor.resize(editor_area);
+        cx.editor.resize(view_area);
+
+        // Views at the bottom edge leave the border row between text and status line.
+        let margin = u16::from(status_below);
+        let mut margins_changed = false;
+        for (view, _) in cx.editor.tree.views_mut() {
+            let m = if view.area.bottom() == view_area.bottom() { margin } else { 0 };
+            if view.bottom_margin != m {
+                view.bottom_margin = m;
+                margins_changed = true;
+            }
+        }
+        if margins_changed {
+            let scrolloff = config.scrolloff;
+            let helix_view::Editor { tree, documents, .. } = &mut *cx.editor;
+            for (view, _) in tree.views_mut() {
+                if let Some(doc) = documents.get_mut(&view.doc) {
+                    view.ensure_cursor_in_view(doc, scrolloff);
+                }
+            }
+        }
 
         if use_bufferline {
-            Self::render_bufferline(cx.editor, editor_full.with_height(1), surface);
+            Self::render_bufferline(cx.editor, inner.with_height(1), surface);
         }
 
         for (view, is_focused) in cx.editor.tree.views() {
             let doc = cx.editor.document(view.doc).unwrap();
             // Splits are separated inside the editor area; its edges are not splits.
-            self.render_view(cx.editor, doc, view, editor_full, surface, is_focused);
+            self.render_view(cx.editor, doc, view, view_area, surface, is_focused);
         }
 
         self.docks.render(&wb, surface);
+        if boxed {
+            let focused = self.docks.focused_side().is_none();
+            super::dock::draw_border(surface, outer, self.docks.theme(), focused);
+        }
 
         if config.auto_info {
             if let Some(mut info) = cx.editor.autoinfo.take() {

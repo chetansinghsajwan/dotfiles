@@ -128,6 +128,10 @@ pub struct ViewPosition {
 pub struct View {
     pub id: ViewId,
     pub area: Rect,
+    /// Rows between the text and the status line that belong to the frame around
+    /// the editor (the box border), not to the text: 1 for views at the bottom
+    /// edge of a bordered editor area, else 0. Set by the editor view each frame.
+    pub bottom_margin: u16,
     pub doc: DocumentId,
     pub jumps: JumpList,
     // documents accessed from this view from the oldest one to last viewed one
@@ -172,6 +176,7 @@ impl View {
             id: ViewId::default(),
             doc,
             area: Rect::default(), // will get calculated upon inserting into tree
+            bottom_margin: 0,
             jumps: JumpList::new((doc, Selection::point(0))), // TODO: use actual sel
             docs_access_history: Vec::new(),
             last_modified_docs: [None, None],
@@ -190,11 +195,11 @@ impl View {
     }
 
     pub fn inner_area(&self, doc: &Document) -> Rect {
-        self.area.clip_left(self.gutter_offset(doc)).clip_bottom(1) // -1 for statusline
+        self.area.clip_left(self.gutter_offset(doc)).clip_bottom(1 + self.bottom_margin) // -1 for statusline
     }
 
     pub fn inner_height(&self) -> usize {
-        self.area.clip_bottom(1).height.into() // -1 for statusline
+        self.area.clip_bottom(1 + self.bottom_margin).height.into() // -1 for statusline
     }
 
     pub fn inner_width(&self, doc: &Document) -> u16 {

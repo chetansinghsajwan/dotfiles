@@ -51,3 +51,6 @@ match the helix version in nixpkgs; rebase this fork first when nixpkgs moves.
   `keymap/default.rs` (`space g`, `space 1/2/3`, ...).
 - Path dependencies now also include `../../crates/files` and
   `../../crates/git-panel`.
+- `helix-view/src/view.rs`: `View::bottom_margin` (rows between text and status line
+  that belong to the frame around the editor), used by `inner_area()` and
+  `inner_height()`.
