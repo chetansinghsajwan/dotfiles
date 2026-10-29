@@ -61,6 +61,11 @@ struct Cli {
     /// selection), e.g. `--expect ctrl-e,ctrl-x`; an empty first line means Enter.
     #[arg(long, value_name = "KEYS", value_delimiter = ',')]
     expect: Vec<String>,
+    /// Stay in this terminal instead of opening a floating pane. Inside zellij,
+    /// `pick` opens a popup (a floating pane, sized by the `popup_percent` design
+    /// token) by default; `PICK_NO_POPUP=1` also turns it off.
+    #[arg(long)]
+    no_popup: bool,
     /// Initial query.
     #[arg(long, short, default_value = "")]
     query: String,
@@ -103,6 +108,15 @@ fn run(cli: Cli) -> io::Result<u8> {
     if cli.files.is_none() && cli.grep.is_none() && cli.git.is_none() && io::stdin().is_terminal() {
         eprintln!("usage: <command> | pick [--paths DIR]   or   pick --files [DIR]   or   pick --grep [DIR]   or   pick --git refs|commits|stashes");
         return Ok(2);
+    }
+
+    // Inside zellij: open as a floating popup and relay the result.
+    if pick::popup::wanted(cli.no_popup) {
+        let percent = ui::Theme::load().layout.popup_percent;
+        match pick::popup::run(std::env::args_os().skip(1).collect(), percent) {
+            Ok(code) => return Ok(u8::try_from(code).unwrap_or(EXIT_CANCEL)),
+            Err(e) => eprintln!("pick: popup unavailable ({e}); using this terminal"),
+        }
     }
 
     let wake = Arc::new(AtomicBool::new(true));
