@@ -30,6 +30,9 @@
             url = "github:caelestia-dots/shell";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+
+        # Splits cargo builds into a cached dependency build and our code.
+        crane.url = "github:ipetkov/crane";
     };
 
     outputs =
@@ -41,6 +44,7 @@
             nur,
             stylix,
             caelestia-shell,
+            crane,
             ...
         }:
         let
@@ -54,6 +58,7 @@
                     llib
                     nur
                     caelestia-shell
+                    crane
                     stylix
                     ;
             };

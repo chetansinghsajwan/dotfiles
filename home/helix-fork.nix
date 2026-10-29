@@ -7,7 +7,7 @@
 # when nixpkgs moves to another helix version, rebase the fork first.
 {
     lib,
-    rustPlatform,
+    craneLib,
     runCommand,
     helix,
     helix-unwrapped,
@@ -40,32 +40,48 @@ let
         rm -rf $out/grammars $out/queries
     '';
 
-    unwrapped = rustPlatform.buildRustPackage {
+    commonArgs = {
         pname = "helix-unwrapped";
         inherit (helix-unwrapped) version;
         inherit src;
-        sourceRoot = "source/helix";
+        # The workspace is in a subdirectory, next to the shared `crates`.
+        postUnpack = "cd $sourceRoot/helix; sourceRoot=.";
+        cargoLock = ./helix/Cargo.lock;
+        strictDeps = true;
 
-        cargoLock.lockFile = ./helix/Cargo.lock;
+        # Only the editor binary. The workspace's own tests are upstream's and
+        # slow; `pick`, `pv`, `git-core` and `ui` are tested in home/crates.
+        cargoExtraArgs = "--package helix-term";
+        doCheck = false;
 
         env = {
             # Grammars are built by Nix, not by helix-term's build.rs.
             HELIX_DISABLE_AUTO_GRAMMAR_BUILD = "1";
-            HELIX_DEFAULT_RUNTIME = defaultRuntimeDir;
-        };
-
-        # Only the editor binary. The workspace's own tests are upstream's and
-        # slow; `pick`, `pv`, `git-core` and `ui` are tested in home/crates.
-        cargoBuildFlags = [
-            "--package"
-            "helix-term"
-        ];
-        doCheck = false;
-
-        meta = helix-unwrapped.meta // {
-            description = "Helix with the shared pick picker";
+            # A faster-to-build release: no LTO and parallel codegen cost a few
+            # percent of runtime speed. Part of the shared args, so the
+            # dependency build below stays valid for it.
+            CARGO_PROFILE_RELEASE_LTO = "off";
+            CARGO_PROFILE_RELEASE_CODEGEN_UNITS = "16";
+            CARGO_PROFILE_RELEASE_DEBUG = "0";
         };
     };
+
+    # All dependencies, built once from the manifests alone: editing our own
+    # code (helix, crates) does not rebuild them.
+    cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+
+    unwrapped = craneLib.buildPackage (
+        commonArgs
+        // {
+            inherit cargoArtifacts;
+            env = commonArgs.env // {
+                HELIX_DEFAULT_RUNTIME = defaultRuntimeDir;
+            };
+            meta = helix-unwrapped.meta // {
+                description = "Helix with the shared pick picker";
+            };
+        }
+    );
 in
 # The wrapper reads `helix-unwrapped.src` for runtime/queries.
 helix.override {
