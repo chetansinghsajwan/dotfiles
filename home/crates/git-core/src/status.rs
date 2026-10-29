@@ -14,6 +14,20 @@ pub enum Kind {
     Conflict,
 }
 
+impl Kind {
+    /// The one-letter sign yazi uses: `A`, `M`, `D`, `R`, `?` untracked, `U` conflict.
+    pub fn letter(self) -> char {
+        match self {
+            Kind::Added => 'A',
+            Kind::Modified | Kind::Typechange => 'M',
+            Kind::Deleted => 'D',
+            Kind::Renamed => 'R',
+            Kind::Untracked => '?',
+            Kind::Conflict => 'U',
+        }
+    }
+}
+
 /// Per-file state: `staged` is HEAD vs index, `unstaged` is index vs work tree
 /// (untracked files are `unstaged = Untracked`).
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]

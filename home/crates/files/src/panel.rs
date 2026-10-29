@@ -591,21 +591,9 @@ impl Panel {
         let (repo, status) = self.git.as_ref()?;
         let rela = repo.relative(&row.path)?;
         if row.is_dir {
-            status.dir(&rela).map(|k| (Self::kind_char(k), k))
+            status.dir(&rela).map(|k| (k.letter(), k))
         } else {
             status.get(&rela)?.sign()
-        }
-    }
-
-    /// The sign letter for a kind (yazi's: `?` untracked, `M` modified, `A` added, `D` deleted, `R` renamed, `U` conflict).
-    fn kind_char(kind: Kind) -> char {
-        match kind {
-            Kind::Added => 'A',
-            Kind::Modified | Kind::Typechange => 'M',
-            Kind::Deleted => 'D',
-            Kind::Renamed => 'R',
-            Kind::Untracked => '?',
-            Kind::Conflict => 'U',
         }
     }
 

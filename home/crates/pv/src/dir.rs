@@ -153,7 +153,7 @@ fn state_of(e: &Entry, ctx: &Option<(Repo, Status)>) -> Option<(char, Kind)> {
     let (repo, status) = ctx.as_ref()?;
     let rela = repo.relative(&e.path)?;
     if e.is_dir {
-        status.dir(&rela).map(|k| ('•', k))
+        status.dir(&rela).map(|k| (k.letter(), k))
     } else {
         git::sign(status.get(&rela)?)
     }

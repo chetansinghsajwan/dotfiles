@@ -171,10 +171,10 @@ mod tests {
         fs::write(d.join("sub/new.txt"), "n\n").unwrap();
         let on = preview(&d, &Theme::default(), &Options { width: Some(80), height: None, git: true, focus: None }).unwrap();
         let text: Vec<String> = on.iter().map(flat).collect();
-        assert!(text.iter().any(|l| l.contains("sub/") && l.trim_end().ends_with('•')), "{text:?}");
+        assert!(text.iter().any(|l| l.contains("sub") && l.trim_end().ends_with('?')), "{text:?}");
         assert!(text.iter().any(|l| l.contains("a.txt") && l.trim_end().ends_with('M')), "{text:?}");
         let off = preview(&d, &Theme::default(), &Options { width: Some(80), height: None, git: false, focus: None }).unwrap();
-        assert!(off.iter().map(flat).all(|l| !l.trim_end().ends_with('M') && !l.trim_end().ends_with('•')));
+        assert!(off.iter().map(flat).all(|l| !l.trim_end().ends_with('M')));
     }
 
 
