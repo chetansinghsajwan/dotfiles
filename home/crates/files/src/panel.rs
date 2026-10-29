@@ -642,11 +642,11 @@ impl Panel {
             let area = Rect { y, height: 1, ..inner };
             let selected = i == self.cursor;
             let git = self.git_state(row);
-            // The whole row takes a faded tint of its git color; the hovered row is the selection color with a little of it.
+            // The whole row takes a faded tint of its git color; the hovered row is a faded blue (the accent).
+            let hover = ui::mix(c.accent.into(), c.bg.into(), 28);
             let tint = git.map(|(_, k)| Self::git_color(theme, k));
             let base = match (selected && focused, tint) {
-                (true, Some(t)) => Style::new().bg(ui::mix(t, c.selection.into(), 25)).add_modifier(Modifier::BOLD),
-                (true, None) => Style::new().bg(c.selection.into()).add_modifier(Modifier::BOLD),
+                (true, _) => Style::new().bg(hover).add_modifier(Modifier::BOLD),
                 (false, Some(t)) => Style::new().bg(ui::mix(t, c.bg.into(), 14)),
                 (false, None) => Style::new(),
             };
