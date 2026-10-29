@@ -96,7 +96,6 @@ in
         fd.enable = true;
         yt-dlp.enable = true;
         helix.enable = config.dotfiles.editor.terminal == "helix";
-        neovim.enable = config.dotfiles.editor.terminal == "neovim";
         btop.enable = true;
         eza.enable = true;
         lazydocker.enable = true;

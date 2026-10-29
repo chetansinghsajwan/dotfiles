@@ -62,12 +62,6 @@ in
 
             helix.transparent = true;
 
-            neovim.transparentBackground = {
-                main = true;
-                signColumn = true;
-                numberLine = true;
-            };
-
             zed = {
                 fonts.override = {
                     sizes = {
