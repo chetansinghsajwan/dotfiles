@@ -278,9 +278,13 @@ impl EditorView {
         theme: &Theme,
     ) {
         let editor_rulers = &editor.config().rulers;
+        // Rulers are slim lines like the indent guides (same glyph and color), drawn only
+        // in empty cells so they never cover text.
         let ruler_theme = theme
-            .try_get("ui.virtual.ruler")
-            .unwrap_or_else(|| Style::default().bg(Color::Red));
+            .try_get("ui.virtual.indent-guide")
+            .or_else(|| theme.try_get("ui.virtual.ruler"))
+            .unwrap_or_else(|| Style::default().fg(Color::Red));
+        let glyph = editor.config().indent_guides.character.to_string();
 
         let rulers = doc
             .language_config()
@@ -296,7 +300,16 @@ impl EditorView {
             .filter_map(|ruler| ruler.checked_sub(1 + view_offset.horizontal_offset as u16))
             .filter(|ruler| ruler < &viewport.width)
             .map(|ruler| viewport.clip_left(ruler).with_width(1))
-            .for_each(|area| surface.set_style(area, ruler_theme))
+            .for_each(|area| {
+                for y in area.top()..area.bottom() {
+                    if let Some(cell) = surface.get_mut(area.x, y) {
+                        if cell.symbol == " " {
+                            cell.set_symbol(&glyph);
+                            cell.set_style(Style::default().fg(ruler_theme.fg.unwrap_or(Color::Reset)));
+                        }
+                    }
+                }
+            })
     }
 
     fn viewport_byte_range(
