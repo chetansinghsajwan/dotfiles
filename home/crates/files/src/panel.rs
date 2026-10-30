@@ -21,20 +21,54 @@ pub struct PanelOptions {
     pub hidden: bool,
     /// Git status colors and signs.
     pub git: bool,
-    /// Size and modified-time columns (toggle with `c`).
-    pub columns: bool,
+    /// What the columns beside each name show (cycle with `c`).
+    pub linemode: Linemode,
     /// Where bookmarks are kept (`None`: in memory only).
     pub bookmarks: Option<PathBuf>,
 }
 
 impl Default for PanelOptions {
     fn default() -> Self {
-        PanelOptions { hidden: false, git: true, columns: false, bookmarks: bookmarks::default_path() }
+        PanelOptions { hidden: false, git: true, linemode: Linemode::Off, bookmarks: bookmarks::default_path() }
     }
 }
 
-/// Cells taken by the size and modified-time columns: `size(5) time(11)` and a gap.
-const COLS_WIDTH: u16 = 5 + 1 + 11 + 1;
+/// What the columns beside each name show.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Linemode {
+    Off,
+    /// Size (folders are counted in the background) and modified time.
+    SizeTime,
+    /// Permissions and modified time.
+    PermTime,
+}
+
+impl Linemode {
+    pub fn next(self) -> Linemode {
+        match self {
+            Linemode::Off => Linemode::SizeTime,
+            Linemode::SizeTime => Linemode::PermTime,
+            Linemode::PermTime => Linemode::Off,
+        }
+    }
+
+    fn label(self) -> &'static str {
+        match self {
+            Linemode::Off => "columns off",
+            Linemode::SizeTime => "size and time",
+            Linemode::PermTime => "permissions and time",
+        }
+    }
+
+    /// Cells the columns take, with the gap before the git letter.
+    fn width(self) -> u16 {
+        match self {
+            Linemode::Off => 0,
+            Linemode::SizeTime => 5 + 1 + 11 + 1,
+            Linemode::PermTime => 9 + 1 + 11 + 1,
+        }
+    }
+}
 
 /// What the host should do after an event.
 #[derive(Debug, PartialEq, Eq)]
@@ -88,6 +122,7 @@ struct Row {
     is_dir: bool,
     size: u64,
     modified: Option<std::time::SystemTime>,
+    mode: u32,
 }
 
 enum PromptKind {
@@ -140,6 +175,10 @@ pub struct Panel {
     /// Last result or error, shown in the footer until the next key.
     message: Option<(String, bool)>,
     bookmarks: Bookmarks,
+    /// Folder sizes counted in the background for the size column.
+    dir_sizes: std::collections::HashMap<PathBuf, meta::DirSize>,
+    /// What was last drawn for them, to know when a redraw is due.
+    sizes_shown: Vec<(PathBuf, (u64, bool))>,
 }
 
 impl Panel {
@@ -161,6 +200,8 @@ impl Panel {
             clip: None,
             message: None,
             bookmarks: Bookmarks::load(opts_bookmarks),
+            dir_sizes: std::collections::HashMap::new(),
+            sizes_shown: Vec::new(),
         };
         p.refresh();
         p
@@ -170,8 +211,14 @@ impl Panel {
         &self.root
     }
 
-    /// Reread the directories and the git status.
+    /// Reread the directories, the git status and the folder sizes.
     pub fn refresh(&mut self) {
+        self.dir_sizes.clear();
+        self.rebuild();
+    }
+
+    /// Reread the directories and the git status.
+    fn rebuild(&mut self) {
         self.git = if self.opts.git { Repo::discover(&self.root).and_then(|r| r.status().ok().map(|s| (r, s))) } else { None };
         let keep = self.rows.get(self.cursor).map(|r| r.path.clone());
         self.rows.clear();
@@ -195,6 +242,7 @@ impl Panel {
                 is_dir: e.file_type().is_some_and(|t| t.is_dir()),
                 size: e.metadata().map(|m| m.len()).unwrap_or(0),
                 modified: e.metadata().ok().and_then(|m| m.modified().ok()),
+                mode: e.metadata().map(|m| meta::mode_of(&m)).unwrap_or(0),
                 path: e.into_path(),
                 depth: 0,
             })
@@ -238,7 +286,7 @@ impl Panel {
         self.marked.clear();
         self.cursor = 0;
         self.offset = 0;
-        self.refresh();
+        self.rebuild();
     }
 
     /// Show a message (or error) in the footer until the next key.
@@ -282,7 +330,7 @@ impl Panel {
             _ if is_open => self.expanded.remove(&path),
             _ => self.expanded.insert(path),
         };
-        self.refresh();
+        self.rebuild();
     }
 
     /// `h`: collapse an open folder, otherwise go to the parent folder's row.
@@ -367,7 +415,7 @@ impl Panel {
             KeyCode::Char(' ') => self.toggle(None),
             KeyCode::Char('.') => {
                 self.opts.hidden = !self.opts.hidden;
-                self.refresh();
+                self.rebuild();
             }
             KeyCode::Char('R') => self.refresh(),
             KeyCode::Tab => {
@@ -403,7 +451,10 @@ impl Panel {
             KeyCode::Char('m') => self.mode = Mode::Bookmark(BookmarkOp::Set),
             KeyCode::Char('\'') => self.mode = Mode::Bookmark(BookmarkOp::Jump),
             KeyCode::Char('M') => self.mode = Mode::Bookmark(BookmarkOp::Delete),
-            KeyCode::Char('c') => self.opts.columns = !self.opts.columns,
+            KeyCode::Char('c') => {
+                self.opts.linemode = self.opts.linemode.next();
+                self.say(self.opts.linemode.label(), false);
+            }
             KeyCode::Char('/') => return Action::Search(Search::Files),
             KeyCode::Char('S') => return Action::Search(Search::Grep),
             KeyCode::Char('B') => {
@@ -610,6 +661,36 @@ impl Panel {
         .into()
     }
 
+    /// Start counting the visible folders' sizes (a few at a time) while the size column is on.
+    fn count_visible_dirs(&mut self) {
+        if self.opts.linemode != Linemode::SizeTime {
+            return;
+        }
+        let mut running = self.dir_sizes.values().filter(|d| !d.state().1).count();
+        let visible: Vec<PathBuf> = self.rows.iter().skip(self.offset).take(self.page).filter(|r| r.is_dir).map(|r| r.path.clone()).collect();
+        for p in visible {
+            if running >= 3 {
+                break;
+            }
+            if !self.dir_sizes.contains_key(&p) {
+                self.dir_sizes.insert(p.clone(), meta::DirSize::spawn(p));
+                running += 1;
+            }
+        }
+    }
+
+    /// The folder sizes of the visible rows and how far each count is.
+    fn size_signature(&self) -> Vec<(PathBuf, (u64, bool))> {
+        self.rows.iter().skip(self.offset).take(self.page).filter_map(|r| self.dir_sizes.get(&r.path).map(|d| (r.path.clone(), d.state()))).collect()
+    }
+
+    /// Call between events: starts more folder counts and says whether something on
+    /// screen changed by itself (a count moved), so the host knows to redraw.
+    pub fn tick(&mut self) -> bool {
+        self.count_visible_dirs();
+        self.size_signature() != self.sizes_shown
+    }
+
     fn prompt_label(kind: &PromptKind) -> &'static str {
         match kind {
             PromptKind::Create(_) => "new: ",
@@ -685,6 +766,8 @@ impl Panel {
         }
 
         let rows = ui::list::Rows::new(area, inner);
+        self.count_visible_dirs();
+        let sizes = &self.dir_sizes;
 
         for (i, row) in self.rows.iter().enumerate().skip(self.offset).take(self.page) {
             let y = inner.y + (i - self.offset) as u16;
@@ -719,13 +802,19 @@ impl Panel {
                 Span::styled(row.name.clone(), name_style),
             ]);
             // Size and modified-time columns sit left of the git sign, when there is room.
-            let cols = if self.opts.columns && area.width >= 44 { COLS_WIDTH } else { 0 };
+            let cols = if area.width >= 44 { self.opts.linemode.width() } else { 0 };
             let text_area = Rect { width: area.width - cols, ..area };
             Paragraph::new(line).style(base).render(text_area, buf);
             if cols > 0 {
-                let size = if row.is_dir { String::new() } else { meta::size_short(row.size) };
+                let first = if self.opts.linemode == Linemode::PermTime {
+                    format!("{:<9}", meta::perm_string(row.mode))
+                } else if row.is_dir {
+                    format!("{:>5}", sizes.get(&row.path).map(|d| meta::size_cell(d.state())).unwrap_or_default())
+                } else {
+                    format!("{:>5}", meta::size_short(row.size))
+                };
                 let x = area.right().saturating_sub(cols + 1);
-                buf.set_string(x, y, format!("{size:>5} {:<11}", meta::time_short(row.modified)), base.fg(c.muted.into()));
+                buf.set_string(x, y, format!("{first} {:<11}", meta::time_short(row.modified)), base.fg(c.muted.into()));
             }
 
             if let Some((ch, kind)) = git {
@@ -733,6 +822,7 @@ impl Panel {
                 buf.set_string(x, y, ch.to_string(), base.fg(Self::git_color(theme, kind)));
             }
         }
+        self.sizes_shown = self.size_signature();
     }
 }
 
@@ -763,7 +853,7 @@ mod tests {
     }
 
     fn panel(d: &Path) -> Panel {
-        Panel::new(d, PanelOptions { hidden: false, git: false, columns: false, bookmarks: None })
+        Panel::new(d, PanelOptions { hidden: false, git: false, linemode: Linemode::Off, bookmarks: None })
     }
 
     #[test]
@@ -1031,7 +1121,7 @@ mod tests {
     fn columns_show_size_and_time_for_files_when_wide() {
         let d = tree("columns");
         std::fs::write(d.join("README.md"), vec![b'x'; 2048]).unwrap();
-        let mut p = Panel::new(&d, PanelOptions { hidden: false, git: false, columns: true, bookmarks: None });
+        let mut p = Panel::new(&d, PanelOptions { hidden: false, git: false, linemode: Linemode::SizeTime, bookmarks: None });
         let area = Rect::new(0, 0, 70, 8);
         let mut buf = Buffer::empty(area);
         p.render(area, &mut buf, &Theme::default(), true);
@@ -1043,5 +1133,36 @@ mod tests {
         p.render(area, &mut buf, &Theme::default(), true);
         let text: Vec<String> = (0..8).map(|y| (0..30).map(|x| buf[(x, y)].symbol().to_string()).collect()).collect();
         assert!(!text.iter().any(|l| l.contains("2.0K")), "{text:?}");
+    }
+
+    #[test]
+    fn linemodes_cycle_and_show_permissions_and_folder_sizes() {
+        let d = tree("linemode");
+        std::fs::write(d.join("src/main.rs"), vec![b'x'; 3000]).unwrap();
+        let mut p = Panel::new(&d, PanelOptions { hidden: false, git: false, linemode: Linemode::SizeTime, bookmarks: None });
+        let area = Rect::new(0, 0, 70, 8);
+        let draw = |p: &mut Panel| {
+            let mut buf = Buffer::empty(area);
+            p.render(area, &mut buf, &Theme::default(), true);
+            (0..8).map(|y| (0..70).map(|x| buf[(x, y)].symbol().to_string()).collect::<String>()).collect::<Vec<_>>()
+        };
+        draw(&mut p); // starts counting the visible folders
+        for _ in 0..300 {
+            if p.size_signature().iter().all(|(_, (_, done))| *done) {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            p.tick();
+        }
+        assert!(p.tick(), "a finished count is a change to draw");
+        let text = draw(&mut p);
+        // src holds main.rs (3000 B) and a deeper file: counted, no `+` left.
+        assert!(text.iter().any(|l| l.contains("src") && l.contains("2.9K") && !l.contains('+')), "{text:?}");
+        p.handle_event(&key(KeyCode::Char('c')));
+        let text = draw(&mut p);
+        assert!(text.iter().any(|l| l.contains("src") && l.contains("rwx")), "{text:?}");
+        p.handle_event(&key(KeyCode::Char('c')));
+        let text = draw(&mut p);
+        assert!(!text.iter().any(|l| l.contains("rwx") || l.contains("KiB")), "{text:?}");
     }
 }

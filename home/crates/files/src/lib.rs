@@ -7,4 +7,4 @@ pub mod bookmarks;
 pub mod meta;
 mod panel;
 
-pub use panel::{Action, Panel, PanelOptions, Search};
+pub use panel::{Action, Linemode, Panel, PanelOptions, Search};

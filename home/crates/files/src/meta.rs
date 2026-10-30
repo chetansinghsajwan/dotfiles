@@ -184,6 +184,42 @@ impl Drop for DirSize {
     }
 }
 
+/// `rwxr-xr-x` for a Unix mode (dashes where there is none).
+pub fn perm_string(mode: u32) -> String {
+    let mut p = String::new();
+    for (i, (r, w, x)) in [(0o400, 0o200, 0o100), (0o040, 0o020, 0o010), (0o004, 0o002, 0o001)].into_iter().enumerate() {
+        let special = [(0o4000, 's', 'S'), (0o2000, 's', 'S'), (0o1000, 't', 'T')][i];
+        p.push(if mode & r != 0 { 'r' } else { '-' });
+        p.push(if mode & w != 0 { 'w' } else { '-' });
+        p.push(match (mode & x != 0, mode & special.0 != 0) {
+            (true, true) => special.1,
+            (false, true) => special.2,
+            (true, false) => 'x',
+            _ => '-',
+        });
+    }
+    p
+}
+
+/// The Unix mode bits of some metadata (0 elsewhere).
+pub fn mode_of(m: &fs::Metadata) -> u32 {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        m.permissions().mode()
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = m;
+        0
+    }
+}
+
+/// A folder size for a column: the number so far, with a `+` while still counting.
+pub fn size_cell((n, done): (u64, bool)) -> String {
+    if done { size_short(n) } else { format!("+{}", size_short(n)) }
+}
+
 /// A size in at most five cells for a column: `512`, `1.2K`, `15M`.
 pub fn size_short(n: u64) -> String {
     const UNITS: [&str; 5] = ["", "K", "M", "G", "T"];
@@ -273,20 +309,8 @@ fn extra_of(path: &Path, mime: &str) -> Option<(&'static str, String)> {
 
 #[cfg(unix)]
 fn unix(m: &fs::Metadata) -> (Option<String>, Option<String>, Option<u64>) {
-    use std::os::unix::fs::{MetadataExt, PermissionsExt};
-    let mode = m.permissions().mode();
-    let mut p = String::new();
-    for (i, (r, w, x)) in [(0o400, 0o200, 0o100), (0o040, 0o020, 0o010), (0o004, 0o002, 0o001)].into_iter().enumerate() {
-        let special = [(0o4000, 's', 'S'), (0o2000, 's', 'S'), (0o1000, 't', 'T')][i];
-        p.push(if mode & r != 0 { 'r' } else { '-' });
-        p.push(if mode & w != 0 { 'w' } else { '-' });
-        p.push(match (mode & x != 0, mode & special.0 != 0) {
-            (true, true) => special.1,
-            (false, true) => special.2,
-            (true, false) => 'x',
-            _ => '-',
-        });
-    }
+    use std::os::unix::fs::MetadataExt;
+    let p = perm_string(mode_of(m));
     let owner = format!("{}:{}", name_for("/etc/passwd", m.uid()), name_for("/etc/group", m.gid()));
     (Some(p), Some(owner), Some(m.nlink()))
 }

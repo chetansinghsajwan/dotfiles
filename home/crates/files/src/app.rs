@@ -47,7 +47,7 @@ struct App {
 
 pub fn run(opts: Options) -> io::Result<u8> {
     let dir = opts.dir.canonicalize()?;
-    let panel_opts = PanelOptions { hidden: opts.hidden, git: opts.git, columns: true, ..PanelOptions::default() };
+    let panel_opts = PanelOptions { hidden: opts.hidden, git: opts.git, linemode: files::Linemode::SizeTime, ..PanelOptions::default() };
     let mut app = App { theme: Theme::load(), tabs: vec![Panel::new(dir, panel_opts)], active: 0, preview: None, show_meta: true, meta: None, dirsize: None, opts };
 
     // Draw on the controlling terminal so stdout stays free for the caller.
@@ -99,7 +99,8 @@ impl App {
             }
             if !event::poll(Duration::from_millis(100))? {
                 // A folder size still being counted changes what is on screen.
-                dirty = self.dirsize.as_ref().map(DirSize::state) != shown;
+                let props = self.dirsize.as_ref().map(DirSize::state) != shown;
+                dirty = self.panel().tick() || props;
                 continue;
             }
             let ev = event::read()?;
@@ -127,7 +128,7 @@ impl App {
                 }
                 KeyCode::Char('t') => {
                     let root = self.panel().root().to_path_buf();
-                    self.tabs.push(Panel::new(root, PanelOptions { hidden: self.opts.hidden, git: self.opts.git, columns: true, ..PanelOptions::default() }));
+                    self.tabs.push(Panel::new(root, PanelOptions { hidden: self.opts.hidden, git: self.opts.git, linemode: files::Linemode::SizeTime, ..PanelOptions::default() }));
                     self.active = self.tabs.len() - 1;
                     return Ok(None);
                 }
