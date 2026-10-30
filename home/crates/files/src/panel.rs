@@ -937,17 +937,21 @@ impl Panel {
             Paragraph::new(line).style(base).render(text_area, buf);
             if cols > 0 {
                 let mode = self.opts.linemode;
-                let mut text = String::new();
+                let muted = base.fg(c.muted.into());
+                let mut spans: Vec<Span<'static>> = Vec::new();
                 if matches!(mode, Linemode::Full | Linemode::PermTime) {
-                    text.push_str(&format!("{:<9} ", meta::perm_string(row.mode)));
+                    spans.extend(meta::perm_spans(theme, &meta::perm_string(row.mode), false).into_iter().map(|s| Span::styled(s.content, s.style.bg(base.bg.unwrap_or(ratatui::style::Color::Reset)))));
+                    spans.push(Span::styled(" ", muted));
                 }
+                let mut text = String::new();
                 if matches!(mode, Linemode::Full | Linemode::SizeTime) {
                     let size = if row.is_dir { sizes.get(&row.path).map(|d| meta::size_cell(d.state())).unwrap_or_default() } else { meta::size_short(row.size) };
                     text.push_str(&format!("{size:>5} "));
                 }
                 text.push_str(&format!("{:>8}", meta::time_relative(row.modified)));
+                spans.push(Span::styled(text, muted));
                 let x = area.right().saturating_sub(cols + 1);
-                buf.set_string(x, y, text, base.fg(c.muted.into()));
+                Paragraph::new(Line::from(spans)).render(Rect { x, y, width: cols, height: 1 }, buf);
             }
 
             if let Some((ch, kind)) = git {

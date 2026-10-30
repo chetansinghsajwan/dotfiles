@@ -90,20 +90,7 @@ impl Meta {
         let mut lines = vec![Line::from(name)];
         if let Some(p) = &self.perm {
             let mut spans = vec![label("Perm")];
-            for (i, ch) in p.chars().enumerate() {
-                let color = match ch {
-                    's' | 'S' | 't' | 'T' => c.info,
-                    _ if i >= 3 => c.muted,
-                    'r' => c.success,
-                    'w' => c.warning,
-                    'x' => c.error,
-                    _ => c.muted,
-                };
-                spans.push(Span::styled(ch.to_string(), Style::new().fg(color.into())));
-                if i == 2 || i == 5 {
-                    spans.push(Span::raw(" "));
-                }
-            }
+            spans.extend(perm_spans(theme, p, true));
             lines.push(Line::from(spans));
         }
         if let Some(o) = &self.owner {
@@ -126,6 +113,29 @@ impl Meta {
     pub fn height(&self) -> u16 {
         (self.lines(&Theme::default(), None).len() as u16).min(MAX_ROWS)
     }
+}
+
+/// The nine permission characters colored like the properties panel: the owner's `r` `w` `x`
+/// green, yellow and red, group and other muted, setuid-style bits in the info color.
+/// With `spaced`, a gap separates owner, group and other.
+pub fn perm_spans(theme: &Theme, perm: &str, spaced: bool) -> Vec<Span<'static>> {
+    let c = &theme.colors;
+    let mut spans = Vec::new();
+    for (i, ch) in perm.chars().enumerate() {
+        let color = match ch {
+            's' | 'S' | 't' | 'T' => c.info,
+            _ if i >= 3 => c.muted,
+            'r' => c.success,
+            'w' => c.warning,
+            'x' => c.error,
+            _ => c.muted,
+        };
+        spans.push(Span::styled(ch.to_string(), Style::new().fg(color.into())));
+        if spaced && (i == 2 || i == 5) {
+            spans.push(Span::raw(" "));
+        }
+    }
+    spans
 }
 
 /// Draw the panel in `area` for `path` (a bordered pane titled "properties").
