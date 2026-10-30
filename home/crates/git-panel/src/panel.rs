@@ -422,6 +422,7 @@ impl Panel {
         } else if crow >= self.offset + self.page {
             self.offset = crow + 1 - self.page;
         }
+        let geo = ui::list::Rows::new(area, inner);
         for (i, row) in self.rows.iter().enumerate().skip(self.offset).take(self.page) {
             let y = inner.y + (i - self.offset) as u16;
             let area = Rect { y, height: 1, ..inner };
@@ -441,12 +442,11 @@ impl Panel {
                 }
                 Row::File { rela, kind, .. } => {
                     let selected = i == crow;
-                    let base = if selected { Style::new().bg(c.selection.into()) } else { Style::new() };
-                    buf.set_style(area, base);
                     let color = Self::kind_color(theme, *kind);
+                    let base = ui::list::style(theme, selected, Some(color));
+                    buf.set_style(geo.bar(y), base);
                     let line = Line::from(vec![
-                        Span::styled(if selected { "▸ " } else { "  " }, Style::new().fg(c.accent.into())),
-                        Span::styled(format!("{} ", kind_char(*kind)), Style::new().fg(color)),
+                                                Span::styled(format!("{} ", kind_char(*kind)), Style::new().fg(color)),
                         Span::styled(rela.display().to_string(), Style::new().fg(c.fg.into())),
                     ]);
                     Paragraph::new(line).style(base).render(area, buf);

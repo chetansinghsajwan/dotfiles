@@ -6,7 +6,9 @@ pub mod ansi;
 pub mod icons;
 mod icons_data;
 pub mod layout;
+pub mod list;
 pub mod popup;
+pub mod prompt;
 pub mod pane;
 pub mod theme;
 

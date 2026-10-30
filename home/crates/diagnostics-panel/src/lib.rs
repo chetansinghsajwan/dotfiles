@@ -232,6 +232,7 @@ impl Panel {
         } else if crow >= self.offset + self.page {
             self.offset = crow + 1 - self.page;
         }
+        let geo = ui::list::Rows::new(area, inner);
         for (i, row) in self.rows.iter().enumerate().skip(self.offset).take(self.page) {
             let y = inner.y + (i - self.offset) as u16;
             let line_area = Rect { y, height: 1, ..inner };
@@ -247,8 +248,8 @@ impl Panel {
                 Row::Item(idx) => {
                     let it = &self.items[*idx];
                     let selected = i == crow;
-                    let base = if selected && focused { Style::new().bg(c.selection.into()) } else { Style::new() };
-                    buf.set_style(line_area, base);
+                    let base = ui::list::style(theme, selected && focused, None);
+                    buf.set_style(geo.bar(y), base);
                     let head = format!("{}:{}", it.line, it.col);
                     let source = it.source.as_deref().map(|s| format!("  {s}")).unwrap_or_default();
                     // The first line of the message, cut to the room left.

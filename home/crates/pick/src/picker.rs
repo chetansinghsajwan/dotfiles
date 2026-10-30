@@ -529,22 +529,13 @@ impl Picker {
 
         // Prompt row: "> query" with the count flush right.
         let prompt_area = Rect { height: 1, ..inner };
-        let prompt = Line::from(vec![
-            Span::styled("> ", Style::new().fg(c.accent.into())),
-            Span::styled(self.input.value().to_string(), Style::new().fg(c.fg.into())),
-        ]);
+        let prompt = ui::prompt::line(theme, "> ", self.input.value());
         Paragraph::new(prompt).render(prompt_area, buf);
         let cw = count.len() as u16;
         if inner.width > cw + 4 {
             buf.set_string(inner.right() - cw, inner.y, &count, Style::new().fg(c.muted.into()));
         }
-        // Cursor cell.
-        let cx = prompt_area.x + 2 + self.input.visual_cursor() as u16;
-        if cx < prompt_area.right() {
-            if let Some(cell) = buf.cell_mut((cx, prompt_area.y)) {
-                cell.set_style(Style::new().add_modifier(Modifier::REVERSED));
-            }
-        }
+        ui::prompt::cursor(buf, prompt_area, "> ", self.input.visual_cursor());
 
         // Header lines sit between the prompt and the list.
         let header_rows = (self.header.len() as u16).min(inner.height.saturating_sub(2));
@@ -552,10 +543,11 @@ impl Picker {
             buf.set_stringn(inner.x + 2, inner.y + 1 + i as u16, h, usize::from(inner.width.saturating_sub(2)), Style::new().fg(c.muted.into()));
         }
         let list = Rect { y: inner.y + 1 + header_rows, height: inner.height - 1 - header_rows, ..inner };
+        let rows = ui::list::Rows::new(area, inner);
         self.page = u32::from(list.height).max(1);
         self.refresh_tree();
         if self.tree.is_some() {
-            self.render_tree_rows(list, buf, theme);
+            self.render_tree_rows(list, rows, buf, theme);
             return;
         }
         // Keep the cursor inside the window.
@@ -570,17 +562,16 @@ impl Picker {
             let Some(cand) = self.nucleo.snapshot().get_matched_item(idx).map(|i| i.data.clone()) else { break };
             let y = list.y + row as u16;
             let selected = idx == self.cursor;
-            let base = if selected { Style::new().bg(c.selection.into()) } else { Style::new() };
-            // Row background across the full width.
             let row_area = Rect { y, height: 1, ..list };
-            buf.set_style(row_area, base);
+            let git = self.git_state(cand.path());
+            let base = ui::list::style(theme, selected, git.map(|(_, k)| Self::git_color(theme, k)));
+            buf.set_style(rows.bar(y), base);
 
             let marked = self.marked.contains(&cand.output());
             let mut spans = vec![Span::styled(
-                if marked { "● " } else if selected { "▸ " } else { "  " },
+                if marked { "● " } else { "  " },
                 Style::new().fg(c.accent.into()),
             )];
-            let git = self.git_state(cand.path());
             let name_fg = git.map(|(_, k)| Self::git_color(theme, k)).unwrap_or(c.fg.into());
             spans.extend(self.row_spans(&cand, name_fg, theme, idx, false));
             Paragraph::new(Line::from(spans)).style(base).render(row_area, buf);
@@ -594,7 +585,7 @@ impl Picker {
 
     /// The list as a directory hierarchy: folder header rows with the items
     /// indented beneath them. `offset` counts rows here, not results.
-    fn render_tree_rows(&mut self, list: Rect, buf: &mut Buffer, theme: &Theme) {
+    fn render_tree_rows(&mut self, list: Rect, rows_geo: ui::list::Rows, buf: &mut Buffer, theme: &Theme) {
         let c = &theme.colors;
         let rows: Vec<crate::tree::Row> = {
             let Some(tree) = self.tree.as_ref() else { return };
@@ -627,15 +618,15 @@ impl Picker {
                 crate::tree::Row::Item { idx, depth } => {
                     let Some(cand) = self.nucleo.snapshot().get_matched_item(*idx).map(|it| it.data.clone()) else { continue };
                     let selected = *idx == self.cursor;
-                    let base = if selected { Style::new().bg(c.selection.into()) } else { Style::new() };
-                    buf.set_style(row_area, base);
+                    let git = self.git_state(cand.path());
+                    let base = ui::list::style(theme, selected, git.map(|(_, k)| Self::git_color(theme, k)));
+                    buf.set_style(rows_geo.bar(y), base);
 
                     let marked = self.marked.contains(&cand.output());
                     let mut spans = vec![
-                        Span::styled(if marked { "● " } else if selected { "▸ " } else { "  " }, Style::new().fg(c.accent.into())),
+                        Span::styled(if marked { "● " } else { "  " }, Style::new().fg(c.accent.into())),
                         Span::raw(" ".repeat(usize::from(*depth) * 2 + 2)),
                     ];
-                    let git = self.git_state(cand.path());
                     let name_fg = git.map(|(_, k)| Self::git_color(theme, k)).unwrap_or(c.fg.into());
                     spans.extend(self.row_spans(&cand, name_fg, theme, *idx, true));
                     Paragraph::new(Line::from(spans)).style(base).render(row_area, buf);

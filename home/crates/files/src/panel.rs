@@ -610,20 +610,20 @@ impl Panel {
         .into()
     }
 
+    fn prompt_label(kind: &PromptKind) -> &'static str {
+        match kind {
+            PromptKind::Create(_) => "new: ",
+            PromptKind::Rename(_) => "rename: ",
+            PromptKind::OpenWith(_) => "open with: ",
+        }
+    }
+
     /// The footer: a prompt, a confirmation question, or the last message.
     fn footer(&self, theme: &Theme) -> Option<Line<'static>> {
         let c = &theme.colors;
         match &self.mode {
             Mode::Prompt(kind, input) => {
-                let label = match kind {
-                    PromptKind::Create(_) => "new: ",
-                    PromptKind::Rename(_) => "rename: ",
-                    PromptKind::OpenWith(_) => "open with: ",
-                };
-                Some(Line::from(vec![
-                    Span::styled(label, Style::new().fg(c.accent.into())),
-                    Span::styled(input.value().to_string(), Style::new().fg(c.fg.into())),
-                ]))
+                Some(ui::prompt::line(theme, Self::prompt_label(kind), input.value()))
             }
             Mode::Confirm(kind, targets) => {
                 let what = if targets.len() == 1 {
@@ -669,17 +669,7 @@ impl Panel {
             let footer_area = Rect { y, height: 1, ..inner };
             Paragraph::new(line).render(footer_area, buf);
             if let Mode::Prompt(kind, input) = &self.mode {
-                let label = match kind {
-                    PromptKind::Create(_) => 5,
-                    PromptKind::Rename(_) => 8,
-                    PromptKind::OpenWith(_) => 11,
-                };
-                let x = inner.x + label + input.visual_cursor() as u16;
-                if x < inner.right() {
-                    if let Some(cell) = buf.cell_mut((x, y)) {
-                        cell.set_style(Style::new().add_modifier(Modifier::REVERSED));
-                    }
-                }
+                ui::prompt::cursor(buf, footer_area, Self::prompt_label(kind), input.visual_cursor());
             }
             inner.height -= 1;
             if inner.height == 0 {
@@ -694,26 +684,17 @@ impl Panel {
             self.offset = self.cursor + 1 - self.page;
         }
 
-        // The highlight spans the pane's padding too, so it reaches the borders on both
-        // sides while the text keeps a one-cell margin inside it.
-        let left = inner.x.saturating_sub(area.x + 1).min(1);
-        let right = area.right().saturating_sub(inner.right() + 1).min(1);
-        let row_area = Rect { x: inner.x - left, width: inner.width + left + right, ..inner };
+        let rows = ui::list::Rows::new(area, inner);
 
         for (i, row) in self.rows.iter().enumerate().skip(self.offset).take(self.page) {
             let y = inner.y + (i - self.offset) as u16;
-            let area = Rect { y, height: 1, ..row_area };
+            let area = rows.content(y);
             let selected = i == self.cursor;
             let git = self.git_state(row);
-            // The whole row takes a faded tint of its git color; the hovered row is a faded blue (the accent).
-            let hover = ui::mix(c.accent.into(), c.bg.into(), 28);
+            // The whole row takes a faded tint of its git color; the hovered row is a faded blue.
             let tint = git.map(|(_, k)| Self::git_color(theme, k));
-            let base = match (selected && focused, tint) {
-                (true, _) => Style::new().bg(hover).add_modifier(Modifier::BOLD),
-                (false, Some(t)) => Style::new().bg(ui::mix(t, c.bg.into(), 14)),
-                (false, None) => Style::new(),
-            };
-            buf.set_style(area, base);
+            let base = ui::list::style(theme, selected && focused, tint);
+            buf.set_style(rows.bar(y), base);
 
             let color = git.map(|(_, k)| Self::git_color(theme, k)).unwrap_or(if row.is_dir { c.accent.into() } else { c.fg.into() });
             let mut name_style = Style::new().fg(color);
@@ -733,7 +714,7 @@ impl Panel {
                 ui::icons::file(&row.name, is_executable(&row.path))
             };
             let line = Line::from(vec![
-                Span::raw(" ".repeat(usize::from(row.depth) * 2 + 1)),
+                Span::raw(" ".repeat(usize::from(row.depth) * 2)),
                 Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
                 Span::styled(row.name.clone(), name_style),
             ]);
@@ -743,12 +724,12 @@ impl Panel {
             Paragraph::new(line).style(base).render(text_area, buf);
             if cols > 0 {
                 let size = if row.is_dir { String::new() } else { meta::size_short(row.size) };
-                let x = area.right().saturating_sub(cols + 1 + right);
+                let x = area.right().saturating_sub(cols + 1);
                 buf.set_string(x, y, format!("{size:>5} {:<11}", meta::time_short(row.modified)), base.fg(c.muted.into()));
             }
 
             if let Some((ch, kind)) = git {
-                let x = area.right().saturating_sub(1 + right);
+                let x = area.right().saturating_sub(1);
                 buf.set_string(x, y, ch.to_string(), base.fg(Self::git_color(theme, kind)));
             }
         }
