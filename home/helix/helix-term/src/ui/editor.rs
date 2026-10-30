@@ -615,6 +615,55 @@ impl EditorView {
         Some(OverlayHighlights::Homogeneous { highlight, ranges })
     }
 
+    /// Tabs on the editor box's top border, like folder tabs: the active tab has its own
+    /// rounded outline above the border line, which opens into it; the other tabs are plain
+    /// labels on the line. `outer` is the box area; the border line is its second row.
+    pub fn render_folder_tabs(editor: &Editor, outer: Rect, surface: &mut Surface, design: &tui_design::Theme, focused: bool) {
+        let set = design.chrome.border_type().to_border_set();
+        let c = &design.colors;
+        let color = |h: tui_design::theme::Hex| super::pick::color(ratatui::style::Color::from(h));
+        let border = Style::default().fg(color(if focused { c.border_focused } else { c.border }));
+        let active = Style::default().fg(color(c.accent)).add_modifier(Modifier::BOLD);
+        let muted = Style::default().fg(color(c.muted));
+        let (top, line) = (outer.y, outer.y + 1);
+        let right = outer.right().saturating_sub(1); // the box's right border column
+        let scratch = PathBuf::from(SCRATCH_BUFFER_NAME);
+        let current = view!(editor).doc;
+        let mut x = outer.x;
+        let mut first = true;
+        for doc in editor.documents() {
+            let fname = doc.path().unwrap_or(&scratch).file_name().unwrap_or_default().to_str().unwrap_or_default();
+            let label = format!(" {}{} ", fname, if doc.is_modified() { "[+]" } else { "" });
+            let w = label.chars().count() as u16;
+            if doc.id() == current {
+                let end = x + w + 1;
+                if end >= right {
+                    break;
+                }
+                surface.set_string(x, top, set.top_left, border);
+                for dx in 1..=w {
+                    surface.set_string(x + dx, top, set.horizontal_top, border);
+                }
+                surface.set_string(end, top, set.top_right, border);
+                // The box's left edge runs straight up into a first tab; otherwise the line curls up.
+                surface.set_string(x, line, if first { set.vertical_left } else { set.bottom_right }, border);
+                surface.set_stringn(x + 1, line, &label, w as usize, active);
+                surface.set_string(end, line, set.bottom_left, border);
+                x = end + 1;
+            } else {
+                if first {
+                    x += 1; // past the corner
+                }
+                if x >= right {
+                    break;
+                }
+                let room = (right - x) as usize;
+                x = surface.set_stringn(x, line, &label, room.min(w as usize), muted).0;
+            }
+            first = false;
+        }
+    }
+
     /// Render bufferline at the top
     pub fn render_bufferline(editor: &Editor, viewport: Rect, surface: &mut Surface) {
         let scratch = PathBuf::from(SCRATCH_BUFFER_NAME); // default filename to use for scratch buffer
@@ -1665,7 +1714,8 @@ impl Component for EditorView {
             }
         }
 
-        if use_bufferline {
+        // In the box the tabs are drawn on its border (folder tabs), after the border.
+        if use_bufferline && !boxed {
             Self::render_bufferline(cx.editor, inner.with_height(1), surface);
         }
 
@@ -1678,7 +1728,14 @@ impl Component for EditorView {
         self.docks.render(&wb, surface, cx.editor);
         if boxed {
             let focused = self.docks.focused_side().is_none();
-            super::dock::draw_border(surface, outer, self.docks.theme(), focused);
+            if use_bufferline {
+                // The box starts one row lower; the row above holds the active tab's top.
+                let frame = Rect::new(outer.x, outer.y + 1, outer.width, outer.height - 1);
+                super::dock::draw_border(surface, frame, self.docks.theme(), focused);
+                Self::render_folder_tabs(cx.editor, outer, surface, self.docks.theme(), focused);
+            } else {
+                super::dock::draw_border(surface, outer, self.docks.theme(), focused);
+            }
         }
 
         if config.auto_info {

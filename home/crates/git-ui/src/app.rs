@@ -451,7 +451,9 @@ impl App {
             }
             Focus::Commits => {
                 let k = &self.commits[i];
-                (Line::from(vec![Span::styled(format!("{} ", k.short), muted), Span::styled(k.subject.clone(), fg)]), ago(k.time))
+                // `hash AB subject`: the author as two initials in a color of their own, like lazygit.
+                let author = Span::styled(format!("{} ", initials(&k.author)), Style::new().fg(author_color(theme, &k.author)));
+                (Line::from(vec![Span::styled(format!("{} ", k.short), muted), author, Span::styled(k.subject.clone(), fg)]), ago(k.time))
             }
             _ => {
                 let s = &self.stashes[i];
@@ -541,6 +543,26 @@ impl App {
             Focus::Stashes => "n new  a apply  p pop  d drop  ctrl-d/u scroll  tab/1-4 panes  q quit",
         }
     }
+}
+
+/// The author as two letters: the first letters of the first two words (`Chetan Singh Sajwan` ->
+/// `CS`), or the first two letters of a single name (`root` -> `ro`).
+fn initials(name: &str) -> String {
+    let words: Vec<&str> = name.split_whitespace().collect();
+    let letters: Vec<char> = match words.as_slice() {
+        [] => vec!['?'],
+        [one] => one.chars().take(2).collect(),
+        [a, b, ..] => a.chars().take(1).chain(b.chars().take(1)).collect(),
+    };
+    letters.into_iter().collect()
+}
+
+/// A stable color per author, from the theme's accents, so one person always looks the same.
+fn author_color(theme: &Theme, name: &str) -> ratatui::style::Color {
+    let c = &theme.colors;
+    let palette = [c.success, c.warning, c.info, c.accent, c.git.untracked, c.git.renamed, c.git.modified, c.git.conflict];
+    let hash = name.bytes().fold(5381u32, |h, b| h.wrapping_mul(33).wrapping_add(u32::from(b)));
+    palette[hash as usize % palette.len()].into()
 }
 
 /// `now`, `5m ago`, `4h ago`, ... for a commit time in seconds since the epoch.
@@ -689,6 +711,16 @@ mod tests {
         press(&mut app, "d");
         press(&mut app, "y");
         assert!(app.stashes.is_empty());
+    }
+
+    #[test]
+    fn initials_and_author_colors() {
+        assert_eq!(initials("Chetan Singh Sajwan"), "CS");
+        assert_eq!(initials("root"), "ro");
+        assert_eq!(initials("Ada"), "Ad");
+        assert_eq!(initials("  "), "?");
+        let t = Theme::default();
+        assert_eq!(author_color(&t, "Ada Lovelace"), author_color(&t, "Ada Lovelace"));
     }
 
     #[test]
