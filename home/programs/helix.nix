@@ -94,6 +94,9 @@ in
                     };
 
                     indent-guides.render = true;
+
+                    # Room for line numbers up to 999 without the text shifting.
+                    gutters.line-numbers.min-width = 3;
                 };
 
                 keys = {

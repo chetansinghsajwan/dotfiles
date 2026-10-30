@@ -262,6 +262,13 @@ impl Picker {
         self.tree = Some(crate::tree::build(entries));
         if !was_tree {
             self.offset = 0;
+            // With nothing typed the list starts at its top: the cursor takes the first row
+            // as drawn (folders first), not the first match in path order.
+            if self.input.value().is_empty() {
+                if let Some(&first) = self.tree.as_ref().and_then(|t| t.order.first()) {
+                    self.cursor = first;
+                }
+            }
         }
     }
 
@@ -621,7 +628,8 @@ impl Picker {
                     let icon = if self.opts.mode == Mode::Grep { ui::icons::file(last, false) } else { ui::icons::dir(last, true) };
                     let line = Line::from(vec![
                         Span::raw("  "),
-                        Span::raw(" ".repeat(usize::from(*depth) * 2)),
+                        // Indentation guides: a thin line at each level, like the editor's.
+                        Span::styled("│ ".repeat(usize::from(*depth)), Style::new().fg(c.muted.into())),
                         Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
                         Span::styled(label.clone(), Style::new().fg(c.accent.into()).add_modifier(Modifier::BOLD)),
                     ]);
@@ -637,7 +645,8 @@ impl Picker {
                     let marked = self.marked.contains(&cand.output());
                     let mut spans = vec![
                         Span::styled(if marked { "● " } else { "  " }, Style::new().fg(c.accent.into())),
-                        Span::raw(" ".repeat(usize::from(*depth) * 2 + 2)),
+                        Span::styled("│ ".repeat(usize::from(*depth)), Style::new().fg(c.muted.into())),
+                        Span::raw("  "),
                     ];
                     let name_fg = git.map(|(_, k)| Self::git_color(theme, k)).unwrap_or(c.fg.into());
                     spans.extend(self.row_spans(&cand, name_fg, theme, *idx, true));
@@ -1358,20 +1367,20 @@ mod tree_tests {
     #[test]
     fn up_and_down_walk_the_items_in_drawing_order_and_accept_prints_the_path() {
         let mut p = files(&SET);
-        // The cursor starts on the best match (the first result: README.md).
-        assert_eq!(accept(&mut p), vec!["README.md".to_string()]);
-        // Drawing order: docs/guide/x.md, src/ui/c.rs, src/a.rs, README.md.
-        p.handle_event(&key(KeyCode::Up));
-        assert_eq!(accept(&mut p), vec!["src/a.rs".to_string()]);
-        p.handle_event(&key(KeyCode::Up));
-        assert_eq!(accept(&mut p), vec!["src/ui/c.rs".to_string()]);
-        p.handle_event(&key(KeyCode::Up));
-        p.handle_event(&key(KeyCode::Up)); // stops at the first item
+        let _ = lines(&mut p); // drawing builds the hierarchy, which sets where the cursor starts
+        // With nothing typed the list starts at its top: the first item as drawn.
         assert_eq!(accept(&mut p), vec!["docs/guide/x.md".to_string()]);
+        p.handle_event(&key(KeyCode::Up)); // stays at the first item
+        assert_eq!(accept(&mut p), vec!["docs/guide/x.md".to_string()]);
+        // Drawing order: docs/guide/x.md, src/ui/c.rs, src/a.rs, README.md.
+        p.handle_event(&key(KeyCode::Down));
+        assert_eq!(accept(&mut p), vec!["src/ui/c.rs".to_string()]);
+        p.handle_event(&key(KeyCode::Down));
+        assert_eq!(accept(&mut p), vec!["src/a.rs".to_string()]);
         for _ in 0..9 {
             p.handle_event(&key(KeyCode::Down));
         }
-        assert_eq!(accept(&mut p), vec!["README.md".to_string()]);
+        assert_eq!(accept(&mut p), vec!["README.md".to_string()]); // stops at the last
     }
 
     #[test]

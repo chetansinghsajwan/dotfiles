@@ -277,4 +277,28 @@ mod tests {
         let lines = vec![Line::from(ratatui::text::Span::styled("x", ratatui::style::Style::new().fg(ratatui::style::Color::Rgb(1, 2, 3))))];
         assert_eq!(to_ansi(&lines), "\x1b[38;2;1;2;3mx\x1b[0m\n");
     }
+
+    #[test]
+    fn markdown_is_highlighted_and_flake_lock_is_json() {
+        let d = tmp("md");
+        let md = d.join("r.md");
+        fs::write(&md, "# Title\n\nsome **bold** and `code` text\n\n- item\n").unwrap();
+        let lines = preview(&md, &Theme::default(), &Options { width: None, height: None, git: false, focus: None }).unwrap();
+        // More than one color among the spans of the file: it is highlighted, not plain.
+        let colors: std::collections::HashSet<_> = lines.iter().flat_map(|l| l.spans.iter()).filter_map(|s| s.style.fg).collect();
+        assert!(colors.len() >= 3, "{colors:?}");
+        // A heading is bold.
+        assert!(lines[0].spans.iter().any(|s| s.content.contains("Title") && s.style.add_modifier.contains(ratatui::style::Modifier::BOLD)), "{:?}", lines[0]);
+
+        let lock = d.join("flake.lock");
+        fs::write(&lock, "{\n  \"nodes\": { \"root\": { \"inputs\": {} } },\n  \"version\": 7\n}\n").unwrap();
+        let lines = preview(&lock, &Theme::default(), &Options { width: None, height: None, git: false, focus: None }).unwrap();
+        let colors: std::collections::HashSet<_> = lines.iter().flat_map(|l| l.spans.iter()).filter_map(|s| s.style.fg).collect();
+        assert!(colors.len() >= 3, "flake.lock should be highlighted as JSON: {colors:?}");
+        let plain = d.join("x.lock");
+        fs::write(&plain, "{\n  \"nodes\": 1\n}\n").unwrap();
+        let lines = preview(&plain, &Theme::default(), &Options { width: None, height: None, git: false, focus: None }).unwrap();
+        let plain_colors: std::collections::HashSet<_> = lines.iter().flat_map(|l| l.spans.iter()).filter_map(|s| s.style.fg).collect();
+        assert!(plain_colors.len() < colors.len(), "other .lock files stay plain");
+    }
 }

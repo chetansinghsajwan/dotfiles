@@ -4,14 +4,14 @@ use crate::git::{self, LineKind, Repo};
 use crate::{Error, Options};
 use ratatui::style::Color;
 use unicode_width::UnicodeWidthStr;
-use ratatui::style::Style;
+use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use std::io::Read;
 use std::path::Path;
 use std::str::FromStr;
 use syntect::easy::HighlightLines;
 use syntect::highlighting::{
-    Color as SColor, ScopeSelectors, Theme as SynTheme, ThemeItem, ThemeSettings, StyleModifier,
+    Color as SColor, FontStyle, ScopeSelectors, StyleModifier, Theme as SynTheme, ThemeItem, ThemeSettings,
 };
 use syntect::parsing::SyntaxSet;
 use ui::Theme;
@@ -30,23 +30,32 @@ fn rgb(c: ui::theme::Hex) -> SColor {
 /// Build a syntect theme from the design tokens, so highlighting follows them.
 fn syntax_theme(t: &Theme) -> SynTheme {
     let s = &t.colors.syntax;
-    let rules: &[(&str, ui::theme::Hex)] = &[
-        ("comment", s.comment),
-        ("keyword, storage", s.keyword),
-        ("entity.name.function, support.function, meta.function-call", s.function),
-        ("string", s.string),
-        ("constant.numeric", s.number),
-        ("entity.name.type, entity.name.class, support.type, support.class, storage.type", s.type_),
-        ("constant, support.constant", s.constant),
-        ("variable", s.variable),
-        ("keyword.operator", s.operator),
+    let plain = FontStyle::empty();
+    let rules: &[(&str, ui::theme::Hex, FontStyle)] = &[
+        ("comment", s.comment, plain),
+        ("keyword, storage", s.keyword, plain),
+        ("entity.name.function, support.function, meta.function-call", s.function, plain),
+        ("string", s.string, plain),
+        ("constant.numeric", s.number, plain),
+        ("entity.name.type, entity.name.class, support.type, support.class, storage.type", s.type_, plain),
+        ("constant, support.constant", s.constant, plain),
+        ("variable", s.variable, plain),
+        ("keyword.operator", s.operator, plain),
+        // Markdown: headings, emphasis, code, links, lists and quotes.
+        ("markup.heading, entity.name.section, punctuation.definition.heading", s.function, FontStyle::BOLD),
+        ("markup.bold", s.constant, FontStyle::BOLD),
+        ("markup.italic", s.variable, FontStyle::ITALIC),
+        ("markup.raw, markup.inline.raw, markup.fenced_code, markup.raw.block", s.string, plain),
+        ("markup.underline.link, string.other.link, meta.link, markup.underline", s.type_, FontStyle::UNDERLINE),
+        ("punctuation.definition.list_item, punctuation.definition.list, markup.list punctuation", s.keyword, plain),
+        ("markup.quote, punctuation.definition.blockquote", s.comment, plain),
     ];
     let scopes = rules
         .iter()
-        .filter_map(|(sel, c)| {
+        .filter_map(|(sel, c, font)| {
             Some(ThemeItem {
                 scope: ScopeSelectors::from_str(sel).ok()?,
-                style: StyleModifier { foreground: Some(rgb(*c)), ..Default::default() },
+                style: StyleModifier { foreground: Some(rgb(*c)), font_style: if font.is_empty() { None } else { Some(*font) }, ..Default::default() },
             })
         })
         .collect();
@@ -108,10 +117,10 @@ pub fn render_bytes(path: &Path, buf: &[u8], theme: &Theme, opts: &Options, git_
     let text = String::from_utf8_lossy(buf);
 
     let syntaxes: SyntaxSet = two_face::syntax::extra_newlines();
-    let syntax = syntaxes
-        .find_syntax_for_file(path)
-        .ok()
-        .flatten()
+    // `flake.lock` is JSON whatever its extension says.
+    let by_name = if path.file_name().is_some_and(|n| n == "flake.lock") { syntaxes.find_syntax_by_name("JSON") } else { None };
+    let syntax = by_name
+        .or_else(|| syntaxes.find_syntax_for_file(path).ok().flatten())
         .or_else(|| text.lines().next().and_then(|l| syntaxes.find_syntax_by_first_line(l)))
         .unwrap_or_else(|| syntaxes.find_syntax_plain_text());
     let syn_theme = syntax_theme(theme);
@@ -119,7 +128,7 @@ pub fn render_bytes(path: &Path, buf: &[u8], theme: &Theme, opts: &Options, git_
 
     let limit = opts.height.map(usize::from).unwrap_or(usize::MAX);
     let total = text.lines().count();
-    let digits = total.max(1).to_string().len();
+    let digits = total.max(1).to_string().len().max(3); // room for rows up to 999
     let gutter = Style::new().fg(theme.colors.muted.into());
     let marks = if git_marks && opts.git { line_marks(path, total) } else { Vec::new() };
     // With a focus line and a height, show a window centered on it.
@@ -157,7 +166,17 @@ pub fn render_bytes(path: &Path, buf: &[u8], theme: &Theme, opts: &Options, git_
                 continue;
             }
             let fg = st.foreground;
-            spans.push(Span::styled(piece, Style::new().fg(Color::Rgb(fg.r, fg.g, fg.b))));
+            let mut style = Style::new().fg(Color::Rgb(fg.r, fg.g, fg.b));
+            if st.font_style.contains(FontStyle::BOLD) {
+                style = style.add_modifier(Modifier::BOLD);
+            }
+            if st.font_style.contains(FontStyle::ITALIC) {
+                style = style.add_modifier(Modifier::ITALIC);
+            }
+            if st.font_style.contains(FontStyle::UNDERLINE) {
+                style = style.add_modifier(Modifier::UNDERLINED);
+            }
+            spans.push(Span::styled(piece, style));
         }
         // The focus line wins over a git tint; both span the full width.
         let row_bg = if opts.focus == Some(i as u32 + 1) {
