@@ -437,7 +437,6 @@ impl App {
         let c = &theme.colors;
         let fg = Style::new().fg(c.fg.into());
         let muted = Style::new().fg(c.muted.into());
-        let icon = |ic: ui::icons::Icon| Span::styled(format!("{} ", ic.glyph), Style::new().fg(ic.color));
         match which {
             Focus::Branches => {
                 let b = &self.branches[i];
@@ -448,15 +447,15 @@ impl App {
                 } else {
                     muted
                 };
-                (Line::from(vec![icon(ui::icons::BRANCH), Span::styled(b.name.clone(), name)]), ago(b.time))
+                (Line::from(Span::styled(b.name.clone(), name)), ago(b.time))
             }
             Focus::Commits => {
                 let k = &self.commits[i];
-                (Line::from(vec![icon(ui::icons::COMMIT), Span::styled(format!("{} ", k.short), muted), Span::styled(k.subject.clone(), fg)]), ago(k.time))
+                (Line::from(vec![Span::styled(format!("{} ", k.short), muted), Span::styled(k.subject.clone(), fg)]), ago(k.time))
             }
             _ => {
                 let s = &self.stashes[i];
-                (Line::from(vec![icon(ui::icons::STASH), Span::styled(format!("{} ", s.index), muted), Span::styled(s.message.clone(), fg)]), ago(s.time))
+                (Line::from(vec![Span::styled(format!("{} ", s.index), muted), Span::styled(s.message.clone(), fg)]), ago(s.time))
             }
         }
     }
