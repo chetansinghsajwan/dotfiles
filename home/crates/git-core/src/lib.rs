@@ -442,4 +442,45 @@ mod tests {
         assert_eq!(r.line_changes(&d.join("n.txt")).unwrap(), vec![LineChange { kind: LineKind::Added, start: 1, end: 2 }]);
         assert!(r.line_changes(&d.join("b.txt")).unwrap().is_empty());
     }
+
+    #[test]
+    fn branches_and_stashes_through_the_git_cli() {
+        let d = repo("ops");
+        let r = Repo::discover(&d).unwrap();
+        r.create_branch("feature").unwrap();
+        assert_eq!(Repo::discover(&d).unwrap().branch().as_deref(), Some("feature"));
+        assert!(r.create_branch(" ").is_err());
+        fs::write(d.join("b.txt"), "feature\n").unwrap();
+        git(&d, &["commit", "-qam", "on feature"]);
+        r.checkout_ref("main", RefKind::Branch).unwrap();
+        r.merge("feature").unwrap(); // fast-forward
+        assert_eq!(fs::read_to_string(d.join("b.txt")).unwrap(), "feature\n");
+        r.delete_branch("feature", false).unwrap();
+        assert!(Repo::discover(&d).unwrap().refs().unwrap().iter().all(|x| x.name != "feature"));
+        // An unmerged branch needs force.
+        r.create_branch("wip").unwrap();
+        fs::write(d.join("b.txt"), "wip\n").unwrap();
+        git(&d, &["commit", "-qam", "wip"]);
+        r.checkout_ref("main", RefKind::Branch).unwrap();
+        assert!(r.delete_branch("wip", false).is_err());
+        r.delete_branch("wip", true).unwrap();
+
+        // Stash: push, apply (keeps it), pop and drop.
+        fs::write(d.join("a.txt"), "changed\n").unwrap();
+        r.stash_push("my stash").unwrap();
+        assert_eq!(fs::read_to_string(d.join("a.txt")).unwrap(), "1\n2\n3\n4\n5\n");
+        let r = Repo::discover(&d).unwrap();
+        assert_eq!(r.stashes().unwrap().len(), 1);
+        r.stash_apply(0).unwrap();
+        assert_eq!(fs::read_to_string(d.join("a.txt")).unwrap(), "changed\n");
+        git(&d, &["checkout", "-q", "a.txt"]);
+        let r = Repo::discover(&d).unwrap();
+        r.stash_pop(0).unwrap();
+        assert!(Repo::discover(&d).unwrap().stashes().unwrap().is_empty());
+        git(&d, &["checkout", "-q", "a.txt"]);
+        fs::write(d.join("a.txt"), "again\n").unwrap();
+        r.stash_push("").unwrap();
+        r.stash_drop(0).unwrap();
+        assert!(Repo::discover(&d).unwrap().stashes().unwrap().is_empty());
+    }
 }

@@ -15,6 +15,15 @@ const fn rgb(c: u32) -> Color {
     Color::Rgb((c >> 16) as u8, (c >> 8) as u8, c as u8)
 }
 
+/// A git branch, for branch rows.
+pub const BRANCH: Icon = Icon { glyph: "\u{e0a0}", color: rgb(0xf54d27) };
+
+/// A git commit, for commit rows.
+pub const COMMIT: Icon = Icon { glyph: "\u{f417}", color: rgb(0xe8a838) };
+
+/// An archive box, for stash rows.
+pub const STASH: Icon = Icon { glyph: "\u{f187}", color: rgb(0x6d8086) };
+
 /// The git logo, for git panes (yazi's color for git files).
 pub const GIT: Icon = Icon { glyph: "\u{e702}", color: rgb(0xf54d27) };
 
@@ -35,7 +44,7 @@ pub fn for_title(title: &str) -> Option<Icon> {
     if has(&["propert"]) {
         icon("\u{f05a}", 0x59c2ff)
     } else if has(&["branch", "refs", "tags"]) {
-        icon("\u{e0a0}", 0xf54d27)
+        Some(BRANCH)
     } else if has(&["history", "commit", "stash", "log", "changes", "changed", "status"]) {
         Some(GIT)
     } else if has(&["diagnostic", "problem"]) {

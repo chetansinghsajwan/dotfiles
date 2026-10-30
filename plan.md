@@ -400,3 +400,12 @@ Icon exceptions (current):
 - Grep match lines under a file header (the header has the icon).
 - A pane given an unknown `--title` (no icon unless `set_icon` is used).
 - The explorer footer, prompts and the leader popup frame.
+
+## 6. `git-ui`: the multi-pane git screen (lazygit replacement, phase 1)
+
+Decision (user): not lazygit itself (Go, cannot use `ui`, `pick`, `pv`; a fork would be a Go rebase burden) but our own Rust tool on `git-core` (reads through `gix`, changes through the `git` CLI, as lazygit does) and `git-panel`. lazygit stays installed, themed from the tokens, until parity.
+- Crate `home/crates/git-ui` (binary `git-ui`, installed with the other crates). Layout: left column of four stacked panes (the focused one takes the room, the others show a few rows), the diff or commit of the highlighted entry on the right (list : preview from the shared 35:65 token), a status line with key hints, prompts and confirmations at the bottom.
+- Panes: Files (the `git-panel` panel: stage `s`, unstage `u`, all `a`/`A`, discard `x`, commit `c`, Enter opens the file in `$VISUAL`/`$EDITOR`), Branches (Enter checkout, `n` new, `d`/`D` delete with confirmation, `M` merge; locals first with the checked-out one on top, then remotes and tags; remote branches check out as tracking branches, tags detach), Commits (the last 500, preview via `pv::preview_commit`), Stashes (`n` stash the changes with a message, `a` apply, `p` pop, `d` drop with confirmation). Focus: Tab/Shift-Tab or `1`-`4`; `ctrl-d`/`ctrl-u` scroll the preview; `q` quits.
+- `git-core` gained `checkout_ref`, `create_branch`, `delete_branch`, `merge`, `stash_push/apply/pop/drop` (test: `branches_and_stashes_through_the_git_cli`). `git-panel` gained `set_title`, `branch`, `render_preview_pane`. `ui::icons` gained `BRANCH`, `COMMIT`, `STASH`.
+- Tested: 5 app tests with real repositories (panes render, focus, branch checkout/create/delete, stash flow, stage and commit from the Files pane) and a tmux run on this repository. Not built through Nix yet (it is part of the `crates` workspace derivation, so it builds with the next Nix build).
+- Next phases: (2) hunk and line staging, commit details (the files of a commit, and their diffs), amend, `git log` graph; (3) branch actions: rebase, cherry-pick, reset, tags, remotes (fetch, pull, push) with progress; (4) interactive rebase, conflict resolution, reflog, worktrees, submodules, custom commands.

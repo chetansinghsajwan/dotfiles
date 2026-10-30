@@ -115,6 +115,55 @@ impl Repo {
         self.git(&["restore"], &[rela.to_path_buf()]).map(|_| ())
     }
 
+    /// Switch to a ref: a local branch, a remote branch (a tracking branch is created) or a
+    /// tag (detached HEAD).
+    pub fn checkout_ref(&self, name: &str, kind: crate::RefKind) -> Result<(), Error> {
+        match kind {
+            crate::RefKind::Branch => self.git(&["switch", name], &[]),
+            crate::RefKind::Remote => self.git(&["switch", "--track", name], &[]),
+            crate::RefKind::Tag => self.git(&["switch", "--detach", name], &[]),
+        }
+        .map(|_| ())
+    }
+
+    /// Create a branch at HEAD and switch to it.
+    pub fn create_branch(&self, name: &str) -> Result<(), Error> {
+        if name.trim().is_empty() {
+            return Err(Error("empty branch name".into()));
+        }
+        self.git(&["switch", "-c", name], &[]).map(|_| ())
+    }
+
+    /// Delete a local branch; `force` deletes it even if it is not merged.
+    pub fn delete_branch(&self, name: &str, force: bool) -> Result<(), Error> {
+        self.git(&["branch", if force { "-D" } else { "-d" }, name], &[]).map(|_| ())
+    }
+
+    /// Merge `name` into the checked-out branch.
+    pub fn merge(&self, name: &str) -> Result<(), Error> {
+        self.git(&["merge", name], &[]).map(|_| ())
+    }
+
+    /// Put the work tree and index changes on the stash (`message` may be empty).
+    pub fn stash_push(&self, message: &str) -> Result<(), Error> {
+        if message.trim().is_empty() { self.git(&["stash", "push"], &[]) } else { self.git(&["stash", "push", "-m", message], &[]) }.map(|_| ())
+    }
+
+    /// Apply stash entry `index` and keep it.
+    pub fn stash_apply(&self, index: usize) -> Result<(), Error> {
+        self.git(&["stash", "apply", &format!("stash@{{{index}}}")], &[]).map(|_| ())
+    }
+
+    /// Apply stash entry `index` and drop it.
+    pub fn stash_pop(&self, index: usize) -> Result<(), Error> {
+        self.git(&["stash", "pop", &format!("stash@{{{index}}}")], &[]).map(|_| ())
+    }
+
+    /// Drop stash entry `index`.
+    pub fn stash_drop(&self, index: usize) -> Result<(), Error> {
+        self.git(&["stash", "drop", &format!("stash@{{{index}}}")], &[]).map(|_| ())
+    }
+
     /// Commit what is staged. Returns `short-hash subject`.
     pub fn create_commit(&self, message: &str) -> Result<String, Error> {
         if message.trim().is_empty() {

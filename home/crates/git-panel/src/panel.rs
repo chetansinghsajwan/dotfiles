@@ -78,6 +78,8 @@ pub struct Panel {
     version: u64,
     pscroll: usize,
     pheight: usize,
+    /// Title of the list pane instead of `git: <branch>`.
+    title: Option<String>,
 }
 
 fn kind_char(k: Kind) -> char {
@@ -112,6 +114,7 @@ impl Panel {
             version: 0,
             pscroll: 0,
             pheight: 10,
+            title: None,
         };
         p.refresh();
         Some(p)
@@ -374,6 +377,21 @@ impl Panel {
         self.render_list(area, buf, theme, focused);
     }
 
+    /// Only the diff of the highlighted file, for a host that lays the panes out itself.
+    pub fn render_preview_pane(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme) {
+        self.render_preview(area, buf, theme);
+    }
+
+    /// Replace the list pane's title (`git: <branch>` by default).
+    pub fn set_title(&mut self, title: impl Into<String>) {
+        self.title = Some(title.into());
+    }
+
+    /// The checked-out branch, as of the last refresh.
+    pub fn branch(&self) -> &str {
+        &self.branch
+    }
+
     pub fn render(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme) {
         let [list_area, preview_area] = layout::main_preview(theme, area);
         self.render_list(list_area, buf, theme, true);
@@ -382,7 +400,7 @@ impl Panel {
 
     fn render_list(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool) {
         let c = &theme.colors;
-        let title = format!("git: {}", self.branch);
+        let title = self.title.clone().unwrap_or_else(|| format!("git: {}", self.branch));
         let pane = Pane::new(theme).title(&title).icon(ui::icons::GIT).focused(focused);
         let mut inner = pane.inner(area);
         pane.render(area, buf);
