@@ -732,7 +732,7 @@ impl Panel {
                 ui::icons::file(&row.name, is_executable(&row.path))
             };
             let line = Line::from(vec![
-                Span::raw(" ".repeat(usize::from(row.depth) * 2 + usize::from(left == 0))),
+                Span::raw(" ".repeat(usize::from(row.depth) * 2 + 1)),
                 Span::styled(format!("{} ", icon.glyph), Style::new().fg(icon.color)),
                 Span::styled(row.name.clone(), name_style),
             ]);
