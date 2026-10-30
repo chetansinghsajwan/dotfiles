@@ -35,6 +35,9 @@ in
                 inherits = "stylix";
                 "ui.cursorline.primary".bg = mix colors.base05 colors.base00 14;
                 "ui.cursorline.secondary".bg = mix colors.base05 colors.base00 14;
+                # The line number on the cursor line shares that background.
+                "ui.linenr.selected".bg = mix colors.base05 colors.base00 14;
+                "ui.gutter.selected".bg = mix colors.base05 colors.base00 14;
             };
 
             # Opt-in: our fork with the shared picker (see home/helix/FORK.md).

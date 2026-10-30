@@ -382,7 +382,7 @@ impl Panel {
 
     fn render_list(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool) {
         let c = &theme.colors;
-        let title = self.branch.to_string();
+        let title = format!("git: {}", self.branch);
         let pane = Pane::new(theme).title(&title).icon(ui::icons::GIT).focused(focused);
         let mut inner = pane.inner(area);
         pane.render(area, buf);

@@ -213,7 +213,7 @@ impl Panel {
         let (e, w, _) = self.counts();
         let plural = |n: usize, s: &str| format!("{n} {s}{}", if n == 1 { "" } else { "s" });
         let title = if self.items.is_empty() { "diagnostics".to_string() } else { format!("diagnostics: {}, {}{}", plural(e, "error"), plural(w, "warning"), self.filter.label()) };
-        let pane = Pane::new(theme).title(&title).focused(focused);
+        let pane = Pane::new(theme).title(&title).icon(ui::icons::DIAGNOSTICS).focused(focused);
         let inner = pane.inner(area);
         pane.render(area, buf);
         if inner.height == 0 || inner.width < 6 {

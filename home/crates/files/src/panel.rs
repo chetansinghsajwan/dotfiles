@@ -754,10 +754,10 @@ impl Panel {
             }
             if let Some(bg) = base.bg {
                 if left == 1 {
-                    buf.set_string(inner.x - 1, y, "▐", Style::new().fg(bg));
+                    buf.set_string(inner.x - 1, y, "\u{e0ba}", Style::new().fg(bg));
                 }
                 if right == 1 {
-                    buf.set_string(inner.right(), y, "▌", Style::new().fg(bg));
+                    buf.set_string(inner.right(), y, "\u{e0b8}", Style::new().fg(bg));
                 }
             }
         }

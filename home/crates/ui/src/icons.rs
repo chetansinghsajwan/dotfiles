@@ -18,6 +18,9 @@ const fn rgb(c: u32) -> Color {
 /// The git logo, for git panes (yazi's color for git files).
 pub const GIT: Icon = Icon { glyph: "\u{e702}", color: rgb(0xf54d27) };
 
+/// A warning triangle, for the diagnostics pane.
+pub const DIAGNOSTICS: Icon = Icon { glyph: "\u{f071}", color: rgb(0xffc107) };
+
 const DIR: Icon = Icon { glyph: "\u{e5ff}", color: rgb(0x03a9f4) };
 const DIR_OPEN: Icon = Icon { glyph: "\u{e5fe}", color: rgb(0x03a9f4) };
 const EXEC: Icon = Icon { glyph: "\u{f489}", color: rgb(0x8bc34a) };
