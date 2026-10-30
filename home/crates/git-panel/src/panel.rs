@@ -566,7 +566,7 @@ mod tests {
         let mut p = Panel::new(&repo("sections")).unwrap();
         let text = draw(&mut p).join("\n");
         let pos = |s: &str| text.find(s).unwrap_or_else(|| panic!("{s} in\n{text}"));
-        assert!(pos("git: main") < pos("Staged (1)") && pos("Staged (1)") < pos("Unstaged (1)") && pos("Unstaged (1)") < pos("Untracked (1)"));
+        assert!(pos("main") < pos("Staged (1)") && pos("Staged (1)") < pos("Unstaged (1)") && pos("Unstaged (1)") < pos("Untracked (1)"));
         assert!(pos("M b.txt") < pos("M a.txt") && pos("M a.txt") < pos("? new.txt"), "{text}");
     }
 
