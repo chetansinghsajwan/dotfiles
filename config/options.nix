@@ -219,7 +219,7 @@ in
                 };
                 previewPercent = mkOption {
                     type = types.ints.between 0 100;
-                    default = 50;
+                    default = 65;
                 };
                 popupPercent = mkOption {
                     type = types.ints.between 10 100;
