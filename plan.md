@@ -389,3 +389,14 @@ Required before yazi can go: core file ops (done in `files`), cd on exit and `--
 - The permission column is colored like the properties panel (`meta::perm_spans`: owner `r` green, `w` yellow, `x` red, group and other muted).
 - Panel ratio: the preview share (`dotfiles.ui.layout.previewPercent`, `ui::Theme` default) is now 65, so list and preview are 35:65 in `files` and `pick`.
 - The leader (which-key) popup is transparent when `dotfiles.ui.chrome.transparent` is on (no solid background, like the other panes; `ui/info.rs`). Compile-checked only.
+- Pick hierarchy view: the folder headers enclosing the top visible row stay pinned at the top while scrolling (`tree::ancestors`, `render_tree_rows`); the pinned rows take lines from the window and the cursor scrolling accounts for them; in a tiny pane at least one scrolling row remains.
+
+## Icon rule (user decision)
+
+Every entry, pane title and preview has an appropriate icon from `ui::icons` (`dir`, `file`, `GIT`, `DIAGNOSTICS`, `for_title` for well-known titles such as Files, History, Branches, Buffers, Symbols, Jumplist, Themes, Commands, Registers, Properties, Grep). The preview pane shows the icon of the file or commit it previews (`pick`, `files`, `git-panel`). Entries without an icon are rare and are listed here explicitly.
+
+Icon exceptions (current):
+- `pick` rows of plain stdin text (they are not paths), and git ref/commit/stash rows (their pane title has the git icon instead).
+- Grep match lines under a file header (the header has the icon).
+- A pane given an unknown `--title` (no icon unless `set_icon` is used).
+- The explorer footer, prompts and the leader popup frame.

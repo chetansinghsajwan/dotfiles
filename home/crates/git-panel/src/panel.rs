@@ -458,7 +458,8 @@ impl Panel {
     fn render_preview(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme) {
         let current = self.current().map(|(s, p, _)| (s, p.to_path_buf()));
         let title = current.as_ref().map(|(_, p)| p.display().to_string()).unwrap_or_default();
-        let pane = Pane::new(theme).title(&title);
+        let name = title.trim_end_matches('/').rsplit('/').next().unwrap_or(&title).to_string();
+        let pane = Pane::new(theme).title(&title).icon(ui::icons::file(&name, false));
         let inner = pane.inner(area);
         pane.render(area, buf);
         let Some((section, rela)) = current else {

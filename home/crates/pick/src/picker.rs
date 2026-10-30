@@ -518,7 +518,8 @@ impl Picker {
         let count = if self.opts.mode == Mode::Grep { format!("{snap_total}") } else { format!("{snap_matched}/{snap_total}") };
         let title = self.title.as_deref().unwrap_or(if self.opts.mode == Mode::Grep { "grep" } else { "pick" });
         let mut pane = Pane::new(theme).title(title).focused(true);
-        if let Some(icon) = self.icon {
+        // An explicit icon, else one that fits the title (`Files`, `History`, `Branches`, ...).
+        if let Some(icon) = self.icon.or_else(|| ui::icons::for_title(title)) {
             pane = pane.icon(icon);
         }
         let inner = pane.inner(area);
@@ -589,14 +590,25 @@ impl Picker {
         let c = &theme.colors;
         let rows: Vec<crate::tree::Row> = {
             let Some(tree) = self.tree.as_ref() else { return };
-            // Keep the cursor's row inside the window.
+            // The folders above the top row stay pinned at the top, so scrolling never loses the
+            // path; they take lines from the window, which the scrolling below accounts for.
+            let room = |off: u32| (self.page as usize).saturating_sub(crate::tree::ancestors(&tree.rows, off as usize).len()).max(1) as u32;
             let crow = tree.row_of.get(&self.cursor).copied().unwrap_or(0) as u32;
             if crow < self.offset {
                 self.offset = crow;
-            } else if crow >= self.offset + self.page {
-                self.offset = crow + 1 - self.page;
+            } else {
+                while crow >= self.offset + room(self.offset) {
+                    self.offset += 1;
+                }
             }
-            tree.rows.iter().skip(self.offset as usize).take(self.page as usize).cloned().collect()
+            let mut pinned: Vec<crate::tree::Row> = crate::tree::ancestors(&tree.rows, self.offset as usize).into_iter().map(|i| tree.rows[i].clone()).collect();
+            // In a tiny pane keep at least one scrolling row: drop the outermost pins first.
+            let keep = (self.page as usize).saturating_sub(1);
+            if pinned.len() > keep {
+                pinned.drain(..pinned.len() - keep);
+            }
+            let take = (self.page as usize).saturating_sub(pinned.len());
+            pinned.into_iter().chain(tree.rows.iter().skip(self.offset as usize).take(take).cloned()).collect()
         };
 
         for (i, row) in rows.iter().enumerate() {
@@ -650,7 +662,17 @@ impl Picker {
                 _ => c.display.clone(),
             })
             .unwrap_or_default();
-        let pane = Pane::new(theme).title(&title);
+        let mut pane = Pane::new(theme).title(&title);
+        // A commit, or the icon of the file shown.
+        if let Some(c) = cand.as_ref() {
+            if c.git.is_some() {
+                pane = pane.icon(ui::icons::GIT);
+            } else if self.opts.paths {
+                let path = c.path();
+                let name = path.trim_end_matches('/').rsplit('/').next().unwrap_or(path);
+                pane = pane.icon(if path.ends_with('/') { ui::icons::dir(name, false) } else { ui::icons::file(name, false) });
+            }
+        }
         let inner = pane.inner(area);
         pane.render(area, buf);
         let Some(cand) = cand else {
@@ -1300,6 +1322,23 @@ mod tree_tests {
     }
 
     const SET: [&str; 4] = ["README.md", "src/ui/c.rs", "src/a.rs", "docs/guide/x.md"];
+
+    #[test]
+    fn scrolling_keeps_the_parent_folders_pinned_at_the_top() {
+        let names: Vec<String> = (0..40).map(|i| format!("src/ui/f{i:02}.rs")).collect();
+        let refs: Vec<&str> = names.iter().map(String::as_str).collect();
+        let mut p = files(&refs);
+        for _ in 0..30 {
+            p.handle_event(&key(KeyCode::Down));
+        }
+        let l = lines(&mut p);
+        // Row 0 is the border, 1 the prompt: the list starts at 2 with the merged folder `src/ui`, then files.
+        assert!(l[2].contains(" src/ui"), "{l:#?}");
+        assert!(l[3].contains(".rs"), "{l:#?}");
+        // The cursor row is on screen and nothing is drawn twice.
+        assert!(l.iter().any(|r| r.contains("f30.rs")), "{l:#?}");
+        assert_eq!(l.iter().filter(|r| r.contains(" src/ui")).count(), 1, "{l:#?}");
+    }
 
     #[test]
     fn list_is_a_hierarchy_with_leaf_names_only() {

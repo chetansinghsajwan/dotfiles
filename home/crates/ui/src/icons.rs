@@ -26,6 +26,43 @@ const DIR_OPEN: Icon = Icon { glyph: "\u{e5fe}", color: rgb(0x03a9f4) };
 const EXEC: Icon = Icon { glyph: "\u{f489}", color: rgb(0x8bc34a) };
 const FILE: Icon = Icon { glyph: "\u{f15b}", color: rgb(0xffffff) };
 
+/// An icon for a well-known pane title (`Files`, `History`, `Branches`, `Buffers`, ...), so
+/// pickers and panels look alike whatever tool opens them. Case does not matter.
+pub fn for_title(title: &str) -> Option<Icon> {
+    let t = title.to_lowercase();
+    let has = |words: &[&str]| words.iter().any(|w| t.contains(w));
+    let icon = |glyph: &'static str, color: u32| Some(Icon { glyph, color: rgb(color) });
+    if has(&["propert"]) {
+        icon("\u{f05a}", 0x59c2ff)
+    } else if has(&["branch", "refs", "tags"]) {
+        icon("\u{e0a0}", 0xf54d27)
+    } else if has(&["history", "commit", "stash", "log", "changes", "changed", "status"]) {
+        Some(GIT)
+    } else if has(&["diagnostic", "problem"]) {
+        Some(DIAGNOSTICS)
+    } else if has(&["buffer"]) {
+        icon("\u{f0c5}", 0x6d8086)
+    } else if has(&["jump"]) {
+        icon("\u{f0e2}", 0x6d8086)
+    } else if has(&["symbol"]) {
+        icon("\u{f1b2}", 0xa074c4)
+    } else if has(&["theme"]) {
+        icon("\u{f1fc}", 0xf245fb)
+    } else if has(&["action"]) {
+        icon("\u{f0eb}", 0xffc107)
+    } else if has(&["command"]) {
+        icon("\u{f120}", 0x89e051)
+    } else if has(&["register"]) {
+        icon("\u{f0ea}", 0x6d8086)
+    } else if has(&["file", "find", "open"]) {
+        Some(DIR_OPEN)
+    } else if has(&["grep", "search", "pick"]) {
+        icon("\u{f002}", 0x59c2ff)
+    } else {
+        None
+    }
+}
+
 fn find(table: &[(&'static str, &'static str, u32)], key: &str) -> Option<Icon> {
     let i = table.binary_search_by(|(n, _, _)| (*n).cmp(key)).ok()?;
     let (_, glyph, color) = table[i];
@@ -65,6 +102,16 @@ mod tests {
         for t in [DIRS, FILES, EXTS] {
             assert!(t.windows(2).all(|w| w[0].0 < w[1].0));
         }
+    }
+
+    #[test]
+    fn titles_get_icons_whatever_the_case() {
+        assert_eq!(for_title("History"), Some(GIT));
+        assert_eq!(for_title("history"), for_title("HISTORY"));
+        assert_eq!(for_title("Files"), Some(DIR_OPEN));
+        assert!(for_title("Branches").is_some() && for_title("Buffers").is_some() && for_title("grep").is_some());
+        assert_ne!(for_title("Branches"), for_title("History"));
+        assert_eq!(for_title("something else"), None);
     }
 
     #[test]

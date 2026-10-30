@@ -140,7 +140,10 @@ pub fn perm_spans(theme: &Theme, perm: &str, spaced: bool) -> Vec<Span<'static>>
 
 /// Draw the panel in `area` for `path` (a bordered pane titled "properties").
 pub fn render(area: Rect, buf: &mut Buffer, theme: &Theme, meta: Option<&Meta>, dir_size: Option<(u64, bool)>) {
-    let pane = Pane::new(theme).title("properties");
+    let mut pane = Pane::new(theme).title("properties");
+    if let Some(icon) = ui::icons::for_title("properties") {
+        pane = pane.icon(icon);
+    }
     let inner = pane.inner(area);
     pane.render(area, buf);
     if let Some(m) = meta {

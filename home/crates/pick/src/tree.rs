@@ -76,6 +76,30 @@ fn emit(node: &Node, depth: u16, tree: &mut Tree) {
     }
 }
 
+/// The folder header rows that enclose the row at `at`, outermost first (what stays
+/// pinned at the top of the list while that row is the first one shown).
+pub fn ancestors(rows: &[Row], at: usize) -> Vec<usize> {
+    let depth = match rows.get(at) {
+        Some(Row::Dir { depth, .. }) | Some(Row::Item { depth, .. }) => *depth,
+        None => return Vec::new(),
+    };
+    let mut need = depth;
+    let mut found = Vec::new();
+    for i in (0..at).rev() {
+        if need == 0 {
+            break;
+        }
+        if let Row::Dir { depth: d, .. } = &rows[i] {
+            if *d < need {
+                found.push(i);
+                need = *d;
+            }
+        }
+    }
+    found.reverse();
+    found
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -84,6 +108,17 @@ mod tests {
         let mut parts: Vec<String> = path.split('/').map(String::from).collect();
         let name = parts.pop().unwrap();
         Entry { idx, dirs: parts, sort: name.to_lowercase() }
+    }
+
+    #[test]
+    fn ancestors_are_the_enclosing_headers_outermost_first() {
+        let t = build(vec![e(0, "README.md"), e(1, "src/b.rs"), e(2, "src/ui/c.rs"), e(3, "docs/x.md")]);
+        // rows: docs/, #3, src/, ui/, #2, #1, #0
+        assert_eq!(ancestors(&t.rows, 4), vec![2, 3]); // c.rs: src, ui
+        assert_eq!(ancestors(&t.rows, 5), vec![2]); // b.rs: src
+        assert_eq!(ancestors(&t.rows, 3), vec![2]); // ui/ itself: src
+        assert!(ancestors(&t.rows, 6).is_empty()); // README: top level
+        assert!(ancestors(&t.rows, 0).is_empty() && ancestors(&t.rows, 99).is_empty());
     }
 
     fn shape(t: &Tree) -> Vec<String> {
