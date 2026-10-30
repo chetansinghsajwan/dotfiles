@@ -388,3 +388,4 @@ Required before yazi can go: core file ops (done in `files`), cd on exit and `--
 - Standalone `files` columns: the default linemode is `Full` (permissions, size, relative modified time such as `4h ago`; `Linemode::Full`, `meta::time_relative`); `c` cycles full, size and time, permissions and time, off. Helix keeps the columns off. Git letters stay at the right end of each row (the `files` app has them on unless `--no-git`).
 - The permission column is colored like the properties panel (`meta::perm_spans`: owner `r` green, `w` yellow, `x` red, group and other muted).
 - Panel ratio: the preview share (`dotfiles.ui.layout.previewPercent`, `ui::Theme` default) is now 65, so list and preview are 35:65 in `files` and `pick`.
+- The leader (which-key) popup is transparent when `dotfiles.ui.chrome.transparent` is on (no solid background, like the other panes; `ui/info.rs`). Compile-checked only.

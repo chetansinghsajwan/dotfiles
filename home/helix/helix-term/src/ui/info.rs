@@ -1,5 +1,5 @@
 use crate::compositor::{Component, Context};
-use helix_view::graphics::{Margin, Modifier, Rect};
+use helix_view::graphics::{Color, Margin, Modifier, Rect};
 use helix_view::info::Info;
 use ratatui::buffer::Buffer as RBuffer;
 use ratatui::layout::Rect as RRect;
@@ -11,8 +11,14 @@ use tui::widgets::{Block, Paragraph, Widget};
 
 impl Component for Info {
     fn render(&mut self, viewport: Rect, surface: &mut Surface, cx: &mut Context) {
-        let text_style = cx.editor.theme.get("ui.text.info");
-        let popup_style = cx.editor.theme.get("ui.popup.info");
+        let design = tui_design::Theme::load();
+        let mut text_style = cx.editor.theme.get("ui.text.info");
+        let mut popup_style = cx.editor.theme.get("ui.popup.info");
+        // Transparent chrome: no solid background, the terminal's own shows through.
+        if design.chrome.transparent {
+            text_style = text_style.bg(Color::Reset);
+            popup_style = popup_style.bg(Color::Reset);
+        }
 
         // Calculate the area of the terminal to modify. Because we want to
         // render at the bottom right, we use the viewport's width and height
@@ -30,11 +36,11 @@ impl Component for Info {
         // The frame is the shared pane (rounded border, padded title, focused color),
         // drawn by `ui::Pane` like every other panel and copied onto the surface.
         if area.width >= 2 && area.height >= 2 {
-            let theme = tui_design::Theme::load();
+            let theme = &design;
             let local = RRect::new(0, 0, area.width, area.height);
             let mut buf = RBuffer::empty(local);
             let title: &str = self.title.as_ref();
-            tui_design::Pane::new(&theme).title(title).focused(true).render(local, &mut buf);
+            tui_design::Pane::new(theme).title(title).focused(true).render(local, &mut buf);
             let (w, h) = (area.width, area.height);
             for y in 0..h {
                 for x in 0..w {
