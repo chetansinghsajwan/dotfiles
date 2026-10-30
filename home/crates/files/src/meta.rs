@@ -237,6 +237,11 @@ pub fn size_short(n: u64) -> String {
         format!("{:.0}{}", v, UNITS[i])
     }
 }
+/// How long ago, for a column: `now`, `5m ago`, `4h ago`, `3d ago`, `2mo ago`, `1y ago` (8 cells at most).
+pub fn time_relative(t: Option<SystemTime>) -> String {
+    t.map(|t| ago(SystemTime::now().duration_since(t).map(|d| d.as_secs()).unwrap_or(0))).unwrap_or_default()
+}
+
 
 /// A modification time for a column, 11 cells: `MM-DD HH:MM` this year, `YY-MM-DD` before.
 pub fn time_short(t: Option<SystemTime>) -> String {
@@ -346,6 +351,16 @@ mod tests {
 
     fn text(lines: &[Line]) -> Vec<String> {
         lines.iter().map(|l| l.spans.iter().map(|s| s.content.as_ref()).collect()).collect()
+    }
+
+    #[test]
+    fn relative_times() {
+        let ago_of = |s: u64| time_relative(Some(SystemTime::now() - std::time::Duration::from_secs(s)));
+        assert_eq!(ago_of(5), "now");
+        assert_eq!(ago_of(300), "5m ago");
+        assert_eq!(ago_of(4 * 3600), "4h ago");
+        assert_eq!(ago_of(3 * 86_400), "3d ago");
+        assert_eq!(time_relative(None), "");
     }
 
     #[test]

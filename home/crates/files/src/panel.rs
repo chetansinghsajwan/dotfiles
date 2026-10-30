@@ -42,6 +42,8 @@ impl Default for PanelOptions {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Linemode {
     Off,
+    /// Permissions, size and modified time (the standalone app's default).
+    Full,
     /// Size (folders are counted in the background) and modified time.
     SizeTime,
     /// Permissions and modified time.
@@ -51,7 +53,8 @@ pub enum Linemode {
 impl Linemode {
     pub fn next(self) -> Linemode {
         match self {
-            Linemode::Off => Linemode::SizeTime,
+            Linemode::Off => Linemode::Full,
+            Linemode::Full => Linemode::SizeTime,
             Linemode::SizeTime => Linemode::PermTime,
             Linemode::PermTime => Linemode::Off,
         }
@@ -60,6 +63,7 @@ impl Linemode {
     fn label(self) -> &'static str {
         match self {
             Linemode::Off => "columns off",
+            Linemode::Full => "permissions, size and time",
             Linemode::SizeTime => "size and time",
             Linemode::PermTime => "permissions and time",
         }
@@ -69,8 +73,9 @@ impl Linemode {
     fn width(self) -> u16 {
         match self {
             Linemode::Off => 0,
-            Linemode::SizeTime => 5 + 1 + 11 + 1,
-            Linemode::PermTime => 9 + 1 + 11 + 1,
+            Linemode::Full => 9 + 1 + 5 + 1 + 8 + 1,
+            Linemode::SizeTime => 5 + 1 + 8 + 1,
+            Linemode::PermTime => 9 + 1 + 8 + 1,
         }
     }
 }
@@ -931,15 +936,18 @@ impl Panel {
             let text_area = Rect { width: area.width - cols, ..area };
             Paragraph::new(line).style(base).render(text_area, buf);
             if cols > 0 {
-                let first = if self.opts.linemode == Linemode::PermTime {
-                    format!("{:<9}", meta::perm_string(row.mode))
-                } else if row.is_dir {
-                    format!("{:>5}", sizes.get(&row.path).map(|d| meta::size_cell(d.state())).unwrap_or_default())
-                } else {
-                    format!("{:>5}", meta::size_short(row.size))
-                };
+                let mode = self.opts.linemode;
+                let mut text = String::new();
+                if matches!(mode, Linemode::Full | Linemode::PermTime) {
+                    text.push_str(&format!("{:<9} ", meta::perm_string(row.mode)));
+                }
+                if matches!(mode, Linemode::Full | Linemode::SizeTime) {
+                    let size = if row.is_dir { sizes.get(&row.path).map(|d| meta::size_cell(d.state())).unwrap_or_default() } else { meta::size_short(row.size) };
+                    text.push_str(&format!("{size:>5} "));
+                }
+                text.push_str(&format!("{:>8}", meta::time_relative(row.modified)));
                 let x = area.right().saturating_sub(cols + 1);
-                buf.set_string(x, y, format!("{first} {:<11}", meta::time_short(row.modified)), base.fg(c.muted.into()));
+                buf.set_string(x, y, text, base.fg(c.muted.into()));
             }
 
             if let Some((ch, kind)) = git {

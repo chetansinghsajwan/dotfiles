@@ -47,7 +47,7 @@ struct App {
 
 pub fn run(opts: Options) -> io::Result<u8> {
     let dir = opts.dir.canonicalize()?;
-    let panel_opts = PanelOptions { hidden: opts.hidden, git: opts.git, linemode: files::Linemode::SizeTime, ..PanelOptions::default() };
+    let panel_opts = PanelOptions { hidden: opts.hidden, git: opts.git, linemode: files::Linemode::Full, ..PanelOptions::default() };
     let mut app = App { theme: Theme::load(), tabs: vec![Panel::new(dir, panel_opts)], active: 0, preview: None, show_meta: true, meta: None, dirsize: None, opts };
 
     // Draw on the controlling terminal so stdout stays free for the caller.
@@ -128,7 +128,7 @@ impl App {
                 }
                 KeyCode::Char('t') => {
                     let root = self.panel().root().to_path_buf();
-                    self.tabs.push(Panel::new(root, PanelOptions { hidden: self.opts.hidden, git: self.opts.git, linemode: files::Linemode::SizeTime, ..PanelOptions::default() }));
+                    self.tabs.push(Panel::new(root, PanelOptions { hidden: self.opts.hidden, git: self.opts.git, linemode: files::Linemode::Full, ..PanelOptions::default() }));
                     self.active = self.tabs.len() - 1;
                     return Ok(None);
                 }
