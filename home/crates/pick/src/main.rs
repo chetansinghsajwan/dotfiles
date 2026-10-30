@@ -134,6 +134,9 @@ fn run(cli: Cli) -> io::Result<u8> {
     );
     // Path lists read better as a hierarchy; folder listings and plain text stay flat.
     picker.set_tree(!cli.flat && ((cli.files.is_some() && !cli.dirs && !cli.only_dirs) || cli.paths.is_some() || cli.grep.is_some()));
+    if cli.git.is_some() {
+        picker.set_icon(ui::icons::GIT);
+    }
     if let Some(title) = &cli.title {
         picker.set_title(title.clone());
     }

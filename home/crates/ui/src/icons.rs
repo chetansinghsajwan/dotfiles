@@ -15,6 +15,9 @@ const fn rgb(c: u32) -> Color {
     Color::Rgb((c >> 16) as u8, (c >> 8) as u8, c as u8)
 }
 
+/// The git logo, for git panes (yazi's color for git files).
+pub const GIT: Icon = Icon { glyph: "\u{e702}", color: rgb(0xf54d27) };
+
 const DIR: Icon = Icon { glyph: "\u{e5ff}", color: rgb(0x03a9f4) };
 const DIR_OPEN: Icon = Icon { glyph: "\u{e5fe}", color: rgb(0x03a9f4) };
 const EXEC: Icon = Icon { glyph: "\u{f489}", color: rgb(0x8bc34a) };

@@ -77,6 +77,8 @@ pub struct Picker {
     pscroll: usize,
     /// Pane title override (`--title`).
     title: Option<String>,
+    /// Icon before the title (git pickers).
+    icon: Option<ui::icons::Icon>,
     /// External preview command for candidates that are plain text (`--preview-cmd`).
     preview_cmd: Option<crate::preview_cmd::PreviewCmd>,
     /// Keys that accept and report themselves (`--expect`).
@@ -121,6 +123,7 @@ impl Picker {
             cancel: Arc::new(AtomicBool::new(false)),
             pscroll: 0,
             title: None,
+            icon: None,
             preview_cmd: None,
             expect: Vec::new(),
             header: Vec::new(),
@@ -158,6 +161,10 @@ impl Picker {
     }
 
     /// Title of the list pane instead of `pick` / `grep`.
+    pub fn set_icon(&mut self, icon: ui::icons::Icon) {
+        self.icon = Some(icon);
+    }
+
     pub fn set_title(&mut self, title: impl Into<String>) {
         self.title = Some(title.into());
     }
@@ -510,7 +517,10 @@ impl Picker {
         // In grep mode every item matches, so only the item count is meaningful.
         let count = if self.opts.mode == Mode::Grep { format!("{snap_total}") } else { format!("{snap_matched}/{snap_total}") };
         let title = self.title.as_deref().unwrap_or(if self.opts.mode == Mode::Grep { "grep" } else { "pick" });
-        let pane = Pane::new(theme).title(title).focused(true);
+        let mut pane = Pane::new(theme).title(title).focused(true);
+        if let Some(icon) = self.icon {
+            pane = pane.icon(icon);
+        }
         let inner = pane.inner(area);
         pane.render(area, buf);
         if inner.height < 2 {
