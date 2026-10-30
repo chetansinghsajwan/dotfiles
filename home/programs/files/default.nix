@@ -2,7 +2,6 @@
     config,
     lib,
     pkgs,
-    crane,
     ...
 }:
 let
@@ -21,7 +20,6 @@ in
 {
     # `files`: the file explorer (Rust, home/crates/files), the same panel the
     # helix fork embeds. Replaces yazi. `y` changes directory on exit.
-    home.packages = [ (pkgs.callPackage ../../crates { craneLib = crane.mkLib pkgs; } "files") ];
 
     programs.zsh.initContent = lib.mkIf (shell == "zsh") posix;
     programs.fish.functions.y = lib.mkIf (shell == "fish") ''

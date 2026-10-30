@@ -1,4 +1,4 @@
-{ config, pkgs, crane, ... }:
+{ config, pkgs, ... }:
 let
     ui = config.dotfiles.ui;
     c = config.lib.stylix.colors.withHashtag;
@@ -6,7 +6,6 @@ in
 {
     # Shared TUI framework crate. Only the demo binary is installed for now;
     # tools (pv, pick, ...) will depend on the crate directly.
-    home.packages = [ (pkgs.callPackage ../../crates { craneLib = crane.mkLib pkgs; } "ui") ];
 
     # Single source of design tokens. Read at runtime by the `ui` crate
     # (home/crates/ui), so editing a value needs no rebuild of any tool.
