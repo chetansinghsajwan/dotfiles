@@ -81,6 +81,16 @@ in
                     bind "Down" { GoToPreviousTab; }
                 }
 
+                // Move mode lives on Alt+m instead of Ctrl+h (Ctrl+h is Backspace in terminals).
+                shared_except "move" "locked" {
+                    unbind "Ctrl h"
+                    bind "Alt m" { SwitchToMode "Move"; }
+                }
+                move {
+                    unbind "Ctrl h"
+                    bind "Alt m" { SwitchToMode "Normal"; }
+                }
+
                 // Ctrl+/ avoids colliding with typing a literal "?" in a pane.
                 shared_except "locked" {
                     bind "Ctrl /" {
