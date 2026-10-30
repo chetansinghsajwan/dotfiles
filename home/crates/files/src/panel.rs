@@ -790,7 +790,7 @@ impl Panel {
 
     /// Start counting the visible folders' sizes (a few at a time) while the size column is on.
     fn count_visible_dirs(&mut self) {
-        if self.opts.linemode != Linemode::SizeTime {
+        if !matches!(self.opts.linemode, Linemode::Full | Linemode::SizeTime) {
             return;
         }
         let mut running = self.dir_sizes.values().filter(|d| !d.state().1).count();
