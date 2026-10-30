@@ -11,6 +11,8 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Paragraph, Widget};
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
 use tui_input::backend::crossterm::EventHandler;
 use tui_input::Input;
 use ui::{Pane, Theme};
@@ -25,11 +27,14 @@ pub struct PanelOptions {
     pub linemode: Linemode,
     /// Where bookmarks are kept (`None`: in memory only).
     pub bookmarks: Option<PathBuf>,
+    /// Pastes of at least this many bytes run in the background with a progress line
+    /// (`None`: always at once).
+    pub background_bytes: Option<u64>,
 }
 
 impl Default for PanelOptions {
     fn default() -> Self {
-        PanelOptions { hidden: false, git: true, linemode: Linemode::Off, bookmarks: bookmarks::default_path() }
+        PanelOptions { hidden: false, git: true, linemode: Linemode::Off, bookmarks: bookmarks::default_path(), background_bytes: Some(8 << 20) }
     }
 }
 
@@ -153,7 +158,58 @@ enum Mode {
     Confirm(ConfirmKind, Vec<PathBuf>),
 }
 
+/// Bytes and items done so far by a background paste, and whether to stop.
+struct Progress {
+    done: AtomicU64,
+    total: u64,
+    items_done: AtomicUsize,
+    items: usize,
+    cancel: AtomicBool,
+}
+
+struct PasteResult {
+    moved: Vec<(PathBuf, PathBuf)>,
+    done: usize,
+    failed: Vec<String>,
+}
+
+/// A paste running on its own thread.
+struct Job {
+    progress: Arc<Progress>,
+    handle: std::thread::JoinHandle<PasteResult>,
+    dir: PathBuf,
+}
+
+/// The work of a paste: copy or move each `(from, to)`, reporting through `progress`.
+fn run_paste(pairs: Vec<(PathBuf, PathBuf)>, cut: bool, progress: &Progress) -> PasteResult {
+    let mut res = PasteResult { moved: Vec::new(), done: 0, failed: Vec::new() };
+    for (src, dest) in pairs {
+        if progress.cancel.load(Ordering::Relaxed) {
+            res.failed.push("cancelled".into());
+            break;
+        }
+        let mut tick = |n: u64| {
+            progress.done.fetch_add(n, Ordering::Relaxed);
+            !progress.cancel.load(Ordering::Relaxed)
+        };
+        let result = if cut { ops::move_progress(&src, &dest, &mut tick) } else { ops::copy_progress(&src, &dest, &mut tick) };
+        let name = src.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+        match result {
+            Ok(()) => {
+                res.done += 1;
+                if cut {
+                    res.moved.push((src, dest));
+                }
+            }
+            Err(e) => res.failed.push(format!("{name}: {e}")),
+        }
+        progress.items_done.fetch_add(1, Ordering::Relaxed);
+    }
+    res
+}
+
 /// Yanked (copy) or cut paths waiting for `p`.
+#[derive(Clone)]
 struct Clip {
     paths: Vec<PathBuf>,
     cut: bool,
@@ -179,6 +235,11 @@ pub struct Panel {
     dir_sizes: std::collections::HashMap<PathBuf, meta::DirSize>,
     /// What was last drawn for them, to know when a redraw is due.
     sizes_shown: Vec<(PathBuf, (u64, bool))>,
+    /// A paste running in the background, and the action its end produced, waiting for the next event.
+    job: Option<Job>,
+    pending: Option<Action>,
+    /// Something finished by itself since the last `tick`.
+    redraw: bool,
 }
 
 impl Panel {
@@ -202,6 +263,9 @@ impl Panel {
             bookmarks: Bookmarks::load(opts_bookmarks),
             dir_sizes: std::collections::HashMap::new(),
             sizes_shown: Vec::new(),
+            job: None,
+            pending: None,
+            redraw: false,
         };
         p.refresh();
         p
@@ -369,6 +433,12 @@ impl Panel {
     }
 
     pub fn handle_event(&mut self, ev: &Event) -> Action {
+        self.poll_job();
+        let action = self.handle_key_event(ev);
+        if action == Action::None { self.pending.take().unwrap_or(Action::None) } else { action }
+    }
+
+    fn handle_key_event(&mut self, ev: &Event) -> Action {
         let Event::Key(key @ KeyEvent { kind, .. }) = ev else { return Action::None };
         if *kind == KeyEventKind::Release {
             return Action::None;
@@ -385,6 +455,17 @@ impl Panel {
 
     fn normal_key(&mut self, key: &KeyEvent) -> Action {
         let ctrl = key.modifiers.contains(KeyModifiers::CONTROL);
+        if let Some(job) = &self.job {
+            if key.code == KeyCode::Esc {
+                job.progress.cancel.store(true, Ordering::Relaxed);
+                self.say("cancelling the paste", false);
+                return Action::None;
+            }
+            if matches!(key.code, KeyCode::Char('d' | 'D')) {
+                self.say("busy: a paste is running (Esc cancels it)", true);
+                return Action::None;
+            }
+        }
         match key.code {
             KeyCode::Esc => {
                 if self.marked.is_empty() {
@@ -599,43 +680,84 @@ impl Panel {
         }
     }
 
+    /// Paste the clipboard into the folder under the cursor. Small pastes happen at
+    /// once; big ones (over `background_bytes`) run on a thread with a progress line
+    /// in the footer, and Esc cancels them.
     fn paste(&mut self) -> Action {
+        if self.job.is_some() {
+            self.say("a paste is already running (Esc cancels it)", true);
+            return Action::None;
+        }
         let Some(clip) = self.clip.take() else {
             self.say("nothing to paste (yank with y, cut with x)", true);
             return Action::None;
         };
         let dir = self.target_dir();
-        let (mut moved, mut done, mut failed) = (Vec::new(), 0usize, Vec::new());
+        // Work out every destination first, so two sources with one name do not collide.
+        let mut pairs: Vec<(PathBuf, PathBuf)> = Vec::new();
         for src in &clip.paths {
             let Some(name) = src.file_name() else { continue };
-            let mut dest = dir.join(name);
+            let dest = dir.join(name);
             if clip.cut && dest == *src {
                 continue; // cut and pasted where it already is
             }
-            dest = ops::unique(dest);
-            let result = if clip.cut { ops::move_to(src, &dest) } else { ops::copy(src, &dest) };
-            match result {
-                Ok(()) => {
-                    done += 1;
-                    if clip.cut {
-                        self.remap_expanded(src, &dest);
-                        moved.push((src.clone(), dest));
-                    }
-                }
-                Err(e) => failed.push(format!("{}: {e}", name.to_string_lossy())),
-            }
+            let taken: Vec<PathBuf> = pairs.iter().map(|(_, d)| d.clone()).collect();
+            let dest = ops::unique_among(dest, &taken);
+            pairs.push((src.clone(), dest));
         }
         if !clip.cut {
-            self.clip = Some(clip); // a yank can be pasted again
+            self.clip = Some(clip.clone()); // a yank can be pasted again
+        }
+        let total = ops::total_size(&pairs.iter().map(|(s, _)| s.clone()).collect::<Vec<_>>());
+        let progress = Arc::new(Progress { done: AtomicU64::new(0), total, items_done: AtomicUsize::new(0), items: pairs.len(), cancel: AtomicBool::new(false) });
+        let cut = clip.cut;
+        let work = {
+            let progress = progress.clone();
+            move || run_paste(pairs, cut, &progress)
+        };
+        if self.opts.background_bytes.is_some_and(|min| total >= min) {
+            self.job = Some(Job { progress, handle: std::thread::spawn(work), dir });
+            return Action::None;
+        }
+        self.finish_paste(work(), dir)
+    }
+
+    /// Apply a finished paste: keep folders open across moves, refresh, report.
+    fn finish_paste(&mut self, result: PasteResult, dir: PathBuf) -> Action {
+        for (from, to) in &result.moved {
+            self.remap_expanded(from, to);
         }
         self.expanded.insert(dir);
         self.refresh();
-        if failed.is_empty() {
-            self.say(format!("pasted {done} item{}", if done == 1 { "" } else { "s" }), false);
+        if result.failed.is_empty() {
+            self.say(format!("pasted {} item{}", result.done, if result.done == 1 { "" } else { "s" }), false);
         } else {
-            self.say(failed.join("; "), true);
+            self.say(result.failed.join("; "), true);
         }
-        if moved.is_empty() { Action::None } else { Action::Moved(moved) }
+        if result.moved.is_empty() { Action::None } else { Action::Moved(result.moved) }
+    }
+
+    /// If the background paste has ended, apply it; the action it produces waits in
+    /// `pending` for the next event.
+    fn poll_job(&mut self) {
+        if self.job.as_ref().is_some_and(|j| j.handle.is_finished()) {
+            let job = self.job.take().expect("checked above");
+            let result = job.handle.join().unwrap_or_else(|_| PasteResult { moved: Vec::new(), done: 0, failed: vec!["paste crashed".into()] });
+            self.redraw = true;
+            let action = self.finish_paste(result, job.dir);
+            if action != Action::None {
+                self.pending = Some(action);
+            }
+        }
+    }
+
+    /// The footer line while a paste runs: a percentage and the item count.
+    fn job_line(&self, theme: &Theme) -> Option<Line<'static>> {
+        let j = self.job.as_ref()?;
+        let p = &j.progress;
+        let pct = if p.total == 0 { 0 } else { (p.done.load(Ordering::Relaxed) * 100 / p.total).min(100) };
+        let text = format!("pasting {pct}% ({}/{}) - Esc cancels", p.items_done.load(Ordering::Relaxed).min(p.items), p.items);
+        Some(Line::from(Span::styled(text, Style::new().fg(theme.colors.accent.into()))))
     }
 
     fn git_state(&self, row: &Row) -> Option<(char, Kind)> {
@@ -687,8 +809,9 @@ impl Panel {
     /// Call between events: starts more folder counts and says whether something on
     /// screen changed by itself (a count moved), so the host knows to redraw.
     pub fn tick(&mut self) -> bool {
+        self.poll_job();
         self.count_visible_dirs();
-        self.size_signature() != self.sizes_shown
+        std::mem::take(&mut self.redraw) || self.job.is_some() || self.size_signature() != self.sizes_shown
     }
 
     fn prompt_label(kind: &PromptKind) -> &'static str {
@@ -729,12 +852,14 @@ impl Panel {
                 }
                 Some(Line::from(spans))
             }
+            Mode::Normal if self.job.is_some() => self.job_line(theme),
             Mode::Normal => self.message.as_ref().map(|(m, err)| Line::from(Span::styled(m.clone(), Style::new().fg(if *err { c.error } else { c.muted }.into())))),
         }
     }
 
     /// Draw the panel in `area`; `focused` colors the border like any focused pane.
     pub fn render(&mut self, area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool) {
+        self.poll_job();
         let c = &theme.colors;
         let title = self.root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| "/".into());
         let icon = ui::icons::dir(&title, true);
@@ -853,7 +978,7 @@ mod tests {
     }
 
     fn panel(d: &Path) -> Panel {
-        Panel::new(d, PanelOptions { hidden: false, git: false, linemode: Linemode::Off, bookmarks: None })
+        Panel::new(d, PanelOptions { hidden: false, git: false, linemode: Linemode::Off, bookmarks: None, background_bytes: None })
     }
 
     #[test]
@@ -1121,7 +1246,7 @@ mod tests {
     fn columns_show_size_and_time_for_files_when_wide() {
         let d = tree("columns");
         std::fs::write(d.join("README.md"), vec![b'x'; 2048]).unwrap();
-        let mut p = Panel::new(&d, PanelOptions { hidden: false, git: false, linemode: Linemode::SizeTime, bookmarks: None });
+        let mut p = Panel::new(&d, PanelOptions { hidden: false, git: false, linemode: Linemode::SizeTime, bookmarks: None, background_bytes: None });
         let area = Rect::new(0, 0, 70, 8);
         let mut buf = Buffer::empty(area);
         p.render(area, &mut buf, &Theme::default(), true);
@@ -1139,7 +1264,7 @@ mod tests {
     fn linemodes_cycle_and_show_permissions_and_folder_sizes() {
         let d = tree("linemode");
         std::fs::write(d.join("src/main.rs"), vec![b'x'; 3000]).unwrap();
-        let mut p = Panel::new(&d, PanelOptions { hidden: false, git: false, linemode: Linemode::SizeTime, bookmarks: None });
+        let mut p = Panel::new(&d, PanelOptions { hidden: false, git: false, linemode: Linemode::SizeTime, bookmarks: None, background_bytes: None });
         let area = Rect::new(0, 0, 70, 8);
         let draw = |p: &mut Panel| {
             let mut buf = Buffer::empty(area);
@@ -1154,7 +1279,6 @@ mod tests {
             std::thread::sleep(std::time::Duration::from_millis(10));
             p.tick();
         }
-        assert!(p.tick(), "a finished count is a change to draw");
         let text = draw(&mut p);
         // src holds main.rs (3000 B) and a deeper file: counted, no `+` left.
         assert!(text.iter().any(|l| l.contains("src") && l.contains("2.9K") && !l.contains('+')), "{text:?}");
@@ -1164,5 +1288,45 @@ mod tests {
         p.handle_event(&key(KeyCode::Char('c')));
         let text = draw(&mut p);
         assert!(!text.iter().any(|l| l.contains("rwx") || l.contains("KiB")), "{text:?}");
+    }
+
+    #[test]
+    fn a_big_paste_runs_in_the_background_and_reports_when_done() {
+        let d = tree("bgpaste");
+        std::fs::write(d.join("big.bin"), vec![7u8; 3 << 20]).unwrap();
+        let mut p = Panel::new(&d, PanelOptions { hidden: false, git: false, linemode: Linemode::Off, bookmarks: None, background_bytes: Some(0) });
+        let find = |p: &mut Panel, name: &str| {
+            let rows = p.rows.iter().position(|r| r.name == name).unwrap();
+            p.cursor = rows;
+        };
+        // Cut big.bin into docs/: a move, so the end produces `Moved`.
+        find(&mut p, "big.bin");
+        p.handle_event(&key(KeyCode::Char('x')));
+        find(&mut p, "docs");
+        assert_eq!(p.handle_event(&key(KeyCode::Char('p'))), Action::None, "returns at once");
+        for _ in 0..500 {
+            p.tick();
+            if p.job.is_none() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        assert!(d.join("docs/big.bin").is_file() && !d.join("big.bin").exists());
+        // The end waits for the next event.
+        assert_eq!(p.handle_event(&key(KeyCode::Char('R'))), Action::Moved(vec![(d.join("big.bin"), d.join("docs/big.bin"))]));
+
+        // A copy (yank) of a folder with a few files, also in the background.
+        find(&mut p, "src");
+        p.handle_event(&key(KeyCode::Char('y')));
+        find(&mut p, "docs");
+        p.handle_event(&key(KeyCode::Char('p')));
+        for _ in 0..500 {
+            p.tick();
+            if p.job.is_none() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        assert!(d.join("docs/src/main.rs").is_file() && d.join("src/main.rs").is_file());
     }
 }

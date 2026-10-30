@@ -62,7 +62,13 @@ pub fn rename(from: &Path, name: &str) -> io::Result<PathBuf> {
 /// `dest`, or the first free `name copy`, `name copy 2`, ... next to it
 /// (the extension stays last: `a copy.txt`).
 pub fn unique(dest: PathBuf) -> PathBuf {
-    if dest.symlink_metadata().is_err() {
+    unique_among(dest, &[])
+}
+
+/// `unique`, also avoiding the paths in `taken` (destinations already planned).
+pub fn unique_among(dest: PathBuf, taken: &[PathBuf]) -> PathBuf {
+    let free = |p: &Path| p.symlink_metadata().is_err() && !taken.iter().any(|t| t == p);
+    if free(&dest) {
         return dest;
     }
     let stem = dest.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
@@ -70,7 +76,7 @@ pub fn unique(dest: PathBuf) -> PathBuf {
     for n in 1.. {
         let suffix = if n == 1 { " copy".to_string() } else { format!(" copy {n}") };
         let candidate = dest.with_file_name(format!("{stem}{suffix}{}", ext.as_deref().unwrap_or("")));
-        if candidate.symlink_metadata().is_err() {
+        if free(&candidate) {
             return candidate;
         }
     }
@@ -79,6 +85,12 @@ pub fn unique(dest: PathBuf) -> PathBuf {
 
 /// Copy a file, symlink or folder (recursively) to `dest`, which must not exist.
 pub fn copy(src: &Path, dest: &Path) -> io::Result<()> {
+    copy_progress(src, dest, &mut |_| true)
+}
+
+/// Like `copy`, reporting the bytes copied so far through `tick` (called per chunk
+/// of a file); `tick` returns `false` to cancel, which ends in an `Interrupted` error.
+pub fn copy_progress(src: &Path, dest: &Path, tick: &mut dyn FnMut(u64) -> bool) -> io::Result<()> {
     let meta = src.symlink_metadata()?;
     if meta.file_type().is_symlink() {
         let target = std::fs::read_link(src)?;
@@ -94,11 +106,60 @@ pub fn copy(src: &Path, dest: &Path) -> io::Result<()> {
         std::fs::create_dir(dest)?;
         for entry in std::fs::read_dir(src)? {
             let entry = entry?;
-            copy(&entry.path(), &dest.join(entry.file_name()))?;
+            copy_progress(&entry.path(), &dest.join(entry.file_name()), tick)?;
         }
         return Ok(());
     }
-    std::fs::copy(src, dest).map(|_| ())
+    // A file, in chunks, so a big one reports as it goes and can be cancelled.
+    use std::io::{Read, Write};
+    let mut from = std::fs::File::open(src)?;
+    let mut to = std::fs::File::create(dest)?;
+    let mut buf = vec![0u8; 1 << 20];
+    loop {
+        let n = from.read(&mut buf)?;
+        if n == 0 {
+            break;
+        }
+        to.write_all(&buf[..n])?;
+        if !tick(n as u64) {
+            drop(to);
+            let _ = std::fs::remove_file(dest);
+            return Err(io::Error::new(io::ErrorKind::Interrupted, "cancelled"));
+        }
+    }
+    std::fs::set_permissions(dest, meta.permissions())
+}
+
+/// The bytes under these paths (files only), for a progress total.
+pub fn total_size(paths: &[PathBuf]) -> u64 {
+    let mut total = 0;
+    let mut stack: Vec<PathBuf> = paths.to_vec();
+    while let Some(p) = stack.pop() {
+        let Ok(m) = p.symlink_metadata() else { continue };
+        if m.is_dir() {
+            if let Ok(entries) = std::fs::read_dir(&p) {
+                stack.extend(entries.flatten().map(|e| e.path()));
+            }
+        } else if m.is_file() {
+            total += m.len();
+        }
+    }
+    total
+}
+
+/// Move like `move_to`, reporting copied bytes through `tick` when it has to copy
+/// (a rename inside one file system is instant and reports nothing).
+pub fn move_progress(src: &Path, dest: &Path, tick: &mut dyn FnMut(u64) -> bool) -> io::Result<()> {
+    if src.is_dir() && dest.starts_with(src) {
+        return Err(invalid("cannot move a folder into itself"));
+    }
+    match std::fs::rename(src, dest) {
+        Ok(()) => Ok(()),
+        Err(_) => {
+            copy_progress(src, dest, tick)?;
+            remove(src)
+        }
+    }
 }
 
 /// Delete permanently.
