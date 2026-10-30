@@ -7,10 +7,7 @@
         ./docker
         ./nixpkgs
         ./clipboard
-        ./pv
         ./files
-        ./pick
-        ./git-panel
         ./ui
         ./op
     ]
