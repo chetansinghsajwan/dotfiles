@@ -694,10 +694,11 @@ impl Panel {
             self.offset = self.cursor + 1 - self.page;
         }
 
-        // Rows span the pane's padding too, so the highlight reaches one cell past the text on both sides.
+        // The highlight fills the content area; half blocks in the padding cells beside it
+        // (`▐` on the left, `▌` on the right) give it softer, inset ends.
         let left = inner.x.saturating_sub(area.x + 1).min(1);
         let right = area.right().saturating_sub(inner.right() + 1).min(1);
-        let row_area = Rect { x: inner.x - left, width: inner.width + left + right, ..inner };
+        let row_area = inner;
 
         for (i, row) in self.rows.iter().enumerate().skip(self.offset).take(self.page) {
             let y = inner.y + (i - self.offset) as u16;
@@ -738,17 +739,26 @@ impl Panel {
             ]);
             // Size and modified-time columns sit left of the git sign, when there is room.
             let cols = if self.opts.columns && area.width >= 44 { COLS_WIDTH } else { 0 };
-            let text_area = Rect { width: area.width - cols, ..area };
+            let text_area = Rect { width: area.width - if cols > 0 { cols + 2 } else { 0 }, ..area };
             Paragraph::new(line).style(base).render(text_area, buf);
             if cols > 0 {
                 let size = if row.is_dir { String::new() } else { meta::size_short(row.size) };
-                let x = area.right().saturating_sub(cols + 1 + right);
+                let x = area.right().saturating_sub(cols + 2);
                 buf.set_string(x, y, format!("{size:>5} {:<11}", meta::time_short(row.modified)), base.fg(c.muted.into()));
             }
 
             if let Some((ch, kind)) = git {
-                let x = area.right().saturating_sub(1 + right);
+                // One cell in from the edge, so the highlight keeps a margin after it too.
+                let x = area.right().saturating_sub(2);
                 buf.set_string(x, y, ch.to_string(), base.fg(Self::git_color(theme, kind)));
+            }
+            if let Some(bg) = base.bg {
+                if left == 1 {
+                    buf.set_string(inner.x - 1, y, "▐", Style::new().fg(bg));
+                }
+                if right == 1 {
+                    buf.set_string(inner.right(), y, "▌", Style::new().fg(bg));
+                }
             }
         }
     }
