@@ -223,7 +223,7 @@ in
                 };
                 popupPercent = mkOption {
                     type = types.ints.between 10 100;
-                    default = 80;
+                    default = 90;
                     description = "Size of a popup (a picker over the editor) as a share of the screen.";
                 };
                 bottomHeight = mkOption {
