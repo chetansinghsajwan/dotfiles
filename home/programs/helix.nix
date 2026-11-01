@@ -101,10 +101,11 @@ in
 
                 keys = {
                     normal = {
-                        "C-j" = "page_cursor_half_down";
-                        "C-k" = "page_cursor_half_up";
-                        "C-h" = "move_prev_word_start";
-                        "C-l" = "move_next_word_start";
+                        # hjkl with Ctrl: five lines, or words (a word move stops at the line end first)
+                        "C-j" = lib.replicate 5 "move_visual_line_down";
+                        "C-k" = lib.replicate 5 "move_visual_line_up";
+                        "C-h" = "move_prev_word_in_line";
+                        "C-l" = "move_next_word_in_line";
                         "C-up" = lib.replicate 10 "move_visual_line_up";
                         "C-down" = lib.replicate 10 "move_visual_line_down";
                         "C-left" = "move_prev_word_end";
@@ -142,6 +143,10 @@ in
                         "end" = "extend_to_line_end";
                     };
                     insert = {
+                        "C-j" = lib.replicate 5 "move_visual_line_down";
+                        "C-k" = lib.replicate 5 "move_visual_line_up";
+                        "C-h" = "move_prev_word_in_line";
+                        "C-l" = "move_next_word_in_line";
                         "C-backspace" = "delete_word_backward";
                         "C-del" = "delete_word_forward";
                         "home" = "goto_first_nonwhitespace";
