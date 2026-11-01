@@ -7,10 +7,7 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 Open:
 
-- Workspace symbols (`Space S`) still use helix's own picker, because the language server is
-  queried on every keystroke. Move them to the shared picker once it supports a live source.
-- `gu`: a commit graph column (lanes, merges, branch labels).
-- A key help (`?`) for helix's own editor mode (the dock panels have one; `Space Space` lists commands with their keys).
+- Nothing open here right now.
 
 ## Machines
 
