@@ -5,46 +5,24 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 ## TODO
 
-- Add commands in help section (?) for every tool. For example, the commands available inside git
-  panel in helix are not present anywhere to refer to.
-- In every movement area, hjkl is for left, down, up, right. and ctrl modifier increases the
-  movement extent to 5 lines. This should work in the files space as well as editor space.
-  In typing space, ctrl + hl should jump by words but should consider EOL as a stop point as well.
-- Takeover the helix symbols pane as well, to keep the design and experience consistent.
-- In helix, add cmd to close all other tabs.
-- In files SPACE, add cmd to respect ignore files to hide those entries. Should we add a marker
-  somewhere showing that the some files are hidden?
-- In files SPACE, when a file is deleted or trashed but was open in a buffer, close that buffer as
-  well.
-- In files SPACE, change delete op to d -> d (again to confirm, instead of yes)
-- In quick SPACE, when a key is pressed which is not linked to any command, show a warning.
-- In helix, add a separator between tabs and the editor
-- In helix, can we remove the bottom most (below the ribbon) space?
-- Can gu identify git space changes?
-- Can helix identify git space changes?
-- Can helix identify file changes on disk?
-- In files SPACE, pressing "/" should trigger a search in the current dir (not sub dir), what
-  should we do for sub dir searching?
-- Files Tool
-  - Add leader -> c -> f to focus on the current dir, or maybe remove
-    the heirarchy style itself?
+Open:
 
-- Helix
-  - Add markdown preview
-  - Add format command
-  - Add command to switch tab size
-
-- pv tool
-  - Add markdown preview (default)
+- Workspace symbols (`Space S`) still use helix's own picker, because the language server is
+  queried on every keystroke. Move them to the shared picker once it supports a live source.
+- `gu`: a commit graph column (lanes, merges, branch labels).
+- A key help (`?`) for helix's own editor mode (the dock panels have one; `Space Space` lists commands with their keys).
 
 ## Machines
 
-| Flake output                          | Host                    | System           |
-| ------------------------------------- | ----------------------- | ---------------- |
-| `nixosConfigurations.nixos`           | `hosts/nixos`           | `x86_64-linux`   |
-| `nixosConfigurations.wsl`             | `hosts/wsl`             | `x86_64-linux`   |
-| `darwinConfigurations.macbook-air-m3` | `hosts/macbook-air-m3`  | `aarch64-darwin` |
-| `homeConfigurations.chetan`           | standalone Home Manager | `x86_64-linux`   |
+| Flake output                                  | Host                     | System                   |
+| --------------------------------------------- | ------------------------ | ------------------------ |
+| `nixosConfigurations.<system>.default`        | `hosts/nixos`            | Linux (per system)       |
+| `nixosConfigurations.<system>.wsl`            | `hosts/nixos-wsl`        | Linux (per system)       |
+| `darwinConfigurations.<system>.default`       | `hosts/darwin`           | macOS (per system)       |
+| `nixosConfigurations.jman-nixos`              | `hosts/jman-nixos`       | personal NixOS (WSL)     |
+| `nixosConfigurations.honor-m3-nixos`          | `hosts/honor-m3`         | Honor laptop             |
+| `darwinConfigurations.macbook-air13`          | `hosts/macbook-air-13`   | MacBook Air              |
+| `homeConfigurations.<system>.default`         | standalone Home Manager  | any supported system     |
 
 ## Layout
 
