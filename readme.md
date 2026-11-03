@@ -24,6 +24,7 @@ Open:
 - In gu, do a little commit message (first line) highlighting the standard syntax category.
   For example, update: some message. highlight update: here.
 - In gu status page, use heirarchy view by default and give the option to switch to list view.
+- Add single toml file config support for each tool.
 
 ## Machines
 
