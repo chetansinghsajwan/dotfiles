@@ -55,6 +55,7 @@ One tool owns one domain, and the design (colors, keys, menus, previews) lives i
 | `files`     | file explorer                                                                         |
 | `gu`        | git UI: Status (folder tree), Commits (graph, search, filters), Refs (tree, renames)  |
 | `nu`        | network and bluetooth                                                                 |
+| `mdexport`  | Markdown to PDF (Typst, no other program): `mdexport file.md` or `Space m e` in helix |
 | helix fork  | the editor, with docks that embed `files`, the git panel and the diagnostics panel    |
 
 Keys are the same everywhere: `space` opens Quick Keys, `space space` searches every action,
