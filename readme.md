@@ -7,7 +7,23 @@ standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 
 Open:
 
-- Nothing open here right now.
+- In gu, when filtering, show the available options. for example, when filtering by author,
+  show avaliable authors.
+- In gu, use d for discard, r for rename or reword, s to stage/unstage, a to stage/unstage all.
+- In gu, add a cmd to "switch to", which then provides the list of branches to switch to or a
+  commit hash.
+- In helix, provide 3 rendering modes for markdown. preview mode, is read only and previews the
+  markdown. live mode, previews all the elements on which the cursor is not there. source mode
+  just shows the raw source markdown.
+- Improve pv by adding diff support like delta.
+- Add support for images in pv
+- Add support for audio files, videos in pv.
+- Use d again after pressing d, to count as confirmation to delete
+- In gu refs heirarchy, allow operations like rename and delete on the parent, so that it affects
+  all the childs.
+- In gu, do a little commit message (first line) highlighting the standard syntax category.
+  For example, update: some message. highlight update: here.
+- In gu status page, use heirarchy view by default and give the option to switch to list view.
 
 ## Machines
 
