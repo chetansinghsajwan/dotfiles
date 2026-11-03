@@ -9,10 +9,7 @@ design (`home/crates`).
 
 Open:
 
-- In pv, show CSV and TSV as a table (the `csv` crate, delimiter sniffing, quoted fields, column widths fitted to the pane, styled header row, same bordered layout as the Markdown tables).
-- In pv, cap large tables to the first N rows (about 200) with a "… N more rows" footer, so big files stay fast.
-- In pv, show xlsx and ods spreadsheets as tables (`calamine`, first sheet or a sheet picker); parquet and sqlite only if needed.
-- In pv, a key to toggle between the table view and the raw text of a tabular file.
+- nothing at the moment
 
 ## Machines
 
@@ -53,12 +50,12 @@ One tool owns one domain, and the design (colors, keys, menus, previews) lives i
 
 | Tool        | What it does                                                                          |
 | ----------- | ------------------------------------------------------------------------------------- |
-| `pv`        | previews: text, Markdown, diffs, images, audio and video details, directories         |
+| `pv`        | previews: text, Markdown, diffs, images, audio and video details, PDF text, CSV and spreadsheet tables, directories        |
 | `pick`      | fuzzy finder (files, buffers, symbols, live sources)                                  |
 | `files`     | file explorer                                                                         |
 | `gu`        | git UI: Status (folder tree), Commits (graph, search, filters), Refs (tree, renames)  |
 | `nu`        | network and bluetooth                                                                 |
-| `mdexport`  | Markdown to PDF (Typst, no other program): `mdexport file.md` or `Space m e` in helix |
+| `mdexport`  | Markdown to PDF (Typst, no other program): `mdexport file.md`, or `Space m e` in helix (asks for paper, fonts and size) |
 | helix fork  | the editor, with docks that embed `files`, the git panel and the diagnostics panel    |
 
 Keys are the same everywhere: `space` opens Quick Keys, `space space` searches every action,
