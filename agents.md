@@ -11,12 +11,8 @@ helix fork, git panel).
 ## What this is
 
 A personal, multi-host Nix flake configuration covering NixOS, nix-darwin, and
-standalone Home Manager. It configures three machines:
-
-- `hosts/nixos` — NixOS desktop
-- `hosts/wsl` — NixOS on WSL
-- `hosts/macbook-air-m3` — nix-darwin
-- `homeConfigurations."chetan"` — standalone Home Manager (any Linux machine)
+standalone Home Manager (hosts are listed in `readme.md`), plus the Rust terminal
+toolset in `home/crates` and a helix fork in `home/helix`.
 
 ## Layout
 
@@ -31,12 +27,16 @@ standalone Home Manager. It configures three machines:
   (e.g. `hardware-configuration.nix`, `kanata.nix`).
 - `hosts/shared.nix` — settings common to all NixOS/darwin hosts.
 - `home/home.nix` — Home Manager entry point.
-- `home/modules/programs/*.nix` — one file per program (git, zsh, helix,
-  starship, etc.), each a self-contained Home Manager module.
-- `home/modules/features/*.nix` — optional feature bundles gated by
+- `home/programs/*.nix` — one file (or folder) per program (git, zsh, helix,
+  zellij, etc.), each a self-contained Home Manager module.
+- `home/features/*.nix` — optional feature bundles gated by
   `config.dotfiles.features.*` (dev, gui, gaming).
-- `home/modules/desktop/{gnome,hyprland}` — desktop-environment-specific
-  modules.
+- `home/desktop/{gnome,hyprland}` — desktop-environment-specific modules.
+- `home/crates/` — the Rust workspace: `ui` (shared design: theme, keys, config,
+  lists, prompts), `pv`, `pick`, `files`, `git-core`, `git-panel`, `git-ui` (`gu`),
+  `diagnostics-panel`, `nu-core`, `nu`. Built by `home/crates/default.nix` (crane).
+- `home/helix/` — the helix fork; `home/helix-fork.nix` builds it.
+- `docs/usage-design.md` — the keys and menus every tool follows.
 - `lib/default.nix` — shared helper functions (`llib`).
 - `treefmt.nix` — formatter/linter config (nixfmt, statix, deadnix).
 
@@ -47,7 +47,7 @@ standalone Home Manager. It configures three machines:
 - New user-facing settings go through `options.dotfiles.*` in
   `config/default.nix`, then are read via `config.dotfiles.*` elsewhere.
 - Keep program configs isolated: one file per program under
-  `home/modules/programs/`, imported from `home/home.nix` or a feature file.
+  `home/programs/`, imported from `home/home.nix` or a feature file.
 - Don't hardcode the username/email/paths — use `config.dotfiles.user.*`.
 
 ## Building & validating changes
@@ -78,3 +78,17 @@ mutate the actual machine.
 - Format with `nixfmt` (via `nix fmt`); don't hand-format Nix files.
 - Fix `statix`/`deadnix` warnings surfaced by `nix flake check`.
 - Keep diffs minimal and scoped to the host/module being changed.
+
+## The Rust tools (`home/crates`)
+
+- Design lives in one place: colors, keys, menus, lists, prompts and previews come from
+  `ui` and `pv`; don't restyle in a tool. Actions are registered in the tool's `keys.rs`
+  with an id, a name, a description and default keys (`ui::keys`); users rebind them in TOML
+  (`ui::config`, see `readme.md`). Follow `docs/usage-design.md` when adding a key.
+- Git reads through `git-core` (gix) and writes through the `git` CLI; no tool shells out
+  to git itself.
+- Test and build with cargo, not a full Nix build:
+  `cd home/crates && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo test -j3`
+  (use `nice` and `-j3`). The helix fork needs `HELIX_DISABLE_AUTO_GRAMMAR_BUILD=1`.
+  Run the full `nix build` only when Nix files, lockfiles or dependencies change.
+- Keep `plan.md` up to date after a change: it is the one context file for this work.
