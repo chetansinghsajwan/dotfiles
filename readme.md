@@ -9,7 +9,10 @@ design (`home/crates`).
 
 Open:
 
-- nothing at the moment
+- In pv, show CSV and TSV as a table (the `csv` crate, delimiter sniffing, quoted fields, column widths fitted to the pane, styled header row, same bordered layout as the Markdown tables).
+- In pv, cap large tables to the first N rows (about 200) with a "… N more rows" footer, so big files stay fast.
+- In pv, show xlsx and ods spreadsheets as tables (`calamine`, first sheet or a sheet picker); parquet and sqlite only if needed.
+- In pv, a key to toggle between the table view and the raw text of a tabular file.
 
 ## Machines
 
