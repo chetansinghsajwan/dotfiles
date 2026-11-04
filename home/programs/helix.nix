@@ -8,6 +8,9 @@
 let
     editor = config.dotfiles.editor;
     colors = config.lib.stylix.colors;
+    # The syntax colors the previews use (ui/syntax.nix): helix gets the same ones.
+    syn = import ./ui/syntax.nix config.lib.stylix.colors.withHashtag;
+    fg = "#${colors.base05}";
 
     # "#rrggbb": `percent` of `over` mixed into `base` (both hex without the "#").
     mix =
@@ -38,6 +41,18 @@ in
                 # The line number on the cursor line shares that background.
                 "ui.linenr.selected".bg = mix colors.base05 colors.base00 14;
                 "ui.gutter.selected".bg = mix colors.base05 colors.base00 14;
+                # Syntax: the colors of `pv` (home/programs/ui/syntax.nix), so the editor and a preview agree.
+                "comment" = syn.comment;
+                "keyword" = syn.keyword;
+                "keyword.operator" = syn.operator;
+                "operator" = syn.operator;
+                "function" = syn.function;
+                "string" = syn.string;
+                "constant" = syn.constant;
+                "constant.numeric" = syn.number;
+                "type" = syn.type_;
+                "variable" = syn.variable;
+                "punctuation" = fg;
             };
 
             # Opt-in: our fork with the shared picker (see home/helix/FORK.md).

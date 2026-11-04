@@ -22,17 +22,7 @@ in
             warning = c.base0A;
             success = c.base0B;
             info = c.base0C;
-            syntax = {
-                comment = c.base03;
-                keyword = c.base0E;
-                function = c.base0D;
-                string = c.base0B;
-                number = c.base09;
-                type_ = c.base0A;
-                constant = c.base09;
-                variable = c.base08;
-                operator = c.base0C;
-            };
+            syntax = import ./syntax.nix c;
             git = {
                 added = c.base0B;
                 modified = c.base0A;
