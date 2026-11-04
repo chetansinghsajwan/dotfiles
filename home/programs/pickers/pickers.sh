@@ -68,7 +68,8 @@ function fssh() {
         --preview-cmd 'awk -v h={1} '\''/^Host / {p=0; for (i=2;i<=NF;i++) if ($i==h) p=1} p'\'' ~/.ssh/config'
 }
 
-# fh - fuzzy history search
+# fh - fuzzy history search: bash-highlighted, numbered, with when each command last ran.
+# ctrl-x deletes the highlighted command from the history file and reopens the list.
 function fh() {
     # Reads the history file directly instead of `fc -l` — fc only sees the
     # current shell's in-memory history, which is empty in a non-interactive
@@ -77,8 +78,30 @@ function fh() {
     # calling contexts — that silently fell back to a stale ~/.zsh_history
     # rather than the real, configured history file.
     local histfile="@histfile@"
-    # tac before dedup so the kept copy of a repeated command is its most
-    # recent run, not its first-ever one.
-    sed -E 's/^: [0-9]+:[0-9]+;//' "$histfile" | tac | awk '!seen[$0]++' | pick --title "History"
+    local out key cmd
+    while true; do
+        # `: EPOCH:SECONDS;command` (extended history) becomes `EPOCH<TAB>command`; plain lines get `-`.
+        # Newest first, and each command once (the kept copy is its most recent run).
+        out=$(awk '{
+                if (match($0, /^: [0-9]+:[0-9]+;/)) {
+                    split(substr($0, 3, RLENGTH - 3), p, ":"); ts = p[1]; cmd = substr($0, RLENGTH + 1)
+                } else { ts = "-"; cmd = $0 }
+                print ts "\t" cmd
+            }' "$histfile" | tac | awk -F'\t' '!seen[$2]++' |
+            pick --title "History" --syntax bash --numbers --timestamps --expect ctrl-x) || return $?
+        key=$(printf '%s\n' "$out" | head -n 1)
+        cmd=$(printf '%s\n' "$out" | tail -n +2)
+        if [[ $key == ctrl-x && -n $cmd ]]; then
+            # Remove every copy of the command, with or without a timestamp, and show the list again.
+            CMD="$cmd" awk '{
+                    line = $0
+                    if (match(line, /^: [0-9]+:[0-9]+;/)) line = substr(line, RLENGTH + 1)
+                    if (line != ENVIRON["CMD"]) print $0
+                }' "$histfile" >"$histfile.tmp" && mv "$histfile.tmp" "$histfile"
+            continue
+        fi
+        printf '%s\n' "$cmd"
+        return 0
+    done
 }
 

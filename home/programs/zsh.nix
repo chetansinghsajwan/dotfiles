@@ -1,6 +1,9 @@
 { config, pkgs, ... }:
 {
     programs.zsh = {
+        # A time with every command, so the history picker can show when it last ran.
+        history.extended = true;
+
         dotDir = "${config.xdg.configHome}/zsh";
 
         plugins = [

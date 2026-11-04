@@ -31,16 +31,16 @@ in
         programs.helix = {
             defaultEditor = editor.terminal == "helix";
 
-            # The stylix theme with a lighter, faded cursor line (the text color over
+            # The stylix theme with a clearer cursor line (the accent color over
             # the background) instead of its dark one.
             settings.theme = lib.mkForce "stylix-tuned";
             themes.stylix-tuned = {
                 inherits = "stylix";
-                "ui.cursorline.primary".bg = mix colors.base05 colors.base00 14;
-                "ui.cursorline.secondary".bg = mix colors.base05 colors.base00 14;
+                "ui.cursorline.primary".bg = mix colors.base0D colors.base00 24;
+                "ui.cursorline.secondary".bg = mix colors.base0D colors.base00 24;
                 # The line number on the cursor line shares that background.
-                "ui.linenr.selected".bg = mix colors.base05 colors.base00 14;
-                "ui.gutter.selected".bg = mix colors.base05 colors.base00 14;
+                "ui.linenr.selected".bg = mix colors.base0D colors.base00 24;
+                "ui.gutter.selected".bg = mix colors.base0D colors.base00 24;
                 # Syntax: the colors of `pv` (home/programs/ui/syntax.nix), so the editor and a preview agree.
                 "comment" = syn.comment;
                 "keyword" = syn.keyword;
