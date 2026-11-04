@@ -390,12 +390,12 @@ in
                 left = mkOption {
                     type = types.listOf types.str;
                     default = [ "files" ];
-                    description = "Panels in the left dock of the helix fork (files, git, diagnostics).";
+                    description = "Panels in the left dock of the helix fork (files, git, symbols, diagnostics).";
                 };
                 right = mkOption {
                     type = types.listOf types.str;
-                    default = [ "git" ];
-                    description = "Panels in the right dock of the helix fork (files, git, diagnostics).";
+                    default = [ "git" "symbols" ];
+                    description = "Panels in the right dock of the helix fork (files, git, symbols, diagnostics).";
                 };
                 bottom = mkOption {
                     type = types.listOf types.str;
