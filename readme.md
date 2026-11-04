@@ -105,4 +105,6 @@ nix develop       # shell with nixfmt, statix, deadnix, nil, nixd on PATH
 cd home/crates && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo test
 ```
 
+The look is described in `docs/ui-design.md`, the keys in `docs/usage-design.md`.
+
 See `agents.md` for conventions to follow when editing this repo.

@@ -36,7 +36,7 @@ toolset in `home/crates` and a helix fork in `home/helix`.
   lists, prompts), `pv`, `pick`, `files`, `git-core`, `git-panel`, `git-ui` (`gu`),
   `diagnostics-panel`, `nu-core`, `nu`, `mdexport` (Markdown to PDF through Typst). Built by `home/crates/default.nix` (crane).
 - `home/helix/` — the helix fork; `home/helix-fork.nix` builds it.
-- `docs/usage-design.md` — the keys and menus every tool follows.
+- `docs/ui-design.md` — the look every tool follows (colors, chrome, layout, components); `docs/usage-design.md` — the keys and menus.
 - `lib/default.nix` — shared helper functions (`llib`).
 - `treefmt.nix` — formatter/linter config (nixfmt, statix, deadnix).
 
