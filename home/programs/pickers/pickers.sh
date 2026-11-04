@@ -88,7 +88,7 @@ function fh() {
                 } else { ts = "-"; cmd = $0 }
                 print ts "\t" cmd
             }' "$histfile" | tac | awk -F'\t' '!seen[$2]++' |
-            pick --title "History" --syntax bash --numbers --timestamps --expect ctrl-x) || return $?
+            pick --title "Shell History" --syntax bash --numbers --timestamps --expect ctrl-x) || return $?
         key=$(printf '%s\n' "$out" | head -n 1)
         cmd=$(printf '%s\n' "$out" | tail -n +2)
         if [[ $key == ctrl-x && -n $cmd ]]; then
