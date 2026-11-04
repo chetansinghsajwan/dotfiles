@@ -10,7 +10,7 @@ in
 {
     # Our Rust tools, built together from home/crates: `pv` (preview), `pick`
     # (picker), `files` (explorer), `git-panel`, `git-ui` (the multi-pane git
-    # screen), `mdexport` (Markdown to PDF), `ui-demo`.
+    # screen), `tb` (table editor), `mdexport` (Markdown to PDF), `ui-demo`.
     home.packages = [ (pkgs.callPackage ../crates { craneLib = crane.mkLib pkgs; }) ];
 
     # `gu`: the multi-pane git screen.
