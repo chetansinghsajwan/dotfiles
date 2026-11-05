@@ -12,6 +12,7 @@ import sys
 
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.cu2quPen import Cu2QuPen
+from fontTools.ttLib.tables.O_S_2f_2 import Panose
 from fontTools.pens.transformPen import TransformPen
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 
@@ -91,9 +92,37 @@ def main(out):
     fb.setupGlyf(glyphs)
     fb.setupHorizontalMetrics({n: (WIDTH, 0) for n in order})
     fb.setupHorizontalHeader(ascent=TOP, descent=BOTTOM)
-    fb.setupNameTable({"familyName": "Rounded Powerline", "styleName": "Regular"})
-    fb.setupOS2(sTypoAscender=TOP, sTypoDescender=BOTTOM, usWinAscent=TOP, usWinDescent=-BOTTOM, fsType=0)
-    fb.setupPost(isFixedPitch=1)
+    # A date that does not change, so the font is the same file every build.
+    stamp = 3_913_113_600  # 2028-01-01 in seconds since 1904, well after the first release
+    fb.setupHead(unitsPerEm=UPM, created=stamp, modified=stamp, fontRevision=1.0, flags=0b11, lowestRecPPEM=8)
+    fb.setupNameTable(
+        {
+            "copyright": "Public domain",
+            "familyName": "Rounded Powerline",
+            "styleName": "Regular",
+            "uniqueFontIdentifier": "RoundedPowerline-Regular;1.000",
+            "fullName": "Rounded Powerline",
+            "version": "Version 1.000",
+            "psName": "RoundedPowerline-Regular",
+        }
+    )
+    fb.setupOS2(
+        version=4,
+        usWeightClass=400,
+        usWidthClass=5,
+        fsType=0,
+        fsSelection=0x40,
+        achVendID="NONE",
+        sTypoAscender=TOP,
+        sTypoDescender=BOTTOM,
+        sTypoLineGap=0,
+        usWinAscent=TOP,
+        usWinDescent=-BOTTOM,
+        sxHeight=500,
+        sCapHeight=700,
+        panose=Panose(bFamilyType=2, bProportion=9),
+    )
+    fb.setupPost(isFixedPitch=1, underlinePosition=-100, underlineThickness=50)
     fb.save(out)
 
 
