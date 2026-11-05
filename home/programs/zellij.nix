@@ -194,7 +194,7 @@ in
             '';
     };
 
-    systemd.user.services.kanata-layer-listen = lib.mkIf pkgs.stdenv.isLinux {
+    systemd.user.services.kanata-layer-listen = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
         Unit.Description = "Mirror kanata's active layer into a file for the zellij bar";
         Install.WantedBy = [ "default.target" ];
         Service = {

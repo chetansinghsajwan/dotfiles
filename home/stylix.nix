@@ -62,6 +62,9 @@ in
 
             helix.transparent = true;
 
+            # Stylix's rofi module still sets the old `programs.rofi.font` (a deprecation warning), and rofi is not used here.
+            rofi.enable = false;
+
             zed = {
                 fonts.override = {
                     sizes = {
