@@ -145,7 +145,7 @@ in
                         modeColor = if m == "normal" then "$mode_normal" else "$mode";
                     in
                     ''
-                        mode_${m} "#[fg=${modeColor},bg=${ribbonColor}] ${upperPaddedModes.${m}}#[fg=${ribbonColor}]${leftEnd}"
+                        mode_${m} "#[fg=${ribbonColor}]${leftContinue}#[fg=${modeColor},bg=${ribbonColor}] ${upperPaddedModes.${m}}#[fg=${ribbonColor}]${leftEnd}"
                     '';
 
                 mkTabLine =
@@ -181,7 +181,7 @@ in
                             ${lib.concatStringsSep "\n" (map mkModeLine modes)}
                             ${lib.concatStringsSep "\n" (map mkTabLine tabs)}
 
-                            pipe_kanata_format "#[fg=$mode_normal,bg=${ribbonColor},bold] {output}#[fg=${ribbonColor},bg=default,nobold]${leftEnd}"
+                            pipe_kanata_format "#[fg=${ribbonColor}]${leftContinue}#[fg=$mode_normal,bg=${ribbonColor},bold] {output}#[fg=${ribbonColor},bg=default,nobold]${leftEnd}"
                             pipe_kanata_rendermode "static"
 
                             datetime "#[fg=$active] {format}"
