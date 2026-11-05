@@ -19,8 +19,9 @@ from fontTools.pens.ttGlyphPen import TTGlyphPen
 # JetBrains Mono's cell: 1000 units to the em, 600 wide, from -300 to 1020 (the bar spans the cell height).
 UPM, WIDTH, TOP, BOTTOM = 1000, 600, 1020, -300
 HEIGHT = TOP - BOTTOM
-# The bar reaches a little beyond the cell above and below, so rounding to whole pixels (any font size) never leaves a gap.
-OVERSHOOT = 40
+# How far the bar reaches beyond the cell above and below. Any value shows as ledges next to the text cells (the
+# terminal paints those exactly the cell high), so it is 0: the ends are the same height as the segment.
+OVERSHOOT = 0
 GT, GB = TOP + OVERSHOOT, BOTTOM - OVERSHOOT
 RY = HEIGHT * 0.36  # corner radius down the edge: about a third of the cell
 RX = WIDTH * 0.8  # across: most of the cell, so the corner is an arc of an ellipse, with a short flat middle
