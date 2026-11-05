@@ -2,7 +2,7 @@
     config,
     lib,
     pkgs,
-    crane,
+    tools,
     ...
 }:
 let
@@ -55,8 +55,8 @@ in
                 "punctuation" = fg;
             };
 
-            # Opt-in: our fork with the shared picker (see home/helix/FORK.md).
-            package = lib.mkIf editor.helixFork (pkgs.callPackage ../helix-fork.nix { craneLib = crane.mkLib pkgs; });
+            # Our fork with the shared picker (see pkgs/helix/FORK.md).
+            package = tools.helix-fork.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
             extraPackages = with pkgs; [
                 nil
@@ -92,10 +92,10 @@ in
                     trim-trailing-whitespace = true;
                     popup-border = "all";
 
-                    # Dock panels exist only in our fork; stock helix rejects the key.
-                    leader = lib.mkIf editor.helixFork editor.leader;
+                    # Dock panels are a feature of our fork.
+                    leader = editor.leader;
 
-                    docks = lib.mkIf editor.helixFork {
+                    docks = {
                         inherit (editor.docks) left right bottom;
                     };
 

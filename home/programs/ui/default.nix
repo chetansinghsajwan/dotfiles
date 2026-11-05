@@ -8,7 +8,7 @@ in
     # tools (pv, pick, ...) will depend on the crate directly.
 
     # Single source of design tokens. Read at runtime by the `ui` crate
-    # (home/crates/ui), so editing a value needs no rebuild of any tool.
+    # (pkgs/term-toolkit/ui), so editing a value needs no rebuild of any tool.
     xdg.configFile."ui/theme.json".text = builtins.toJSON {
         colors = {
             bg = c.base00;

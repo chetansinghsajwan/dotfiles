@@ -64,7 +64,7 @@ Keys are the same everywhere: `space` opens Quick Keys, `space space` searches e
 ### Configuration
 
 Each tool reads a TOML file, the shared `~/.config/ui/config.toml` first and then its own
-`~/.config/<tool>/config.toml` (`gu`, `files`, `nu`, `git-panel`, `hx-ui` for the helix docks),
+`~/.config/<tool>/config.toml` (`gu`, `files`, `nu`, `hx-ui` for the helix docks),
 which overrides it. `UI_CONFIG` and `UI_TOOL_CONFIG` name other files.
 
 ```toml

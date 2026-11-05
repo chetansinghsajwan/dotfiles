@@ -33,6 +33,61 @@
 
         # Splits cargo builds into a cached dependency build and our code.
         crane.url = "github:ipetkov/crane";
+
+        term-toolkit = {
+            url = "path:../pkgs/term-toolkit";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.llib.follows = "llib";
+            inputs.crane.follows = "crane";
+        };
+
+        pick = {
+            url = "path:../pkgs/pick";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.term-toolkit.follows = "term-toolkit";
+        };
+
+        pv = {
+            url = "path:../pkgs/pv";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.term-toolkit.follows = "term-toolkit";
+        };
+
+        files = {
+            url = "path:../pkgs/files";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.term-toolkit.follows = "term-toolkit";
+        };
+
+        gu = {
+            url = "path:../pkgs/gu";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.term-toolkit.follows = "term-toolkit";
+        };
+
+        tb = {
+            url = "path:../pkgs/tb";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.term-toolkit.follows = "term-toolkit";
+        };
+
+        nu = {
+            url = "path:../pkgs/nu";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.term-toolkit.follows = "term-toolkit";
+        };
+
+        mdexport = {
+            url = "path:../pkgs/mdexport";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.term-toolkit.follows = "term-toolkit";
+        };
+
+        helix-fork = {
+            url = "path:../pkgs/helix";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.term-toolkit.follows = "term-toolkit";
+        };
     };
 
     outputs =
@@ -44,7 +99,14 @@
             nur,
             stylix,
             caelestia-shell,
-            crane,
+            pick,
+            pv,
+            files,
+            gu,
+            tb,
+            nu,
+            mdexport,
+            helix-fork,
             ...
         }:
         let
@@ -58,9 +120,22 @@
                     llib
                     nur
                     caelestia-shell
-                    crane
                     stylix
                     ;
+
+                # Flakes of our Rust tools (pkgs/); each has `packages.<system>.default`.
+                tools = {
+                    inherit
+                        pick
+                        pv
+                        files
+                        gu
+                        tb
+                        nu
+                        mdexport
+                        helix-fork
+                        ;
+                };
             };
 
             mkHome =

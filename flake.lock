@@ -81,11 +81,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792841684,
-        "narHash": "sha256-e5NI28/bKQ6EmjC1E46LiSzU7yT04iXdT0T7liPSBGo=",
+        "lastModified": 1793423030,
+        "narHash": "sha256-90s3Me2ICTCL9bgjojzAwyzhRwhhSgPITLO2gRy606A=",
         "owner": "caelestia-dots",
         "repo": "cli",
-        "rev": "679af941c03f1899d017964c654f57d71cec47e5",
+        "rev": "fdb3e47038c77ec8e7bb6010ffbcae00501d420b",
         "type": "github"
       },
       "original": {
@@ -105,11 +105,11 @@
         "quickshell": "quickshell"
       },
       "locked": {
-        "lastModified": 1792917524,
-        "narHash": "sha256-5iMV8fzaU2ohZiUkzxtRFEJNQiQazfNcomOqQbs4Ie0=",
+        "lastModified": 1793626482,
+        "narHash": "sha256-A+jGZeMcLoy8+2PlYtSi9bsWtyVhVucs/uv9Vg/PB+Y=",
         "owner": "caelestia-dots",
         "repo": "shell",
-        "rev": "4b1dae84b1b3b28bf486776ba30c1c1ec74fb64d",
+        "rev": "bcbb5d5139d5159839c7362d8f4954ccc7dbd67d",
         "type": "github"
       },
       "original": {
@@ -134,11 +134,11 @@
     },
     "crane": {
       "locked": {
-        "lastModified": 1792350552,
-        "narHash": "sha256-292lvpvxTGKryKxh3/3tcIVi85CwYGdl4oOi113Sob8=",
+        "lastModified": 1793669695,
+        "narHash": "sha256-9EtV4I6Ohw0tjidL31TMOKHhW/QGVG8NuGiemzIaNCs=",
         "owner": "ipetkov",
         "repo": "crane",
-        "rev": "e675a36b7377bebe41d548388a2501cbb16d380d",
+        "rev": "788369ed71ed9d84ef72cb056e4d920050d5b32c",
         "type": "github"
       },
       "original": {
@@ -175,6 +175,29 @@
         "type": "path"
       },
       "parent": []
+    },
+    "files": {
+      "inputs": {
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ],
+        "term-toolkit": [
+          "home",
+          "term-toolkit"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs/files",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs/files",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
     },
     "firefox-gnome-theme": {
       "flake": false,
@@ -287,6 +310,52 @@
         "type": "gitlab"
       }
     },
+    "gu": {
+      "inputs": {
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ],
+        "term-toolkit": [
+          "home",
+          "term-toolkit"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs/gu",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs/gu",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
+    },
+    "helix-fork": {
+      "inputs": {
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ],
+        "term-toolkit": [
+          "home",
+          "term-toolkit"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs/helix",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs/helix",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
+    },
     "home": {
       "inputs": {
         "caelestia-shell": "caelestia-shell",
@@ -294,17 +363,26 @@
           "config"
         ],
         "crane": "crane",
+        "files": "files",
+        "gu": "gu",
+        "helix-fork": "helix-fork",
         "home-manager": [
           "home-manager"
         ],
         "llib": [
           "llib"
         ],
+        "mdexport": "mdexport",
         "nixpkgs": [
           "nixpkgs"
         ],
+        "nu": "nu",
         "nur": "nur",
-        "stylix": "stylix"
+        "pick": "pick",
+        "pv": "pv",
+        "stylix": "stylix",
+        "tb": "tb",
+        "term-toolkit": "term-toolkit"
       },
       "locked": {
         "path": "./home",
@@ -407,6 +485,29 @@
         "type": "path"
       },
       "parent": []
+    },
+    "mdexport": {
+      "inputs": {
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ],
+        "term-toolkit": [
+          "home",
+          "term-toolkit"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs/mdexport",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs/mdexport",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
     },
     "nix-darwin": {
       "inputs": {
@@ -541,6 +642,29 @@
         "type": "github"
       }
     },
+    "nu": {
+      "inputs": {
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ],
+        "term-toolkit": [
+          "home",
+          "term-toolkit"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs/nu",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs/nu",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
+    },
     "nur": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -550,11 +674,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793105247,
-        "narHash": "sha256-JjCxeaTZTVxyMUuTSvNahglniTzvkV8LrVbTmT1rnRY=",
+        "lastModified": 1793769782,
+        "narHash": "sha256-xIBiJvmW34LvtkuSIdvdQhBS01KBNmUYvPwD6B6Ex2c=",
         "owner": "nix-community",
         "repo": "nur",
-        "rev": "d6eb1075bcc92ab09e7b2b78f8c640d47480f1f1",
+        "rev": "f75b1b8af1ea9e6faaecc43585a4ecf448efec15",
         "type": "github"
       },
       "original": {
@@ -589,6 +713,52 @@
         "repo": "NUR",
         "type": "github"
       }
+    },
+    "pick": {
+      "inputs": {
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ],
+        "term-toolkit": [
+          "home",
+          "term-toolkit"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs/pick",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs/pick",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
+    },
+    "pv": {
+      "inputs": {
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ],
+        "term-toolkit": [
+          "home",
+          "term-toolkit"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs/pv",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs/pv",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
     },
     "quickshell": {
       "inputs": {
@@ -698,6 +868,56 @@
         "repo": "default",
         "type": "github"
       }
+    },
+    "tb": {
+      "inputs": {
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ],
+        "term-toolkit": [
+          "home",
+          "term-toolkit"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs/tb",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs/tb",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
+    },
+    "term-toolkit": {
+      "inputs": {
+        "crane": [
+          "home",
+          "crane"
+        ],
+        "llib": [
+          "home",
+          "llib"
+        ],
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs/term-toolkit",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs/term-toolkit",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
     },
     "tinted-kitty": {
       "flake": false,

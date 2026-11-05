@@ -33,7 +33,7 @@ toolset in `home/crates` and a helix fork in `home/helix`.
   `config.dotfiles.features.*` (dev, gui, gaming).
 - `home/desktop/{gnome,hyprland}` — desktop-environment-specific modules.
 - `home/crates/` — the Rust workspace: `ui` (shared design: theme, keys, config,
-  lists, prompts), `pv`, `pick`, `files`, `git-core`, `git-panel`, `git-ui` (`gu`),
+  lists, prompts), `pv`, `pick`, `files`, `git-core`, `git-panel` (lib), `gu`,
   `diagnostics-panel`, `nu-core`, `nu`, `mdexport` (Markdown to PDF through Typst). Built by `home/crates/default.nix` (crane).
 - `home/helix/` — the helix fork; `home/helix-fork.nix` builds it.
 - `docs/ui-design.md` — the look every tool follows (colors, chrome, layout, components); `docs/usage-design.md` — the keys and menus.

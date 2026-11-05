@@ -1,7 +1,7 @@
 _: {
     projectRootFile = "flake.nix";
-    # Vendored upstream source (home/helix), not ours to reformat or lint.
-    settings.global.excludes = [ "home/helix/**" ];
+    # Vendored upstream source (pkgs/helix), not ours to reformat or lint.
+    settings.global.excludes = [ "pkgs/helix/**" ];
 
     programs.nixfmt.enable = true;
     programs.nixfmt.indent = 4;

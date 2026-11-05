@@ -374,12 +374,6 @@ in
                 description = "Terminal editor used as the default $EDITOR (and for git).";
             };
 
-            helixFork = mkOption {
-                type = types.bool;
-                default = true;
-                description = "Use our helix fork (home/helix, with the shared pick picker) instead of the nixpkgs helix.";
-            };
-
             leader = mkOption {
                 type = types.str;
                 default = "space";

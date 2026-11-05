@@ -18,7 +18,7 @@ let
     '';
 in
 {
-    # `files`: the file explorer (Rust, home/crates/files), the same panel the
+    # `files`: the file explorer (Rust, pkgs/files), the same panel the
     # helix fork embeds. Replaces yazi. `y` changes directory on exit.
 
     programs.zsh.initContent = lib.mkIf (shell == "zsh") posix;
