@@ -87,6 +87,7 @@ mutate the actual machine.
   extend the component in `pkgs/term-toolkit/ui`.
   The name is what shrinks (`…`) when a row is too narrow; the columns, counts and signs beside it
   keep their place (`ui::list::fit`, built into `ui::tree::file_row`).
+- If it is unclear whether a piece of logic belongs to the toolkit or to a tool, ask before implementing. Derived presentation (the active guide scope, alignment, truncation, pinned ancestors) is the toolkit's: a tool passes content and cursor state and calls nothing extra.
 - Hidden (dot) files show by default; files that git ignores do not (`I` shows them in `files`). Actions are registered in the tool's `keys.rs`
   with an id, a name, a description and default keys (`ui::keys`); users rebind them in TOML
   (`ui::config`, see `readme.md`). Follow `docs/usage-design.md` when adding a key.
