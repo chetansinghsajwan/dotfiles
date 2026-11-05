@@ -176,29 +176,6 @@
       },
       "parent": []
     },
-    "files": {
-      "inputs": {
-        "nixpkgs": [
-          "home",
-          "nixpkgs"
-        ],
-        "term-toolkit": [
-          "home",
-          "term-toolkit"
-        ]
-      },
-      "locked": {
-        "path": "../pkgs/files",
-        "type": "path"
-      },
-      "original": {
-        "path": "../pkgs/files",
-        "type": "path"
-      },
-      "parent": [
-        "home"
-      ]
-    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -310,52 +287,6 @@
         "type": "gitlab"
       }
     },
-    "gu": {
-      "inputs": {
-        "nixpkgs": [
-          "home",
-          "nixpkgs"
-        ],
-        "term-toolkit": [
-          "home",
-          "term-toolkit"
-        ]
-      },
-      "locked": {
-        "path": "../pkgs/gu",
-        "type": "path"
-      },
-      "original": {
-        "path": "../pkgs/gu",
-        "type": "path"
-      },
-      "parent": [
-        "home"
-      ]
-    },
-    "helix-fork": {
-      "inputs": {
-        "nixpkgs": [
-          "home",
-          "nixpkgs"
-        ],
-        "term-toolkit": [
-          "home",
-          "term-toolkit"
-        ]
-      },
-      "locked": {
-        "path": "../pkgs/helix",
-        "type": "path"
-      },
-      "original": {
-        "path": "../pkgs/helix",
-        "type": "path"
-      },
-      "parent": [
-        "home"
-      ]
-    },
     "home": {
       "inputs": {
         "caelestia-shell": "caelestia-shell",
@@ -363,26 +294,18 @@
           "config"
         ],
         "crane": "crane",
-        "files": "files",
-        "gu": "gu",
-        "helix-fork": "helix-fork",
         "home-manager": [
           "home-manager"
         ],
         "llib": [
           "llib"
         ],
-        "mdexport": "mdexport",
+        "lpkgs": "lpkgs",
         "nixpkgs": [
           "nixpkgs"
         ],
-        "nu": "nu",
         "nur": "nur",
-        "pick": "pick",
-        "pv": "pv",
-        "stylix": "stylix",
-        "tb": "tb",
-        "term-toolkit": "term-toolkit"
+        "stylix": "stylix"
       },
       "locked": {
         "path": "./home",
@@ -447,6 +370,33 @@
       },
       "parent": []
     },
+    "lpkgs": {
+      "inputs": {
+        "crane": [
+          "home",
+          "crane"
+        ],
+        "llib": [
+          "home",
+          "llib"
+        ],
+        "nixpkgs": [
+          "home",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "../pkgs",
+        "type": "path"
+      },
+      "original": {
+        "path": "../pkgs",
+        "type": "path"
+      },
+      "parent": [
+        "home"
+      ]
+    },
     "m3shapes": {
       "inputs": {
         "nixpkgs": [
@@ -485,29 +435,6 @@
         "type": "path"
       },
       "parent": []
-    },
-    "mdexport": {
-      "inputs": {
-        "nixpkgs": [
-          "home",
-          "nixpkgs"
-        ],
-        "term-toolkit": [
-          "home",
-          "term-toolkit"
-        ]
-      },
-      "locked": {
-        "path": "../pkgs/mdexport",
-        "type": "path"
-      },
-      "original": {
-        "path": "../pkgs/mdexport",
-        "type": "path"
-      },
-      "parent": [
-        "home"
-      ]
     },
     "nix-darwin": {
       "inputs": {
@@ -642,29 +569,6 @@
         "type": "github"
       }
     },
-    "nu": {
-      "inputs": {
-        "nixpkgs": [
-          "home",
-          "nixpkgs"
-        ],
-        "term-toolkit": [
-          "home",
-          "term-toolkit"
-        ]
-      },
-      "locked": {
-        "path": "../pkgs/nu",
-        "type": "path"
-      },
-      "original": {
-        "path": "../pkgs/nu",
-        "type": "path"
-      },
-      "parent": [
-        "home"
-      ]
-    },
     "nur": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -713,52 +617,6 @@
         "repo": "NUR",
         "type": "github"
       }
-    },
-    "pick": {
-      "inputs": {
-        "nixpkgs": [
-          "home",
-          "nixpkgs"
-        ],
-        "term-toolkit": [
-          "home",
-          "term-toolkit"
-        ]
-      },
-      "locked": {
-        "path": "../pkgs/pick",
-        "type": "path"
-      },
-      "original": {
-        "path": "../pkgs/pick",
-        "type": "path"
-      },
-      "parent": [
-        "home"
-      ]
-    },
-    "pv": {
-      "inputs": {
-        "nixpkgs": [
-          "home",
-          "nixpkgs"
-        ],
-        "term-toolkit": [
-          "home",
-          "term-toolkit"
-        ]
-      },
-      "locked": {
-        "path": "../pkgs/pv",
-        "type": "path"
-      },
-      "original": {
-        "path": "../pkgs/pv",
-        "type": "path"
-      },
-      "parent": [
-        "home"
-      ]
     },
     "quickshell": {
       "inputs": {
@@ -868,56 +726,6 @@
         "repo": "default",
         "type": "github"
       }
-    },
-    "tb": {
-      "inputs": {
-        "nixpkgs": [
-          "home",
-          "nixpkgs"
-        ],
-        "term-toolkit": [
-          "home",
-          "term-toolkit"
-        ]
-      },
-      "locked": {
-        "path": "../pkgs/tb",
-        "type": "path"
-      },
-      "original": {
-        "path": "../pkgs/tb",
-        "type": "path"
-      },
-      "parent": [
-        "home"
-      ]
-    },
-    "term-toolkit": {
-      "inputs": {
-        "crane": [
-          "home",
-          "crane"
-        ],
-        "llib": [
-          "home",
-          "llib"
-        ],
-        "nixpkgs": [
-          "home",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "path": "../pkgs/term-toolkit",
-        "type": "path"
-      },
-      "original": {
-        "path": "../pkgs/term-toolkit",
-        "type": "path"
-      },
-      "parent": [
-        "home"
-      ]
     },
     "tinted-kitty": {
       "flake": false,

@@ -12,7 +12,7 @@ helix fork, git panel).
 
 A personal, multi-host Nix flake configuration covering NixOS, nix-darwin, and
 standalone Home Manager (hosts are listed in `readme.md`), plus the Rust terminal
-toolset in `home/crates` and a helix fork in `home/helix`.
+toolset and a helix fork in `pkgs/`.
 
 ## Layout
 
@@ -32,10 +32,8 @@ toolset in `home/crates` and a helix fork in `home/helix`.
 - `home/features/*.nix` — optional feature bundles gated by
   `config.dotfiles.features.*` (dev, gui, gaming).
 - `home/desktop/{gnome,hyprland}` — desktop-environment-specific modules.
-- `home/crates/` — the Rust workspace: `ui` (shared design: theme, keys, config,
-  lists, prompts), `pv`, `pick`, `files`, `git-core`, `git-panel` (lib), `gu`,
-  `diagnostics-panel`, `nu-core`, `nu`, `mdexport` (Markdown to PDF through Typst). Built by `home/crates/default.nix` (crane).
-- `home/helix/` — the helix fork; `home/helix-fork.nix` builds it.
+- `pkgs/` — the Rust code, one Cargo workspace and one flake (`pkgs/flake.nix`, crane, shared dependency build). `pkgs/term-toolkit/` holds the libraries (`ui`: shared design: theme, keys, config, lists, prompts; `pv`, `pick`, `files`, `git-core`, `git-panel`, `tb`, `diagnostics-panel`, `symbols-panel`); the tools on top are `pick`, `pv`, `files`, `tb`, `gu`, `nu` (with `core/`), `mdexport` (Markdown to PDF through Typst).
+- `pkgs/helix/` — the helix fork (its own workspace), built by the same flake.
 - `docs/ui-design.md` — the look every tool follows (colors, chrome, layout, components); `docs/usage-design.md` — the keys and menus.
 - `lib/default.nix` — shared helper functions (`llib`).
 - `treefmt.nix` — formatter/linter config (nixfmt, statix, deadnix).
@@ -79,7 +77,7 @@ mutate the actual machine.
 - Fix `statix`/`deadnix` warnings surfaced by `nix flake check`.
 - Keep diffs minimal and scoped to the host/module being changed.
 
-## The Rust tools (`home/crates`)
+## The Rust tools (`pkgs`)
 
 - Design lives in one place: colors, keys, menus, lists, prompts and previews come from
   `ui` and `pv`; don't restyle in a tool. Actions are registered in the tool's `keys.rs`
@@ -88,7 +86,7 @@ mutate the actual machine.
 - Git reads through `git-core` (gix) and writes through the `git` CLI; no tool shells out
   to git itself.
 - Test and build with cargo, not a full Nix build:
-  `cd home/crates && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo test -j3`
+  `cd pkgs && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo test --workspace -j3`
   (use `nice` and `-j3`). The helix fork needs `HELIX_DISABLE_AUTO_GRAMMAR_BUILD=1`.
   Run the full `nix build` only when Nix files, lockfiles or dependencies change.
 - Keep `plan.md` up to date after a change: it is the one context file for this work.
