@@ -84,7 +84,10 @@ mutate the actual machine.
   Structure and drawing of an element (a file or tree row, a list, a pane) is the toolkit.s
   job: the tool passes the content and enables the optional parts it needs (git markers, entry
   counts, `+n -n` counts, size and time columns). Never draw such an element locally; add or
-  extend the component in `pkgs/term-toolkit/ui`. Actions are registered in the tool's `keys.rs`
+  extend the component in `pkgs/term-toolkit/ui`.
+  The name is what shrinks (`…`) when a row is too narrow; the columns, counts and signs beside it
+  keep their place (`ui::list::fit`, built into `ui::tree::file_row`).
+- Hidden (dot) files show by default; files that git ignores do not (`I` shows them in `files`). Actions are registered in the tool's `keys.rs`
   with an id, a name, a description and default keys (`ui::keys`); users rebind them in TOML
   (`ui::config`, see `readme.md`). Follow `docs/usage-design.md` when adding a key.
 - Git reads through `git-core` (gix) and writes through the `git` CLI; no tool shells out
