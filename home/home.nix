@@ -13,6 +13,11 @@ in
 {
     programs.home-manager.enable = true;
 
+    targets.darwin = lib.mkIf isDarwin {
+        linkApps.enable = false;
+        copyApps.enable = true;
+    };
+
     nix.enable = false;
     nixpkgs.config.allowUnfree = true;
 
