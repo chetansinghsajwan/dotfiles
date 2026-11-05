@@ -135,8 +135,8 @@ in
                 maxModesLen = llib.maxStringLen modes;
                 upperPaddedModes = lib.genAttrs modes (m: llib.padRight (llib.toUpperSpc m) maxModesLen);
                 ribbonColor = colors.base02;
-                leftEnd = pg.circleRight;
-                leftContinue = pg.circleLeft;
+                leftEnd = pg.softRight;
+                leftContinue = pg.softLeft;
                 pg = llib.powerlineGlyphs;
 
                 mkModeLine =

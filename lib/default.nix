@@ -159,5 +159,10 @@ rec {
         arrowRight = ""; # e0b0
         circleLeft = ""; # e0b6
         circleRight = ""; # e0b4
+        # Slightly rounded ends (the "Rounded Powerline" font, home/programs/fonts): filled and outline.
+        softLeft = builtins.fromJSON ''""'';
+        softRight = builtins.fromJSON ''""'';
+        softLeftOutline = builtins.fromJSON ''""'';
+        softRightOutline = builtins.fromJSON ''""'';
     };
 }

@@ -9,6 +9,7 @@
         ./clipboard
         ./files
         ./ui
+        ./fonts
         ./op
     ]
     ++ (llib.importDir ./.);
