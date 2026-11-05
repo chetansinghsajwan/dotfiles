@@ -19,17 +19,20 @@ from fontTools.pens.ttGlyphPen import TTGlyphPen
 # JetBrains Mono's cell: 1000 units to the em, 600 wide, from -300 to 1020 (the bar spans the cell height).
 UPM, WIDTH, TOP, BOTTOM = 1000, 600, 1020, -300
 HEIGHT = TOP - BOTTOM
-RY = HEIGHT * 0.25  # corner radius down the edge: a quarter of the cell
-RX = WIDTH * 0.5  # across: half the cell, so the curve is an arc of an ellipse, not a pill
+# The bar reaches a little beyond the cell above and below, so rounding to whole pixels (any font size) never leaves a gap.
+OVERSHOOT = 40
+GT, GB = TOP + OVERSHOOT, BOTTOM - OVERSHOOT
+RY = HEIGHT * 0.36  # corner radius down the edge: about a third of the cell
+RX = WIDTH * 0.8  # across: most of the cell, so the corner is an arc of an ellipse, with a short flat middle
 STROKE = 70  # width of the outline glyphs
-OVERLAP = 6  # the joining edge goes this far outside the cell so there is no seam
+OVERLAP = 30  # the joining edge goes this far outside the cell so there is no seam
 K = 0.5523  # cubic approximation of a quarter circle
 
 
 def right_end(pen, inset=0.0, flat_from=0.0):
     """Outline of a right end: flat on the left, rounded top and bottom corners on the right."""
     x0, x1 = -OVERLAP, WIDTH - inset
-    top, bottom = TOP - inset, BOTTOM + inset
+    top, bottom = GT - inset, GB + inset
     pen.moveTo((x0, bottom))
     pen.lineTo((x0, top))
     pen.lineTo((x1 - RX, top))
@@ -43,18 +46,18 @@ def right_outline(pen):
     """Only the curved edge, STROKE thick: the outer outline, then the inner one back."""
     x1 = WIDTH
     t = STROKE
-    pen.moveTo((-OVERLAP, TOP))
-    pen.lineTo((x1 - RX, TOP))
-    pen.curveTo((x1 - RX + RX * K, TOP), (x1, TOP - RY + RY * K), (x1, TOP - RY))
-    pen.lineTo((x1, BOTTOM + RY))
-    pen.curveTo((x1, BOTTOM + RY - RY * K), (x1 - RX + RX * K, BOTTOM), (x1 - RX, BOTTOM))
-    pen.lineTo((-OVERLAP, BOTTOM))
-    pen.lineTo((-OVERLAP, BOTTOM + t))
-    pen.lineTo((x1 - RX, BOTTOM + t))
-    pen.curveTo((x1 - RX + RX * K, BOTTOM + t), (x1 - t, BOTTOM + RY - RY * K + t), (x1 - t, BOTTOM + RY))
-    pen.lineTo((x1 - t, TOP - RY))
-    pen.curveTo((x1 - t, TOP - RY + RY * K - t), (x1 - RX + RX * K, TOP - t), (x1 - RX, TOP - t))
-    pen.lineTo((-OVERLAP, TOP - t))
+    pen.moveTo((-OVERLAP, GT))
+    pen.lineTo((x1 - RX, GT))
+    pen.curveTo((x1 - RX + RX * K, GT), (x1, GT - RY + RY * K), (x1, GT - RY))
+    pen.lineTo((x1, GB + RY))
+    pen.curveTo((x1, GB + RY - RY * K), (x1 - RX + RX * K, GB), (x1 - RX, GB))
+    pen.lineTo((-OVERLAP, GB))
+    pen.lineTo((-OVERLAP, GB + t))
+    pen.lineTo((x1 - RX, GB + t))
+    pen.curveTo((x1 - RX + RX * K, GB + t), (x1 - t, GB + RY - RY * K + t), (x1 - t, GB + RY))
+    pen.lineTo((x1 - t, GT - RY))
+    pen.curveTo((x1 - t, GT - RY + RY * K - t), (x1 - RX + RX * K, GT - t), (x1 - RX, GT - t))
+    pen.lineTo((-OVERLAP, GT - t))
     pen.closePath()
 
 
