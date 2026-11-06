@@ -85,6 +85,7 @@ mutate the actual machine.
   job: the tool passes the content and enables the optional parts it needs (git markers, entry
   counts, `+n -n` counts, size and time columns). Never draw such an element locally; add or
   extend the component in `pkgs/term-toolkit/ui`.
+  Aligned columns are always separated by at least 1 blank cell (the toolkit's default), also in the tightest case; the name or text gives way first.
   The name is what shrinks (`…`) when a row is too narrow; the columns, counts and signs beside it
   keep their place (`ui::list::fit`, built into `ui::tree::file_row`).
 - If it is unclear whether a piece of logic belongs to the toolkit or to a tool, ask before implementing. Derived presentation (the active guide scope, alignment, truncation, pinned ancestors) is the toolkit's: a tool passes content and cursor state and calls nothing extra.
