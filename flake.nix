@@ -2,6 +2,9 @@
     description = "Dotfiles";
 
     inputs = {
+        # Include git submodules (pkgs/tuikit, pkgs/helix-improved) in this flake's source.
+        self.submodules = true;
+
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
         home-manager = {
