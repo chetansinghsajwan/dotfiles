@@ -22,3 +22,6 @@ CLAUDE.local.md
 # Logs
 *.log
 logs/
+
+# Cargo build output
+target/
