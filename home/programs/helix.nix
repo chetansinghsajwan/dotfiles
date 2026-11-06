@@ -55,7 +55,7 @@ in
                 "punctuation" = fg;
             };
 
-            # Our fork with the shared picker (see pkgs/helix/FORK.md).
+            # Our fork with the shared picker (see pkgs/helix-improved/FORK.md).
             package = lpkgs.packages.${pkgs.stdenv.hostPlatform.system}.helix;
 
             extraPackages = with pkgs; [

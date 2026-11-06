@@ -10,7 +10,7 @@ let
     system = pkgs.stdenv.hostPlatform.system;
 in
 {
-    # Our Rust tools (pkgs/*, one workspace and one flake): `pv` (preview), `pick`
+    # Our Rust tools (the pkgs/tuikit submodule, re-exported by pkgs/flake.nix): `pv` (preview), `pick`
     # (picker), `files` (explorer), `gu` (the multi-pane git screen), `tb` (table editor), `nu`
     # (connections), `mdexport` (Markdown to PDF). The helix fork is wired in home/programs/helix.nix.
     home.packages = lib.attrValues (removeAttrs lpkgs.packages.${system} [ "helix" ]);

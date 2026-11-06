@@ -1,0 +1,6 @@
+[submodule "pkgs/tuikit"]
+	path = pkgs/tuikit
+	url = https://github.com/chetansinghsajwan/tuikit
+[submodule "pkgs/helix-improved"]
+	path = pkgs/helix-improved
+	url = https://github.com/chetansinghsajwan/helix-improved

@@ -3,7 +3,7 @@
 Personal Nix flake configuration for all my machines: NixOS, nix-darwin, and
 standalone Home Manager, unified under a single `dotfiles.*` option namespace.
 It also holds my terminal toolset: a few Rust tools and a helix fork that share one
-design (`home/crates`).
+design (the `pkgs/tuikit` and `pkgs/helix-improved` submodules).
 
 ## TODO
 
@@ -35,11 +35,8 @@ Open:
 │   ├── programs/          one module per program (git, zsh, helix, zellij, ...)
 │   ├── features/          optional bundles: dev, gui, gaming
 │   ├── desktop/           desktop environments (gnome, hyprland)
-│   ├── crates/            the Rust tools (workspace, built with crane)
-│   ├── helix/             the helix fork, `helix-fork.nix` builds it
+│   ├── (the Rust tools and the helix fork are submodules under pkgs/)
 │   └── stylix.nix         colors and fonts for everything
-├── docs/usage-design.md   how the tools are used: keys, menus, shared verbs
-├── plan.md                the plan and decisions for the terminal toolset
 └── treefmt.nix            formatter/linter config (nixfmt, statix, deadnix)
 ```
 
@@ -59,7 +56,7 @@ One tool owns one domain, and the design (colors, keys, menus, previews) lives i
 | helix fork  | the editor, with docks that embed `files`, the git panel and the diagnostics panel    |
 
 Keys are the same everywhere: `space` opens Quick Keys, `space space` searches every action,
-`?` lists the keys, `dd` confirms a delete. See `docs/usage-design.md`.
+`?` lists the keys, `dd` confirms a delete. See `pkgs/tuikit/docs/usage-design.md`.
 
 ### Configuration
 
@@ -102,9 +99,9 @@ nix fmt           # format the repo with nixfmt (via treefmt)
 nix develop       # shell with nixfmt, statix, deadnix, nil, nixd on PATH
 
 # the Rust tools: build and test without a full Nix build
-cd home/crates && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo test
+cd pkgs/tuikit && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo test
 ```
 
-The look is described in `docs/ui-design.md`, the keys in `docs/usage-design.md`.
+The look is described in `pkgs/tuikit/docs/ui-design.md`, the keys in `pkgs/tuikit/docs/usage-design.md`.
 
 See `agents.md` for conventions to follow when editing this repo.

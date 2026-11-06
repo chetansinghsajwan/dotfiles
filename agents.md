@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this repository.
 
 ## Ongoing work
 
-Read `plan.md` first: it holds the full context, decisions and open questions
+Read `pkgs/tuikit/plan.md` first: it holds the full context, decisions and open questions
 for the terminal toolset standardization (shared TUI design, `pv`, `pick`,
 helix fork, git panel).
 
@@ -32,9 +32,9 @@ toolset and a helix fork in `pkgs/`.
 - `home/features/*.nix` — optional feature bundles gated by
   `config.dotfiles.features.*` (dev, gui, gaming).
 - `home/desktop/{gnome,hyprland}` — desktop-environment-specific modules.
-- `pkgs/` — the Rust code, one Cargo workspace and one flake (`pkgs/flake.nix`, crane, shared dependency build). `pkgs/term-toolkit/` holds the libraries (`ui`: shared design: theme, keys, config, lists, prompts; `pv`, `pick`, `files`, `git-core`, `git-panel`, `tb`, `diagnostics-panel`, `symbols-panel`); the tools on top are `pick`, `pv`, `files`, `tb`, `gu`, `nu` (with `core/`), `mdexport` (Markdown to PDF through Typst).
-- `pkgs/helix/` — the helix fork (its own workspace), built by the same flake.
-- `docs/ui-design.md` — the look every tool follows (colors, chrome, layout, components); `docs/usage-design.md` — the keys and menus.
+- `pkgs/tuikit/` — git submodule (github.com/chetansinghsajwan/tuikit): the toolkit and the tools, one Cargo workspace and one flake (crane, shared dependency build); `pkgs/flake.nix` re-exports its tools and the editor. `pkgs/tuikit/crates/` holds the libraries (`ui`: shared design: theme, keys, config, lists, prompts; `pv`, `pick`, `files`, `git-core`, `git-panel`, `tb`, `diagnostics-panel`, `symbols-panel`); the tools in `pkgs/tuikit/tools/` are `pick`, `pv`, `files`, `tb`, `gu`, `nu` (with `core/`), `mdexport` (Markdown to PDF through Typst).
+- `pkgs/helix-improved/` — git submodule (github.com/chetansinghsajwan/helix-improved): the helix fork (its own workspace, tuikit as a nested submodule), built by its own flake.
+- `pkgs/tuikit/docs/ui-design.md` — the look every tool follows (colors, chrome, layout, components); `pkgs/tuikit/docs/usage-design.md` — the keys and menus.
 - `lib/default.nix` — shared helper functions (`llib`).
 - `treefmt.nix` — formatter/linter config (nixfmt, statix, deadnix).
 
@@ -84,18 +84,18 @@ mutate the actual machine.
   Structure and drawing of an element (a file or tree row, a list, a pane) is the toolkit.s
   job: the tool passes the content and enables the optional parts it needs (git markers, entry
   counts, `+n -n` counts, size and time columns). Never draw such an element locally; add or
-  extend the component in `pkgs/term-toolkit/ui`.
+  extend the component in `pkgs/tuikit/crates/ui`.
   Aligned columns are always separated by at least 1 blank cell (the toolkit's default), also in the tightest case; the name or text gives way first.
   The name is what shrinks (`…`) when a row is too narrow; the columns, counts and signs beside it
   keep their place (`ui::list::fit`, built into `ui::tree::file_row`).
 - If it is unclear whether a piece of logic belongs to the toolkit or to a tool, ask before implementing. Derived presentation (the active guide scope, alignment, truncation, pinned ancestors) is the toolkit's: a tool passes content and cursor state and calls nothing extra.
 - Hidden (dot) files show by default; files that git ignores do not (`I` shows them in `files`). Actions are registered in the tool's `keys.rs`
   with an id, a name, a description and default keys (`ui::keys`); users rebind them in TOML
-  (`ui::config`, see `readme.md`). Follow `docs/usage-design.md` when adding a key.
+  (`ui::config`, see `readme.md`). Follow `pkgs/tuikit/docs/usage-design.md` when adding a key.
 - Git reads through `git-core` (gix) and writes through the `git` CLI; no tool shells out
   to git itself.
 - Test and build with cargo, not a full Nix build:
   `cd pkgs && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo test --workspace -j3`
   (use `nice` and `-j3`). The helix fork needs `HELIX_DISABLE_AUTO_GRAMMAR_BUILD=1`.
   Run the full `nix build` only when Nix files, lockfiles or dependencies change.
-- Keep `plan.md` up to date after a change: it is the one context file for this work.
+- Keep `pkgs/tuikit/plan.md` up to date after a change: it is the one context file for this work.
