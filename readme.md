@@ -82,13 +82,13 @@ Apply a configuration on the machine it targets:
 
 ```sh
 # NixOS (WSL)
-sudo nixos-rebuild switch --flake .#jman-nixos
+sudo nixos-rebuild switch --flake '.?submodules=1#jman-nixos'
 
 # nix-darwin
-sudo darwin-rebuild switch --flake .#macbook-air13
+sudo darwin-rebuild switch --flake '.?submodules=1#macbook-air13'
 
 # Standalone Home Manager (non-NixOS/non-darwin Linux)
-home-manager switch --flake .#chetan
+home-manager switch --flake '.?submodules=1#chetan'
 ```
 
 ## Development
