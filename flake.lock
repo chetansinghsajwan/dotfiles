@@ -287,6 +287,32 @@
         "type": "gitlab"
       }
     },
+    "helix-improved": {
+      "inputs": {
+        "crane": [
+          "home",
+          "lpkgs",
+          "crane"
+        ],
+        "nixpkgs": [
+          "home",
+          "lpkgs",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./helix-improved",
+        "type": "path"
+      },
+      "original": {
+        "path": "./helix-improved",
+        "type": "path"
+      },
+      "parent": [
+        "home",
+        "lpkgs"
+      ]
+    },
     "home": {
       "inputs": {
         "caelestia-shell": "caelestia-shell",
@@ -376,6 +402,7 @@
           "home",
           "crane"
         ],
+        "helix-improved": "helix-improved",
         "llib": [
           "home",
           "llib"
@@ -383,7 +410,8 @@
         "nixpkgs": [
           "home",
           "nixpkgs"
-        ]
+        ],
+        "tuikit": "tuikit"
       },
       "locked": {
         "path": "../pkgs",
@@ -810,6 +838,32 @@
         "repo": "treefmt-nix",
         "type": "github"
       }
+    },
+    "tuikit": {
+      "inputs": {
+        "crane": [
+          "home",
+          "lpkgs",
+          "crane"
+        ],
+        "nixpkgs": [
+          "home",
+          "lpkgs",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./tuikit",
+        "type": "path"
+      },
+      "original": {
+        "path": "./tuikit",
+        "type": "path"
+      },
+      "parent": [
+        "home",
+        "lpkgs"
+      ]
     },
     "wallpapers": {
       "flake": false,

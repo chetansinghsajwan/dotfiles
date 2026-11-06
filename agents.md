@@ -34,6 +34,7 @@ toolset and a helix fork in `pkgs/`.
 - `home/desktop/{gnome,hyprland}` — desktop-environment-specific modules.
 - `pkgs/tuikit/` — git submodule (github.com/chetansinghsajwan/tuikit): the toolkit and the tools, one Cargo workspace and one flake (crane, shared dependency build); `pkgs/flake.nix` re-exports its tools and the editor. `pkgs/tuikit/crates/` holds the libraries (`ui`: shared design: theme, keys, config, lists, prompts; `pv`, `pick`, `files`, `git-core`, `git-panel`, `tb`, `diagnostics-panel`, `symbols-panel`); the tools in `pkgs/tuikit/tools/` are `pick`, `pv`, `files`, `tb`, `gu`, `nu` (with `core/`), `mdexport` (Markdown to PDF through Typst).
 - `pkgs/helix-improved/` — git submodule (github.com/chetansinghsajwan/helix-improved): the helix fork (its own workspace, tuikit as a nested submodule), built by its own flake.
+- Nix only sees submodule contents with `?submodules=1`: always pass `--flake '.?submodules=1#<host>'` (rebuild, build, eval). Without it `pkgs/tuikit` is empty in the flake source.
 - `pkgs/tuikit/docs/ui-design.md` — the look every tool follows (colors, chrome, layout, components); `pkgs/tuikit/docs/usage-design.md` — the keys and menus.
 - `lib/default.nix` — shared helper functions (`llib`).
 - `treefmt.nix` — formatter/linter config (nixfmt, statix, deadnix).
