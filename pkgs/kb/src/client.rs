@@ -11,6 +11,8 @@ pub enum Format {
     Json,
     /// Just the layer name, upper-cased; empty while kanata is unreachable.
     Layer,
+    /// Layer upper-cased, then the held mods as initials: `NAV +CS`.
+    Line,
 }
 
 fn render(line: &str, format: Format) -> Option<String> {
@@ -19,6 +21,21 @@ fn render(line: &str, format: Format) -> Option<String> {
         Format::Layer => {
             let state: State = serde_json::from_str(line).ok()?;
             Some(state.layer.to_uppercase())
+        }
+        Format::Line => {
+            let state: State = serde_json::from_str(line).ok()?;
+            let initials: String = state
+                .mods
+                .iter()
+                .filter_map(|m| m.chars().next())
+                .map(|c| c.to_ascii_uppercase())
+                .collect();
+            let layer = state.layer.to_uppercase();
+            Some(if initials.is_empty() || layer.is_empty() {
+                layer
+            } else {
+                format!("{layer} +{initials}")
+            })
         }
     }
 }
@@ -43,7 +60,10 @@ pub fn watch(addr: &str, format: Format) -> std::io::Result<()> {
                 emit(render(&line, format), &mut last);
             }
         }
-        emit(render(State::disconnected().line().trim_end(), format), &mut last);
+        emit(
+            render(State::disconnected().line().trim_end(), format),
+            &mut last,
+        );
         thread::sleep(Duration::from_secs(2));
     }
 }
