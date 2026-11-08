@@ -26,7 +26,6 @@ in
             source ~/.config/git/git.zsh
         '';
 
-
         programs.git = {
             includes = [
                 { path = "~/.config/git/local-config"; }

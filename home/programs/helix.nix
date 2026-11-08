@@ -93,7 +93,7 @@ in
                     popup-border = "all";
 
                     # Dock panels are a feature of our fork.
-                    leader = editor.leader;
+                    inherit (editor) leader;
 
                     docks = {
                         inherit (editor.docks) left right bottom;

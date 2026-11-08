@@ -29,7 +29,6 @@ llib.mkToggleModule config "clipboard" {
         source ~/.config/clipboard-pick/clipboard.zsh
     '';
 
-
     # cliphist only has history to browse once something is actually watching
     # the clipboard and storing it; that requires a running Wayland session,
     # so this is wired into Hyprland's startup rather than run unconditionally.

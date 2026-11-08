@@ -1,30 +1,26 @@
----
-name: ratatui-tui
-description: |
-  Build terminal UIs with ratatui following 2026 Rust best practices.
-  Use when: (1) Creating new TUI apps, (2) Adding widgets/layouts,
-  (3) Keyboard navigation/state management, (4) Image integration via
-  ratatui-image, (5) Async event handling, (6) Shimmer/loading animations
-  via tui-shimmer, (7) Reviewing TUI code, (8) Release optimization.
-  Covers v0.30.1 API, Elm Architecture, StatefulWidget, color-eyre.
----
+______________________________________________________________________
+
+## name: ratatui-tui description: | Build terminal UIs with ratatui following 2026 Rust best practices. Use when: (1) Creating new TUI apps, (2) Adding widgets/layouts, (3) Keyboard navigation/state management, (4) Image integration via ratatui-image, (5) Async event handling, (6) Shimmer/loading animations via tui-shimmer, (7) Reviewing TUI code, (8) Release optimization. Covers v0.30.1 API, Elm Architecture, StatefulWidget, color-eyre.
 
 # Ratatui TUI Development
 
 ## Quick Start
 
 1. **Copy template** to project:
+
    ```bash
    cp -r ~/.agents/skills/ratatui-tui/assets/templates/<template>/* .
    ```
 
    Or generate from the official templates repo:
+
    ```bash
    cargo install --locked cargo-generate
    cargo generate ratatui/templates
    ```
 
-2. **Run**:
+1. **Run**:
+
    ```bash
    cargo run
    ```
@@ -46,14 +42,15 @@ Targets **0.30.x** (MSRV 1.88, edition 2024); run `cargo info ratatui` for the c
 
 ## Template Selection
 
-| Complexity | Template | Use Case |
-|------------|----------|----------|
-| Minimal | `hello-world` | Learning, quick demos |
-| Simple | `simple-app` | Single-screen apps, tools |
-| Async | `async-app` | Background tasks, network |
-| Full | `component-app` | Multi-view, config, logging |
+| Complexity | Template        | Use Case                    |
+| ---------- | --------------- | --------------------------- |
+| Minimal    | `hello-world`   | Learning, quick demos       |
+| Simple     | `simple-app`    | Single-screen apps, tools   |
+| Async      | `async-app`     | Background tasks, network   |
+| Full       | `component-app` | Multi-view, config, logging |
 
 **Decision tree:**
+
 - Need async/network? → `async-app`
 - Multiple screens/components? → `component-app`
 - Just a simple tool? → `simple-app`
@@ -62,6 +59,7 @@ Targets **0.30.x** (MSRV 1.88, edition 2024); run `cargo info ratatui` for the c
 ## Project Setup
 
 ### Minimal Cargo.toml
+
 ```toml
 [package]
 name = "my-tui"
@@ -75,6 +73,7 @@ color-eyre = "0.6"
 ```
 
 ### Full Dependencies (component-app)
+
 ```toml
 [dependencies]
 ratatui = "0.30"
@@ -97,6 +96,7 @@ tui-shimmer = "0.1"
 ```
 
 ### Release Profile
+
 ```toml
 [profile.release]
 lto = true
@@ -144,6 +144,7 @@ impl App {
 ## Styling Rules
 
 **Use Stylize trait helpers:**
+
 ```rust
 use ratatui::style::Stylize;
 
@@ -161,6 +162,7 @@ Style::new().add_modifier(Modifier::BOLD)  // verbose
 ```
 
 **Color palette:**
+
 - Primary: `.cyan()`, `.green()`
 - Error: `.red()`
 - Warning: `.yellow()` (sparingly)
@@ -168,6 +170,7 @@ Style::new().add_modifier(Modifier::BOLD)  // verbose
 - Accent: `.magenta()`
 
 **Text wrapping:**
+
 ```rust
 use textwrap::wrap;
 use ratatui::text::Line;
@@ -183,6 +186,7 @@ See: [references/style-guide.md](references/style-guide.md)
 ## Widget Patterns
 
 ### StatefulWidget
+
 ```rust
 struct MyList {
     items: Vec<String>,
@@ -205,6 +209,7 @@ frame.render_stateful_widget(my_list, area, &mut state);
 ```
 
 ### Layout
+
 ```rust
 let [header, main, footer] = Layout::vertical([
     Constraint::Length(1),
@@ -219,6 +224,7 @@ let [left, right] = Layout::horizontal([
 ```
 
 ### Built-in State Types
+
 - `ListState` - for List widget
 - `TableState` - for Table widget
 - `ScrollbarState` - for Scrollbar
@@ -286,6 +292,7 @@ frame.render_widget(Image::new(&protocol), area);
 ```
 
 **Key points:**
+
 - For portable binaries use `chafa-static` with `default-features = false`;
   the default `chafa-dyn` takes precedence when both are enabled
 - Query the protocol once, not per frame
@@ -316,6 +323,7 @@ let spans = shimmer_spans_with_style_at_phase("Working...", Style::new().cyan(),
 ```
 
 **Key points:**
+
 - Animation needs redraws: add a tick event (~80-120ms) to the event loop
   (`select!` with `tokio::time::interval`, or `event::poll` timeout)
 - Prefer the `_at_phase` variant with phase stored in the Model — keeps
@@ -344,6 +352,7 @@ Only write a manual panic hook when constructing `Terminal`/`Backend` by
 hand instead of via `ratatui::init()`.
 
 **Error propagation:**
+
 ```rust
 // Use ? for recoverable errors
 let file = std::fs::read_to_string(path)?;
@@ -363,6 +372,7 @@ Binary at `target/release/<name>`.
 
 **Size optimization** — replaces the Release Profile block above when binary
 size matters more than speed:
+
 ```toml
 [profile.release]
 lto = true
@@ -375,16 +385,21 @@ opt-level = "z"  # size over speed
 ## Templates Overview
 
 ### hello-world (~25 lines)
+
 Minimal ratatui demo using `ratatui::run()`.
 
 ### simple-app (~80 lines)
+
 Synchronous event loop, App struct, basic render.
 
 ### async-app (~120 lines)
+
 Tokio runtime, EventStream, `select!` pattern.
 
 ### component-app (~300 lines)
+
 Full modular structure:
+
 - `main.rs` - entry point
 - `app.rs` - App state, update logic
 - `event.rs` - event handling
@@ -397,6 +412,7 @@ Full modular structure:
 ## Common Patterns
 
 ### Centered Popup
+
 ```rust
 fn centered_rect(percent_x: u16, percent_y: u16, area: Rect) -> Rect {
     let [_, center, _] = Layout::vertical([
@@ -416,6 +432,7 @@ fn centered_rect(percent_x: u16, percent_y: u16, area: Rect) -> Rect {
 ```
 
 With a drop shadow (0.30.1+):
+
 ```rust
 use ratatui::layout::Offset;
 use ratatui::widgets::{Block, Shadow};
@@ -426,6 +443,7 @@ let popup = Block::bordered()
 ```
 
 ### Key Bindings Display
+
 ```rust
 let help = Line::from(vec![
     " q ".bold().cyan(),
@@ -438,6 +456,7 @@ let help = Line::from(vec![
 ```
 
 ### Status Bar
+
 ```rust
 let status = Line::from(vec![
     " MODE ".bold().on_cyan(),

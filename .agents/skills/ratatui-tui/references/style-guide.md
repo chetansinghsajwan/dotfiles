@@ -42,15 +42,15 @@ use ratatui::style::Stylize;
 
 ### Color Semantic Mapping
 
-| Purpose | Style | Example |
-|---------|-------|---------|
-| Primary action | `.cyan()` | Selected item, active tab |
-| Success | `.green()` | Completion, valid input |
-| Error | `.red()` | Errors, invalid input |
-| Warning | `.yellow()` | Caution (use sparingly) |
-| Muted/secondary | `.dim()` | Help text, metadata |
-| Accent | `.magenta()` | Highlights, special items |
-| Key bindings | `.bold().cyan()` | Keyboard shortcuts |
+| Purpose         | Style            | Example                   |
+| --------------- | ---------------- | ------------------------- |
+| Primary action  | `.cyan()`        | Selected item, active tab |
+| Success         | `.green()`       | Completion, valid input   |
+| Error           | `.red()`         | Errors, invalid input     |
+| Warning         | `.yellow()`      | Caution (use sparingly)   |
+| Muted/secondary | `.dim()`         | Help text, metadata       |
+| Accent          | `.magenta()`     | Highlights, special items |
+| Key bindings    | `.bold().cyan()` | Keyboard shortcuts        |
 
 ## What to Avoid
 
@@ -236,10 +236,10 @@ frame.render_stateful_widget(scrollbar, area, &mut scrollbar_state);
 Design for both light and dark terminals:
 
 1. **Avoid pure white/black** - use `.dim()` for low-contrast text
-2. **Test both themes** - colors render differently
-3. **Use relative brightness** - `.dim()`, `.bold()` adapt better
-4. **Prefer cyan/green/magenta** - readable on most themes
-5. **Avoid blue** - often too dark on dark terminals
+1. **Test both themes** - colors render differently
+1. **Use relative brightness** - `.dim()`, `.bold()` adapt better
+1. **Prefer cyan/green/magenta** - readable on most themes
+1. **Avoid blue** - often too dark on dark terminals
 
 ## Accessibility
 

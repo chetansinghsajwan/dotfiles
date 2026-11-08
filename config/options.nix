@@ -388,7 +388,10 @@ in
                 };
                 right = mkOption {
                     type = types.listOf types.str;
-                    default = [ "git" "symbols" ];
+                    default = [
+                        "git"
+                        "symbols"
+                    ];
                     description = "Panels in the right dock of the helix fork (files, git, symbols, diagnostics).";
                 };
                 bottom = mkOption {
