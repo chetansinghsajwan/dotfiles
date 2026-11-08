@@ -21,7 +21,6 @@ in
         features.gui = lib.mkForce true;
 
         programs.docker.enable = true;
-        # programs.kanata-layer-indicator.enable = true;
 
         theme.fonts.rawFontScale = 1.33;
     };
