@@ -10,43 +10,52 @@
   lctrl lmeta lalt              spc                                 ralt  rmeta rctrl
 )
 
+(platform (macos)
+  (defalias cut M-x copy M-c pste M-v)
+)
+(platform (win linux)
+  (defalias cut C-x copy C-c pste C-v)
+)
 (deflayermap main
-  tab (layer-switch fallback)
+  tab tab
   spc (layer-switch ins)
-  e (layer-switch sym)
+  q (layer-switch fun)
+  w (layer-switch sym)
+  e (layer-while-held nav)
   r (layer-switch num)
-  c (layer-switch fun)
 
   a lctl
   s lsft
   d lalt
   f lmet
 
-  u tab
-  i bspc
+  x @cut
+  c @copy
+  v @pste
+
+  u bspc
+  i up
   o del
   p esc
-  h left
-  j down
-  k up
+  j left
+  k down
   l right
   ; ret
-  m home
-  , pgdn
-  . pgup
-  / end
 
   ___ XX
 )
 
-(deflayermap fallback
-  caps (layer-switch main)
+(deflayermap nav
+  i pgup
+  j home
+  k pgdn
+  l end
   ___ _
 )
 
 (deflayermap ins
   caps (layer-switch main)
-  _ _
+  ___ _
 )
 
 (deflayermap sym
