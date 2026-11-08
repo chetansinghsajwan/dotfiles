@@ -2,6 +2,7 @@
 {
     imports = [
         ../shared/system.nix
+        ../shared/kanata/darwin.nix
     ];
 
     dotfiles.system.isDarwin = lib.mkForce true;
