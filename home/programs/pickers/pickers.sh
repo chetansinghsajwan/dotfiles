@@ -61,6 +61,7 @@ function fcmd() {
 }
 
 # fssh - fuzzy ssh host search
+# shellcheck disable=SC2016  # {1} is pick's placeholder, not a shell expansion
 function fssh() {
     awk '/^Host / {for (i=2;i<=NF;i++) if ($i !~ /[*?]/) print $i}' ~/.ssh/config 2>/dev/null |
         sort -u | pick \
