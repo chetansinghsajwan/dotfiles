@@ -1,4 +1,5 @@
-# Our Rust code in this repo, from two submodules: the tuikit tools and the helix-improved editor.
+# Our Rust code in this repo: kb (pkgs/kb) and, from two submodules, the tuikit tools and the
+# helix-improved editor.
 # Re-exported here so home takes every package from one place. Locking happens in the repo root
 # flake.lock; this flake has no lock of its own.
 {
@@ -28,6 +29,7 @@
 
     outputs =
         {
+            nixpkgs,
             llib,
             tuikit,
             helix-improved,
@@ -35,7 +37,20 @@
         }:
         {
             packages = llib.forEachSystem (
-                sys: tuikit.packages.${sys} // { inherit (helix-improved.packages.${sys}) helix; }
+                sys:
+                tuikit.packages.${sys}
+                // {
+                    inherit (helix-improved.packages.${sys}) helix;
+                }
+                // {
+                    kb = nixpkgs.legacyPackages.${sys}.rustPlatform.buildRustPackage {
+                        pname = "kb";
+                        version = "0.1.0";
+                        src = ./kb;
+                        cargoLock.lockFile = ./kb/Cargo.lock;
+                        meta.mainProgram = "kb";
+                    };
+                }
             );
         };
 }
