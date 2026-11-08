@@ -355,14 +355,6 @@ in
                     description = "Whether Docker is enabled — both the system service and home-manager shell integration.";
                 };
             };
-
-            kanata-layer-indicator = {
-                enable = mkOption {
-                    type = types.bool;
-                    default = false;
-                    description = "Whether the kanata layer indicator is enabled — both the home-manager service and the system group/udev rule it needs to read kanata's output device.";
-                };
-            };
         };
 
         editor = {
