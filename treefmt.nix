@@ -1,7 +1,10 @@
 _: {
     projectRootFile = "flake.nix";
     # Vendored upstream source (the pkgs/helix-improved and pkgs/tuikit submodules), not ours to reformat or lint.
-    settings.global.excludes = [ "pkgs/helix-improved/**" "pkgs/tuikit/**" ];
+    settings.global.excludes = [
+        "pkgs/helix-improved/**"
+        "pkgs/tuikit/**"
+    ];
 
     programs.nixfmt.enable = true;
     programs.nixfmt.indent = 4;

@@ -441,8 +441,8 @@ impl App {
 ## Best Practices
 
 1. **Keep state normalized** - avoid duplicated data
-2. **Make updates pure** - `update()` should only modify state, no I/O
-3. **Batch related state** - group logically related fields
-4. **Use enums for modes** - exhaustive matching catches bugs
-5. **Separate concerns** - input handling, state, rendering
-6. **Prefer composition** - build complex UIs from simple components
+1. **Make updates pure** - `update()` should only modify state, no I/O
+1. **Batch related state** - group logically related fields
+1. **Use enums for modes** - exhaustive matching catches bugs
+1. **Separate concerns** - input handling, state, rendering
+1. **Prefer composition** - build complex UIs from simple components

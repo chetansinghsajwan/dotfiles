@@ -3,6 +3,7 @@
 ## Overview
 
 `ratatui-image` provides terminal image rendering using various protocols:
+
 - **Sixel** - Wide support (xterm, foot, mlterm, etc.)
 - **Kitty** - Kitty terminal native protocol
 - **iTerm2** - iTerm2 and compatible terminals
@@ -18,11 +19,11 @@ image = "0.25"
 
 ### Feature Flags
 
-| Feature | Description |
-|---------|-------------|
+| Feature        | Description                                    |
+| -------------- | ---------------------------------------------- |
 | `chafa-static` | Statically link libchafa for portable binaries |
-| `chafa` | Dynamic link to system libchafa |
-| `serde` | Serialization support |
+| `chafa`        | Dynamic link to system libchafa                |
+| `serde`        | Serialization support                          |
 
 **Recommendation:** Use `chafa-static` for release binaries to ensure they work on any system.
 
@@ -333,15 +334,15 @@ impl Gallery {
 
 ## Terminal Compatibility
 
-| Terminal | Protocol | Notes |
-|----------|----------|-------|
-| Kitty | Kitty | Native, best quality |
-| iTerm2 | iTerm2 | Native support |
-| WezTerm | Kitty, Sixel, iTerm2 | Multiple protocols |
-| foot | Sixel | Good quality |
-| xterm | Sixel | Enable with `-ti vt340` |
-| Alacritty | Halfblocks | No native image support |
-| macOS Terminal | Halfblocks | No native support |
+| Terminal       | Protocol             | Notes                   |
+| -------------- | -------------------- | ----------------------- |
+| Kitty          | Kitty                | Native, best quality    |
+| iTerm2         | iTerm2               | Native support          |
+| WezTerm        | Kitty, Sixel, iTerm2 | Multiple protocols      |
+| foot           | Sixel                | Good quality            |
+| xterm          | Sixel                | Enable with `-ti vt340` |
+| Alacritty      | Halfblocks           | No native image support |
+| macOS Terminal | Halfblocks           | No native support       |
 
 ### Fallback Strategy
 
@@ -361,34 +362,34 @@ fn get_picker() -> Picker {
 ## Performance Tips
 
 1. **Query protocol once** - at startup, not per-render
-2. **Use StatefulImage** - avoids re-encoding on redraws
-3. **Offload encoding** - use background thread for large images
-4. **Cache encoded images** - store StatefulProtocol, not DynamicImage
-5. **Resize smartly** - only re-encode on terminal resize
-6. **Use chafa-static** - portable and well-optimized
+1. **Use StatefulImage** - avoids re-encoding on redraws
+1. **Offload encoding** - use background thread for large images
+1. **Cache encoded images** - store StatefulProtocol, not DynamicImage
+1. **Resize smartly** - only re-encode on terminal resize
+1. **Use chafa-static** - portable and well-optimized
 
 ## Troubleshooting
 
 ### Image Not Showing
 
 1. Check terminal supports the protocol
-2. Verify image path is correct
-3. Ensure area has non-zero size
+1. Verify image path is correct
+1. Ensure area has non-zero size
 
 ### Poor Quality
 
 1. Try different protocol (Kitty > Sixel > Halfblocks)
-2. Check font size detection: `picker.set_font_size((w, h))`
-3. Use `Resize::Fit` instead of `Scale`
+1. Check font size detection: `picker.set_font_size((w, h))`
+1. Use `Resize::Fit` instead of `Scale`
 
 ### Slow Rendering
 
 1. Use `StatefulImage` instead of `Image`
-2. Offload encoding to background thread
-3. Reduce image resolution before encoding
+1. Offload encoding to background thread
+1. Reduce image resolution before encoding
 
 ### Artifacts on Resize
 
 1. Clear the image area before re-rendering
-2. Re-encode with new dimensions
-3. Use `terminal.clear()` if needed
+1. Re-encode with new dimensions
+1. Use `terminal.clear()` if needed

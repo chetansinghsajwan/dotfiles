@@ -13,15 +13,15 @@ Open:
 
 ## Machines
 
-| Flake output                                  | Host                     | System                   |
-| --------------------------------------------- | ------------------------ | ------------------------ |
-| `nixosConfigurations.<system>.default`        | `hosts/nixos`            | Linux (per system)       |
-| `nixosConfigurations.<system>.wsl`            | `hosts/nixos-wsl`        | Linux (per system)       |
-| `darwinConfigurations.<system>.default`       | `hosts/darwin`           | macOS (per system)       |
-| `nixosConfigurations.jman-nixos`              | `hosts/jman-nixos`       | personal NixOS (WSL)     |
-| `nixosConfigurations.honor-m3-nixos`          | `hosts/honor-m3`         | Honor laptop             |
-| `darwinConfigurations.macbook-air13`          | `hosts/macbook-air-13`   | MacBook Air              |
-| `homeConfigurations.<system>.default`         | standalone Home Manager  | any supported system     |
+| Flake output                            | Host                    | System               |
+| --------------------------------------- | ----------------------- | -------------------- |
+| `nixosConfigurations.<system>.default`  | `hosts/nixos`           | Linux (per system)   |
+| `nixosConfigurations.<system>.wsl`      | `hosts/nixos-wsl`       | Linux (per system)   |
+| `darwinConfigurations.<system>.default` | `hosts/darwin`          | macOS (per system)   |
+| `nixosConfigurations.jman-nixos`        | `hosts/jman-nixos`      | personal NixOS (WSL) |
+| `nixosConfigurations.honor-m3-nixos`    | `hosts/honor-m3`        | Honor laptop         |
+| `darwinConfigurations.macbook-air13`    | `hosts/macbook-air-13`  | MacBook Air          |
+| `homeConfigurations.<system>.default`   | standalone Home Manager | any supported system |
 
 ## Layout
 
@@ -45,15 +45,15 @@ Open:
 One tool owns one domain, and the design (colors, keys, menus, previews) lives in the shared
 `ui` crate. They run in a terminal on Linux, WSL and macOS.
 
-| Tool        | What it does                                                                          |
-| ----------- | ------------------------------------------------------------------------------------- |
-| `pv`        | previews: text, Markdown, diffs, images, audio and video details, PDF text, CSV and spreadsheet tables, directories        |
-| `pick`      | fuzzy finder (files, buffers, symbols, live sources)                                  |
-| `files`     | file explorer                                                                         |
-| `gu`        | git UI: Status (folder tree), Commits (graph, search, filters), Refs (tree, renames)  |
-| `nu`        | network and bluetooth                                                                 |
-| `mdexport`  | Markdown to PDF (Typst, no other program): `mdexport file.md`, or `Space m e` in helix (asks for paper, fonts and size) |
-| helix fork  | the editor, with docks that embed `files`, the git panel and the diagnostics panel    |
+| Tool       | What it does                                                                                                            |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `pv`       | previews: text, Markdown, diffs, images, audio and video details, PDF text, CSV and spreadsheet tables, directories     |
+| `pick`     | fuzzy finder (files, buffers, symbols, live sources)                                                                    |
+| `files`    | file explorer                                                                                                           |
+| `gu`       | git UI: Status (folder tree), Commits (graph, search, filters), Refs (tree, renames)                                    |
+| `nu`       | network and bluetooth                                                                                                   |
+| `mdexport` | Markdown to PDF (Typst, no other program): `mdexport file.md`, or `Space m e` in helix (asks for paper, fonts and size) |
+| helix fork | the editor, with docks that embed `files`, the git panel and the diagnostics panel                                      |
 
 Keys are the same everywhere: `space` opens Quick Keys, `space space` searches every action,
 `?` lists the keys, `dd` confirms a delete. See `pkgs/tuikit/docs/usage-design.md`.

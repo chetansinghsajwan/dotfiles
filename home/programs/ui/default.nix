@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
     ui = config.dotfiles.ui;
     c = config.lib.stylix.colors.withHashtag;

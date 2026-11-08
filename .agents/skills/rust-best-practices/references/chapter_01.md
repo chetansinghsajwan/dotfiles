@@ -2,32 +2,36 @@
 
 ## 1.1 Borrowing Over Cloning
 
-Rust's ownership system encourages **borrow** (`&T`) instead of **cloning** (`T.clone()`). 
+Rust's ownership system encourages **borrow** (`&T`) instead of **cloning** (`T.clone()`).
+
 > ❗ Performance recommendation
 
 ### ✅ When to `Clone`:
 
-* You need to change the object AND preserve the original object (immutable snapshots).
-* When you have `Arc` or `Rc` pointers.
-* When data is shared across threads, usually `Arc`.
-* Avoid massive refactoring of non performance critical code.
-* When caching results (dummy example below):
+- You need to change the object AND preserve the original object (immutable snapshots).
+- When you have `Arc` or `Rc` pointers.
+- When data is shared across threads, usually `Arc`.
+- Avoid massive refactoring of non performance critical code.
+- When caching results (dummy example below):
+
 ```rust
 fn get_config(&self) -> Config {
   self.cached_config.clone()
 }
 ```
-* When the underlying API expects Owned Data.
+
+- When the underlying API expects Owned Data.
 
 ### 🚨 `Clone` traps to avoid:
 
-* Auto-cloning inside loops `.map(|x| x.clone)`, prefer to call `.cloned()` or `.copied()` at the end of the iterator.
-* Cloning large data structures like `Vec<T>` or `HashMap<K, V>`.
-* Clone because of bad API design instead of adjusting lifetimes.
-* Prefer `&[T]` instead of `Vec<T>` or `&Vec<T>`.
-* Prefer `&str` or `&String` instead of `String`.
-* Prefer `&T` instead of `T`.
-* Clone a reference argument, if you need ownership, make it explicit in the arguments for the caller. Example:
+- Auto-cloning inside loops `.map(|x| x.clone)`, prefer to call `.cloned()` or `.copied()` at the end of the iterator.
+- Cloning large data structures like `Vec<T>` or `HashMap<K, V>`.
+- Clone because of bad API design instead of adjusting lifetimes.
+- Prefer `&[T]` instead of `Vec<T>` or `&Vec<T>`.
+- Prefer `&str` or `&String` instead of `String`.
+- Prefer `&T` instead of `T`.
+- Clone a reference argument, if you need ownership, make it explicit in the arguments for the caller. Example:
+
 ```rust
 fn take_a_borrow(thing: &Thing) {
   let thing_cloned = thing.clone(); // the caller should have passed ownership instead
@@ -35,6 +39,7 @@ fn take_a_borrow(thing: &Thing) {
 ```
 
 ### ✅ Prefer borrowing:
+
 ```rust
 fn process(name: &str) {
   println!("Hello {name}");
@@ -45,6 +50,7 @@ process(&user);
 ```
 
 ### ❌ Avoid redundant cloning:
+
 ```rust
 fn process_string(name: String) {
   println!("Hello {name}");
@@ -59,8 +65,9 @@ process(user.clone()); // Unnecessary clone
 Not all types should be passed by reference (`&T`). If a type is **small** and it is **cheap to copy**, it is often better to **pass it by value**. Rust makes it explicit via the `Copy` trait.
 
 ### ✅ When to pass by value, `Copy`:
-* The type **implements** `Copy` (`u32`, `bool`, `f32`, small structs).
-* The cost of moving the value is negligible.
+
+- The type **implements** `Copy` (`u32`, `bool`, `f32`, small structs).
+- The cost of moving the value is negligible.
 
 ```rust
 fn increment(x: u32) -> u32 {
@@ -72,11 +79,12 @@ let new_num = increment(num); // `num` still usable after this point
 ```
 
 ### ❓ Which structs should be `Copy`?
-* When to consider declaring `Copy` on your own types:
-* All fields are `Copy` themselves.
-* The struct is `small`, up to 2 (maybe 3) words of memory or 24 bytes (each word is 64 bits/8bytes).
-* The struct **represents a "plain data object"**, without resorting to ownership (no heap allocations. Example: `Vec` and `Strings`).
-* ❗**The type does not also implement `Iterator`.** Even if every field is `Copy`, never put `Copy` and `Iterator` on the same type (see [§1.5](#15-iterator-iter-vs-for)).
+
+- When to consider declaring `Copy` on your own types:
+- All fields are `Copy` themselves.
+- The struct is `small`, up to 2 (maybe 3) words of memory or 24 bytes (each word is 64 bits/8bytes).
+- The struct **represents a "plain data object"**, without resorting to ownership (no heap allocations. Example: `Vec` and `Strings`).
+- ❗**The type does not also implement `Iterator`.** Even if every field is `Copy`, never put `Copy` and `Iterator` on the same type (see [§1.5](#15-iterator-iter-vs-for)).
 
 ❗**Rust Arrays are stack allocated.** Which means they can be copied if their underlying type is `Copy`, but this will be allocated in the program stack which can easily become a stack overflow. More on [Chapter 3 - Stack vs Heap](./chapter_03.md#33-stack-vs-heap-be-size-smart)
 
@@ -84,32 +92,31 @@ For reference, each primitive type size in bytes:
 
 #### Integers:
 
-| Type        	| Size     	|
-|-------------	|----------	|
-|    i8 u8    	|  1 byte  	|
-| i16 u16     	| 2 bytes  	|
-| i32 u32     	| 4 bytes  	|
-| i64 u64     	| 8 bytes  	|
-| isize usize 	| Arch     	|
-| i128 u128   	| 16 bytes 	|
+| Type        | Size     |
+| ----------- | -------- |
+| i8 u8       | 1 byte   |
+| i16 u16     | 2 bytes  |
+| i32 u32     | 4 bytes  |
+| i64 u64     | 8 bytes  |
+| isize usize | Arch     |
+| i128 u128   | 16 bytes |
 
 #### Floating Point:
 
-| Type     	| Size     	|
-|----------	|----------	|
-| f32     	| 4 bytes  	|
-| f64     	| 8 bytes  	|
-
+| Type | Size    |
+| ---- | ------- |
+| f32  | 4 bytes |
+| f64  | 8 bytes |
 
 #### Other:
 
-| Type     	| Size     	|
-|----------	|----------	|
-| bool     	| 1 byte  	|
-| char     	| 4 bytes  	|
-
+| Type | Size    |
+| ---- | ------- |
+| bool | 1 byte  |
+| char | 4 bytes |
 
 ### ✅ Good struct to derive `Copy`:
+
 ```rust
 #[derive(Debug, Copy, Clone)]
 struct Point {
@@ -120,6 +127,7 @@ struct Point {
 ```
 
 ### ❌ Bad struct to derive `Copy`:
+
 ```rust
 #[derive(Debug, Clone)]
 struct BadIdea {
@@ -129,11 +137,13 @@ struct BadIdea {
 ```
 
 ### ❓Which Enums should be `Copy`?
-* If your enum acts like tags and atoms.
-* The enum payloads are all `Copy`.
-* **❗Enums size are based on their largest element.**
+
+- If your enum acts like tags and atoms.
+- The enum payloads are all `Copy`.
+- **❗Enums size are based on their largest element.**
 
 ### ✅ Good Enum to derive
+
 ```rust
 #[derive(Debug, Copy, Clone)]
 enum Direction {
@@ -145,10 +155,13 @@ enum Direction {
 ```
 
 ## 1.3 Handling `Option<T>` and `Result<T, E>`
+
 Rust 1.65 introduced a better way to safely unpack Option and Result types with the `let Some(x) = … else { … }` or `let Ok(x) = … else { … }` when you have a default `return` value, `continue` or `break` default else case. It allows early returns when the missing case is **expected and normal**, not exceptional.
 
 ### ✅ Cases to use each pattern matching for Option and Result
-* Use `match` when you want to pattern match against the inner types `T` and `E`
+
+- Use `match` when you want to pattern match against the inner types `T` and `E`
+
 ```rust
 match self {
   Ok(Direction::South) => { … },
@@ -167,7 +180,8 @@ match self {
 }
 ```
 
-* Use `match` when your type is transformed into something more complex Like `Result<T, E>` becoming `Result<Option<U>, E>`.
+- Use `match` when your type is transformed into something more complex Like `Result<T, E>` becoming `Result<Option<U>, E>`.
+
 ```rust
 match self {
   Ok(t) => Ok(Some(t)),
@@ -176,14 +190,16 @@ match self {
 }
 ```
 
-* Use `let PATTERN = EXPRESSION else {  DIVERGING_CODE; }` when the divergent code doesn't need to know about the failed pattern matches or doesn't need extra computation:
+- Use `let PATTERN = EXPRESSION else {  DIVERGING_CODE; }` when the divergent code doesn't need to know about the failed pattern matches or doesn't need extra computation:
+
 ```rust
 let Some(&Direction::North) = self.direction.as_ref() else {
 	return Err(DirectionNotAvailable(self.direction));
 }
 ```
 
-* Use `let PATTERN = EXPRESSION else {  DIVERGING_CODE; }` when you want to break or continue a pattern match
+- Use `let PATTERN = EXPRESSION else {  DIVERGING_CODE; }` when you want to break or continue a pattern match
+
 ```rust
 for x in self {
     let Some(x) = x else {
@@ -192,7 +208,8 @@ for x in self {
 }
 ```
 
-* Use `if let PATTERN = EXPRESSION else {  DIVERGING_CODE; }` when `DIVERGING_CODE` needs extra computation:
+- Use `if let PATTERN = EXPRESSION else {  DIVERGING_CODE; }` when `DIVERGING_CODE` needs extra computation:
+
 ```rust
 if let Some(x) = self.next() {
   // computation
@@ -205,7 +222,8 @@ if let Some(x) = self.next() {
 
 ### ❌ Bad Option/Result pattern matching:
 
-* Conversion between Result and Option (prefer `.ok()`,`.ok_or()`, and `ok_or_else()`)
+- Conversion between Result and Option (prefer `.ok()`,`.ok_or()`, and `ok_or_else()`)
+
 ```rust
 match self {
   Ok(t) => Some(t),
@@ -213,7 +231,8 @@ match self {
 }
 ```
 
-* `if let PATTERN = EXPRESSION else {  DIVERGING_CODE; }` when divergent code is a default or pre-computed value (prefer `let PATTERN = EXPRESSION else {  DIVERGING_CODE; }`):
+- `if let PATTERN = EXPRESSION else {  DIVERGING_CODE; }` when divergent code is a default or pre-computed value (prefer `let PATTERN = EXPRESSION else {  DIVERGING_CODE; }`):
+
 ```rust
 if let Some(values) = self.next() {
   // computation
@@ -223,7 +242,8 @@ if let Some(values) = self.next() {
 }
 ```
 
-* Using `unwrap` or `expect` outside tests:
+- Using `unwrap` or `expect` outside tests:
+
 ```rust
 let port = config.port.unwrap();
 ```
@@ -282,7 +302,8 @@ x
 
 First we need to understand a basic loop with each one of them. Let's consider the following problem, we need to sum all even numbers between 0 and 10 incremented by 1:
 
-* `for`:
+- `for`:
+
 ```rust
 let mut sum = 0;
 for x in 0..=10 {
@@ -292,7 +313,8 @@ for x in 0..=10 {
 }
 ```
 
-* `iter`:
+- `iter`:
+
 ```rust
 let sum: i32 = (0..=10)
     .filter(|x| x % 2 == 0)
@@ -303,12 +325,14 @@ let sum: i32 = (0..=10)
 > Both versions do the same thing and are correct and idiomatic, but each shines in different contexts.
 
 ### When to prefer `for` loops
-* When you need **early exits** (`break`, `continue`, `return`).
-* **Simple iteration** with side-effects (e.g., logging, IO)
-    * logging can be done correctly in `Iterators` using `inspect` and `inspect_err` functions.
-* When readability matters more than simplicity or chaining.
+
+- When you need **early exits** (`break`, `continue`, `return`).
+- **Simple iteration** with side-effects (e.g., logging, IO)
+  - logging can be done correctly in `Iterators` using `inspect` and `inspect_err` functions.
+- When readability matters more than simplicity or chaining.
 
 #### Example:
+
 ```rust
 for value in &mut value {
     if *value == 0 {
@@ -319,10 +343,12 @@ for value in &mut value {
 ```
 
 ### When to prefer `iterators` loops (`.iter()` and `.into_iter()`)
-* When you are `transforming collections` or `Option/Results`.
-* You can **compose multiple steps** elegantly.
-* No need for early exits.
-* You need support for indexed values with `.enumerate`.
+
+- When you are `transforming collections` or `Option/Results`.
+- You can **compose multiple steps** elegantly.
+- No need for early exits.
+- You need support for indexed values with `.enumerate`.
+
 ```rust
 let values: Vec<_> = vec.into_iter()
     .enumerate()
@@ -330,9 +356,11 @@ let values: Vec<_> = vec.into_iter()
     .map(|(index, value)| value % index)
     .collect()
 ```
-* You need to use collections functions like `.windows` or `chunks`.
-* You need to combine data from multiple sources and don't want to allocate multiple collections.
-* Iterators can be combined with `for` loops:
+
+- You need to use collections functions like `.windows` or `chunks`.
+- You need to combine data from multiple sources and don't want to allocate multiple collections.
+- Iterators can be combined with `for` loops:
+
 ```rust
 for value in vec.iter().enumerate()
     .filter(|(index, value)| value % index == 0) {
@@ -343,18 +371,18 @@ for value in vec.iter().enumerate()
 
 > #### ❗REMEMBER: Iterators are Lazy
 >
-> * `.iter`, `.map`, `.filter` don't do anything until you call its consumer, e.g. `.collect`, `.sum`, `.for_each`.
-> * **Lazy Evaluation** means that iterator chains are fused into one loop at compile time.
+> - `.iter`, `.map`, `.filter` don't do anything until you call its consumer, e.g. `.collect`, `.sum`, `.for_each`.
+> - **Lazy Evaluation** means that iterator chains are fused into one loop at compile time.
 
 ### 🚨 Anti-patterns to AVOID
 
-* Don't chain without formatting. Prefer each chained function on its own line with the correct indentation (`rustfmt` should take care of this).
-* Don't chain if it makes the code unreadable.
-* Avoid needlessly collect/allocate of a collection (e.g. vector) just to throw it away later by some larger operation or by another iteration.
-* Prefer `iter` over `into_iter` unless you don't need the ownership of the collection.
-* Prefer `iter` over `into_iter` for collections that inner type implements `Copy`, e.g. `Vec<T: Copy>`.
-* **Never implement (or derive) both `Copy` and `Iterator` on the same type.** Copying an iterator and advancing one copy leaves the other untouched, which silently yields wrong results -- it is a well-known footgun. The standard library hit exactly this: it is why `Range` historically could not be `Copy`, and why the new `core::range` types (stabilized in Rust 1.96) implement `IntoIterator` instead of `Iterator` so they *can* be `Copy`. If you need an iterator on a `Copy` type, implement `IntoIterator` and return a separate iterator struct.
-* For summing numbers prefer `.sum` over `.fold`. `.sum` is specialized for summing values, so the compiler knows it can make optimizations on that front, while fold has a blackbox closure that needs to be applied at every step. If you need to sum by an initial value, just add it in the expression `let my_sum = [1, 2, 3].sum() + 3`.
+- Don't chain without formatting. Prefer each chained function on its own line with the correct indentation (`rustfmt` should take care of this).
+- Don't chain if it makes the code unreadable.
+- Avoid needlessly collect/allocate of a collection (e.g. vector) just to throw it away later by some larger operation or by another iteration.
+- Prefer `iter` over `into_iter` unless you don't need the ownership of the collection.
+- Prefer `iter` over `into_iter` for collections that inner type implements `Copy`, e.g. `Vec<T: Copy>`.
+- **Never implement (or derive) both `Copy` and `Iterator` on the same type.** Copying an iterator and advancing one copy leaves the other untouched, which silently yields wrong results -- it is a well-known footgun. The standard library hit exactly this: it is why `Range` historically could not be `Copy`, and why the new `core::range` types (stabilized in Rust 1.96) implement `IntoIterator` instead of `Iterator` so they *can* be `Copy`. If you need an iterator on a `Copy` type, implement `IntoIterator` and return a separate iterator struct.
+- For summing numbers prefer `.sum` over `.fold`. `.sum` is specialized for summing values, so the compiler knows it can make optimizations on that front, while fold has a blackbox closure that needs to be applied at every step. If you need to sum by an initial value, just add it in the expression `let my_sum = [1, 2, 3].sum() + 3`.
 
 ## 1.6 Comments: Context, not Clutter
 
@@ -364,15 +392,17 @@ Well-written Rust code, with expressive types and good naming, often speaks for 
 
 Still, there are **moments where code alone isn't enough** - when there are performance quirks, external constraints, or non-obvious tradeoffs that require a nudge to the reader. In those cases, a concise comment can prevent hours of head-scratching or searching git history.
 
-### ✅ Good comments 
+### ✅ Good comments
 
-* Safety concerns:
+- Safety concerns:
+
 ```rust
 // SAFETY: We have checked that the pointer is valid and non-null. @Function xyz.
 unsafe { std::ptr::copy_nonoverlapping(src, dst, len); }
 ```
 
-* Performance quirks:
+- Performance quirks:
+
 ```rust
 // This algorithm is a fast square root approximation
 const THREE_HALVES: f32 = 1.5;
@@ -384,7 +414,8 @@ y * (THREE_HALVES - (number * 0.5 * y * y))
 }
 ```
 
-* Clear code beats comments. However, when the why isn't obvious, say it plainly - or link to where:
+- Clear code beats comments. However, when the why isn't obvious, say it plainly - or link to where:
+
 ```rust
 // PERF: Generating the root store per subgraph caused high TLS startup latency on MacOS
 // This works as a caching alternative. See: [ADR-123](link/to/adr-123)
@@ -404,11 +435,12 @@ let connector_tls_root_store: RootCertStore = configuration
     .unwrap_or_else(crate::services::http::HttpClientService::native_roots_store);
 ```
 
-* ❗ More use cases to come in their appropriate sections.
+- ❗ More use cases to come in their appropriate sections.
 
 ### ❌ Bad comments
 
-* Wall-of-text explanations: long comments and multiline comments
+- Wall-of-text explanations: long comments and multiline comments
+
 ```rust
 // Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
 // Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
@@ -417,9 +449,11 @@ fn do_something_odd() {
   …
 }
 ```
+
 > Prefer `/// doc` comment if it's describing the function.
 
-* Comments that could be better represented as functions or are plain obvious
+- Comments that could be better represented as functions or are plain obvious
+
 ```rust
 fn computation() {
   // increment i by 1
@@ -432,6 +466,7 @@ fn computation() {
 If you find yourself writing a long comment explaining "what", "how" or "each step" in a function, it might be time to split it. So the suggestion is to refactor. This can be beneficial not only for readability, but testability:
 
 #### ❌ Instead of:
+
 ```rust
 fn process_request(request: T) {
     // We first need to validate request, because of corner case x, y, z
@@ -442,6 +477,7 @@ fn process_request(request: T) {
 ```
 
 #### ✅ Prefer
+
 ```rust
 fn process_request(request: T) -> Result<(), Error> {
     validate_request_headers(&request)?;
@@ -476,8 +512,9 @@ Let **structure** and **naming** replace commentary, and enhance its documentati
 ### 📝 TODOs are not comments - track them properly
 
 Avoid leaving lingering `// TODO: Lorem Ipsum` comments in the code. Instead:
-* Turn them into Jira or Github Issues.
-* If needed, to avoid future confusion, reference the issue in the code and the code in the issue.
+
+- Turn them into Jira or Github Issues.
+- If needed, to avoid future confusion, reference the issue in the code and the code in the issue.
 
 ```rust
 // See issue #123: support hyper 2.0
@@ -488,19 +525,21 @@ This helps keeping the code clean and making sure tasks are not forgotten.
 ### Comments as Living Documentation
 
 There are a few gotchas when calling comments "living documentation":
-* Code evolves.
-* Context changes.
-* Comments get stale.
-* Many large comments make people avoid reading them.
-* Team becomes fearful of deleting irrelevant comments.
 
-If you find a comment, **don't trust it blindly**. Read it in context. If it's wrong or outdated, fix or remove it. A misleading comment is worse than no comments at all. 
+- Code evolves.
+- Context changes.
+- Comments get stale.
+- Many large comments make people avoid reading them.
+- Team becomes fearful of deleting irrelevant comments.
+
+If you find a comment, **don't trust it blindly**. Read it in context. If it's wrong or outdated, fix or remove it. A misleading comment is worse than no comments at all.
 
 > Comments should bother you - they demand re-verification, just like stale tests.
 
 When deeper justification is needed, prefer to:
-* **Link to a Design Doc or an ADR**, business logic lives well in design docs while performance tradeoffs live well in ADRs.
-* Move runtime example and usage docs into Rust Docs, `/// doc comment`, where they can be tested and kept up-to-date by tools like `cargo doc`.
+
+- **Link to a Design Doc or an ADR**, business logic lives well in design docs while performance tradeoffs live well in ADRs.
+- Move runtime example and usage docs into Rust Docs, `/// doc comment`, where they can be tested and kept up-to-date by tools like `cargo doc`.
 
 > Doc-comments and Doc-testing, `///` and `//!` in [Chapter 8 - Comments vs Documentation](./chapter_08.md)
 
@@ -588,6 +627,7 @@ Two occurrences of a couple of lines are usually **fine**. Wait for the third be
 How these principles play out in code:
 
 #### ✅ Coincidental duplication -- leave it inline:
+
 ```rust
 // Similar-looking lines, but the `.env` and `.toml` formats are
 // unrelated decisions that will evolve independently:
@@ -597,6 +637,7 @@ writeln!(toml_file, "{key} = \"{value}\"")?;
 ```
 
 #### ❌ Deduplicating it forces a flag parameter -- the classic smell:
+
 ```rust
 // One helper, two behaviors, and a `bool` to pick between them:
 fn write_entry(out: &mut impl Write, key: &str, value: &str, quoted: bool) -> io::Result<()> {
@@ -611,6 +652,7 @@ fn write_entry(out: &mut impl Write, key: &str, value: &str, quoted: bool) -> io
 Every new variant will grow another parameter or branch. And the `bool` is a smell in its own right: `write_entry(out, key, value, true)` tells the reader nothing at the call site -- Martin Fowler calls this a [Flag Argument](https://martinfowler.com/bliki/FlagArgument.html). When a mode selector is genuinely warranted, a two-variant enum (`Quoting::Quoted`) keeps call sites readable, and Clippy's [`fn_params_excessive_bools`](https://rust-lang.github.io/rust-clippy/master/index.html#fn_params_excessive_bools) lints against accumulating them. No enum rescues *this* design, though: its variants would exist only to encode the callers' differences.
 
 #### ✅ Shared knowledge -- extract it:
+
 ```rust
 // The definition of "retryable" is ONE business decision used in many
 // places. If it changes, it must change everywhere at once:
@@ -624,34 +666,37 @@ fn is_retryable(status: StatusCode) -> bool {
 If you find yourself maintaining an abstraction like `write_entry`, [Sandi Metz's advice](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction) is to **unwind it, not patch it**:
 
 1. **Re-inline** the helper's body into every caller, substituting each call site's concrete arguments.
-2. **Reduce** each call site -- with the parameters now literal, dead branches and unused generality fall away.
-3. **Reevaluate** what the callers *actually* share, now that every one of them is explicit.
-4. **Reconstruct** one or more abstractions from what remains -- or none, if the sharing turns out to be coincidental.
+1. **Reduce** each call site -- with the parameters now literal, dead branches and unused generality fall away.
+1. **Reevaluate** what the callers *actually* share, now that every one of them is explicit.
+1. **Reconstruct** one or more abstractions from what remains -- or none, if the sharing turns out to be coincidental.
 
 > 🤖 Doing this by hand is tedious, which is why wrong abstractions survive on sunk cost. For an AI coding agent, unwinding is fast, mechanical work -- ask for it explicitly instead of letting the agent keep patching a helper that fights back.
 
 ### ✅ Extract a function when:
-* The logic appears in **3+ places** *and* represents the **same decision** (Rule of Three).
-* The name **adds meaning** the code alone does not (`is_retryable`, `authorize`) -- rather than restating it (`add_one_to_counter`).
-* It produces a **unit worth testing** in isolation (see [§1.6](#-breaking-up-long-functions-over-commenting-them)).
-* It hides genuine complexity behind a **small, honest signature** -- few parameters, no flags.
+
+- The logic appears in **3+ places** *and* represents the **same decision** (Rule of Three).
+- The name **adds meaning** the code alone does not (`is_retryable`, `authorize`) -- rather than restating it (`add_one_to_counter`).
+- It produces a **unit worth testing** in isolation (see [§1.6](#-breaking-up-long-functions-over-commenting-them)).
+- It hides genuine complexity behind a **small, honest signature** -- few parameters, no flags.
 
 ### ❌ Don't extract when:
-* It is **1-2 lines used in fewer than 3 places** -- the helper is pure indirection.
-* The call sites are only *almost* identical, and unifying them requires **flag parameters** or extra branches.
-* The only motivation is **line count**. A single-caller helper pays off when its *name* clarifies intent ([§1.6](#-breaking-up-long-functions-over-commenting-them), [§8.5](./chapter_08.md#85-replace-comments-with-code)) -- not when it merely relocates code.
-* You are **guessing** at a future abstraction. Wait for the third usage to reveal its real shape.
+
+- It is **1-2 lines used in fewer than 3 places** -- the helper is pure indirection.
+- The call sites are only *almost* identical, and unifying them requires **flag parameters** or extra branches.
+- The only motivation is **line count**. A single-caller helper pays off when its *name* clarifies intent ([§1.6](#-breaking-up-long-functions-over-commenting-them), [§8.5](./chapter_08.md#85-replace-comments-with-code)) -- not when it merely relocates code.
+- You are **guessing** at a future abstraction. Wait for the third usage to reveal its real shape.
 
 ### 🧫 Test code: readability beats DRY
 
 In tests, be **even more tolerant of duplication**. The Google Testing Blog calls this [DAMP -- "Descriptive And Meaningful Phrases"](https://testing.googleblog.com/2019/12/testing-on-toilet-tests-too-dry-make.html) ([*Software Engineering at Google*, ch. 12](https://abseil.io/resources/swe-book/html/ch12.html)): each test should read as a **self-contained story** -- setup, action, assertion -- without the reader chasing helpers to reconstruct what actually happened.
 
-* **Tests have no tests.** Logic moved into a shared helper (loops, branches, clever parametrization) is itself untested -- a bug there silently weakens every test built on it.
-* **A failing test should be diagnosable on sight.** The reader is usually debugging a broken build; make the expected behavior visible in the test body, not three helpers away.
-* **Shared test helpers couple unrelated tests.** Change one behavior and dozens of tests fail at once -- for the helper's sake, not the behavior's.
+- **Tests have no tests.** Logic moved into a shared helper (loops, branches, clever parametrization) is itself untested -- a bug there silently weakens every test built on it.
+- **A failing test should be diagnosable on sight.** The reader is usually debugging a broken build; make the expected behavior visible in the test body, not three helpers away.
+- **Shared test helpers couple unrelated tests.** Change one behavior and dozens of tests fail at once -- for the helper's sake, not the behavior's.
 
 Where to draw the line:
-* ✅ Share **setup and fixtures** -- a shared setup function or `rstest` cases, as [Chapter 5](./chapter_05.md#51-tests-as-living-documentation) recommends. Constructing a test server twice is boilerplate, not knowledge.
-* ❌ Keep each test's **action and assertion inline**, even when they look repetitive across tests.
+
+- ✅ Share **setup and fixtures** -- a shared setup function or `rstest` cases, as [Chapter 5](./chapter_05.md#51-tests-as-living-documentation) recommends. Constructing a test server twice is boilerplate, not knowledge.
+- ❌ Keep each test's **action and assertion inline**, even when they look repetitive across tests.
 
 > 🚨 When in doubt, **prefer duplication**. A duplicated line is trivially fixed later; a wrong abstraction accretes parameters and conditionals, because each maintainer keeps patching it instead of undoing it.

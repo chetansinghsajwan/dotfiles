@@ -3,6 +3,7 @@
 ## Why Async?
 
 Sync event loops block on input, making background tasks impossible:
+
 - Network requests
 - File I/O
 - Timers/animations
@@ -416,10 +417,10 @@ async fn run() -> Result<()> {
 ## Best Practices
 
 1. **Keep main loop simple** - delegate to handlers
-2. **Use channels for communication** - avoid shared mutable state
-3. **Handle all channel errors** - `.ok()` for send, match recv
-4. **Cancel long tasks** - use CancellationToken
-5. **Rate limit renders** - 60fps is enough
-6. **Debounce user input** - for search/filter operations
-7. **Show loading states** - feedback during async operations
-8. **Log background errors** - don't silently fail
+1. **Use channels for communication** - avoid shared mutable state
+1. **Handle all channel errors** - `.ok()` for send, match recv
+1. **Cancel long tasks** - use CancellationToken
+1. **Rate limit renders** - 60fps is enough
+1. **Debounce user input** - for search/filter operations
+1. **Show loading states** - feedback during async operations
+1. **Log background errors** - don't silently fail
