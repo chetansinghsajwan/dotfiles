@@ -4,7 +4,6 @@ let
     enableSddm = config.dotfiles.system.displayManager == "sddm";
     enableHyprland = config.dotfiles.desktop.hyprland.enable;
     enableGnome = config.dotfiles.desktop.gnome.enable;
-    enableKanataWatch = config.dotfiles.programs.kanata-layer-indicator.enable;
 in
 {
     imports = [
@@ -39,17 +38,15 @@ in
     ''
     # Read-only access to kanata's own virtual output device, scoped to just
     # that device (not the "input" group, which covers every physical
-    # keyboard/mouse). Used by home/programs/kanata-layer-indicator.nix
-    # to watch which modifiers are currently held.
-    + lib.optionalString enableKanataWatch ''
+    # keyboard/mouse). Used by `kb daemon` (pkgs/kb) to watch which modifiers are
+    # currently held.
+    + ''
         SUBSYSTEM=="input", ATTRS{name}=="kanata", GROUP="kanata-watch", MODE="0640"
     '';
 
     users.groups.uinput = { };
-    users.groups.kanata-watch = lib.mkIf enableKanataWatch { };
-    users.users = lib.mkIf enableKanataWatch (
-        lib.mapAttrs (_: _: { extraGroups = [ "kanata-watch" ]; }) config.dotfiles.users
-    );
+    users.groups.kanata-watch = { };
+    users.users = lib.mapAttrs (_: _: { extraGroups = [ "kanata-watch" ]; }) config.dotfiles.users;
 
     systemd.services.kanata-internalKeyboard.serviceConfig = {
         SupplementaryGroups = [

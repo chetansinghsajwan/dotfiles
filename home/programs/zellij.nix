@@ -26,7 +26,7 @@ let
     kbListener = pkgs.writeShellScript "kb-zellij-listen" ''
         set -uo pipefail
 
-        ${kb}/bin/kb watch --format layer | while IFS= read -r layer; do
+        ${kb}/bin/kb watch --format line | while IFS= read -r layer; do
           for s in $(${pkgs.zellij}/bin/zellij list-sessions -ns 2>/dev/null); do
             ${pkgs.zellij}/bin/zellij --session "$s" pipe "zjstatus::pipe::pipe_kanata::$layer" </dev/null >/dev/null 2>&1 &
           done
