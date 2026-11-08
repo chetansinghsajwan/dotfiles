@@ -1,0 +1,12 @@
+[package]
+name = "kb"
+version = "0.1.0"
+edition = "2024"
+description = "Keyboard status (kanata layer, held mods) as a local stream for terminal tools"
+
+[dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0"
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
