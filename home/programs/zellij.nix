@@ -3,6 +3,7 @@
     pkgs,
     lib,
     llib,
+    lpkgs,
     ...
 }:
 let
@@ -15,35 +16,25 @@ let
 
     colors = config.lib.stylix.colors.withHashtag;
 
-    # Windows-side kanata (run with --port 6666, matching the native-Linux
-    # port used in kanata-layer-indicator.nix) pushes {"LayerChange":{"new":..}}
-    # over TCP. The listener mirrors the current layer into a file that
-    # zjstatus polls. 127.0.0.1 needs WSL mirrored networking
-    # (networkingMode=mirrored in .wslconfig); override with KANATA_HOST
-    # otherwise.
-    kanataPort = 6666;
-    kanataLayerFile = "\${XDG_RUNTIME_DIR:-/tmp}/kanata-layer";
+    kb = lpkgs.packages.${pkgs.stdenv.hostPlatform.system}.kb;
 
-    kanataListener = pkgs.writeShellScript "kanata-layer-listen" ''
+    # kanata (run with --port 6666) is followed by `kb daemon`, which serves the
+    # keyboard state on 127.0.0.1:6667; the bar listener pushes each layer change
+    # into zjstatus. 127.0.0.1 needs WSL mirrored networking
+    # (networkingMode=mirrored in .wslconfig) when kanata runs on the Windows
+    # host; override with KANATA_HOST otherwise.
+    kbListener = pkgs.writeShellScript "kb-zellij-listen" ''
         set -uo pipefail
-        file="${kanataLayerFile}"
 
-        while true; do
-          if exec 3<>"/dev/tcp/''${KANATA_HOST:-127.0.0.1}/${toString kanataPort}"; then
-            while IFS= read -r -u3 line; do
-              layer=$(${pkgs.jq}/bin/jq -r '.LayerChange.new? // empty' <<<"$line")
-              if [ -n "$layer" ]; then
-                echo "$layer" > "$file.tmp" && mv "$file.tmp" "$file"
-                for s in $(${pkgs.zellij}/bin/zellij list-sessions -ns 2>/dev/null); do
-                  ${pkgs.zellij}/bin/zellij --session "$s" pipe "zjstatus::pipe::pipe_kanata::''${layer^^}" </dev/null >/dev/null 2>&1 &
-                done
-              fi
-            done
-            exec 3<&- 3>&-
-          fi
-          rm -f "$file"
-          sleep 2
+        ${kb}/bin/kb watch --format layer | while IFS= read -r layer; do
+          for s in $(${pkgs.zellij}/bin/zellij list-sessions -ns 2>/dev/null); do
+            ${pkgs.zellij}/bin/zellij --session "$s" pipe "zjstatus::pipe::pipe_kanata::$layer" </dev/null >/dev/null 2>&1 &
+          done
         done
+    '';
+
+    kbDaemon = pkgs.writeShellScript "kb-daemon" ''
+        exec ${kb}/bin/kb daemon --kanata "''${KANATA_HOST:-127.0.0.1}:6666"
     '';
 
 in
@@ -194,13 +185,28 @@ in
             '';
     };
 
-    systemd.user.services.kanata-layer-listen = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
-        Unit.Description = "Mirror kanata's active layer into a file for the zellij bar";
-        Install.WantedBy = [ "default.target" ];
-        Service = {
-            ExecStart = "${kanataListener}";
-            Restart = "on-failure";
-            RestartSec = 2;
+    systemd.user.services = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+        kb-daemon = {
+            Unit.Description = "Keyboard status (kanata layer) served to terminal tools";
+            Install.WantedBy = [ "default.target" ];
+            Service = {
+                ExecStart = "${kbDaemon}";
+                Restart = "on-failure";
+                RestartSec = 2;
+            };
+        };
+
+        kb-zellij-listen = {
+            Unit = {
+                Description = "Push the keyboard layer into the zellij bar";
+                After = [ "kb-daemon.service" ];
+            };
+            Install.WantedBy = [ "default.target" ];
+            Service = {
+                ExecStart = "${kbListener}";
+                Restart = "on-failure";
+                RestartSec = 2;
+            };
         };
     };
 
