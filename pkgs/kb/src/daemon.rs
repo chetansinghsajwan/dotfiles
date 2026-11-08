@@ -28,7 +28,7 @@ impl Hub {
 
 type Shared = Arc<Mutex<Hub>>;
 
-pub fn run(kanata_addr: String, listen_addr: String) -> std::io::Result<()> {
+pub fn run(kanata_addr: String, listen_addr: String, mods_device: String) -> std::io::Result<()> {
     let hub: Shared = Arc::new(Mutex::new(Hub {
         state: State::disconnected(),
         subs: Vec::new(),
@@ -40,12 +40,28 @@ pub fn run(kanata_addr: String, listen_addr: String) -> std::io::Result<()> {
     let kanata_hub = Arc::clone(&hub);
     thread::spawn(move || follow_kanata(&kanata_addr, &kanata_hub));
 
+    follow_mods(mods_device, &hub);
+
     for stream in listener.incoming().flatten() {
         let hub = Arc::clone(&hub);
         thread::spawn(move || serve_client(stream, &hub));
     }
     Ok(())
 }
+
+/// Mirrors held modifiers into the hub (Linux only for now).
+#[cfg(all(target_os = "linux", target_pointer_width = "64"))]
+fn follow_mods(device: String, hub: &Shared) {
+    let hub = Arc::clone(hub);
+    thread::spawn(move || {
+        crate::mods::linux::watch(&device, |held| {
+            hub.lock().unwrap().update(|s| s.mods = held)
+        });
+    });
+}
+
+#[cfg(not(all(target_os = "linux", target_pointer_width = "64")))]
+fn follow_mods(_device: String, _hub: &Shared) {}
 
 fn serve_client(mut stream: TcpStream, hub: &Shared) {
     let (tx, rx) = mpsc::channel();
@@ -70,7 +86,10 @@ fn follow_kanata(addr: &str, hub: &Shared) {
         if let Ok(stream) = TcpStream::connect(addr) {
             read_kanata(stream, hub);
         }
-        hub.lock().unwrap().update(|s| *s = State::disconnected());
+        hub.lock().unwrap().update(|s| {
+            s.layer.clear();
+            s.kanata = false;
+        });
         thread::sleep(RECONNECT_DELAY);
     }
 }
@@ -105,8 +124,14 @@ mod tests {
 
     #[test]
     fn layer_change_and_current_layer_name() {
-        assert_eq!(layer_of(r#"{"LayerChange":{"new":"nav"}}"#), Some("nav".into()));
-        assert_eq!(layer_of(r#"{"CurrentLayerName":{"name":"main"}}"#), Some("main".into()));
+        assert_eq!(
+            layer_of(r#"{"LayerChange":{"new":"nav"}}"#),
+            Some("nav".into())
+        );
+        assert_eq!(
+            layer_of(r#"{"CurrentLayerName":{"name":"main"}}"#),
+            Some("main".into())
+        );
     }
 
     #[test]
