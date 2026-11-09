@@ -185,30 +185,32 @@ in
             '';
     };
 
-    systemd.user.services = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
-        kb-daemon = {
-            Unit.Description = "Keyboard status (kanata layer) served to terminal tools";
-            Install.WantedBy = [ "default.target" ];
-            Service = {
-                ExecStart = "${kbDaemon}";
-                Restart = "on-failure";
-                RestartSec = 2;
-            };
-        };
+    systemd.user.services =
+        lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.dotfiles.currentUser.kanata.enable)
+            {
+                kb-daemon = {
+                    Unit.Description = "Keyboard status (kanata layer) served to terminal tools";
+                    Install.WantedBy = [ "default.target" ];
+                    Service = {
+                        ExecStart = "${kbDaemon}";
+                        Restart = "on-failure";
+                        RestartSec = 2;
+                    };
+                };
 
-        kb-zellij-listen = {
-            Unit = {
-                Description = "Push the keyboard layer into the zellij bar";
-                After = [ "kb-daemon.service" ];
+                kb-zellij-listen = {
+                    Unit = {
+                        Description = "Push the keyboard layer into the zellij bar";
+                        After = [ "kb-daemon.service" ];
+                    };
+                    Install.WantedBy = [ "default.target" ];
+                    Service = {
+                        ExecStart = "${kbListener}";
+                        Restart = "on-failure";
+                        RestartSec = 2;
+                    };
+                };
             };
-            Install.WantedBy = [ "default.target" ];
-            Service = {
-                ExecStart = "${kbListener}";
-                Restart = "on-failure";
-                RestartSec = 2;
-            };
-        };
-    };
 
     home.shellAliases = {
         z = "zellij";

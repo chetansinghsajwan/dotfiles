@@ -1,6 +1,8 @@
 # Installs kanata on Windows and starts it at logon with the shared config.
 # Run from the repo root in an elevated PowerShell: .\hosts\windows\kanata.ps1
+# Pass -User NAME to run kanata for a different user than the one running this script.
 # Keep $version in step with the kanata in nixpkgs (the shared kanata.kbd targets it).
+param([string]$User = $env:USERNAME) # the one user kanata runs for
 $ErrorActionPreference = 'Stop'
 
 $version = '1.12.0'
@@ -21,8 +23,9 @@ Copy-Item (Join-Path $PSScriptRoot '..\shared\kanata\kanata.kbd') (Join-Path $di
 
 $action = New-ScheduledTaskAction -Execute (Join-Path $dir 'kanata.exe') `
     -Argument "--cfg `"$(Join-Path $dir 'kanata.kbd')`" --port 6666"
-$trigger = New-ScheduledTaskTrigger -AtLogOn
+$trigger = New-ScheduledTaskTrigger -AtLogOn -User $User
+$principal = New-ScheduledTaskPrincipal -UserId $User -LogonType Interactive -RunLevel Limited
 $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
-Register-ScheduledTask -TaskName 'kanata' -Action $action -Trigger $trigger -Settings $settings -Force | Out-Null
+Register-ScheduledTask -TaskName 'kanata' -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
 Start-ScheduledTask -TaskName 'kanata'
 Write-Host "kanata v$version installed and started."
