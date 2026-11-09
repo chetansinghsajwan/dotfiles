@@ -22,7 +22,7 @@ usage:
 
 formats: json (raw), layer (LAYER), line (LAYER +mods, e.g. NAV +CS)
 defaults: kanata 127.0.0.1:6666, daemon/clients 127.0.0.1:6667,
-          mods device /run/kanata-main/main (Linux only)";
+          mods device /run/kanata-main/main (Linux only; Windows and macOS poll the OS)";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
