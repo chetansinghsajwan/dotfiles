@@ -87,8 +87,11 @@ function fh() {
                 if (match($0, /^: [0-9]+:[0-9]+;/)) {
                     split(substr($0, 3, RLENGTH - 3), p, ":"); ts = p[1]; cmd = substr($0, RLENGTH + 1)
                 } else { ts = "-"; cmd = $0 }
-                print ts "\t" cmd
-            }' "$histfile" | tac | awk -F'\t' '!seen[$2]++' |
+                lines[++n] = ts "\t" cmd; cmds[n] = cmd
+            } END {
+                # Reverse in awk: BSD/macOS has no `tac`.
+                for (i = n; i >= 1; i--) if (!(cmds[i] in seen)) { seen[cmds[i]] = 1; print lines[i] }
+            }' "$histfile" |
             pick --title "Shell History" --syntax bash --numbers --timestamps --expect ctrl-x) || return $?
         key=$(printf '%s\n' "$out" | head -n 1)
         cmd=$(printf '%s\n' "$out" | tail -n +2)
