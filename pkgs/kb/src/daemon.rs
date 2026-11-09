@@ -49,7 +49,7 @@ pub fn run(kanata_addr: String, listen_addr: String, mods_device: String) -> std
     Ok(())
 }
 
-/// Mirrors held modifiers into the hub (Linux only for now).
+/// Mirrors held modifiers into the hub.
 #[cfg(all(target_os = "linux", target_pointer_width = "64"))]
 fn follow_mods(device: String, hub: &Shared) {
     let hub = Arc::clone(hub);
@@ -60,7 +60,27 @@ fn follow_mods(device: String, hub: &Shared) {
     });
 }
 
-#[cfg(not(all(target_os = "linux", target_pointer_width = "64")))]
+#[cfg(windows)]
+fn follow_mods(_device: String, hub: &Shared) {
+    let hub = Arc::clone(hub);
+    thread::spawn(move || {
+        crate::mods::windows::watch(|held| hub.lock().unwrap().update(|s| s.mods = held));
+    });
+}
+
+#[cfg(target_os = "macos")]
+fn follow_mods(_device: String, hub: &Shared) {
+    let hub = Arc::clone(hub);
+    thread::spawn(move || {
+        crate::mods::macos::watch(|held| hub.lock().unwrap().update(|s| s.mods = held));
+    });
+}
+
+#[cfg(not(any(
+    all(target_os = "linux", target_pointer_width = "64"),
+    windows,
+    target_os = "macos"
+)))]
 fn follow_mods(_device: String, _hub: &Shared) {}
 
 fn serve_client(mut stream: TcpStream, hub: &Shared) {
