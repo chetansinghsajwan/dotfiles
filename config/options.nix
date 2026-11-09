@@ -49,6 +49,14 @@ let
                     type = types.listOf types.str;
                     default = [ "wheel" ];
                 };
+
+                kanata = {
+                    enable = mkOption {
+                        type = types.bool;
+                        default = true;
+                        description = "Whether this user gets the kanata keyboard layer. Kanata runs when any user has it; if only some do, it is scoped to them (see hosts/shared/kanata/users.nix).";
+                    };
+                };
             };
         }
     );

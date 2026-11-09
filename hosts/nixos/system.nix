@@ -4,6 +4,7 @@ let
     enableSddm = config.dotfiles.system.displayManager == "sddm";
     enableHyprland = config.dotfiles.desktop.hyprland.enable;
     enableGnome = config.dotfiles.desktop.gnome.enable;
+    enableKanata = (import ../shared/kanata/users.nix lib config.dotfiles.users).any;
 in
 {
     imports = [
@@ -39,13 +40,15 @@ in
     # that device (not the "input" group, which covers every physical
     # keyboard/mouse). Used by `kb daemon` (pkgs/kb) to watch which modifiers are
     # currently held.
-    + ''
+    + lib.optionalString enableKanata ''
         SUBSYSTEM=="input", ATTRS{name}=="kanata", GROUP="kanata-watch", MODE="0640"
     '';
 
     users.groups.uinput = { };
-    users.groups.kanata-watch = { };
-    users.users = lib.mapAttrs (_: _: { extraGroups = [ "kanata-watch" ]; }) config.dotfiles.users;
+    users.groups.kanata-watch = lib.mkIf enableKanata { };
+    users.users = lib.mkIf enableKanata (
+        lib.mapAttrs (_: _: { extraGroups = [ "kanata-watch" ]; }) config.dotfiles.users
+    );
 
     systemd.services.kanata-internalKeyboard.serviceConfig = {
         SupplementaryGroups = [
