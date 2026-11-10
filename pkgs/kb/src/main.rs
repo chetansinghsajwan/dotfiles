@@ -1,5 +1,6 @@
 mod client;
 mod daemon;
+mod keys;
 mod mods;
 mod state;
 
