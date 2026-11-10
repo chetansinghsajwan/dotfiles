@@ -121,8 +121,9 @@ fn follow_kanata(addr: &str, hub: &Shared) {
 fn read_kanata(mut stream: TcpStream, hub: &Shared) {
     hub.lock().unwrap().update(|s| s.kanata = true);
 
-    // The reply to the first request seeds the layer; later changes arrive as LayerChange.
-    let hello = "{\"Subscribe\":[\"LayerChange\"]}\n{\"RequestCurrentLayerName\":{}}\n";
+    // Kanata pushes LayerChange to every client on its own (there is no subscribe message, and an
+    // unknown one gets us disconnected); the reply to this request seeds the layer all the same.
+    let hello = "{\"RequestCurrentLayerName\":{}}\n";
     if stream.write_all(hello.as_bytes()).is_err() {
         return;
     }
