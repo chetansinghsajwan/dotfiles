@@ -88,6 +88,8 @@ fn follow_mods(_device: String, hub: &Shared) {
 fn follow_mods(_device: String, _hub: &Shared) {}
 
 fn serve_client(mut stream: TcpStream, hub: &Shared) {
+    // Small lines, sent the moment something changes: do not let Nagle hold them back.
+    let _ = stream.set_nodelay(true);
     let (tx, rx) = mpsc::channel();
     let first = {
         let mut hub = hub.lock().unwrap();
