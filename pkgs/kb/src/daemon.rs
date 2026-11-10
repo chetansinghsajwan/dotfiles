@@ -49,14 +49,18 @@ pub fn run(kanata_addr: String, listen_addr: String, mods_device: String) -> std
     Ok(())
 }
 
-/// Mirrors held modifiers into the hub.
+/// Stores the held keys and the modifiers among them.
+fn set_keys(state: &mut State, keys: Vec<String>) {
+    state.mods = crate::keys::mods_of(&keys);
+    state.keys = keys;
+}
+
+/// Mirrors held keys into the hub.
 #[cfg(all(target_os = "linux", target_pointer_width = "64"))]
 fn follow_mods(device: String, hub: &Shared) {
     let hub = Arc::clone(hub);
     thread::spawn(move || {
-        crate::mods::linux::watch(&device, |held| {
-            hub.lock().unwrap().update(|s| s.mods = held)
-        });
+        crate::mods::linux::watch(&device, |held| hub.lock().unwrap().update(|s| set_keys(s, held)));
     });
 }
 
@@ -64,7 +68,7 @@ fn follow_mods(device: String, hub: &Shared) {
 fn follow_mods(_device: String, hub: &Shared) {
     let hub = Arc::clone(hub);
     thread::spawn(move || {
-        crate::mods::windows::watch(|held| hub.lock().unwrap().update(|s| s.mods = held));
+        crate::mods::windows::watch(|held| hub.lock().unwrap().update(|s| set_keys(s, held)));
     });
 }
 
@@ -72,7 +76,7 @@ fn follow_mods(_device: String, hub: &Shared) {
 fn follow_mods(_device: String, hub: &Shared) {
     let hub = Arc::clone(hub);
     thread::spawn(move || {
-        crate::mods::macos::watch(|held| hub.lock().unwrap().update(|s| s.mods = held));
+        crate::mods::macos::watch(|held| hub.lock().unwrap().update(|s| set_keys(s, held)));
     });
 }
 

@@ -1,49 +1,30 @@
-//! Held modifiers, read from the OS. Linux reads kanata's virtual output device (the same
-//! events the compositor acts on); Windows and macOS poll the OS key state.
+//! Held keys, read from the OS (the modifiers are derived from them in `keys`). Linux reads
+//! kanata's virtual output device (the same events the compositor acts on); Windows and
+//! macOS poll the OS key state, so a tap shorter than the poll interval can be missed.
 
-pub const MODS: [&str; 4] = ["ctrl", "shift", "alt", "meta"];
-
-/// Counts presses per modifier, not booleans, so releasing the left shift while the
-/// right one is still down keeps shift held.
+/// Tracks which keys are down from a stream of Linux key events.
 #[cfg_attr(not(all(target_os = "linux", target_pointer_width = "64")), allow(dead_code))]
 #[derive(Default)]
 pub struct Tracker {
-    held: [u32; 4],
+    held: Vec<&'static str>,
 }
 
 #[cfg_attr(not(all(target_os = "linux", target_pointer_width = "64")), allow(dead_code))]
 impl Tracker {
     /// Feeds one key event (`value`: 0 release, 1 press, 2 repeat); returns the new
-    /// held set if this event changed it.
+    /// held keys, in press order, if this event changed them.
     pub fn key(&mut self, code: u16, value: i32) -> Option<Vec<String>> {
-        let slot = slot_of(code)?;
-        let before = self.held[slot] > 0;
+        let name = crate::keys::linux(code)?;
         match value {
-            1 => self.held[slot] += 1,
-            0 => self.held[slot] = self.held[slot].saturating_sub(1),
+            1 if !self.held.contains(&name) => self.held.push(name),
+            0 if self.held.contains(&name) => self.held.retain(|k| *k != name),
             _ => return None,
         }
-        (before != (self.held[slot] > 0)).then(|| self.held())
+        Some(self.held())
     }
 
     pub fn held(&self) -> Vec<String> {
-        MODS.iter()
-            .zip(self.held)
-            .filter(|(_, n)| *n > 0)
-            .map(|(m, _)| m.to_string())
-            .collect()
-    }
-}
-
-/// Index into `MODS` for a Linux key code (`linux/input-event-codes.h`).
-#[cfg_attr(not(all(target_os = "linux", target_pointer_width = "64")), allow(dead_code))]
-fn slot_of(code: u16) -> Option<usize> {
-    match code {
-        29 | 97 => Some(0),   // KEY_LEFTCTRL, KEY_RIGHTCTRL
-        42 | 54 => Some(1),   // KEY_LEFTSHIFT, KEY_RIGHTSHIFT
-        56 | 100 => Some(2),  // KEY_LEFTALT, KEY_RIGHTALT
-        125 | 126 => Some(3), // KEY_LEFTMETA, KEY_RIGHTMETA
-        _ => None,
+        self.held.iter().map(|k| k.to_string()).collect()
     }
 }
 
@@ -69,7 +50,7 @@ pub mod linux {
         )
     }
 
-    /// Calls `on_change` with the held mods every time they change, forever; waits for
+    /// Calls `on_change` with the held keys every time they change, forever; waits for
     /// the device to appear and reopens it if it goes away.
     pub fn watch(device: &str, mut on_change: impl FnMut(Vec<String>)) {
         loop {
@@ -112,69 +93,52 @@ mod tests {
     #[test]
     fn press_and_release() {
         let mut t = Tracker::default();
-        assert_eq!(t.key(29, 1), Some(vec!["ctrl".into()]));
-        assert_eq!(t.key(42, 1), Some(vec!["ctrl".into(), "shift".into()]));
-        assert_eq!(t.key(29, 0), Some(vec!["shift".into()]));
-    }
-
-    #[test]
-    fn two_sides_of_one_mod_do_not_cancel() {
-        let mut t = Tracker::default();
-        t.key(42, 1);
-        assert_eq!(t.key(54, 1), None);
-        assert_eq!(t.key(42, 0), None);
-        assert_eq!(t.key(54, 0), Some(vec![]));
+        assert_eq!(t.key(29, 1), Some(vec!["lctl".into()]));
+        assert_eq!(t.key(30, 1), Some(vec!["lctl".into(), "a".into()]));
+        assert_eq!(t.key(29, 0), Some(vec!["a".into()]));
     }
 
     #[test]
     fn poller_reports_only_changes() {
         let mut p = super::Poller::default();
-        assert_eq!(p.sample([false; 4]), None);
-        assert_eq!(
-            p.sample([true, false, false, true]),
-            Some(vec!["ctrl".into(), "meta".into()])
-        );
-        assert_eq!(p.sample([true, false, false, true]), None);
-        assert_eq!(p.sample([false; 4]), Some(vec![]));
+        assert_eq!(p.sample(vec![]), None);
+        assert_eq!(p.sample(vec!["lctl".into()]), Some(vec!["lctl".into()]));
+        assert_eq!(p.sample(vec!["lctl".into()]), None);
+        assert_eq!(p.sample(vec![]), Some(vec![]));
     }
 
     #[test]
-    fn repeats_and_other_keys_are_ignored() {
+    fn repeats_and_unknown_keys_are_ignored() {
         let mut t = Tracker::default();
-        assert_eq!(t.key(30, 1), None);
+        assert_eq!(t.key(999, 1), None);
         t.key(56, 1);
         assert_eq!(t.key(56, 2), None);
+        assert_eq!(t.key(56, 1), None);
     }
 }
 
-/// Turns periodic samples of "which of ctrl, shift, alt, meta are down" (in `MODS`
-/// order) into change events. Used where the OS can be asked, not told: Windows and macOS.
+/// Turns periodic samples of "which keys are down" into change events. Used where the OS
+/// can be asked, not told: Windows and macOS.
 #[derive(Default)]
 #[cfg_attr(not(any(windows, target_os = "macos")), allow(dead_code))]
 pub struct Poller {
-    last: [bool; 4],
+    last: Vec<String>,
 }
 
 #[cfg_attr(not(any(windows, target_os = "macos")), allow(dead_code))]
 impl Poller {
-    /// The new held set if it differs from the previous sample.
-    pub fn sample(&mut self, down: [bool; 4]) -> Option<Vec<String>> {
+    /// The new held keys if they differ from the previous sample.
+    pub fn sample(&mut self, down: Vec<String>) -> Option<Vec<String>> {
         if down == self.last {
             return None;
         }
-        self.last = down;
-        Some(
-            MODS.iter()
-                .zip(down)
-                .filter(|(_, d)| *d)
-                .map(|(m, _)| m.to_string())
-                .collect(),
-        )
+        self.last = down.clone();
+        Some(down)
     }
 }
 
 #[cfg(any(windows, target_os = "macos"))]
-fn poll_forever(sample: impl Fn() -> [bool; 4], mut on_change: impl FnMut(Vec<String>)) -> ! {
+fn poll_forever(sample: impl Fn() -> Vec<String>, mut on_change: impl FnMut(Vec<String>)) -> ! {
     let mut poller = Poller::default();
     loop {
         if let Some(held) = poller.sample(sample()) {
@@ -193,24 +157,13 @@ pub mod windows {
         fn GetAsyncKeyState(vkey: i32) -> i16;
     }
 
-    const VK_SHIFT: i32 = 0x10;
-    const VK_CONTROL: i32 = 0x11;
-    const VK_MENU: i32 = 0x12; // alt
-    const VK_LWIN: i32 = 0x5B;
-    const VK_RWIN: i32 = 0x5C;
-
-    fn down(vkey: i32) -> bool {
-        // SAFETY: plain user32 call with no pointers; the high bit means "currently down".
-        unsafe { GetAsyncKeyState(vkey) < 0 }
-    }
-
-    fn sample() -> [bool; 4] {
-        [
-            down(VK_CONTROL),
-            down(VK_SHIFT),
-            down(VK_MENU),
-            down(VK_LWIN) || down(VK_RWIN),
-        ]
+    fn sample() -> Vec<String> {
+        crate::keys::WINDOWS
+            .iter()
+            // SAFETY: plain user32 call with no pointers; the high bit means "currently down".
+            .filter(|(vk, _)| unsafe { GetAsyncKeyState(*vk) } < 0)
+            .map(|(_, name)| name.to_string())
+            .collect()
     }
 
     pub fn watch(on_change: impl FnMut(Vec<String>)) -> ! {
@@ -218,30 +171,24 @@ pub mod windows {
     }
 }
 
-/// macOS: the combined session flags include events posted by kanata's virtual keyboard.
+/// macOS: the combined session state includes events posted by kanata's virtual keyboard.
 #[cfg(target_os = "macos")]
 pub mod macos {
     #[link(name = "CoreGraphics", kind = "framework")]
     unsafe extern "C" {
-        fn CGEventSourceFlagsState(state_id: i32) -> u64;
+        fn CGEventSourceKeyState(state_id: i32, key: u16) -> bool;
     }
 
     /// `kCGEventSourceStateCombinedSessionState`
     const COMBINED_SESSION: i32 = 0;
-    const SHIFT: u64 = 0x0002_0000;
-    const CONTROL: u64 = 0x0004_0000;
-    const OPTION: u64 = 0x0008_0000; // alt
-    const COMMAND: u64 = 0x0010_0000;
 
-    fn sample() -> [bool; 4] {
-        // SAFETY: plain CoreGraphics call with no pointers.
-        let flags = unsafe { CGEventSourceFlagsState(COMBINED_SESSION) };
-        [
-            flags & CONTROL != 0,
-            flags & SHIFT != 0,
-            flags & OPTION != 0,
-            flags & COMMAND != 0,
-        ]
+    fn sample() -> Vec<String> {
+        crate::keys::MACOS
+            .iter()
+            // SAFETY: plain CoreGraphics call with no pointers.
+            .filter(|(code, _)| unsafe { CGEventSourceKeyState(COMBINED_SESSION, *code) })
+            .map(|(_, name)| name.to_string())
+            .collect()
     }
 
     pub fn watch(on_change: impl FnMut(Vec<String>)) -> ! {

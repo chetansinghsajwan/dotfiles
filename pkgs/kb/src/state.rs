@@ -7,6 +7,10 @@ pub struct State {
     pub layer: String,
     /// Held modifiers, a subset of `ctrl`, `shift`, `alt`, `meta` (not reported yet).
     pub mods: Vec<String>,
+    /// Every key currently held, by kanata name (`a`, `lctl`, `spc`), in press order. As the OS
+    /// sees them: the keys kanata emits, not the physical ones.
+    #[serde(default)]
+    pub keys: Vec<String>,
     /// Whether the daemon currently has a connection to kanata.
     pub kanata: bool,
 }
@@ -16,6 +20,7 @@ impl State {
         State {
             layer: String::new(),
             mods: Vec::new(),
+            keys: Vec::new(),
             kanata: false,
         }
     }
