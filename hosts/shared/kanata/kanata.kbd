@@ -13,7 +13,7 @@
 (platform (macos)
   (defalias cut M-x copy M-c pste M-v)
 )
-(platform (win linux)
+(platform (win winiov2 wintercept linux)
   (defalias cut C-x copy C-c pste C-v)
 )
 (deflayermap main
