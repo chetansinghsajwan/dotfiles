@@ -33,12 +33,12 @@
   c @copy
   v @pste
 
-  u bspc
-  i up
+  i bspc
   o del
   p esc
-  j left
-  k down
+  h left
+  j down
+  k up
   l right
   ; ret
 
@@ -46,9 +46,9 @@
 )
 
 (deflayermap nav
-  i pgup
-  j home
-  k pgdn
+  h home
+  j pgdn
+  k pgup
   l end
   ___ _
 )
