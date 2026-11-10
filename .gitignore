@@ -25,3 +25,6 @@ logs/
 
 # Cargo build output
 target/
+
+# Local scratch (e.g. hosts/windows/kanata downloads)
+.tmp/
