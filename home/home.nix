@@ -31,6 +31,7 @@ in
         ./options-sync.nix
         ./user.nix
 
+        ./agents
         ./programs
         ./features
         ./desktop
