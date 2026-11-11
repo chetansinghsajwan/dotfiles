@@ -21,14 +21,14 @@
   s lsft
   d lalt
   f lmet
-  lctrl lctl
-  lmeta lmet
-  lalt lalt
-  ralt ralt
-  rmeta rmet
-  rctrl rctl
-  lsft lsft
-  rsft rsft
+  lctrl XX
+  lmeta XX
+  lalt XX
+  ralt XX
+  rmeta XX
+  rctrl XX
+  lsft XX
+  rsft XX
 )
 
 (deflayermap main
