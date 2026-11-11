@@ -11,30 +11,42 @@
 )
 
 (platform (macos)
-  (defalias cut M-x copy M-c pste M-v)
+  (defalias cut M-x copy M-c pste M-v undo M-z redo M-S-z)
 )
 (platform (win winiov2 wintercept linux)
-  (defalias cut C-x copy C-c pste C-v)
+  (defalias cut C-x copy C-c pste C-v undo C-z redo C-S-z)
 )
-(deflayermap main
-  tab tab
-  spc (layer-switch ins)
-  q (layer-switch fun)
-  w (layer-switch sym)
-  e (layer-while-held nav)
-  r (layer-switch num)
-
+(deftemplate mods ()
   a lctl
   s lsft
   d lalt
   f lmet
+  lctrl lctl
+  lmeta lmet
+  lalt lalt
+  ralt ralt
+  rmeta rmet
+  rctrl rctl
+  lsft lsft
+  rsft rsft
+)
+
+(deflayermap main
+  tab tab
+  spc (layer-switch ins)
+  q (layer-while-held fun)
+  w (layer-while-held sym)
+  e (layer-while-held nav)
+  r (layer-while-held num)
+
+  (t! mods)
 
   x @cut
   c @copy
   v @pste
+  z (fork @undo @redo (lsft rsft))
 
-  i bspc
-  o del
+  o (fork bspc del (lsft rsft))
   p esc
   h left
   j down
@@ -46,11 +58,14 @@
 )
 
 (deflayermap nav
+  (t! mods)
+
   h home
   j pgdn
   k pgup
   l end
-  ___ _
+
+  ___ XX
 )
 
 (deflayermap ins
@@ -58,41 +73,32 @@
   ___ _
 )
 
+;; Held on W. Left-hand symbols moved to the right hand, reached with Shift.
 (deflayermap sym
-  caps (layer-switch main)
-  q S-1
-  w `
-  r S-'
-  t S-3
-  y S-\
-  u S-9
+  (t! mods)
+
+  y (fork S-\ S-3 (lsft rsft))
+  u (fork S-9 S-' (lsft rsft))
   i S-0
-  o S-,
-  p S-.
-  a S-8
-  s =
-  d -
-  f S--
-  g S-4
-  h ;
-  j {
-  k }
-  l /
-  ; \
-  z S-`
-  x S-=
-  c ,
-  v .
-  b S-2
-  n S-7
-  m [
-  , ]
-  . S-;
-  / S-/
+  o (fork S-, ` (lsft rsft))
+  p (fork S-. S-1 (lsft rsft))
+  h (fork ; S-4 (lsft rsft))
+  j (fork { S-- (lsft rsft))
+  k (fork } - (lsft rsft))
+  l (fork / = (lsft rsft))
+  ; (fork \ S-8 (lsft rsft))
+  n (fork S-7 S-2 (lsft rsft))
+  m (fork [ . (lsft rsft))
+  , (fork ] , (lsft rsft))
+  . (fork S-; S-= (lsft rsft))
+  / (fork S-/ S-` (lsft rsft))
+
+  ___ XX
 )
 
 (deflayermap num
-  caps (layer-switch main)
+  (t! mods)
+
   h 0
   m 1
   , 2
@@ -103,10 +109,13 @@
   u 7
   i 8
   o 9
+
+  ___ XX
 )
 
 (deflayermap fun
-  caps (layer-switch main)
+  (t! mods)
+
   m f1
   , f2
   . f3
@@ -119,4 +128,6 @@
   / f10
   ; f11
   p f12
+
+  ___ XX
 )
