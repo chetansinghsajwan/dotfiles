@@ -21,12 +21,39 @@ user = create_user(name="Asha", email="asha@example.com", active=True)
 user = create_user("Asha", "asha@example.com", True)
 ```
 
+## Type checking
+
+- **Annotate everything:** every parameter and return type of every function and method, public or private.
+- **Use beartype for runtime checks.** In a package, call `beartype_this_package()` once in the top-level `__init__.py` so every function is checked without per-function decorators.
+- **Outside a package** (scripts, single modules), decorate with `@beartype` instead.
+- **Keep `ty` for static checks** where the repo has it. beartype adds runtime checks and does not replace it.
+- **Add dependency:** `uv add beartype`.
+
+```python
+# package/__init__.py
+from beartype.claw import beartype_this_package
+
+beartype_this_package()
+```
+
+```python
+# standalone script
+from beartype import beartype
+
+
+@beartype
+def area(width: float, height: float) -> float:
+    ...
+```
+
 ## Docstrings
 
 - **Use Google style** with triple double quotes: a one-line summary, then `Args:`, `Returns:`, `Raises:` sections as needed.
 - **Skip types in `Args:`** when the signature has type hints. Write `width: Horizontal side length.`
 - **Explain purpose and reason**, in simple language, not what each line does. Skip sections that add nothing, such as `Args:` for a single obvious parameter.
-- **Cover public code:** every public module, class and function. Skip trivial private helpers.
+- **Always add a docstring with an example** to every public module, class and function. Skip trivial private helpers.
+- **Examples:** Put them in an `Example:` section (`Examples:` for several) as doctest-style `>>>` lines with the expected output, so they can be run with `pytest --doctest-modules`.
+- **Example content:** Show typical use, and add an edge case or the raised error when it teaches something. Calls in examples follow the keyword-argument rule above.
 - **Ruff:** set `convention = "google"` under `[tool.ruff.lint.pydocstyle]` if the repo has no docstring config.
 
 ```python
@@ -42,6 +69,14 @@ def area(width: float, height: float) -> float:
 
     Raises:
         ValueError: If either side is negative.
+
+    Example:
+        >>> area(width=3, height=4)
+        12
+        >>> area(width=-1, height=4)
+        Traceback (most recent call last):
+            ...
+        ValueError: sides must be non-negative
     """
 ```
 
