@@ -78,6 +78,13 @@
 - Add `.tmp` to `.gitignore` and to the formatter and linter excludes.
 - In background jobs, use `$CLAUDE_JOB_DIR/tmp` instead. It wins over `.tmp`.
 
+# Local Agent Context
+
+- Use `.agents-local` in the project root for agent context files that must stay local and git-untracked, such as personal notes, plans and scratch context.
+- Add `.agents-local` to `.gitignore`.
+- Don't put shared or team-facing instructions there. Those belong in the repo's AGENTS.md or docs.
+- Read it at the start of work in a repo, if it exists.
+
 # Review Checklist
 
 - Run it when a repo is first set up and when I ask for a review or audit. Don't run it on every small change.

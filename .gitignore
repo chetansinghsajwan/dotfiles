@@ -28,3 +28,6 @@ target/
 
 # Local scratch (e.g. hosts/windows/kanata downloads)
 .tmp/
+
+# Local agent context (untracked)
+.agents-local/
