@@ -4,7 +4,10 @@ let
 
     # Skills kept in this repo. Skills installed with `npx skills add` are not listed here, so
     # they stay writable and unmanaged.
-    skills = [ "commit-messages" ];
+    skills = [
+        "ci-cd"
+        "commit-messages"
+    ];
 
     # The same skill is linked for the agents that read ~/.agents/skills (Codex) and for the ones
     # that read ~/.claude/skills (Claude Code, opencode).

@@ -45,7 +45,7 @@
 - Add editorconfig.
 - Add docs/style-guide.md specifying the style. It is the source of truth for style, and the repo's own AGENTS.md links to it.
 - Add the required kinds of vulnerability scanner (see Tool Choices).
-- Use git hooks that call Taskfile tasks. Pre-commit runs `fmt` and `lint` on staged files, commit-msg verifies Conventional Commits, pre-push runs `check`.
+- Use git hooks that call Taskfile tasks. Pre-commit runs `fmt` and `check`, commit-msg verifies Conventional Commits, pre-push runs `check` and `test`.
 - Add a formatter and a linter for every language used in the project. If no good linter exists for a language, record that in docs/style-guide.md.
 
 # Taskfile
@@ -54,13 +54,12 @@
 - Use these task names, so `task <name>` works the same in every repo:
     - `setup`: install dependencies and prepare the repo. It does not install the dev env manager itself.
     - `fmt`: format the code.
-    - `lint`: run the linters.
     - `test`: run the tests.
     - `scan`: run the vulnerability scanners.
-    - `check`: run the fmt check, lint and test. CI and pre-push call this.
-- Make `setup`, `fmt`, `lint` and `test` mandatory when the repo has code. Make `scan` mandatory when it has dependencies. Add other tasks for any other repeatable action.
+    - `check`: run the fmt check and every linter. Pre-commit, CI and pre-push call it.
+- Make `setup`, `fmt`, `check` and `test` mandatory when the repo has code. Make `scan` mandatory when it has dependencies. Add other tasks for any other repeatable action.
 - Make bare `task` list the available tasks.
-- Hooks and CI call these tasks, never the raw tools, so there is one source of truth.
+- Hooks and CI call these tasks, never the raw tools, so there is one source of truth. CI runs `check`, `test` and `scan`.
 - Run the tasks inside the dev env.
 
 # Code Style
@@ -71,6 +70,10 @@
 - Use the language's own doc string convention (Rust `///`, Python docstrings, JSDoc). Don't invent one.
 - Prefer line comments over block comments.
 - Per-language specifics belong in docs/style-guide.md. This section holds only the general rules.
+
+# CI/CD
+
+- Use the ci-cd skill when writing, changing or reviewing a pipeline.
 
 # Temp Files
 
@@ -98,6 +101,8 @@
     - A vulnerability scanner is missing, or `scan` doesn't run all of them.
     - The commit-msg hook is missing.
     - `.tmp` is not in `.gitignore` or the tool excludes.
+    - A workflow has an unpinned action, no `permissions`, no `timeout-minutes`, or secrets in a job that runs PR code.
+    - The default branch has no protection, or `flake.lock` and other lockfiles are not committed.
 - Report findings as numbered points. Don't fix anything without asking.
 
 # Tool Choices
@@ -114,9 +119,9 @@
 - Commit messages: Conventional Commits, written with the commit-messages skill and verified by cocogitto (`cog verify`). Cocogitto also generates changelogs.
 - Vulnerability scanners: osv-scanner for dependencies, gitleaks for secrets, semgrep for SAST, trivy for containers and IaC.
 - Per language:
-    - GitHub Actions: actionlint.
+    - GitHub Actions: actionlint for syntax, zizmor (`--offline`) for security.
     - JSON, JS, TS: Biome for format and lint (oxlint is an alternative linter), Bun for packages and tests, tsc for type checks (TypeScript 7+, the native Go compiler).
-    - Markdown: dprint to format, rumdl to lint.
+    - Markdown: `rumdl fmt` then dprint to format (rumdl fixes structure, dprint sets the layout), rumdl to lint.
     - Nix: use flakes, alejandra to format, statix and deadnix to lint, `nix flake check` to test.
     - Python: uv, ruff and ty, with pytest for tests.
     - Rust: rustfmt, clippy, cargo-nextest, and cargo-deny for dependency audit.
