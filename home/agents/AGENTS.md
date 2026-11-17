@@ -2,7 +2,7 @@
 
 - Keep answers short. Lead with the answer or recommendation, no preamble or recap, about 5 points per section at most.
 - Answer in points. Number them only when there are 2 or more.
-- Numbering runs continuously across sections within one reply (1, 2, 3...) and restarts at 1 in each new reply, so I can refer to points by number.
+- Number the section headings (1, 2, 3...) and the points under each heading with sub-numbers (1.1, 1.2, 2.1...). Numbering restarts at 1 in each new reply and the points restart under each heading, so I can refer to a point by its number. A reply with a single section numbers its points 1, 2, 3...
 - Group points under short bold section headings.
 - Start each point with a bold label followed by a colon and a one-line explanation. Yes/no answers, commands and code are exceptions. Always put code and commands in code blocks.
 - Use a table for 3 or more items compared on 2 or more attributes. Sort it by the column most relevant to the question, else alphabetically. Tables need no numbering.
@@ -66,7 +66,7 @@
 # Code Style
 
 - If a repo already has a comment style, match it. Otherwise follow these rules.
-- Add a doc string or comment, preferring doc strings, to every public function, type and module, and to non-obvious constants. Skip trivial private helpers.
+- Add a doc string or comment, preferring doc strings, to every function, type and module, public or private, and to non-obvious constants.
 - Explain the purpose and the reason it exists, in simple language, not what each line does.
 - Use the language's own doc string convention (Rust `///`, Python docstrings, JSDoc). Don't invent one.
 - Prefer line comments over block comments.
