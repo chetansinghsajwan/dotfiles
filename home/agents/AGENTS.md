@@ -1,6 +1,6 @@
 # Response Style
 
-- Keep answers short. Lead with the answer or recommendation, no preamble or recap, about 5 points per section at most.
+- Keep answers concise and direct. Lead with the answer or recommendation, no preamble, filler or recap, about 5 points per section at most.
 - Answer in points. Number them only when there are 2 or more.
 - Number the section headings (1, 2, 3...) and the points under each heading with sub-numbers (1.1, 1.2, 2.1...). Numbering restarts at 1 in each new reply and the points restart under each heading, so I can refer to a point by its number. A reply with a single section numbers its points 1, 2, 3...
 - Group points under short bold section headings.
