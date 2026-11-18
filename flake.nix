@@ -121,16 +121,47 @@
         devShells = llib.forEachSystem (
             sys: let
                 pkgs = nixpkgs.legacyPackages.${sys};
+
+                # hk reads its config (hk.pkl) with pkl. nixpkgs builds pkl from source with Gradle (about
+                # 1.4 GiB of downloads, not in the binary cache), so the upstream release binary is used.
+                pkl = let
+                    release = "0.33.0";
+                    asset =
+                        {
+                            x86_64-linux = {
+                                name = "linux-amd64";
+                                hash = "sha256-uabd6ms4K31NtM9453qjhY4Min4Ck50rophXS10fzGk=";
+                            };
+                            aarch64-darwin = {
+                                name = "macos-aarch64";
+                                hash = "sha256-45wVffDwCjXTS0YnCnaHhO3K9Qmq+/dDhJsntMg++Ds=";
+                            };
+                        }.${
+                            sys
+                        };
+                in
+                    pkgs.stdenv.mkDerivation {
+                        pname = "pkl";
+                        version = release;
+                        src = pkgs.fetchurl {
+                            url = "https://github.com/apple/pkl/releases/download/${release}/pkl-${asset.name}";
+                            inherit (asset) hash;
+                        };
+                        dontUnpack = true;
+                        nativeBuildInputs = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.autoPatchelfHook];
+                        buildInputs = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.zlib pkgs.stdenv.cc.cc.lib];
+                        installPhase = "install -Dm755 $src $out/bin/pkl";
+                    };
             in {
                 default = pkgs.mkShell {
                     packages = with pkgs; [
-                        # Task runner and git hooks.
+                        # Task runner, git hooks (hk with its pkl config reader) and commit linting.
                         go-task
-                        lefthook
+                        hk
+                        pkl
                         cocogitto
 
                         # Formatters and linters.
-                        treefmt
                         alejandra
                         statix
                         deadnix

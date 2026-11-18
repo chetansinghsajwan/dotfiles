@@ -1,8 +1,0 @@
-# Vendored and third-party trees are not ours to lint.
-extend-exclude = [
-  "pkgs/helix-improved",
-  "pkgs/tuikit",
-  ".agents",
-  ".claude",
-  ".tmp",
-]

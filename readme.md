@@ -37,7 +37,8 @@ Open:
 │   ├── desktop/           desktop environments (gnome, hyprland)
 │   ├── (the Rust tools and the helix fork are submodules under pkgs/)
 │   └── stylix.nix         colors and fonts for everything
-└── treefmt.nix            formatter/linter config (nixfmt, statix, deadnix)
+├── Taskfile.yml           tasks (fmt, check, test, scan)
+└── .config/hk.pkl        formatters, linters and git hooks (hk)
 ```
 
 ## The terminal tools
@@ -94,9 +95,10 @@ home-manager switch --flake .#chetan
 ## Development
 
 ```sh
-nix flake check   # evaluate all outputs + run formatter check
-nix fmt           # format the repo with nixfmt (via treefmt)
-nix develop       # shell with nixfmt, statix, deadnix, nil, nixd on PATH
+nix develop       # shell with every tool the tasks and hooks use
+task fmt          # format every file
+task check        # format check and every linter
+task test         # Rust tests and evaluation of every host
 
 # the Rust tools: build and test without a full Nix build
 cd pkgs/tuikit && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo test

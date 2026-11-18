@@ -31,3 +31,7 @@ target/
 
 # Local agent context (untracked)
 .agents-local/
+
+# Local hk overrides.
+.config/hk.local.pkl
+hk.local.pkl

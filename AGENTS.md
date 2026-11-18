@@ -37,7 +37,7 @@ toolset and a helix fork in `pkgs/`.
 - The root `flake.nix` sets `inputs.self.submodules = true`, so Nix sees `pkgs/tuikit` and `pkgs/helix-improved` without any URL flag. Clone with `--recurse-submodules` (or run `git submodule update --init --recursive`).
 - `pkgs/tuikit/docs/ui-design.md` — the look every tool follows (colors, chrome, layout, components); `pkgs/tuikit/docs/usage-design.md` — the keys and menus.
 - `lib/default.nix` — shared helper functions (`llib`).
-- `Taskfile.yml`, `lefthook.yml`, `treefmt.toml` — tasks, git hooks and the formatter config; `docs/style-guide.md` — the style and tooling rules.
+- `Taskfile.yml`, `.config/hk.pkl` — tasks, and the formatters, linters and git hooks (hk); `docs/style-guide.md` — the style and tooling rules.
 - `.github/workflows/ci.yml` — CI (check, test and scan on Linux; clippy and test on macOS).
 
 ## Conventions
@@ -57,7 +57,7 @@ Run these from the repo root before considering a change done:
 Use the dev shell (`nix develop`) for all tools, and run the tasks from the repo root:
 
 ```sh
-task fmt     # format every file (treefmt)
+task fmt     # format every file
 task check   # format check and every linter
 task test    # Rust tests and evaluation of every host configuration
 task scan    # vulnerability scanners

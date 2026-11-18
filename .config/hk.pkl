@@ -1,0 +1,115 @@
+amends "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Builtins.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Config.pkl"
+
+// Formatters, linters and git hooks. `task fmt` runs `hk fix --all`, `task check` runs
+// `hk check --all`, and the git hooks run the same steps on the staged files.
+
+// Vendored or third-party trees are not ours to touch: the submodules (they have their own
+// setup) and the installed skills.
+exclude = List(
+    "local.nix", // machine-local overrides, edited by hand
+    "pkgs/helix-improved/**",
+    "pkgs/tuikit/**",
+    ".agents/skills/**",
+    ".claude/skills/**",
+    "pkgs/kb/target/**",
+    ".tmp/**",
+    "result",
+    "**/*.lock",
+    "skills-lock.json"
+)
+
+// Formatters. They rewrite files in `fix` mode and only report in `check` mode.
+local formatters = new Mapping<String, Config.Step> {
+    ["alejandra"] = Builtins.alejandra
+    ["shfmt"] = (Builtins.shfmt) {
+        // `-i 4` matches .editorconfig. pickers.sh mixes bash and zsh (guarded by $ZSH_VERSION at
+        // runtime) and has a zsh-only associative-array-key expansion that shfmt's bash parser
+        // cannot parse.
+        match_any = null
+        glob = List("**/*.sh", "**/*.zsh")
+        exclude = "home/programs/pickers/pickers.sh"
+        check_diff = "shfmt -i 4 -d {{ files }}"
+        check_list_files = null
+        fix = "shfmt -i 4 -w {{ files }}"
+    }
+    ["stylua"] = (Builtins.stylua) { types = null; glob = "**/*.lua" }
+    ["ruff_format"] = (Builtins.ruff_format) { types = null; glob = "**/*.py" }
+    ["rustfmt"] = Builtins.rustfmt
+    ["taplo_fmt"] = new Config.Step {
+        glob = "**/*.toml"
+        env { ["RUST_LOG"] = "warn" }
+        check = "taplo format --check {{ files }}"
+        fix = "taplo format {{ files }}"
+    }
+    // Markdown: rumdl fixes structure (code block languages, list indent) and lints, then dprint
+    // sets the layout.
+    ["rumdl"] = Builtins.rumdl
+    ["dprint"] = (Builtins.dprint) {
+        types = null
+        glob = "**/*.md"
+        depends = "rumdl"
+    }
+    ["yamlfmt"] = Builtins.yamlfmt
+}
+
+// Linters. Check only: a hook must not rewrite code a linter would change on its own.
+local linters = new Mapping<String, Config.Step> {
+    ["statix"] = new Config.Step {
+        glob = "**/*.nix"
+        // statix checks a tree, not a file list, and statix.toml holds the ignores.
+        check = "statix check ."
+    }
+    ["deadnix"] = (Builtins.deadnix) { fix = null }
+    ["shellcheck"] = new Config.Step {
+        glob = "home/programs/*/*.sh"
+        check = "shellcheck --external-sources {{ files }}"
+    }
+    ["ruff"] = (Builtins.ruff) { fix = null }
+    ["taplo_lint"] = new Config.Step {
+        glob = "**/*.toml"
+        env { ["RUST_LOG"] = "warn" }
+        check = "taplo lint {{ files }}"
+    }
+    ["actionlint"] = Builtins.actionlint
+    ["zizmor"] = (Builtins.zizmor) {
+        // Offline: the online audits need a token and the network.
+        check = "zizmor --offline --no-progress {{ files }}"
+        check_diff = null
+        check_after_diff = false
+        fix = null
+    }
+    ["typos"] = (Builtins.typos) { check_diff = null; check = "typos --force-exclude {{ files }}"; fix = null }
+    // Lints every target of the one cargo package (pkgs/kb) through its task, so it takes no file list.
+    ["clippy"] = new Config.Step {
+        glob = "pkgs/kb/**/*.rs"
+        check = "task clippy"
+    }
+}
+
+hooks {
+    // `hk fix --all` (task fmt): formatters only.
+    ["fix"] {
+        fix = true
+        steps = formatters
+    }
+    // `hk check --all` (task check): the fmt check and every linter.
+    ["check"] {
+        steps = (formatters) { ...linters }
+    }
+    ["pre-commit"] {
+        fix = true
+        stash = "git"
+        steps = (formatters) { ...linters }
+    }
+    ["commit-msg"] {
+        steps { ["cocogitto"] = Builtins.cocogitto_commit_msg }
+    }
+    ["pre-push"] {
+        steps = (formatters) {
+            ...linters
+            ["test"] = new Config.Step { check = "task test" }
+        }
+    }
+}

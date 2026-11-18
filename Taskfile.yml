@@ -10,12 +10,12 @@ tasks:
   setup:
     desc: Install the git hooks and fetch the Rust dependencies.
     cmds:
-      - lefthook install
+      - hk install
       - cargo fetch --locked --manifest-path pkgs/kb/Cargo.toml
   fmt:
     desc: Format every file.
     cmds:
-      - treefmt
+      - hk fix --all
   clippy:
     desc: Lint the Rust code (pkgs/kb).
     cmds:
@@ -46,14 +46,4 @@ tasks:
   check:
     desc: Check formatting and lint. CI and pre-push call this.
     cmds:
-      - treefmt --fail-on-change
-      - task: clippy
-      - statix check .
-      - deadnix --fail --exclude pkgs/helix-improved pkgs/tuikit .agents .claude
-      - shellcheck --external-sources home/programs/*/*.sh
-      - ruff check .
-      - taplo lint
-      - rumdl check .
-      - actionlint
-      - zizmor --offline .github
-      - typos
+      - hk check --all
