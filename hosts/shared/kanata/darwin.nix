@@ -3,8 +3,7 @@
     lib,
     pkgs,
     ...
-}:
-let
+}: let
     who = import ./users.nix lib config.dotfiles.users;
     driver = pkgs.karabiner-dk;
     parentAppDir = "/Applications/.Nix-Karabiner";
@@ -40,10 +39,9 @@ let
           fi
         done
     '';
-in
-{
+in {
     config = lib.mkIf who.any {
-        environment.systemPackages = [ pkgs.kanata ];
+        environment.systemPackages = [pkgs.kanata];
 
         # The DriverKit extension must live in /Applications, not a symlink.
         system.activationScripts.preActivation.text = ''
@@ -70,7 +68,10 @@ in
 
         launchd.daemons.kanata.serviceConfig = {
             Label = "org.nixos.kanata";
-            ProgramArguments = if who.scoped then [ "${scopedKanata}" ] else kanataArgs;
+            ProgramArguments =
+                if who.scoped
+                then ["${scopedKanata}"]
+                else kanataArgs;
             RunAtLoad = true;
             KeepAlive = true;
             StandardErrorPath = "/var/log/kanata.log";

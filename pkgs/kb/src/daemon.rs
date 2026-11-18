@@ -60,7 +60,9 @@ fn set_keys(state: &mut State, keys: Vec<String>) {
 fn follow_mods(device: String, hub: &Shared) {
     let hub = Arc::clone(hub);
     thread::spawn(move || {
-        crate::mods::linux::watch(&device, |held| hub.lock().unwrap().update(|s| set_keys(s, held)));
+        crate::mods::linux::watch(&device, |held| {
+            hub.lock().unwrap().update(|s| set_keys(s, held))
+        });
     });
 }
 

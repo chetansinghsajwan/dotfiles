@@ -3,13 +3,19 @@
 //! macOS poll the OS key state, so a tap shorter than the poll interval can be missed.
 
 /// Tracks which keys are down from a stream of Linux key events.
-#[cfg_attr(not(all(target_os = "linux", target_pointer_width = "64")), allow(dead_code))]
+#[cfg_attr(
+    not(all(target_os = "linux", target_pointer_width = "64")),
+    allow(dead_code)
+)]
 #[derive(Default)]
 pub struct Tracker {
     held: Vec<&'static str>,
 }
 
-#[cfg_attr(not(all(target_os = "linux", target_pointer_width = "64")), allow(dead_code))]
+#[cfg_attr(
+    not(all(target_os = "linux", target_pointer_width = "64")),
+    allow(dead_code)
+)]
 impl Tracker {
     /// Feeds one key event (`value`: 0 release, 1 press, 2 repeat); returns the new
     /// held keys, in press order, if this event changed them.

@@ -30,34 +30,30 @@
         };
     };
 
-    outputs =
-        {
-            llib,
-            nix-darwin,
-            home-manager,
-            home,
-            config,
-            ...
-        }:
-        let
-            mkDarwinCfg =
-                sys:
-                nix-darwin.lib.darwinSystem {
-                    system = sys;
-                    modules = [
-                        # Darwin modules
-                        config.modules.default
-                        ./system.nix
+    outputs = {
+        llib,
+        nix-darwin,
+        home-manager,
+        home,
+        config,
+        ...
+    }: let
+        mkDarwinCfg = sys:
+            nix-darwin.lib.darwinSystem {
+                system = sys;
+                modules = [
+                    # Darwin modules
+                    config.modules.default
+                    ./system.nix
 
-                        # Home modules
-                        home-manager.darwinModules.home-manager
-                        home.homeModules.default
-                    ];
-                };
-        in
-        {
-            darwinConfigurations = llib.forEachDarwinSystem (sys: {
-                default = mkDarwinCfg sys;
-            });
-        };
+                    # Home modules
+                    home-manager.darwinModules.home-manager
+                    home.homeModules.default
+                ];
+            };
+    in {
+        darwinConfigurations = llib.forEachDarwinSystem (sys: {
+            default = mkDarwinCfg sys;
+        });
+    };
 }

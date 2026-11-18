@@ -4,8 +4,7 @@
     pkgs,
     lpkgs,
     ...
-}:
-let
+}: let
     editor = config.dotfiles.editor;
     colors = config.lib.stylix.colors;
     # The syntax colors the previews use (ui/syntax.nix): helix gets the same ones.
@@ -13,20 +12,19 @@ let
     fg = "#${colors.base05}";
 
     # "#rrggbb": `percent` of `over` mixed into `base` (both hex without the "#").
-    mix =
-        over: base: percent:
-        let
-            ch = hex: i: lib.fromHexString (builtins.substring i 2 hex);
-            one =
-                i:
-                let
-                    v = (ch over i * percent + ch base i * (100 - percent)) / 100;
-                in
-                (if v < 16 then "0" else "") + lib.toHexString v;
+    mix = over: base: percent: let
+        ch = hex: i: lib.fromHexString (builtins.substring i 2 hex);
+        one = i: let
+            v = (ch over i * percent + ch base i * (100 - percent)) / 100;
         in
-        "#${one 0}${one 2}${one 4}";
-in
-{
+            (
+                if v < 16
+                then "0"
+                else ""
+            )
+            + lib.toHexString v;
+    in "#${one 0}${one 2}${one 4}";
+in {
     config = lib.mkIf config.programs.helix.enable {
         programs.helix = {
             defaultEditor = editor.terminal == "helix";

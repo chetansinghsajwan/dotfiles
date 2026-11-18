@@ -2,17 +2,16 @@
     config,
     lib,
     ...
-}@inputs:
-let
+} @ inputs: let
     caelestia-shell = inputs.caelestia-shell or null;
     caelestia-cli = lib.getExe' config.programs.caelestia.cli.package "caelestia";
     enable =
-        caelestia-shell != null
+        caelestia-shell
+        != null
         && config.dotfiles.desktop.hyprland.enable
         && config.dotfiles.desktop.hyprland.shell == "caelestia";
     wallpaper = config.dotfiles.theme.wallpaper;
-in
-{
+in {
     imports = lib.optionals (caelestia-shell != null) [
         caelestia-shell.homeManagerModules.default
     ];
@@ -37,7 +36,7 @@ in
             # no declarative option for them; keep caelestia in sync with the
             # declared wallpaper by driving its CLI on every activation, same as
             # the FAQ: https://github.com/caelestia-dots/shell#how-do-i-make-my-colour-scheme-change-to-match-my-wallpaper
-            home.activation.caelestiaDynamicScheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            home.activation.caelestiaDynamicScheme = lib.hm.dag.entryAfter ["writeBoundary"] ''
                 run ${caelestia-cli} wallpaper -f ${wallpaper}
                 run ${caelestia-cli} scheme set -n dynamic
             '';

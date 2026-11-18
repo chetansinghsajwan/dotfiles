@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
     # `op` (open): dispatches a file to the right interactive tool - csvlens for
     # CSV/TSV, $EDITOR (falling back to hx) for everything else `file` calls
     # text, "unsupported" otherwise. Installed as a plain PATH binary (not a

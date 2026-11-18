@@ -1,9 +1,11 @@
-{ config, lib, ... }:
-let
+{
+    config,
+    lib,
+    ...
+}: let
     enable =
         config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
-in
-{
+in {
     config = lib.mkIf enable {
         programs.waybar = {
             settings = [
@@ -16,7 +18,7 @@ in
                         "hyprland/workspaces"
                         "hyprland/window"
                     ];
-                    modules-center = [ "clock" ];
+                    modules-center = ["clock"];
                     modules-right = [
                         "pulseaudio"
                         "backlight"

@@ -2,12 +2,10 @@
     config,
     lib,
     ...
-}:
-let
+}: let
     isLinux = config.dotfiles.system.isLinux;
     enableGui = config.dotfiles.features.gui;
-in
-{
+in {
     imports = [
         ../desktop/gnome
         ../desktop/hyprland

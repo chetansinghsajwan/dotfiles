@@ -2,12 +2,10 @@
     config,
     pkgs,
     ...
-}:
-let
+}: let
     firefox-addons = pkgs.nur.repos.rycee.firefox-addons;
     defaultProfile = "default";
-in
-{
+in {
     programs.firefox = {
         configPath = "${config.xdg.configHome}/mozilla/firefox";
 
@@ -80,7 +78,7 @@ in
                                 ];
                             }
                         ];
-                        definedAliases = [ "@yt" ];
+                        definedAliases = ["@yt"];
                     };
                     "youtube-music" = {
                         urls = [
@@ -94,7 +92,7 @@ in
                                 ];
                             }
                         ];
-                        definedAliases = [ "@ytm" ];
+                        definedAliases = ["@ytm"];
                     };
                     "nixpkgs" = {
                         urls = [
@@ -108,7 +106,7 @@ in
                                 ];
                             }
                         ];
-                        definedAliases = [ "@np" ];
+                        definedAliases = ["@np"];
                     };
                     "nixopts" = {
                         urls = [
@@ -122,7 +120,7 @@ in
                                 ];
                             }
                         ];
-                        definedAliases = [ "@no" ];
+                        definedAliases = ["@no"];
                     };
                     "nixflakes" = {
                         urls = [
@@ -136,7 +134,7 @@ in
                                 ];
                             }
                         ];
-                        definedAliases = [ "@nf" ];
+                        definedAliases = ["@nf"];
                     };
                     "nixwiki" = {
                         urls = [
@@ -150,7 +148,7 @@ in
                                 ];
                             }
                         ];
-                        definedAliases = [ "@nw" ];
+                        definedAliases = ["@nw"];
                     };
                     "home-manager" = {
                         urls = [
@@ -164,7 +162,7 @@ in
                                 ];
                             }
                         ];
-                        definedAliases = [ "@hm" ];
+                        definedAliases = ["@hm"];
                     };
                     "github" = {
                         urls = [
@@ -178,7 +176,7 @@ in
                                 ];
                             }
                         ];
-                        definedAliases = [ "@gh" ];
+                        definedAliases = ["@gh"];
                     };
                     "gitlab" = {
                         urls = [
@@ -192,7 +190,7 @@ in
                                 ];
                             }
                         ];
-                        definedAliases = [ "@gl" ];
+                        definedAliases = ["@gl"];
                     };
                     "spotify" = {
                         urls = [
@@ -200,7 +198,7 @@ in
                                 template = "https://open.spotify.com/search/{searchTerms}";
                             }
                         ];
-                        definedAliases = [ "@sp" ];
+                        definedAliases = ["@sp"];
                     };
                 };
             };
@@ -215,6 +213,6 @@ in
     };
 
     stylix.targets.firefox = {
-        profileNames = [ defaultProfile ];
+        profileNames = [defaultProfile];
     };
 }

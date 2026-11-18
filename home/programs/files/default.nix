@@ -2,8 +2,7 @@
     config,
     lib,
     ...
-}:
-let
+}: let
     shell = config.dotfiles.shell.program;
     # `y`: run the explorer and `cd` to where it ended up.
     posix = ''
@@ -15,8 +14,7 @@ let
             command rm -f -- "$tmp"
         }
     '';
-in
-{
+in {
     # `files`: the file explorer (Rust, pkgs/tuikit/tools/files), the same panel the
     # helix fork embeds. Replaces yazi. `y` changes directory on exit.
 

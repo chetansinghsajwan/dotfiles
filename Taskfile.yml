@@ -1,0 +1,59 @@
+# Repeatable tasks. Hooks and CI call these, never the raw tools. Run inside the dev shell
+# (`nix develop`).
+version: "3"
+tasks:
+  default:
+    desc: List the available tasks.
+    silent: true
+    cmds:
+      - task --list
+  setup:
+    desc: Install the git hooks and fetch the Rust dependencies.
+    cmds:
+      - lefthook install
+      - cargo fetch --locked --manifest-path pkgs/kb/Cargo.toml
+  fmt:
+    desc: Format every file.
+    cmds:
+      - treefmt
+  clippy:
+    desc: Lint the Rust code (pkgs/kb).
+    cmds:
+      - cargo clippy --manifest-path pkgs/kb/Cargo.toml --all-targets --locked -- -D warnings
+  test:
+    desc: Run the Rust tests and evaluate every host configuration.
+    cmds:
+      - cargo nextest run --manifest-path pkgs/kb/Cargo.toml --locked --no-tests=pass
+      # `nix flake check` cannot walk the per-system nixosConfigurations layout, so the hosts are
+      # evaluated one by one (no build). homeConfigurations is not covered: it needs
+      # `dotfiles.currentUser`, which no standalone config sets.
+      - nix eval --raw .#nixosConfigurations.x86_64-linux.default.config.system.build.toplevel.drvPath
+      - nix eval --raw .#nixosConfigurations.x86_64-linux.wsl.config.system.build.toplevel.drvPath
+      - nix eval --raw .#nixosConfigurations.honor-m3-nixos.config.system.build.toplevel.drvPath
+      - nix eval --raw .#nixosConfigurations.jman-nixos.config.system.build.toplevel.drvPath
+      - nix eval --raw .#darwinConfigurations.macbook-air13.system.drvPath
+      - nix eval --raw .#darwinConfigurations.aarch64-darwin.default.system.drvPath
+  scan:
+    desc: Run the vulnerability scanners.
+    cmds:
+      - cargo deny --manifest-path pkgs/kb/Cargo.toml check
+      - osv-scanner scan source --lockfile pkgs/kb/Cargo.lock --config osv-scanner.toml
+      - gitleaks git --no-banner
+      # The excluded rules are audit hints, not defects: `args` skips the program name and is not used
+      # for security, and `unsafe` is the key-state FFI in kb.
+      - >-
+        semgrep scan --config p/rust --config p/python --metrics off --error --quiet --exclude pkgs/helix-improved --exclude pkgs/tuikit --exclude .agents --exclude .claude --exclude-rule rust.lang.security.args.args --exclude-rule rust.lang.security.unsafe-usage.unsafe-usage
+  check:
+    desc: Check formatting and lint. CI and pre-push call this.
+    cmds:
+      - treefmt --fail-on-change
+      - task: clippy
+      - statix check .
+      - deadnix --fail --exclude pkgs/helix-improved pkgs/tuikit .agents .claude
+      - shellcheck --external-sources home/programs/*/*.sh
+      - ruff check .
+      - taplo lint
+      - rumdl check .
+      - actionlint
+      - zizmor --offline .github
+      - typos

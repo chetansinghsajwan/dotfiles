@@ -1,5 +1,8 @@
-{ config, lib, ... }:
 {
+    config,
+    lib,
+    ...
+}: {
     config = lib.mkIf config.dotfiles.programs.docker.enable {
         home.file = {
             ".config/docker-pick/docker.sh".source = ./docker.sh;
@@ -14,6 +17,5 @@
             source ~/.config/docker-pick/docker.sh
             source ~/.config/docker-pick/docker.zsh
         '';
-
     };
 }

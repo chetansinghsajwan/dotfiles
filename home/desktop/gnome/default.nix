@@ -3,17 +3,14 @@
     pkgs,
     lib,
     ...
-}:
-let
+}: let
     enableGnome = config.dotfiles.desktop.gnome.enable;
-in
-{
+in {
     imports = [
         ./keybindings.nix
     ];
 
     config = lib.mkIf enableGnome {
-
         dotfiles.programs = {
             gnome-terminal.enable = true;
             gnome-text-editor.enable = true;
@@ -64,7 +61,7 @@ in
         ];
 
         dconf.settings."org/gnome" = {
-            "shell/favorite-apps" = [ ];
+            "shell/favorite-apps" = [];
             "shell/disable-user-extensions" = false;
             "shell/enabled-extensions" = [
                 "blur-my-shell@aunetx"

@@ -1,0 +1,2 @@
+# alejandra defaults to two spaces; this repo uses four.
+indentation = "FourSpaces"

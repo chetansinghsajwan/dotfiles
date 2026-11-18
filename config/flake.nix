@@ -6,7 +6,7 @@
         };
     };
 
-    outputs = { wallpapers, ... }: {
-        modules.default = import ./options.nix { inherit wallpapers; };
+    outputs = {wallpapers, ...}: {
+        modules.default = import ./options.nix {inherit wallpapers;};
     };
 }

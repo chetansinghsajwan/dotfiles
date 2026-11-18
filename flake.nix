@@ -7,13 +7,12 @@
 
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+        # semgrep-core fails to build on the current unstable (a patchelf assertion), so semgrep comes
+        # from this older revision. Drop it when unstable builds semgrep again.
+        nixpkgs-semgrep.url = "github:nixos/nixpkgs/d5cc6833999746cffdfe0598f7bc801a57b887a9";
+
         home-manager = {
             url = "github:nix-community/home-manager/master";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
-
-        treefmt-nix = {
-            url = "github:numtide/treefmt-nix";
             inputs.nixpkgs.follows = "nixpkgs";
         };
 
@@ -77,76 +76,93 @@
         };
     };
 
-    outputs =
-        {
-            self,
-            nixpkgs,
-            treefmt-nix,
-            nixos,
-            nixos-wsl,
-            darwin,
-            macbook-air-13,
-            nixos-honor-m3,
-            home,
-            llib,
-            jman-nixos,
-            ...
-        }:
-        let
-            treefmtEval = llib.forEachSystem (
-                sys: treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${sys} ./treefmt.nix
-            );
+    outputs = {
+        nixpkgs,
+        nixpkgs-semgrep,
+        nixos,
+        nixos-wsl,
+        darwin,
+        macbook-air-13,
+        nixos-honor-m3,
+        home,
+        llib,
+        jman-nixos,
+        ...
+    }: let
+        nixosConfigurations = llib.forEachLinuxSystem (sys: {
+            default = nixos.nixosConfigurations.${sys}.default;
+            wsl = nixos-wsl.nixosConfigurations.${sys}.default;
+        });
 
-            nixosConfigurations = llib.forEachLinuxSystem (sys: {
-                default = nixos.nixosConfigurations.${sys}.default;
-                wsl = nixos-wsl.nixosConfigurations.${sys}.default;
-            });
-
-            darwinConfigurations = llib.forEachDarwinSystem (sys: {
-                default = darwin.darwinConfigurations.${sys}.default;
-            });
-        in
-        {
-            nixosConfigurations = nixosConfigurations // {
+        darwinConfigurations = llib.forEachDarwinSystem (sys: {
+            default = darwin.darwinConfigurations.${sys}.default;
+        });
+    in {
+        nixosConfigurations =
+            nixosConfigurations
+            // {
                 honor-m3-nixos = nixos-honor-m3.nixosConfigurations.default;
 
                 # Personal Configurations
                 jman-nixos = jman-nixos.nixosConfigurations.default;
             };
 
-            darwinConfigurations = darwinConfigurations // {
+        darwinConfigurations =
+            darwinConfigurations
+            // {
                 macbook-air13 = macbook-air-13.darwinConfigurations.default;
             };
 
-            homeConfigurations = llib.forEachSystem (sys: {
-                default = home.homeConfigurations.${sys}.default;
-            });
+        homeConfigurations = llib.forEachSystem (sys: {
+            default = home.homeConfigurations.${sys}.default;
+        });
 
-            # `nix fmt`
-            formatter = llib.forEachSystem (sys: treefmtEval.${sys}.config.build.wrapper);
+        # `nix develop` gives every tool that `task` and the git hooks call.
+        devShells = llib.forEachSystem (
+            sys: let
+                pkgs = nixpkgs.legacyPackages.${sys};
+            in {
+                default = pkgs.mkShell {
+                    packages = with pkgs; [
+                        # Task runner and git hooks.
+                        go-task
+                        lefthook
+                        cocogitto
 
-            # `nix flake check` — runs formatter + linters in check mode
-            checks = llib.forEachSystem (sys: {
-                formatting = treefmtEval.${sys}.config.build.check self;
-            });
+                        # Formatters and linters.
+                        treefmt
+                        alejandra
+                        statix
+                        deadnix
+                        shfmt
+                        shellcheck
+                        stylua
+                        ruff
+                        taplo
+                        dprint
+                        rumdl
+                        yamlfmt
+                        actionlint
+                        zizmor
+                        typos
+                        rustfmt
+                        clippy
 
-            # `nix develop` — gives you nixfmt/statix/deadnix/nil on PATH
-            devShells = llib.forEachSystem (
-                sys:
-                let
-                    pkgs = nixpkgs.legacyPackages.${sys};
-                in
-                {
-                    default = pkgs.mkShell {
-                        packages = with pkgs; [
-                            nixfmt
-                            statix
-                            deadnix
-                            nil
-                            nixd
-                        ];
-                    };
-                }
-            );
-        };
+                        # Rust (pkgs/kb), tests and vulnerability scanners.
+                        cargo
+                        rustc
+                        cargo-nextest
+                        cargo-deny
+                        osv-scanner
+                        gitleaks
+                        nixpkgs-semgrep.legacyPackages.${sys}.semgrep
+
+                        # Nix language servers.
+                        nil
+                        nixd
+                    ];
+                };
+            }
+        );
+    };
 }

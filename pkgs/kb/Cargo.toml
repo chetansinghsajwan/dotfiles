@@ -2,6 +2,7 @@
 name = "kb"
 version = "0.1.0"
 edition = "2024"
+publish = false
 description = "Keyboard status (kanata layer, held mods) as a local stream for terminal tools"
 
 [dependencies]

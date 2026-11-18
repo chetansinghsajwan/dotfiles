@@ -1,0 +1,2 @@
+# False positive: a VS Code keybinding named `key`, not a secret.
+1c8679abf2af5d8ee14adb9f9073d8f309f69184:home/programs/vscode/modules/keybindings.nix:generic-api-key:157

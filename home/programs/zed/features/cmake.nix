@@ -3,8 +3,7 @@
     pkgs,
     lib,
     ...
-}:
-{
+}: {
     config = lib.mkIf config.programs.zed-editor.enable {
         home.packages = with pkgs; [
             cmake

@@ -1,0 +1,62 @@
+# One formatter command for every language (`task fmt`).
+# Vendored or third-party trees are not ours to reformat: the submodules and the installed skills.
+excludes = [
+  "local.nix",              # machine-local overrides, edited by hand
+  "pkgs/helix-improved/**",
+  "pkgs/tuikit/**",
+  ".agents/skills/**",
+  ".claude/skills/**",
+  "pkgs/kb/target/**",
+  ".tmp/**",
+  "result",
+  "*.lock",
+  "skills-lock.json",
+]
+
+[formatter.alejandra]
+command = "alejandra"
+includes = ["*.nix"]
+
+[formatter.shfmt]
+command = "shfmt"
+options = ["-i", "4", "-w"]
+includes = ["*.sh", "*.zsh"]
+# pickers.sh mixes bash and zsh (guarded by $ZSH_VERSION at runtime) and has a zsh-only
+# associative-array-key expansion that shfmt's bash parser cannot parse.
+excludes = ["home/programs/pickers/pickers.sh"]
+
+[formatter.stylua]
+command = "stylua"
+includes = ["*.lua"]
+
+[formatter.ruff]
+command = "ruff"
+options = ["format"]
+includes = ["*.py"]
+
+[formatter.rustfmt]
+command = "rustfmt"
+options = ["--edition", "2024"]
+includes = ["*.rs"]
+
+[formatter.taplo]
+command = "taplo"
+options = ["format"]
+includes = ["*.toml"]
+
+# Markdown: rumdl fixes structure (code block languages, list indent), then dprint sets the layout.
+[formatter.rumdl]
+command = "rumdl"
+options = ["fmt"]
+includes = ["*.md"]
+priority = 0
+
+[formatter.dprint]
+command = "dprint"
+options = ["fmt"]
+includes = ["*.md"]
+priority = 1
+
+[formatter.yamlfmt]
+command = "yamlfmt"
+includes = ["*.yml", "*.yaml"]

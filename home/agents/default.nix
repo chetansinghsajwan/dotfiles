@@ -1,5 +1,4 @@
-{ lib, ... }:
-let
+{lib, ...}: let
     instructions = ./AGENTS.md;
 
     # Skills kept in this repo. Skills installed with `npx skills add` are not listed here, so
@@ -19,24 +18,26 @@ let
     skillLinks = lib.listToAttrs (
         lib.concatMap (
             name:
-            map (root: {
-                name = "${root}/${name}";
-                value.source = ./skills/${name};
-            }) skillRoots
-        ) skills
+                map (root: {
+                    name = "${root}/${name}";
+                    value.source = ./skills/${name};
+                })
+                skillRoots
+        )
+        skills
     );
-in
-{
-    home.file = {
-        ".agents/AGENTS.md".source = instructions;
+in {
+    home.file =
+        {
+            ".agents/AGENTS.md".source = instructions;
 
-        # Claude Code reads CLAUDE.md, so it imports the shared file.
-        ".claude/CLAUDE.md".text = "@~/.agents/AGENTS.md\n";
+            # Claude Code reads CLAUDE.md, so it imports the shared file.
+            ".claude/CLAUDE.md".text = "@~/.agents/AGENTS.md\n";
 
-        ".codex/AGENTS.md".source = instructions;
-        ".gemini/GEMINI.md".source = instructions;
-    }
-    // skillLinks;
+            ".codex/AGENTS.md".source = instructions;
+            ".gemini/GEMINI.md".source = instructions;
+        }
+        // skillLinks;
 
     xdg.configFile."opencode/AGENTS.md".source = instructions;
 }

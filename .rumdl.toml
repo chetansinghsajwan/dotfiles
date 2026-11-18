@@ -1,0 +1,4 @@
+# Prose is not wrapped (dprint keeps line breaks), so line length is not checked.
+[global]
+exclude = [".tmp", "pkgs/helix-improved", "pkgs/tuikit", ".agents", ".claude"]
+disable = ["MD013"]

@@ -3,16 +3,13 @@
     pkgs,
     lib,
     ...
-}:
-let
+}: let
     isWSL = config.dotfiles.system.isWsl;
     editorCommand = {
         helix = "hx";
     };
-in
-{
+in {
     config = lib.mkIf config.programs.git.enable {
-
         home.file = {
             ".config/git/git.sh".source = ./git.sh;
             ".config/git/git.zsh".source = ./git.zsh;
@@ -28,7 +25,7 @@ in
 
         programs.git = {
             includes = [
-                { path = "~/.config/git/local-config"; }
+                {path = "~/.config/git/local-config";}
             ];
 
             lfs = {
@@ -37,7 +34,6 @@ in
             };
 
             settings = {
-
                 "credential \"https://dev.azure.com\"" = {
                     useHttpPath = true;
                 };
@@ -50,14 +46,13 @@ in
                 credential = {
                     helper = "${pkgs.git-credential-manager}/bin/git-credential-manager";
                     credentialStore =
-                        if config.dotfiles.system.isDarwin then
-                            "keychain"
-                        else if config.dotfiles.desktop.gnome.enable then
-                            "secretservice"
-                        else if isWSL then
-                            "gpg"
-                        else
-                            "cache";
+                        if config.dotfiles.system.isDarwin
+                        then "keychain"
+                        else if config.dotfiles.desktop.gnome.enable
+                        then "secretservice"
+                        else if isWSL
+                        then "gpg"
+                        else "cache";
                 };
 
                 user = {
@@ -91,67 +86,65 @@ in
                 };
 
                 # aliases
-                alias =
-                    let
-                        logBase = "log --graph --abbrev-commit --decorate --pretty=format:'%C(bold blue)%h%C(reset) %C(bold green)(%cr)%C(reset) %C(cyan)%cn%C(reset)%C(bold red)%d%C(reset)%n%C(normal)";
-                    in
-                    {
-                        l = "${logBase}%s%C(reset)'";
-                        l1 = "l -1";
-                        l2 = "l -2";
-                        l3 = "l -3";
-                        l4 = "l -4";
-                        l5 = "l -5";
-                        l6 = "l -6";
-                        l7 = "l -7";
-                        l8 = "l -8";
-                        l9 = "l -9";
-                        la = "l --all";
-                        lf = "${logBase}%s%n%n%b%C(reset)'";
-                        lfa = "lf --all";
-                        b = "branch";
-                        bd = "branch -d";
-                        bD = "branch -D";
+                alias = let
+                    logBase = "log --graph --abbrev-commit --decorate --pretty=format:'%C(bold blue)%h%C(reset) %C(bold green)(%cr)%C(reset) %C(cyan)%cn%C(reset)%C(bold red)%d%C(reset)%n%C(normal)";
+                in {
+                    l = "${logBase}%s%C(reset)'";
+                    l1 = "l -1";
+                    l2 = "l -2";
+                    l3 = "l -3";
+                    l4 = "l -4";
+                    l5 = "l -5";
+                    l6 = "l -6";
+                    l7 = "l -7";
+                    l8 = "l -8";
+                    l9 = "l -9";
+                    la = "l --all";
+                    lf = "${logBase}%s%n%n%b%C(reset)'";
+                    lfa = "lf --all";
+                    b = "branch";
+                    bd = "branch -d";
+                    bD = "branch -D";
 
-                        # branch delete remote only
-                        bdr = "push origin --delete";
+                    # branch delete remote only
+                    bdr = "push origin --delete";
 
-                        # branch delete local and remote
-                        bda = "!f() { git branch -d $1 && git push origin --delete $1; }; f";
+                    # branch delete local and remote
+                    bda = "!f() { git branch -d $1 && git push origin --delete $1; }; f";
 
-                        sw = "switch";
-                        co = "checkout";
-                        rt = "restore";
-                        rs = "reset";
-                        rss = "reset --soft";
-                        rsm = "reset --mixed";
-                        rsh = "reset --hard";
-                        cm = "commit";
-                        ca = "commit --amend --no-edit";
-                        caa = "ca --all";
-                        s = "status";
-                        ss = "status --short";
-                        d = "diff";
-                        df = "diff --cached";
-                        ds = "diff --staged";
-                        wt = "worktree";
-                        fc = "fetch --prune";
-                        rb = "rebase";
-                        rbp = "rebase --pull";
-                        ps = "push";
-                        psf = "push --force-with-lease";
-                        pl = "pull";
-                        plf = "pull --ff-only";
-                        plr = "pull --rebase";
-                        plrf = "pull --rebase --ff-only";
-                        wip = "commit -m 'WIP'";
-                        wipa = "commit -m 'WIP' --amend";
-                        tags = "tag -n1 -l";
-                        who = "shortlog -sn --no-merges";
-                        whoami = "!git config --get user.name && git config --get user.email";
-                        alias = "!f() { git config --get-regexp alias | cut -c 7- | sed \"s/ /$(echo 2B | xxd -r -p)/\" | column -t -s $(echo 2B | xxd -r -p); }; f";
-                        gcm = "credential-manager";
-                    };
+                    sw = "switch";
+                    co = "checkout";
+                    rt = "restore";
+                    rs = "reset";
+                    rss = "reset --soft";
+                    rsm = "reset --mixed";
+                    rsh = "reset --hard";
+                    cm = "commit";
+                    ca = "commit --amend --no-edit";
+                    caa = "ca --all";
+                    s = "status";
+                    ss = "status --short";
+                    d = "diff";
+                    df = "diff --cached";
+                    ds = "diff --staged";
+                    wt = "worktree";
+                    fc = "fetch --prune";
+                    rb = "rebase";
+                    rbp = "rebase --pull";
+                    ps = "push";
+                    psf = "push --force-with-lease";
+                    pl = "pull";
+                    plf = "pull --ff-only";
+                    plr = "pull --rebase";
+                    plrf = "pull --rebase --ff-only";
+                    wip = "commit -m 'WIP'";
+                    wipa = "commit -m 'WIP' --amend";
+                    tags = "tag -n1 -l";
+                    who = "shortlog -sn --no-merges";
+                    whoami = "!git config --get user.name && git config --get user.email";
+                    alias = "!f() { git config --get-regexp alias | cut -c 7- | sed \"s/ /$(echo 2B | xxd -r -p)/\" | column -t -s $(echo 2B | xxd -r -p); }; f";
+                    gcm = "credential-manager";
+                };
 
                 # advice settings
                 advice = {
@@ -187,7 +180,7 @@ in
 
             password-store = {
                 enable = isWSL;
-                settings = { };
+                settings = {};
             };
         };
 

@@ -3,12 +3,10 @@
     pkgs,
     lib,
     ...
-}:
-let
+}: let
     enableDev = config.dotfiles.features.dev;
     enableGui = config.dotfiles.features.gui;
-in
-{
+in {
     config = lib.mkIf enableDev {
         home.packages = with pkgs; [
             # cmake

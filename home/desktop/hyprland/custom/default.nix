@@ -3,12 +3,10 @@
     pkgs,
     lib,
     ...
-}:
-let
+}: let
     enable =
         config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
-in
-{
+in {
     imports = [
         ./waybar.nix
         ./wofi.nix

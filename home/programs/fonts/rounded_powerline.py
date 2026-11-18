@@ -12,9 +12,9 @@ import sys
 
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.cu2quPen import Cu2QuPen
-from fontTools.ttLib.tables.O_S_2f_2 import Panose
 from fontTools.pens.transformPen import TransformPen
 from fontTools.pens.ttGlyphPen import TTGlyphPen
+from fontTools.ttLib.tables.O_S_2f_2 import Panose
 
 # JetBrains Mono's cell: 1000 units to the em, 600 wide, from -300 to 1020 (the bar spans the cell height).
 UPM, WIDTH, TOP, BOTTOM = 1000, 600, 1020, -300
@@ -24,7 +24,9 @@ HEIGHT = TOP - BOTTOM
 OVERSHOOT = 0
 GT, GB = TOP + OVERSHOOT, BOTTOM - OVERSHOOT
 RY = HEIGHT * 0.36  # corner radius down the edge: about a third of the cell
-RX = WIDTH * 0.8  # across: most of the cell, so the corner is an arc of an ellipse, with a short flat middle
+RX = (
+    WIDTH * 0.8
+)  # across: most of the cell, so the corner is an arc of an ellipse, with a short flat middle
 STROKE = 70  # width of the outline glyphs
 OVERLAP = 30  # the joining edge goes this far outside the cell so there is no seam
 K = 0.5523  # cubic approximation of a quarter circle
@@ -39,7 +41,9 @@ def right_end(pen, inset=0.0, flat_from=0.0):
     pen.lineTo((x1 - RX, top))
     pen.curveTo((x1 - RX + RX * K, top), (x1, top - RY + RY * K), (x1, top - RY))
     pen.lineTo((x1, bottom + RY))
-    pen.curveTo((x1, bottom + RY - RY * K), (x1 - RX + RX * K, bottom), (x1 - RX, bottom))
+    pen.curveTo(
+        (x1, bottom + RY - RY * K), (x1 - RX + RX * K, bottom), (x1 - RX, bottom)
+    )
     pen.closePath()
 
 
@@ -55,9 +59,13 @@ def right_outline(pen):
     pen.lineTo((-OVERLAP, GB))
     pen.lineTo((-OVERLAP, GB + t))
     pen.lineTo((x1 - RX, GB + t))
-    pen.curveTo((x1 - RX + RX * K, GB + t), (x1 - t, GB + RY - RY * K + t), (x1 - t, GB + RY))
+    pen.curveTo(
+        (x1 - RX + RX * K, GB + t), (x1 - t, GB + RY - RY * K + t), (x1 - t, GB + RY)
+    )
     pen.lineTo((x1 - t, GT - RY))
-    pen.curveTo((x1 - t, GT - RY + RY * K - t), (x1 - RX + RX * K, GT - t), (x1 - RX, GT - t))
+    pen.curveTo(
+        (x1 - t, GT - RY + RY * K - t), (x1 - RX + RX * K, GT - t), (x1 - RX, GT - t)
+    )
     pen.lineTo((-OVERLAP, GT - t))
     pen.closePath()
 
@@ -92,13 +100,29 @@ def main(out):
     order = list(glyphs)
     fb = FontBuilder(UPM, isTTF=True)
     fb.setupGlyphOrder(order)
-    fb.setupCharacterMap({0xE0F0: "rp_right", 0xE0F1: "rp_right_outline", 0xE0F2: "rp_left", 0xE0F3: "rp_left_outline"})
+    fb.setupCharacterMap(
+        {
+            0xE0F0: "rp_right",
+            0xE0F1: "rp_right_outline",
+            0xE0F2: "rp_left",
+            0xE0F3: "rp_left_outline",
+        }
+    )
     fb.setupGlyf(glyphs)
     fb.setupHorizontalMetrics({n: (WIDTH, 0) for n in order})
     fb.setupHorizontalHeader(ascent=TOP, descent=BOTTOM)
     # A date that does not change, so the font is the same file every build.
-    stamp = 3_913_113_600  # 2028-01-01 in seconds since 1904, well after the first release
-    fb.setupHead(unitsPerEm=UPM, created=stamp, modified=stamp, fontRevision=1.0, flags=0b11, lowestRecPPEM=8)
+    stamp = (
+        3_913_113_600  # 2028-01-01 in seconds since 1904, well after the first release
+    )
+    fb.setupHead(
+        unitsPerEm=UPM,
+        created=stamp,
+        modified=stamp,
+        fontRevision=1.0,
+        flags=0b11,
+        lowestRecPPEM=8,
+    )
     fb.setupNameTable(
         {
             "copyright": "Public domain",

@@ -3,8 +3,7 @@
     pkgs,
     lib,
     ...
-}:
-{
+}: {
     config = lib.mkIf config.programs.vscode.enable {
         home.packages = with pkgs; [
             nil

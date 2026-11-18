@@ -1,0 +1,15 @@
+[files]
+extend-exclude = [
+  "pkgs/helix-improved",
+  "pkgs/tuikit",
+  ".agents/skills",
+  ".claude/skills",
+  "flake.lock",
+  "skills-lock.json",
+  ".tmp",
+]
+
+[default.extend-identifiers]
+# VLC audio output setting, and "ANDed" in a nix search comment.
+aout = "aout"
+ANDed = "ANDed"

@@ -30,37 +30,33 @@
         };
     };
 
-    outputs =
-        {
-            nixpkgs,
-            home-manager,
-            llib,
-            home,
-            config,
-            silentSDDM,
-            ...
-        }:
-        let
-            mkNixos =
-                { sys }:
-                nixpkgs.lib.nixosSystem {
-                    system = sys;
-                    modules = [
-                        # Nixos modules
-                        config.modules.default
-                        silentSDDM.nixosModules.default
-                        ./system.nix
-                        ./hardware.nix
+    outputs = {
+        nixpkgs,
+        home-manager,
+        llib,
+        home,
+        config,
+        silentSDDM,
+        ...
+    }: let
+        mkNixos = {sys}:
+            nixpkgs.lib.nixosSystem {
+                system = sys;
+                modules = [
+                    # Nixos modules
+                    config.modules.default
+                    silentSDDM.nixosModules.default
+                    ./system.nix
+                    ./hardware.nix
 
-                        # Home modules
-                        home-manager.nixosModules.home-manager
-                        home.homeModules.default
-                    ];
-                };
-        in
-        {
-            nixosConfigurations = llib.forEachLinuxSystem (sys: {
-                default = mkNixos { inherit sys; };
-            });
-        };
+                    # Home modules
+                    home-manager.nixosModules.home-manager
+                    home.homeModules.default
+                ];
+            };
+    in {
+        nixosConfigurations = llib.forEachLinuxSystem (sys: {
+            default = mkNixos {inherit sys;};
+        });
+    };
 }

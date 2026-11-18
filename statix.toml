@@ -1,0 +1,11 @@
+# repeated_keys wants `programs = { a.enable = ..; b.enable = ..; }`, but this repo writes dotted
+# paths on purpose: one line per option reads and greps better.
+disabled = ["repeated_keys"]
+ignore = [
+  "pkgs/helix-improved",
+  "pkgs/tuikit",
+  ".agents",
+  ".claude",
+  ".tmp",
+  "result",
+]

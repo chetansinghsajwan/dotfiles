@@ -1,7 +1,13 @@
-{ config, pkgs, ... }:
 {
+    config,
+    pkgs,
+    ...
+}: {
     programs.ghostty = {
-        package = if config.dotfiles.system.isDarwin then pkgs.ghostty-bin else pkgs.ghostty;
+        package =
+            if config.dotfiles.system.isDarwin
+            then pkgs.ghostty-bin
+            else pkgs.ghostty;
 
         enableBashIntegration = config.dotfiles.shell.program == "bash";
         enableZshIntegration = config.dotfiles.shell.program == "zsh";

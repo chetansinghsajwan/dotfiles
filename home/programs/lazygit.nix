@@ -63,7 +63,7 @@ _: {
                 # Maintainers declined to add a toggle when asked upstream:
                 # https://github.com/jesseduffield/lazygit/issues/3789
                 sidePanels = [
-                    [ "status" ]
+                    ["status"]
                     [
                         "files"
                         "worktrees"

@@ -25,7 +25,7 @@ Open:
 
 ## Layout
 
-```
+```text
 .
 ├── flake.nix              flake entry point, wires inputs to hosts
 ├── config/                shared `dotfiles.*` options (user, theme, fonts, features)

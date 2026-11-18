@@ -43,63 +43,66 @@
         };
     };
 
-    outputs =
-        {
-            nixpkgs,
-            llib,
-            config,
-            home-manager,
-            nur,
-            stylix,
-            caelestia-shell,
-            lpkgs,
-            ...
-        }:
-        let
-            homeImports = [
-                ./home.nix
-                config.modules.default
-            ];
+    outputs = {
+        nixpkgs,
+        llib,
+        config,
+        home-manager,
+        nur,
+        stylix,
+        caelestia-shell,
+        lpkgs,
+        ...
+    }: let
+        homeImports = [
+            ./home.nix
+            config.modules.default
+        ];
 
-            extraSpecialArgs = {
-                inherit
-                    llib
-                    nur
-                    caelestia-shell
-                    stylix
-                    ;
+        extraSpecialArgs = {
+            inherit
+                llib
+                nur
+                caelestia-shell
+                stylix
+                ;
 
-                # Our Rust tools and the helix fork (pkgs/): `packages.<system>.<name>`.
-                inherit lpkgs;
+            # Our Rust tools and the helix fork (pkgs/): `packages.<system>.<name>`.
+            inherit lpkgs;
+        };
+
+        mkHome = {sys}:
+            home-manager.lib.homeManagerConfiguration {
+                pkgs = nixpkgs.legacyPackages.${sys};
+                modules = homeImports;
+                inherit extraSpecialArgs;
             };
+    in {
+        homeConfigurations = llib.forEachSystem (sys: {
+            default = mkHome {inherit sys;};
+        });
 
-            mkHome =
-                { sys }:
-                home-manager.lib.homeManagerConfiguration {
-                    pkgs = nixpkgs.legacyPackages.${sys};
-                    modules = homeImports;
-                    inherit extraSpecialArgs;
-                };
-        in
-        {
-            homeConfigurations = llib.forEachSystem (sys: {
-                default = mkHome { inherit sys; };
-            });
-
-            homeModules.default = { config, lib, ... }: {
-                home-manager = {
-                    useUserPackages = true;
-                    backupFileExtension = "bak";
-                    overwriteBackup = true;
-                    inherit extraSpecialArgs;
-                    users = lib.mapAttrs (_name: u: {
-                        imports = homeImports ++ [
+        homeModules.default = {
+            config,
+            lib,
+            ...
+        }: {
+            home-manager = {
+                useUserPackages = true;
+                backupFileExtension = "bak";
+                overwriteBackup = true;
+                inherit extraSpecialArgs;
+                users = lib.mapAttrs (_name: u: {
+                    imports =
+                        homeImports
+                        ++ [
                             {
                                 dotfiles.currentUser = u;
                             }
                         ];
-                    }) config.dotfiles.users;
-                };
+                })
+                config.dotfiles.users;
             };
         };
+    };
 }

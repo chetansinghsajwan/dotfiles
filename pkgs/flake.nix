@@ -27,17 +27,15 @@
         };
     };
 
-    outputs =
-        {
-            nixpkgs,
-            llib,
-            tuikit,
-            helix-improved,
-            ...
-        }:
-        {
-            packages = llib.forEachSystem (
-                sys:
+    outputs = {
+        nixpkgs,
+        llib,
+        tuikit,
+        helix-improved,
+        ...
+    }: {
+        packages = llib.forEachSystem (
+            sys:
                 tuikit.packages.${sys}
                 // {
                     inherit (helix-improved.packages.${sys}) helix;
@@ -51,6 +49,6 @@
                         meta.mainProgram = "kb";
                     };
                 }
-            );
-        };
+        );
+    };
 }

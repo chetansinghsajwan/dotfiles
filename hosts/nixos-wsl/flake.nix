@@ -30,34 +30,30 @@
         };
     };
 
-    outputs =
-        {
-            nixpkgs,
-            nixos-wsl,
-            home-manager,
-            llib,
-            home,
-            config,
-            ...
-        }:
-        let
-            mkNixos =
-                { sys }:
-                nixpkgs.lib.nixosSystem {
-                    system = sys;
-                    modules = [
-                        config.modules.default
-                        nixos-wsl.nixosModules.default
-                        ./system.nix
+    outputs = {
+        nixpkgs,
+        nixos-wsl,
+        home-manager,
+        llib,
+        home,
+        config,
+        ...
+    }: let
+        mkNixos = {sys}:
+            nixpkgs.lib.nixosSystem {
+                system = sys;
+                modules = [
+                    config.modules.default
+                    nixos-wsl.nixosModules.default
+                    ./system.nix
 
-                        home-manager.nixosModules.home-manager
-                        home.homeModules.default
-                    ];
-                };
-        in
-        {
-            nixosConfigurations = llib.forEachLinuxSystem (sys: {
-                default = mkNixos { inherit sys; };
-            });
-        };
+                    home-manager.nixosModules.home-manager
+                    home.homeModules.default
+                ];
+            };
+    in {
+        nixosConfigurations = llib.forEachLinuxSystem (sys: {
+            default = mkNixos {inherit sys;};
+        });
+    };
 }

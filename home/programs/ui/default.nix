@@ -1,9 +1,7 @@
-{ config, ... }:
-let
+{config, ...}: let
     ui = config.dotfiles.ui;
     c = config.lib.stylix.colors.withHashtag;
-in
-{
+in {
     # Shared TUI framework crate. Only the demo binary is installed for now;
     # tools (pv, pick, ...) will depend on the crate directly.
 

@@ -1,0 +1,9 @@
+# Vendored and third-party trees are not ours to format or lint.
+exclude = [
+  "pkgs/helix-improved/**",
+  "pkgs/tuikit/**",
+  ".agents/**",
+  ".claude/**",
+  ".tmp/**",
+  "pkgs/kb/target/**",
+]

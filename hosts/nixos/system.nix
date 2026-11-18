@@ -1,12 +1,14 @@
-{ config, lib, ... }:
-let
+{
+    config,
+    lib,
+    ...
+}: let
     enableGdm = config.dotfiles.system.displayManager == "gdm";
     enableSddm = config.dotfiles.system.displayManager == "sddm";
     enableHyprland = config.dotfiles.desktop.hyprland.enable;
     enableGnome = config.dotfiles.desktop.gnome.enable;
     enableKanata = (import ../shared/kanata/users.nix lib config.dotfiles.users).any;
-in
-{
+in {
     imports = [
         ../shared/system.nix
         ../shared/locale.nix
@@ -31,23 +33,24 @@ in
         efi.canTouchEfiVariables = true;
     };
 
-    boot.kernelModules = [ "uinput" ];
+    boot.kernelModules = ["uinput"];
     hardware.uinput.enable = true;
-    services.udev.extraRules = ''
-        KERNEL=="uinput", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
-    ''
-    # Read-only access to kanata's own virtual output device, scoped to just
-    # that device (not the "input" group, which covers every physical
-    # keyboard/mouse). Used by `kb daemon` (pkgs/kb) to watch which modifiers are
-    # currently held.
-    + lib.optionalString enableKanata ''
-        SUBSYSTEM=="input", ATTRS{name}=="kanata", GROUP="kanata-watch", MODE="0640"
-    '';
+    services.udev.extraRules =
+        ''
+            KERNEL=="uinput", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
+        ''
+        # Read-only access to kanata's own virtual output device, scoped to just
+        # that device (not the "input" group, which covers every physical
+        # keyboard/mouse). Used by `kb daemon` (pkgs/kb) to watch which modifiers are
+        # currently held.
+        + lib.optionalString enableKanata ''
+            SUBSYSTEM=="input", ATTRS{name}=="kanata", GROUP="kanata-watch", MODE="0640"
+        '';
 
-    users.groups.uinput = { };
-    users.groups.kanata-watch = lib.mkIf enableKanata { };
+    users.groups.uinput = {};
+    users.groups.kanata-watch = lib.mkIf enableKanata {};
     users.users = lib.mkIf enableKanata (
-        lib.mapAttrs (_: _: { extraGroups = [ "kanata-watch" ]; }) config.dotfiles.users
+        lib.mapAttrs (_: _: {extraGroups = ["kanata-watch"];}) config.dotfiles.users
     );
 
     systemd.services.kanata-internalKeyboard.serviceConfig = {

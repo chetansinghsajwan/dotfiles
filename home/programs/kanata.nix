@@ -3,13 +3,11 @@
     lib,
     pkgs,
     ...
-}:
-let
+}: let
     who = import ../../hosts/shared/kanata/users.nix lib config.dotfiles.users;
     systemctl = "${pkgs.systemd}/bin/systemctl";
     enabled = config.dotfiles.currentUser.kanata.enable;
-in
-{
+in {
     config = lib.mkMerge [
         # The layout and layers `kanata-status` draws (kanata itself reads the file from the store).
         (lib.mkIf enabled {
@@ -22,7 +20,7 @@ in
         (lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && who.scoped && enabled) {
             systemd.user.services.kanata = {
                 Unit.Description = "Run kanata for this user's session";
-                Install.WantedBy = [ "default.target" ];
+                Install.WantedBy = ["default.target"];
                 Service = {
                     Type = "oneshot";
                     RemainAfterExit = true;

@@ -3,8 +3,7 @@
     pkgs,
     llib,
     ...
-}:
-let
+}: let
     nbfc-linux = import (
         pkgs.fetchFromGitHub {
             owner = "nbfc-linux";
@@ -15,18 +14,18 @@ let
     );
     command = "bin/nbfc_service --config-file '/home/${config.home.username}/.config/nbfc.json'";
 in
-llib.mkToggleModule config "nbfc-linux" {
-    home.packages = [ nbfc-linux ];
+    llib.mkToggleModule config "nbfc-linux" {
+        home.packages = [nbfc-linux];
 
-    systemd.user.services.nbfc_service = {
-        Unit = {
-            Description = "NoteBook FanControl service";
+        systemd.user.services.nbfc_service = {
+            Unit = {
+                Description = "NoteBook FanControl service";
+            };
+            Install = {
+                WantedBy = ["default.target"];
+            };
+            Service = {
+                ExecStart = "${nbfc-linux.packages.${pkgs.system}.nbfc}/${command}";
+            };
         };
-        Install = {
-            WantedBy = [ "default.target" ];
-        };
-        Service = {
-            ExecStart = "${nbfc-linux.packages.${pkgs.system}.nbfc}/${command}";
-        };
-    };
-}
+    }

@@ -1,8 +1,4 @@
-{
-    config,
-    ...
-}:
-{
+{config, ...}: {
     programs.direnv = {
         enableBashIntegration = config.dotfiles.shell.program == "bash";
         enableZshIntegration = config.dotfiles.shell.program == "zsh";

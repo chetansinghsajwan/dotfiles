@@ -1,5 +1,4 @@
-{ llib, ... }:
-{
+{llib, ...}: {
     programs.vscode = {
         mutableExtensionsDir = false;
         profiles.default = {

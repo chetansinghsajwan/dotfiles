@@ -5,8 +5,7 @@
     llib,
     lpkgs,
     ...
-}:
-let
+}: let
     # zellij-forgot shows a floating keybind cheatsheet on demand; the built-in
     # compact-bar tooltip is broken on zellij >=0.44.1 (zellij-org/zellij#5229).
     zellij-forgot = pkgs.fetchurl {
@@ -36,9 +35,7 @@ let
     kbDaemon = pkgs.writeShellScript "kb-daemon" ''
         exec ${kb}/bin/kb daemon --kanata "''${KANATA_HOST:-127.0.0.1}:6666"
     '';
-
-in
-{
+in {
     programs.zellij = {
         settings = {
             show_startup_tips = false;
@@ -99,118 +96,118 @@ in
         # contextual keybinding hints inline; zjstatus has no equivalent
         # widget, so that's gone from the bar - zellij-forgot (Ctrl+/, above)
         # covers it on demand instead.
-        layouts.default =
-            let
-                modes = [
-                    "normal"
-                    "locked"
-                    "pane"
-                    "tab"
-                    "resize"
-                    "scroll"
-                    "search"
-                    "enter_search"
-                    "session"
-                    "move"
-                    "rename_tab"
-                    "rename_pane"
-                    "prompt"
-                    "tmux"
-                ];
+        layouts.default = let
+            modes = [
+                "normal"
+                "locked"
+                "pane"
+                "tab"
+                "resize"
+                "scroll"
+                "search"
+                "enter_search"
+                "session"
+                "move"
+                "rename_tab"
+                "rename_pane"
+                "prompt"
+                "tmux"
+            ];
 
-                tabs = [
-                    "normal"
-                    "active"
-                ];
+            tabs = [
+                "normal"
+                "active"
+            ];
 
-                maxModesLen = llib.maxStringLen modes;
-                upperPaddedModes = lib.genAttrs modes (m: llib.padRight (llib.toUpperSpc m) maxModesLen);
-                ribbonColor = colors.base02;
-                leftEnd = pg.softRight;
-                leftContinue = pg.softLeft;
-                pg = llib.powerlineGlyphs;
+            maxModesLen = llib.maxStringLen modes;
+            upperPaddedModes = lib.genAttrs modes (m: llib.padRight (llib.toUpperSpc m) maxModesLen);
+            ribbonColor = colors.base02;
+            leftEnd = pg.softRight;
+            leftContinue = pg.softLeft;
+            pg = llib.powerlineGlyphs;
 
-                mkModeLine =
-                    m:
-                    let
-                        modeColor = if m == "normal" then "$mode_normal" else "$mode";
-                    in
-                    ''
-                        mode_${m} "#[fg=${ribbonColor}]${leftContinue}#[fg=${modeColor},bg=${ribbonColor}] ${upperPaddedModes.${m}}#[fg=${ribbonColor}]${leftEnd}"
-                    '';
-
-                mkTabLine =
-                    t:
-                    let
-                        fg = if t == "active" then "$ribbon_active_fg" else "$ribbon_fg";
-                        bg = if t == "active" then "$ribbon_active_bg" else "$ribbon_bg";
-                    in
-                    ''
-                        tab_${t} "#[fg=${bg}]${leftContinue}#[fg=${fg},bg=${bg},bold] {name} #[fg=${bg}]${leftEnd}"
-                    '';
-            in
-            ''
-                layout {
-                    pane size=1 borderless=true {
-                        plugin location="file:${pkgs.zellijPlugins.zjstatus}" {
-                            format_left "{mode} {tabs}"
-                            format_right "{pipe_kanata} {datetime}"
-
-                            border_enabled "false"
-                            hide_frame_for_single_pane "true"
-
-                            tab_separator " "
-
-                            color_mode "${colors.base09}"
-                            color_mode_normal "${colors.base0B}"
-                            color_active "${colors.base0D}"
-                            color_ribbon_fg "${colors.base05}"
-                            color_ribbon_bg "${colors.base02}"
-                            color_ribbon_active_fg "${colors.base00}"
-                            color_ribbon_active_bg "${colors.base0E}"
-
-                            ${lib.concatStringsSep "\n" (map mkModeLine modes)}
-                            ${lib.concatStringsSep "\n" (map mkTabLine tabs)}
-
-                            pipe_kanata_format "#[fg=${ribbonColor}]${leftContinue}#[fg=$mode_normal,bg=${ribbonColor},bold] {output}#[fg=${ribbonColor},bg=default,nobold]${leftEnd}"
-                            pipe_kanata_rendermode "static"
-
-                            datetime "#[fg=$active] {format}"
-                            datetime_format "%Y %b %d %H:%M, %a"
-                            datetime_timezone "Asia/Kolkata"
-                        }
-                    }
-                    pane
-                }
+            mkModeLine = m: let
+                modeColor =
+                    if m == "normal"
+                    then "$mode_normal"
+                    else "$mode";
+            in ''
+                mode_${m} "#[fg=${ribbonColor}]${leftContinue}#[fg=${modeColor},bg=${ribbonColor}] ${upperPaddedModes.${m}}#[fg=${ribbonColor}]${leftEnd}"
             '';
+
+            mkTabLine = t: let
+                fg =
+                    if t == "active"
+                    then "$ribbon_active_fg"
+                    else "$ribbon_fg";
+                bg =
+                    if t == "active"
+                    then "$ribbon_active_bg"
+                    else "$ribbon_bg";
+            in ''
+                tab_${t} "#[fg=${bg}]${leftContinue}#[fg=${fg},bg=${bg},bold] {name} #[fg=${bg}]${leftEnd}"
+            '';
+        in ''
+            layout {
+                pane size=1 borderless=true {
+                    plugin location="file:${pkgs.zellijPlugins.zjstatus}" {
+                        format_left "{mode} {tabs}"
+                        format_right "{pipe_kanata} {datetime}"
+
+                        border_enabled "false"
+                        hide_frame_for_single_pane "true"
+
+                        tab_separator " "
+
+                        color_mode "${colors.base09}"
+                        color_mode_normal "${colors.base0B}"
+                        color_active "${colors.base0D}"
+                        color_ribbon_fg "${colors.base05}"
+                        color_ribbon_bg "${colors.base02}"
+                        color_ribbon_active_fg "${colors.base00}"
+                        color_ribbon_active_bg "${colors.base0E}"
+
+                        ${lib.concatStringsSep "\n" (map mkModeLine modes)}
+                        ${lib.concatStringsSep "\n" (map mkTabLine tabs)}
+
+                        pipe_kanata_format "#[fg=${ribbonColor}]${leftContinue}#[fg=$mode_normal,bg=${ribbonColor},bold] {output}#[fg=${ribbonColor},bg=default,nobold]${leftEnd}"
+                        pipe_kanata_rendermode "static"
+
+                        datetime "#[fg=$active] {format}"
+                        datetime_format "%Y %b %d %H:%M, %a"
+                        datetime_timezone "Asia/Kolkata"
+                    }
+                }
+                pane
+            }
+        '';
     };
 
-    systemd.user.services =
-        lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.dotfiles.currentUser.kanata.enable)
-            {
-                kb-daemon = {
-                    Unit.Description = "Keyboard status (kanata layer) served to terminal tools";
-                    Install.WantedBy = [ "default.target" ];
-                    Service = {
-                        ExecStart = "${kbDaemon}";
-                        Restart = "on-failure";
-                        RestartSec = 2;
-                    };
-                };
-
-                kb-zellij-listen = {
-                    Unit = {
-                        Description = "Push the keyboard layer into the zellij bar";
-                        After = [ "kb-daemon.service" ];
-                    };
-                    Install.WantedBy = [ "default.target" ];
-                    Service = {
-                        ExecStart = "${kbListener}";
-                        Restart = "on-failure";
-                        RestartSec = 2;
-                    };
-                };
+    systemd.user.services = lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.dotfiles.currentUser.kanata.enable)
+    {
+        kb-daemon = {
+            Unit.Description = "Keyboard status (kanata layer) served to terminal tools";
+            Install.WantedBy = ["default.target"];
+            Service = {
+                ExecStart = "${kbDaemon}";
+                Restart = "on-failure";
+                RestartSec = 2;
             };
+        };
+
+        kb-zellij-listen = {
+            Unit = {
+                Description = "Push the keyboard layer into the zellij bar";
+                After = ["kb-daemon.service"];
+            };
+            Install.WantedBy = ["default.target"];
+            Service = {
+                ExecStart = "${kbListener}";
+                Restart = "on-failure";
+                RestartSec = 2;
+            };
+        };
+    };
 
     home.shellAliases = {
         z = "zellij";

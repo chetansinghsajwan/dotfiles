@@ -10,7 +10,7 @@ llib.mkToggleModule config "nixpkgs" {
         ".config/nixpkgs-pick/nixpkgs.zsh".source = ./nixpkgs.zsh;
     };
 
-    home.packages = [ pkgs.jq ];
+    home.packages = [pkgs.jq];
 
     programs.bash.initExtra = ''
         source ~/.config/nixpkgs-pick/nixpkgs.sh
@@ -20,5 +20,4 @@ llib.mkToggleModule config "nixpkgs" {
         source ~/.config/nixpkgs-pick/nixpkgs.sh
         source ~/.config/nixpkgs-pick/nixpkgs.zsh
     '';
-
 }

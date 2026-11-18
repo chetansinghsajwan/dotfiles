@@ -1,5 +1,8 @@
-{ config, lib, ... }:
 {
+    config,
+    lib,
+    ...
+}: {
     imports = [
         ../shared/system.nix
         ../shared/kanata/darwin.nix

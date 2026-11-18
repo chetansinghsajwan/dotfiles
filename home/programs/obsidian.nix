@@ -1,7 +1,6 @@
 let
     vaultDir = "obsidian";
-in
-{
+in {
     programs.obsidian = {
         defaultSettings.app = {
             settingsPopoutWindow = false;

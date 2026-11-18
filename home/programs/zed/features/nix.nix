@@ -3,8 +3,7 @@
     pkgs,
     lib,
     ...
-}:
-{
+}: {
     config = lib.mkIf config.programs.zed-editor.enable {
         home.packages = with pkgs; [
             nixd
@@ -17,11 +16,11 @@
 
             userSettings = {
                 lsp = {
-                    nil.settings.formatting.command = [ "nixpkgs-fmt" ];
+                    nil.settings.formatting.command = ["nixpkgs-fmt"];
                 };
 
                 languages = {
-                    Nix.language_servers = [ "nil" ];
+                    Nix.language_servers = ["nil"];
                 };
             };
         };

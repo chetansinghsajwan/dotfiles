@@ -5,12 +5,10 @@
     lib,
     stylix,
     ...
-}:
-let
+}: let
     isLinux = config.dotfiles.system.isLinux;
     isDarwin = config.dotfiles.system.isDarwin;
-in
-{
+in {
     programs.home-manager.enable = true;
 
     targets.darwin = lib.mkIf isDarwin {
@@ -40,10 +38,9 @@ in
     home = {
         username = config.dotfiles.currentUser.username;
         homeDirectory =
-            if isDarwin then
-                "/Users/${config.dotfiles.currentUser.homeDir}"
-            else
-                "/home/${config.dotfiles.currentUser.homeDir}";
+            if isDarwin
+            then "/Users/${config.dotfiles.currentUser.homeDir}"
+            else "/home/${config.dotfiles.currentUser.homeDir}";
         stateVersion = "23.11";
 
         shellAliases = {
@@ -52,8 +49,7 @@ in
             "..." = "cd ../..";
         };
 
-        packages =
-            with pkgs;
+        packages = with pkgs;
             [
                 github-copilot-cli
                 antigravity-cli
@@ -73,7 +69,7 @@ in
     # Populate the XDG wallpapers dir with the wallpaper pool, as plain
     # writable copies so the user can freely add/remove more.
     home.activation.populateWallpapers = lib.mkIf isLinux (
-        lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        lib.hm.dag.entryAfter ["writeBoundary"] ''
             run mkdir -p ${config.xdg.userDirs.extraConfig.WALLPAPERS}
             run cp -rf ${config.dotfiles.theme.wallpapersDir}/. ${config.xdg.userDirs.extraConfig.WALLPAPERS}/
         ''
@@ -118,15 +114,14 @@ in
         indicator = true;
     };
 
-    xdg = {
-        enable = true;
-    }
-    // lib.optionalAttrs isLinux {
-        userDirs =
-            let
+    xdg =
+        {
+            enable = true;
+        }
+        // lib.optionalAttrs isLinux {
+            userDirs = let
                 homeDir = config.home.homeDirectory;
-            in
-            {
+            in {
                 enable = true;
                 createDirectories = true;
                 desktop = "${homeDir}/desktop";
@@ -141,17 +136,15 @@ in
                 setSessionVariables = false;
             };
 
-        configFile."mimeapps.list".force = true;
-        mimeApps =
-            let
+            configFile."mimeapps.list".force = true;
+            mimeApps = let
                 filesApp = "org.gnome.Nautilus.desktop";
                 audioApp = "io.bassi.Amberol.desktop";
                 videoApp = "vlc.desktop";
                 imageApp = "org.gnome.Loupe.desktop";
                 textApp = "org.gnome.TextEditor.desktop";
                 pdfApp = "org.gnome.Evince.desktop";
-            in
-            {
+            in {
                 enable = true;
                 defaultApplications = {
                     "application/pdf" = pdfApp;
@@ -176,5 +169,5 @@ in
                     "text/html" = textApp;
                 };
             };
-    };
+        };
 }

@@ -3,15 +3,13 @@
     pkgs,
     lib,
     ...
-}:
-let
+}: let
     enable = config.dotfiles.desktop.hyprland.enable;
     defaultTerminal = config.dotfiles.terminal.default;
-    hyprlandConfig = lib.replaceStrings [ "__DEFAULT_TERMINAL__" ] [ defaultTerminal ] (
+    hyprlandConfig = lib.replaceStrings ["__DEFAULT_TERMINAL__"] [defaultTerminal] (
         builtins.readFile ./hyprland.lua
     );
-in
-{
+in {
     imports = [
         ./custom
         ./caelestia

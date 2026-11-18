@@ -1,18 +1,17 @@
-{
-    wallpapers,
-}:
-{
+{wallpapers}: {
     config,
     lib,
     pkgs,
     ...
-}:
-let
+}: let
     inherit (lib) mkOption types;
 
     userType = types.submodule (
-        { config, name, ... }:
         {
+            config,
+            name,
+            ...
+        }: {
             options = {
                 username = mkOption {
                     type = types.str;
@@ -47,7 +46,7 @@ let
 
                 extraGroups = mkOption {
                     type = types.listOf types.str;
-                    default = [ "wheel" ];
+                    default = ["wheel"];
                 };
 
                 kanata = {
@@ -68,8 +67,7 @@ let
             noreplyEmail = "76040441+chetansinghsajwan@users.noreply.github.com";
         };
     };
-in
-{
+in {
     imports = [
         ../local.nix
     ];
@@ -383,7 +381,7 @@ in
             docks = {
                 left = mkOption {
                     type = types.listOf types.str;
-                    default = [ "files" ];
+                    default = ["files"];
                     description = "Panels in the left dock of the helix fork (files, git, symbols, diagnostics).";
                 };
                 right = mkOption {
@@ -396,7 +394,7 @@ in
                 };
                 bottom = mkOption {
                     type = types.listOf types.str;
-                    default = [ "diagnostics" ];
+                    default = ["diagnostics"];
                     description = "Panels in the bottom dock of the helix fork (files, git, diagnostics).";
                 };
             };
@@ -421,7 +419,7 @@ in
 
             rulers = mkOption {
                 type = types.listOf types.int;
-                default = [ config.dotfiles.editor.text_width ];
+                default = [config.dotfiles.editor.text_width];
             };
         };
     };

@@ -1,24 +1,22 @@
-{ config, ... }:
-let
+{config, ...}: let
     # Helper function to flatten nested attribute sets into dot-notation keys
     # Example: {a.b.c = 1; d = 2} -> ["a.b.c" "d"]
-    flattenAttrs =
-        prefix: attrs:
+    flattenAttrs = prefix: attrs:
         builtins.concatMap (
-            key:
-            let
+            key: let
                 value = attrs.${key};
-                fullKey = if prefix == "" then key else "${prefix}.${key}";
+                fullKey =
+                    if prefix == ""
+                    then key
+                    else "${prefix}.${key}";
             in
-            if builtins.isAttrs value && !builtins.isFunction value && value != { } then
-                flattenAttrs fullKey value
-            else
-                [ fullKey ]
+                if builtins.isAttrs value && !builtins.isFunction value && value != {}
+                then flattenAttrs fullKey value
+                else [fullKey]
         ) (builtins.attrNames attrs);
 
     # All VSCode settings organized by category
     userSettings = {
-
         # ----------------------------------------------------------------------------------------------
         # Editor settings
         # ----------------------------------------------------------------------------------------------
@@ -212,10 +210,11 @@ let
         # Sync keybindings for each platform
         "settingsSync.keybindingsPerPlatform" = false;
     };
-in
-{
-    programs.vscode.profiles.default.userSettings = userSettings // {
-        # Automatically generated list of all settings to apply across profiles
-        "workbench.settings.applyToAllProfiles" = flattenAttrs "" userSettings;
-    };
+in {
+    programs.vscode.profiles.default.userSettings =
+        userSettings
+        // {
+            # Automatically generated list of all settings to apply across profiles
+            "workbench.settings.applyToAllProfiles" = flattenAttrs "" userSettings;
+        };
 }

@@ -1,4 +1,4 @@
-{ lib, ... }: {
+{lib, ...}: {
     networking.hostName = lib.mkForce "honor-m3-nixos";
 
     boot.extraModprobeConfig = ''

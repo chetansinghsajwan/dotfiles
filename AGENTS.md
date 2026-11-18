@@ -37,7 +37,8 @@ toolset and a helix fork in `pkgs/`.
 - The root `flake.nix` sets `inputs.self.submodules = true`, so Nix sees `pkgs/tuikit` and `pkgs/helix-improved` without any URL flag. Clone with `--recurse-submodules` (or run `git submodule update --init --recursive`).
 - `pkgs/tuikit/docs/ui-design.md` — the look every tool follows (colors, chrome, layout, components); `pkgs/tuikit/docs/usage-design.md` — the keys and menus.
 - `lib/default.nix` — shared helper functions (`llib`).
-- `treefmt.nix` — formatter/linter config (nixfmt, statix, deadnix).
+- `Taskfile.yml`, `lefthook.yml`, `treefmt.toml` — tasks, git hooks and the formatter config; `docs/style-guide.md` — the style and tooling rules.
+- `.github/workflows/ci.yml` — CI (check, test and scan on Linux; clippy and test on macOS).
 
 ## Conventions
 
@@ -53,10 +54,13 @@ toolset and a helix fork in `pkgs/`.
 
 Run these from the repo root before considering a change done:
 
+Use the dev shell (`nix develop`) for all tools, and run the tasks from the repo root:
+
 ```sh
-nix flake check                 # runs the formatter check + evaluates all outputs
-nix fmt                         # auto-format with nixfmt via treefmt
-nix develop                     # drops into a shell with nixfmt, statix, deadnix, nil, nixd
+task fmt     # format every file (treefmt)
+task check   # format check and every linter
+task test    # Rust tests and evaluation of every host configuration
+task scan    # vulnerability scanners
 ```
 
 To evaluate/build a specific host without switching:
@@ -74,8 +78,9 @@ mutate the actual machine.
 
 ## Style
 
-- Format with `nixfmt` (via `nix fmt`); don't hand-format Nix files.
-- Fix `statix`/`deadnix` warnings surfaced by `nix flake check`.
+- Follow [docs/style-guide.md](docs/style-guide.md). Format with `task fmt`; don't hand-format.
+- Fix `statix` and `deadnix` findings reported by `task check`.
+- Always follow Conventional Commits (`type(scope): description`) for commit messages. The commit-msg hook verifies them with `cog verify`.
 - Keep diffs minimal and scoped to the host/module being changed.
 
 ## The Rust tools (`pkgs`)

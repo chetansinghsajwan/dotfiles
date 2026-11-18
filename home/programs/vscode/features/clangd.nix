@@ -3,11 +3,9 @@
     pkgs,
     lib,
     ...
-}:
-let
+}: let
     clang-tools = pkgs.llvmPackages_19.clang-tools;
-in
-{
+in {
     config = lib.mkIf config.programs.vscode.enable {
         home.packages = [
             clang-tools

@@ -1,5 +1,4 @@
-{ config, ... }:
-{
+{config, ...}: {
     # Shell pickers (history, files, cd, text search, ...) on `pick`, the shared
     # picker (home/programs/pick). The git, docker, nixpkgs and clipboard modules
     # add their own pickers the same way.
@@ -13,8 +12,8 @@
         # of read from $HISTFILE at call time, so it can't silently fall back
         # to a stale/wrong file in a context where $HISTFILE isn't set.
         ".config/pick-shell/pickers.sh".text =
-            builtins.replaceStrings [ "@histfile@" ] [ config.programs.zsh.history.path ]
-                (builtins.readFile ./pickers.sh);
+            builtins.replaceStrings ["@histfile@"] [config.programs.zsh.history.path]
+            (builtins.readFile ./pickers.sh);
         ".config/pick-shell/pickers.zsh".source = ./pickers.zsh;
     };
 

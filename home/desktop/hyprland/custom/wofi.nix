@@ -1,9 +1,11 @@
-{ config, lib, ... }:
-let
+{
+    config,
+    lib,
+    ...
+}: let
     enable =
         config.dotfiles.desktop.hyprland.enable && config.dotfiles.desktop.hyprland.shell == "custom";
-in
-{
+in {
     config = lib.mkIf enable {
         programs.wofi = {
             settings = {

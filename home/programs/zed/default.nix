@@ -2,12 +2,12 @@
     config,
     llib,
     ...
-}:
-{
-    imports = [
-        ./keybindings.nix
-    ]
-    ++ llib.importDir ./features;
+}: {
+    imports =
+        [
+            ./keybindings.nix
+        ]
+        ++ llib.importDir ./features;
 
     programs.zed-editor = {
         userSettings = {
