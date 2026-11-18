@@ -33,30 +33,14 @@
         tuikit,
         helix-improved,
         ...
-    }: let
-        # helix-improved depends on tuikit as a git dependency (so it builds on its own). Here it is
-        # built against the tuikit checked out next to it: the crates are copied into the source and
-        # a cargo `[patch]` points the git dependency at them. The lockfile still names the git
-        # revision, so the build runs without `--locked` and cargo re-resolves the patched crates.
-        tuikitCrates = ["diagnostics-panel" "files" "git-core" "git-panel" "pick" "pv" "symbols-panel" "tb" "ui"];
-        helixSrc = pkgs:
-            pkgs.runCommand "helix-improved-src" {} ''
-                cp -r ${helix-improved.lib.sourceOf pkgs.lib} $out
-                chmod -R u+w $out
-                mkdir $out/tuikit
-                cp -r ${tuikit}/Cargo.toml ${tuikit}/crates $out/tuikit/
-                cat >> $out/.cargo/config.toml <<'EOF'
-
-                [patch."https://github.com/chetansinghsajwan/tuikit"]
-                ${nixpkgs.lib.concatMapStringsSep "\n" (c: "tuikit-${c} = { path = \"tuikit/crates/${c}\" }") tuikitCrates}
-                EOF
-            '';
-    in {
+    }: {
         packages = llib.forEachSystem (
             sys:
                 tuikit.packages.${sys}
                 // {
-                    helix = helix-improved.lib.helixFrom nixpkgs.legacyPackages.${sys} (helixSrc nixpkgs.legacyPackages.${sys});
+                    # helix-improved takes tuikit as a git dependency; here it is built against the tuikit checked
+                    # out next to it (a cargo `[patch]` added during the build), so both come from one tree.
+                    helix = helix-improved.lib.helixFrom nixpkgs.legacyPackages.${sys} {tuikitSrc = "${tuikit}";};
                 }
                 // {
                     kb = nixpkgs.legacyPackages.${sys}.rustPlatform.buildRustPackage {
