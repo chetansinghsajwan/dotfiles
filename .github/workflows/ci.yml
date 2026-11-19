@@ -50,6 +50,31 @@ jobs:
         run: nix develop --command task clippy
       - name: Test
         run: nix develop --command task test
+  # Builds the tuikit tools and the helix fork with Nix and pushes them (and their dependencies) to
+  # the binary cache that the hosts pull from. Runs on main only: the push token is then never given
+  # to code from a pull request. Needs the repository variable CACHIX_CACHE (the cache name) and the
+  # secret CACHIX_AUTH_TOKEN.
+  cache:
+    name: cache (${{ matrix.os }})
+    if: github.ref == 'refs/heads/main'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - uses: cachix/cachix-action@3ba601ff5bbb07c7220846facfa2cd81eeee15a1 # v16
+        with:
+          name: ${{ vars.CACHIX_CACHE }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build
+        run: nix build .#helix .#pick .#pv .#files .#gu .#tb .#nu .#mdexport --print-build-logs
   scan:
     name: scan
     runs-on: ubuntu-latest

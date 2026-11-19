@@ -692,6 +692,10 @@
         "home-manager": "home-manager",
         "jman-nixos": "jman-nixos",
         "llib": "llib",
+        "lpkgs": [
+          "home",
+          "lpkgs"
+        ],
         "macbook-air-13": "macbook-air-13",
         "nixos": "nixos",
         "nixos-honor-m3": "nixos-honor-m3",

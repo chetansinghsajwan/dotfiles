@@ -1,6 +1,14 @@
 {
     description = "Dotfiles";
 
+    # The binary cache that holds the tuikit tools and the helix fork (pushed by CI), so a rebuild
+    # downloads them instead of compiling. Here rather than in nix.settings because nix-darwin and
+    # standalone Home Manager leave the Nix config unmanaged. Nix asks once before trusting it.
+    nixConfig = {
+        extra-substituters = ["https://chetansinghsajwan-dotfiles.cachix.org"];
+        extra-trusted-public-keys = ["chetansinghsajwan-dotfiles.cachix.org-1:HO86Y5cJ6dyBFTk9gbReVExpL04xLktn4OYHJmPX0tI="];
+    };
+
     inputs = {
         # Include git submodules (pkgs/tuikit, pkgs/helix-improved) in this flake's source.
         self.submodules = true;
@@ -74,6 +82,9 @@
         config = {
             url = "path:./config";
         };
+
+        # Our Rust tools and the helix fork, the same locked copy the home flake uses.
+        lpkgs.follows = "home/lpkgs";
     };
 
     outputs = {
@@ -86,6 +97,7 @@
         nixos-honor-m3,
         home,
         llib,
+        lpkgs,
         jman-nixos,
         ...
     }: let
@@ -98,6 +110,9 @@
             default = darwin.darwinConfigurations.${sys}.default;
         });
     in {
+        # The tuikit tools and the helix fork, so CI can build them and push them to the binary cache.
+        inherit (lpkgs) packages;
+
         nixosConfigurations =
             nixosConfigurations
             // {

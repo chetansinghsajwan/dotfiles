@@ -14,6 +14,9 @@ in {
             # clang
             # llvmPackages_18.clang-tools
             nodejs
+
+            # Pushes store paths to the binary cache (chetansinghsajwan-dotfiles.cachix.org).
+            cachix
         ];
 
         programs = {

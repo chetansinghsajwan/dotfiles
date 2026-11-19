@@ -37,6 +37,11 @@ in {
         "flakes"
     ];
 
+    # The binary cache of the tuikit tools and the helix fork (see the flake's nixConfig, which
+    # covers nix-darwin). Trusted here so a rebuild never prompts.
+    nix.settings.extra-substituters = lib.mkIf isLinux ["https://chetansinghsajwan-dotfiles.cachix.org"];
+    nix.settings.extra-trusted-public-keys = lib.mkIf isLinux ["chetansinghsajwan-dotfiles.cachix.org-1:HO86Y5cJ6dyBFTk9gbReVExpL04xLktn4OYHJmPX0tI="];
+
     # nix-darwin manages the Nix install itself, so leave nix.* unmanaged there.
     nix.enable = isLinux;
     nix.optimise.automatic = isLinux;
