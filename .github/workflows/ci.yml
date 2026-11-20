@@ -25,6 +25,13 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      # Keeps the Nix store (dev shell, tuikit and its cargo dependencies) between runs.
+      - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.lock', 'pkgs/tuikit/Cargo.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-
+          gc-max-store-size-linux: 5G
+          gc-max-store-size-macos: 5G
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           workspaces: pkgs/kb
@@ -43,6 +50,13 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      # Keeps the Nix store (dev shell, tuikit and its cargo dependencies) between runs.
+      - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.lock', 'pkgs/tuikit/Cargo.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-
+          gc-max-store-size-linux: 5G
+          gc-max-store-size-macos: 5G
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           workspaces: pkgs/kb
@@ -69,12 +83,19 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      # Keeps the Nix store (dev shell, tuikit and its cargo dependencies) between runs.
+      - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.lock', 'pkgs/tuikit/Cargo.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-
+          gc-max-store-size-linux: 5G
+          gc-max-store-size-macos: 5G
       - uses: cachix/cachix-action@3ba601ff5bbb07c7220846facfa2cd81eeee15a1 # v16
         with:
           name: ${{ vars.CACHIX_CACHE }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Build
-        run: nix build .#helix .#pick .#pv .#files .#gu .#tb .#nu .#mdexport --print-build-logs
+        run: nix build .#helix .#pick .#pv .#files .#gu .#ev .#cb .#tb .#nu .#mdexport --print-build-logs
   scan:
     name: scan
     runs-on: ubuntu-latest
@@ -86,5 +107,12 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      # Keeps the Nix store (dev shell, tuikit and its cargo dependencies) between runs.
+      - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.lock', 'pkgs/tuikit/Cargo.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-
+          gc-max-store-size-linux: 5G
+          gc-max-store-size-macos: 5G
       - name: Scan
         run: nix develop --command task scan
