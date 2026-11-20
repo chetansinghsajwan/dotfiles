@@ -9,7 +9,7 @@ Run everything through Taskfile tasks inside the dev shell (`nix develop`): `tas
 `task clippy`, `task test`, `task scan`, `task check`. Hooks and CI call these tasks, never the raw
 tools.
 
-hk (`.config/hk.pkl`) runs the formatters, the linters and the git hooks: `task fmt` is `hk fix --all`, `task check` is `hk check --all`, and the pre-commit, commit-msg and pre-push hooks run the same steps on the staged files. hk reads `.config/hk.pkl` with `pkl`, so the dev shell provides both.
+hk (`.config/hk.pkl`) runs the formatters, the linters and the git hooks: `task fmt` is `hk fix --all`, `task check` is `hk check --all`, and the pre-commit, commit-msg and pre-push hooks run the same steps on the staged files. hk reads `.config/hk.pkl` with `pkl`, so the dev shell provides both. The pre-push hook runs the linters only: `task test` evaluates every host configuration and takes minutes, so CI runs it instead.
 
 | Language       | Format             | Lint               |
 | -------------- | ------------------ | ------------------ |

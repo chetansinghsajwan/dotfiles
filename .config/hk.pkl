@@ -109,7 +109,6 @@ hooks {
     ["pre-push"] {
         steps = (formatters) {
             ...linters
-            ["test"] = new Config.Step { check = "task test" }
         }
     }
 }
