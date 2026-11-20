@@ -35,12 +35,9 @@ function fp() {
         --preview-cmd 'ps -p {1} -o pid,ppid,user,stat,pcpu,pmem,etime,args --no-headers'
 }
 
-# fe - fuzzy environment variable search
+# fe - fuzzy environment variable search (the `ev` tool, which runs here so it sees this shell's env)
 function fe() {
-    env | sort | pick \
-        --title "Environment" \
-        --delimiter '=' \
-        --preview-cmd 'echo {2..} | tr : "\n"'
+    ev "$@"
 }
 
 # fcmd - fuzzy search available commands (builtins, functions, aliases, PATH executables)
