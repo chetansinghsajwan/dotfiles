@@ -3,6 +3,7 @@
     pkgs,
     lib,
     llib,
+    lpkgs,
     ...
 }:
 llib.mkToggleModule config "clipboard" {
@@ -11,14 +12,9 @@ llib.mkToggleModule config "clipboard" {
         ".config/clipboard-pick/clipboard.zsh".source = ./clipboard.zsh;
     };
 
-    # wl-clipboard and cliphist declared here (not just relying on the
-    # hyprland module's own wl-clipboard) so this picker works standalone
-    # regardless of which hyprland shell variant, if any, is active.
-    home.packages = with pkgs; [
-        cliphist
-        wl-clipboard
-        file
-    ];
+    # wl-clipboard is what `cb` reads and writes the clipboard with (the `cb` tool itself comes
+    # from crates.nix).
+    home.packages = [pkgs.wl-clipboard];
 
     programs.bash.initExtra = ''
         source ~/.config/clipboard-pick/clipboard.sh
@@ -29,15 +25,18 @@ llib.mkToggleModule config "clipboard" {
         source ~/.config/clipboard-pick/clipboard.zsh
     '';
 
-    # cliphist only has history to browse once something is actually watching
-    # the clipboard and storing it; that requires a running Wayland session,
-    # so this is wired into Hyprland's startup rather than run unconditionally.
-    wayland.windowManager.hyprland.extraConfig = lib.mkIf config.dotfiles.desktop.hyprland.enable (
-        lib.mkAfter ''
-            hl.on("hyprland.start", function()
-              hl.exec_cmd("wl-paste --type text --watch cliphist store")
-              hl.exec_cmd("wl-paste --type image --watch cliphist store")
-            end)
-        ''
-    );
+    # `cb watch` records each copy by polling `wl-paste`, which works on WSLg too (its compositor
+    # has no data-control protocol, so `wl-paste --watch` and cliphist cannot run there). A service
+    # rather than a Hyprland startup command, so it runs on every Linux host; it retries until a
+    # Wayland session exists.
+    systemd.user.services.cb-watch = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+        Unit.Description = "Record the clipboard history for cb";
+        Install.WantedBy = ["default.target"];
+        Service = {
+            ExecStart = "${lpkgs.packages.${pkgs.stdenv.hostPlatform.system}.cb}/bin/cb watch";
+            Environment = "PATH=${lib.makeBinPath [pkgs.wl-clipboard]}";
+            Restart = "always";
+            RestartSec = 5;
+        };
+    };
 }

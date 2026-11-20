@@ -9,7 +9,7 @@
     system = pkgs.stdenv.hostPlatform.system;
 in {
     # Our Rust tools (the pkgs/tuikit submodule, re-exported by pkgs/flake.nix): `pv` (preview), `pick`
-    # (picker), `files` (explorer), `gu` (the multi-pane git screen), `tb` (table editor), `ev` (environment variables), `nu`
+    # (picker), `files` (explorer), `gu` (the multi-pane git screen), `tb` (table editor), `ev` (environment variables), `cb` (clipboard history), `nu`
     # (connections), `mdexport` (Markdown to PDF). The helix fork is wired in home/programs/helix.nix.
     # The `<tool>-static` musl builds are for the GitHub Release; CI does not push them to the binary cache,
     # so installing them here would compile every tool from source.
