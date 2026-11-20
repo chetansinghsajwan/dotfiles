@@ -81,6 +81,11 @@
 - Add `.tmp` to `.gitignore` and to the formatter and linter excludes.
 - In background jobs, use `$CLAUDE_JOB_DIR/tmp` instead. It wins over `.tmp`.
 
+## User Local Instructions
+
+- Read `~/.agents/AGENTS.local.md` at the start of work, if it exists. It holds this machine's own instructions for me, kept out of git and out of Nix.
+- Its rules win over this file when they conflict.
+
 ## Local Agent Context
 
 - Use `.agents-local` in the project root for agent context files that must stay local and git-untracked, such as personal notes, plans and scratch context.
