@@ -40,6 +40,11 @@ The submodules (`pkgs/helix-improved`, `pkgs/tuikit`) and the installed skills (
 - **Standalone Home Manager:** `homeConfigurations` does not evaluate yet (`dotfiles.currentUser`
   is never set), so `task test` does not cover it.
 
+## Rust
+
+- **Tests:** unit tests go in a separate `tests.rs` beside the module (`#[cfg(test)] mod tests;`),
+  never inline. A binary's `main.rs` gets `src/tests.rs`.
+
 ## Commits
 
 Conventional Commits, verified by `cog verify` in the commit-msg hook.
