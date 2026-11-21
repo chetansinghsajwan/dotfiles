@@ -79,7 +79,15 @@ from the stylix colors; `UI_THEME` names another).
 
 ## Usage
 
-Apply a configuration on the machine it targets:
+Apply the configuration of the machine you are on, with the binary cache on from the very first
+build (works on a fresh NixOS, nix-darwin or Linux machine with Nix installed, and asks only for
+the sudo password):
+
+```sh
+scripts/switch.sh [host]     # or `task switch -- [host]` inside the dev shell
+```
+
+The host is the one named like the machine, else the platform default. Or by hand:
 
 ```sh
 # NixOS (WSL)

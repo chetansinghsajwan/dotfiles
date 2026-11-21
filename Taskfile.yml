@@ -12,6 +12,11 @@ tasks:
     cmds:
       - hk install
       - cargo fetch --locked --manifest-path pkgs/kb/Cargo.toml
+  switch:
+    desc: Build and switch this machine to its configuration, using the binary cache. Takes an optional host.
+    interactive: true
+    cmds:
+      - scripts/switch.sh {{.CLI_ARGS}}
   fmt:
     desc: Format every file.
     cmds:
