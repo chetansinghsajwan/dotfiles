@@ -8,7 +8,7 @@ import "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Config.pk
 // Vendored or third-party trees are not ours to touch: the submodules (they have their own
 // setup) and the installed skills.
 exclude = List(
-    "local.nix", // machine-local overrides, edited by hand
+    ".config/options-local.nix", // machine-local overrides, edited by hand
     "pkgs/helix-improved/**",
     "pkgs/tuikit/**",
     ".agents/skills/**",

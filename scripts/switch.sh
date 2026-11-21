@@ -7,6 +7,9 @@
 # (nixos-rebuild, darwin-rebuild, home-manager) is fetched when the machine does not have it.
 # The only prompt is sudo's password, because a system switch needs root.
 #
+# The switch is impure on purpose: it reads the machine-local overrides from
+# `.config/options-local.nix` (git-ignored) through DOTFILES_ROOT.
+#
 # Usage: scripts/switch.sh [host]
 #   host  an attribute under the configurations of this platform, for example `jman-nixos` or
 #         `x86_64-linux.wsl`. Without it the host is the one named like this machine, else the
@@ -98,7 +101,7 @@ warn_if_untrusted() {
 
 # Switches a NixOS machine. The switch needs root, which also lets it use the cache.
 switch_nixos() {
-    sudo env NIX_CONFIG="$NIX_CONFIG" nixos-rebuild switch --flake "$root#$1"
+    sudo env NIX_CONFIG="$NIX_CONFIG" DOTFILES_ROOT="$root" nixos-rebuild switch --impure --flake "$root#$1"
 }
 
 # Switches a nix-darwin machine. The first run has no darwin-rebuild yet, so it is fetched.
@@ -106,10 +109,10 @@ switch_darwin() {
     local nix
     nix="$(command -v nix)"
     if command -v darwin-rebuild >/dev/null 2>&1; then
-        sudo env NIX_CONFIG="$NIX_CONFIG" darwin-rebuild switch --flake "$root#$1"
+        sudo env NIX_CONFIG="$NIX_CONFIG" DOTFILES_ROOT="$root" darwin-rebuild switch --impure --flake "$root#$1"
     else
-        sudo env NIX_CONFIG="$NIX_CONFIG" "$nix" run nix-darwin/master#darwin-rebuild -- \
-            switch --flake "$root#$1"
+        sudo env NIX_CONFIG="$NIX_CONFIG" DOTFILES_ROOT="$root" "$nix" run nix-darwin/master#darwin-rebuild -- \
+            switch --impure --flake "$root#$1"
     fi
 }
 
@@ -118,9 +121,9 @@ switch_darwin() {
 switch_home() {
     warn_if_untrusted
     if command -v home-manager >/dev/null 2>&1; then
-        home-manager switch -b backup --flake "$root#$1"
+        home-manager switch --impure -b backup --flake "$root#$1"
     else
-        nix run --inputs-from "$root" home-manager -- switch -b backup --flake "$root#$1"
+        nix run --inputs-from "$root" home-manager -- switch --impure -b backup --flake "$root#$1"
     fi
 }
 
@@ -131,6 +134,7 @@ main() {
 
     # The cache applies to this run only: nothing is written to the Nix config, and the flake's
     # nixConfig (the cache URL and key) stays the single place that names the cache.
+    export DOTFILES_ROOT="$root"
     export NIX_CONFIG="experimental-features = nix-command flakes
 accept-flake-config = true"
 

@@ -68,9 +68,15 @@
         };
     };
 in {
-    imports = [
-        ../local.nix
-    ];
+    # The machine-local overrides live in `.config/options-local.nix`, which git ignores, so a
+    # flake (which only sees tracked files) cannot read it. It is found through DOTFILES_ROOT and
+    # needs an impure evaluation; `scripts/switch.sh` sets both. A pure evaluation (CI, checks)
+    # simply has no local overrides.
+    imports = let
+        root = builtins.getEnv "DOTFILES_ROOT";
+        file = "${root}/.config/options-local.nix";
+    in
+        lib.optional (root != "" && builtins.pathExists file) (/. + file);
 
     options.dotfiles = {
         users = mkOption {

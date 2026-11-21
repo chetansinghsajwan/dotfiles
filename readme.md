@@ -87,7 +87,12 @@ the sudo password):
 scripts/switch.sh [host]     # or `task switch -- [host]` inside the dev shell
 ```
 
-The host is the one named like the machine, else the platform default. Or by hand:
+The host is the one named like the machine, else the platform default.
+
+Machine-local overrides go in `.config/options-local.nix` (git-ignored; a module such as
+`{ dotfiles.theme.wallpaper = "/path/mine.png"; }`). A flake cannot see ignored files, so the
+switch is impure and finds the file through `DOTFILES_ROOT`, which the script sets. By hand, add
+`--impure` and `DOTFILES_ROOT=$PWD` (with `sudo env DOTFILES_ROOT=$PWD ...` for system switches):
 
 ```sh
 # NixOS (WSL)
