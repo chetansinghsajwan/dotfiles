@@ -7,7 +7,7 @@
     enableSddm = config.dotfiles.system.displayManager == "sddm";
     enableHyprland = config.dotfiles.desktop.hyprland.enable;
     enableGnome = config.dotfiles.desktop.gnome.enable;
-    enableKanata = (import ../shared/kanata/users.nix lib config.dotfiles.users).any;
+    enableKanata = (import ../shared/kanata/users.nix lib config.dotfiles).any;
 in {
     imports = [
         ../shared/system.nix

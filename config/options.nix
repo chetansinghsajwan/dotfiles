@@ -53,7 +53,7 @@
                     enable = mkOption {
                         type = types.bool;
                         default = true;
-                        description = "Whether this user gets the kanata keyboard layer. Kanata runs when any user has it; if only some do, it is scoped to them (see hosts/shared/kanata/users.nix).";
+                        description = "Whether this user gets the kanata keyboard layer while `dotfiles.kanata.enable` is off (when it is on, every user gets it). It runs only while this user is the active session (see hosts/shared/kanata/users.nix).";
                     };
                 };
             };
@@ -83,6 +83,17 @@ in {
             default = defaultUsers;
             type = types.attrsOf userType;
             description = "System users, keyed by username. Each gets a home-manager profile.";
+        };
+
+        kanata.enable = mkOption {
+            type = types.bool;
+            default = false;
+            description = ''
+                Whether kanata runs for every user of the machine. When off, kanata runs only for the
+                users with `kanata.enable` set, and only while one of them is the active session (see
+                hosts/shared/kanata/users.nix). This decides it explicitly, so other accounts on the
+                machine, declared or not, never get kanata by accident.
+            '';
         };
 
         defaultUser = mkOption {

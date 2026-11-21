@@ -4,7 +4,7 @@
     pkgs,
     ...
 }: let
-    who = import ./users.nix lib config.dotfiles.users;
+    who = import ./users.nix lib config.dotfiles;
     driver = pkgs.karabiner-dk;
     parentAppDir = "/Applications/.Nix-Karabiner";
     manager = "${parentAppDir}/.Karabiner-VirtualHIDDevice-Manager.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Manager";

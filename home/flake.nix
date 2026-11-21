@@ -98,6 +98,8 @@
                         ++ [
                             {
                                 dotfiles.currentUser = u;
+                                # The system-level choice, so the profile knows when kanata is for everyone.
+                                dotfiles.kanata.enable = config.dotfiles.kanata.enable;
                             }
                         ];
                 })

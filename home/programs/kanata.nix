@@ -4,9 +4,9 @@
     pkgs,
     ...
 }: let
-    who = import ../../hosts/shared/kanata/users.nix lib config.dotfiles.users;
+    who = import ../../hosts/shared/kanata/users.nix lib config.dotfiles;
     systemctl = "${pkgs.systemd}/bin/systemctl";
-    enabled = config.dotfiles.currentUser.kanata.enable;
+    enabled = config.dotfiles.kanata.enable || config.dotfiles.currentUser.kanata.enable;
 in {
     config = lib.mkMerge [
         # The layout and layers `kanata-status` draws (kanata itself reads the file from the store).

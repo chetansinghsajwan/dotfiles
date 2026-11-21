@@ -3,7 +3,7 @@
     lib,
     ...
 }: let
-    who = import ./users.nix lib config.dotfiles.users;
+    who = import ./users.nix lib config.dotfiles;
     isUser = lib.concatMapStringsSep " || " (n: ''subject.user == "${n}"'') who.names;
 in {
     config = lib.mkIf who.any {
