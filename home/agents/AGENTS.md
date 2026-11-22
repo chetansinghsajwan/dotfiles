@@ -69,6 +69,8 @@
 - Explain the purpose and the reason it exists, in simple language, not what each line does.
 - Use the language's own doc string convention (Rust `///`, Python docstrings, JSDoc). Don't invent one.
 - Prefer line comments over block comments.
+- Arrange code by intention and domain, not by size. Each concern gets its own file, even when it is a short piece of code. For example, a tool's actions go in one file and their default keys in another.
+- Keep file names short but descriptive enough, such as `binds.rs` for the default bindings. The names inside the file can be the fuller ones (`DefaultBinding`).
 - Per-language specifics belong in docs/style-guide.md. This section holds only the general rules.
 
 ## CI/CD
