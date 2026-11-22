@@ -22,7 +22,7 @@
 
 ## Working Style
 
-- Confirm the approach before implementing anything non-trivial. Don't split files into several unless asked.
+- Confirm the approach before implementing anything non-trivial. Separate code into files and modules by responsibility; don't pile unrelated code into one file.
 - Keep risk warnings short. Most of my repos are git-tracked and reversible.
 - Commit only when asked. Never amend, force-push or skip hooks unless asked.
 - Confirm before hard-to-reverse or outward-facing actions, such as deleting data or publishing.
