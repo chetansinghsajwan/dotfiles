@@ -261,7 +261,7 @@ in {
             dev = mkOption {
                 type = types.bool;
                 default = true;
-                description = "Enable dev tools (vscode, git, helix).";
+                description = "Enable dev tools (git, helix, node, cachix).";
             };
             gui = mkOption {
                 type = types.bool;
@@ -272,6 +272,11 @@ in {
                 type = types.bool;
                 default = false;
                 description = "Enable gaming tools (proton, bottles).";
+            };
+            editors = mkOption {
+                type = types.bool;
+                default = false;
+                description = "Enable the GUI code editors (vscode, zed). Needs gui and dev.";
             };
         };
 

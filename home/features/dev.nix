@@ -6,6 +6,7 @@
 }: let
     enableDev = config.dotfiles.features.dev;
     enableGui = config.dotfiles.features.gui;
+    enableEditors = config.dotfiles.features.editors;
 in {
     config = lib.mkIf enableDev {
         home.packages = with pkgs; [
@@ -20,8 +21,9 @@ in {
         ];
 
         programs = {
-            vscode.enable = enableGui;
-            zed-editor.enable = enableGui;
+            # Off by default: set `dotfiles.features.editors` to bring them back.
+            vscode.enable = enableGui && enableEditors;
+            zed-editor.enable = enableGui && enableEditors;
         };
     };
 }

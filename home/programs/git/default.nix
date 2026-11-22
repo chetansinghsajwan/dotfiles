@@ -62,6 +62,8 @@ in {
 
                 core = {
                     editor = editorCommand.${config.dotfiles.editor.terminal};
+                    # `pv` draws the diff (it needs the terminal width, so it runs before less, not inside it).
+                    pager = "pv --diff | less -RFX";
                 };
 
                 pull = {
@@ -175,7 +177,6 @@ in {
         };
 
         programs = {
-            delta.enable = true;
             gpg.enable = isWSL;
 
             password-store = {
@@ -188,7 +189,7 @@ in {
             enable = true;
             enableSshSupport = false;
             # pinentry-curses draws on the controlling tty, which collides with
-            # lazygit's own terminal UI (broken input, corrupted redraws). WSLg
+            # full-screen terminal UIs (broken input, corrupted redraws). WSLg
             # provides a display, so use a GUI pinentry that pops its own window.
             pinentry.package = pkgs.pinentry-qt;
         };

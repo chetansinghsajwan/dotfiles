@@ -3,8 +3,7 @@
     # picker (home/programs/pick). The git, docker, nixpkgs and clipboard modules
     # add their own pickers the same way.
     #
-    # bat and ripgrep are used by the pickers' previews.
-    programs.bat.enable = true;
+    # ripgrep is used by the pickers' previews.
     programs.ripgrep.enable = true;
 
     home.file = {

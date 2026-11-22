@@ -4,9 +4,9 @@
     ...
 }: let
     shell = config.dotfiles.shell.program;
-    # `y`: run the explorer and `cd` to where it ended up.
+    # `f`: run the explorer and `cd` to where it ended up.
     posix = ''
-        y() {
+        f() {
             local tmp="$(mktemp -t files-cwd.XXXXXX)" cwd
             files --cwd-file "$tmp" "$@"
             cwd="$(command cat -- "$tmp")"
@@ -16,10 +16,13 @@
     '';
 in {
     # `files`: the file explorer (Rust, pkgs/tuikit/tools/files), the same panel the
-    # helix fork embeds. Replaces yazi. `y` changes directory on exit.
+    # helix fork embeds. Replaces yazi. `f` changes directory on exit.
+
+    # `ll`: the folder's entries as a list (permissions, size, age, git state).
+    home.shellAliases.ll = "files list";
 
     programs.zsh.initContent = lib.mkIf (shell == "zsh") posix;
-    programs.fish.functions.y = lib.mkIf (shell == "fish") ''
+    programs.fish.functions.f = lib.mkIf (shell == "fish") ''
         set tmp (mktemp -t files-cwd.XXXXXX)
         files --cwd-file $tmp $argv
         set cwd (command cat -- $tmp)
@@ -29,7 +32,7 @@ in {
         command rm -f -- $tmp
     '';
     programs.nushell.extraConfig = lib.mkIf (shell == "nushell") ''
-        def --env y [...args] {
+        def --env f [...args] {
             let tmp = (mktemp -t files-cwd.XXXXXX)
             files --cwd-file $tmp ...$args
             let cwd = (open $tmp)

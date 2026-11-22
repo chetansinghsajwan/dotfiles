@@ -81,6 +81,6 @@ function fnpi() {
         pick --title "Installed Packages" \
             --delimiter $'\t' \
             --with-nth 1 \
-            --preview-cmd 'eza -lah --color=always --icons=always {2}' |
+            --preview-cmd 'files list {2}' |
         cut -f1
 }

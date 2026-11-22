@@ -22,7 +22,7 @@ function fdps() {
 
     local out key row id
     out=$(docker ps "${all[@]}" --format 'table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}' |
-        __docker_pick "Docker Containers" ctrl-e,ctrl-l 'docker inspect {1} | bat --color=always -l json')
+        __docker_pick "Docker Containers" ctrl-e,ctrl-l 'docker inspect {1} | pv --name inspect.json -')
     key=$(sed -n 1p <<<"$out")
     row=$(sed -n 2p <<<"$out")
     id=$(awk '{print $1}' <<<"$row")
@@ -39,7 +39,7 @@ function fdps() {
 function fdimg() {
     local out key row id
     out=$(docker images --format 'table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}' |
-        __docker_pick "Docker Images" ctrl-e 'docker inspect {1} | bat --color=always -l json')
+        __docker_pick "Docker Images" ctrl-e 'docker inspect {1} | pv --name inspect.json -')
     key=$(sed -n 1p <<<"$out")
     row=$(sed -n 2p <<<"$out")
     id=$(awk '{print $1}' <<<"$row")
@@ -55,12 +55,12 @@ function fdimg() {
 function fdvol() {
     docker volume ls --format 'table {{.Name}}\t{{.Driver}}' |
         pick --title "Docker Volumes" --header-lines 1 \
-            --preview-cmd 'docker volume inspect {1} | bat --color=always -l json'
+            --preview-cmd 'docker volume inspect {1} | pv --name inspect.json -'
 }
 
 # fdnet - fuzzy docker networks
 function fdnet() {
     docker network ls --format 'table {{.ID}}\t{{.Name}}\t{{.Driver}}\t{{.Scope}}' |
         pick --title "Docker Networks" --header-lines 1 \
-            --preview-cmd 'docker network inspect {1} | bat --color=always -l json'
+            --preview-cmd 'docker network inspect {1} | pv --name inspect.json -'
 }

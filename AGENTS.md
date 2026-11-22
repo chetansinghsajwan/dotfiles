@@ -2,12 +2,6 @@
 
 Guidance for AI coding agents working in this repository.
 
-## Ongoing work
-
-Read `pkgs/tuikit/plan.md` first: it holds the full context, decisions and open questions
-for the terminal toolset standardization (shared TUI design, `pv`, `pick`,
-helix fork, git panel).
-
 ## What this is
 
 A personal, multi-host Nix flake configuration covering NixOS, nix-darwin, and
@@ -104,4 +98,3 @@ mutate the actual machine.
   `cd pkgs && nix shell nixpkgs#cargo nixpkgs#rustc nixpkgs#gcc -c cargo test --workspace -j3`
   (use `nice` and `-j3`). The helix fork needs `HELIX_DISABLE_AUTO_GRAMMAR_BUILD=1`.
   Run the full `nix build` only when Nix files, lockfiles or dependencies change.
-- Keep `pkgs/tuikit/plan.md` up to date after a change: it is the one context file for this work.

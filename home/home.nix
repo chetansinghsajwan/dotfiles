@@ -77,7 +77,6 @@ in {
 
     dotfiles.programs = {
         docker.enable = true;
-        batman.enable = true;
         nixpkgs.enable = true;
         # cliphist/wl-clipboard are Wayland-only, so this has no Darwin support.
         clipboard.enable = isLinux;
@@ -99,9 +98,7 @@ in {
         yt-dlp.enable = true;
         helix.enable = config.dotfiles.editor.terminal == "helix";
         btop.enable = true;
-        eza.enable = true;
         lazydocker.enable = true;
-        lazygit.enable = true;
         superfile.enable = true;
         direnv.enable = true;
         tealdeer.enable = true;
