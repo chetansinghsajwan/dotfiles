@@ -5,8 +5,8 @@
     # they stay writable and unmanaged.
     skills = [
         "ci-cd"
+        "coding"
         "commit-messages"
-        "naming"
     ];
 
     # The same skill is linked for the agents that read ~/.agents/skills (Codex) and for the ones

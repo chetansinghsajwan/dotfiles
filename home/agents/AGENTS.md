@@ -27,11 +27,6 @@
 - Commit only when asked. Never amend, force-push or skip hooks unless asked.
 - Confirm before hard-to-reverse or outward-facing actions, such as deleting data or publishing.
 
-## Design
-
-- Ask who owns it. When unsure which layer or module owns a responsibility, ask rather than default to the caller.
-- Keep one shared component. Don't duplicate logic or renderers across tools. Put derived behaviour in the shared layer.
-
 ## Dev Environment
 
 - These rules are for my repos. In repos I don't own, follow their conventions.
@@ -62,16 +57,9 @@
 - Hooks and CI call these tasks, never the raw tools, so there is one source of truth. CI runs `check`, `test` and `scan`.
 - Run the tasks inside the dev env.
 
-## Code Style
+## Coding
 
-- If a repo already has a comment style, match it. Otherwise follow these rules.
-- Add a doc string or comment, preferring doc strings, to every function, type and module, public or private, and to non-obvious constants.
-- Explain the purpose and the reason it exists, in simple language, not what each line does.
-- Use the language's own doc string convention (Rust `///`, Python docstrings, JSDoc). Don't invent one.
-- Prefer line comments over block comments.
-- Arrange code by intention and domain, not by size. Each concern gets its own file, even when it is a short piece of code. For example, a tool's actions go in one file and their default keys in another.
-- Keep file names short but descriptive enough, such as `binds.rs` for the default bindings. The names inside the file can be the fuller ones (`DefaultBinding`).
-- Per-language specifics belong in docs/style-guide.md. This section holds only the general rules.
+- Use the coding skill when writing, changing, structuring, naming or reviewing code. It holds the comment, file layout, design and naming rules.
 
 ## CI/CD
 

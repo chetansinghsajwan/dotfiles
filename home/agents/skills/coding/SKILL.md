@@ -1,13 +1,36 @@
 ---
-name: naming
-description: Choose and review names in code. Use when naming or renaming variables, functions, types, modules, files, CLI flags, config keys or Taskfile tasks, or when reviewing names in a diff.
+name: coding
+description: Write, change, structure or review code, and choose names in it. Use when writing or editing code, adding doc comments, deciding where code or files go, designing which layer owns a responsibility, or naming or renaming variables, functions, types, modules, files, CLI flags, config keys or Taskfile tasks.
 ---
 
-# Naming
+# Coding
+
+A repo's own conventions and `docs/style-guide.md` win over this skill. Read them first and match what is already there.
+
+## Comments
+
+- If a repo already has a comment style, match it. Otherwise follow these rules.
+- Add a doc string or comment, preferring doc strings, to every function, type and module, public or private, and to non-obvious constants.
+- Explain the purpose and the reason it exists, in simple language, not what each line does.
+- Use the language's own doc string convention (Rust `///`, Python docstrings, JSDoc). Don't invent one.
+- Prefer line comments over block comments.
+- Per-language specifics belong in `docs/style-guide.md`. This skill holds only the general rules.
+
+## Layout
+
+- Arrange code by intention and domain, not by size. Each concern gets its own file, even when it is a short piece of code. For example, a tool's actions go in one file and their default keys in another.
+- Keep file names short but descriptive enough, such as `binds.rs` for the default bindings. The names inside the file can be the fuller ones (`DefaultBinding`).
+
+## Design
+
+- Ask who owns it. When unsure which layer or module owns a responsibility, ask rather than default to the caller.
+- Keep one shared component. Don't duplicate logic or renderers across tools. Put derived behaviour in the shared layer.
+
+## Naming
 
 A repo's own conventions and `docs/style-guide.md` win over this skill. Read them first and match the existing vocabulary.
 
-## Principles
+### Principles
 
 - **Intent first:** The name says what the thing is or does, not how it works. Avoid vague words such as `data`, `info`, `util`, `helper`, `manager`, `handle`, `process` and `thing`.
 - **Length follows scope:** A loop index or a three-line closure can be `i` or `x`. A public item or a wide-scope item gets a full descriptive name.
@@ -26,7 +49,7 @@ A repo's own conventions and `docs/style-guide.md` win over this skill. Read the
 - **Honest names:** If a function does two things or has a side effect, the name says so, or the function gets split.
 - **Searchable:** Avoid names that are one letter or a common word in a wide scope, since they are hard to grep.
 
-## Case by language
+### Case by language
 
 | Language | Values, functions | Types        | Constants                                   | Files            |
 | -------- | ----------------- | ------------ | ------------------------------------------- | ---------------- |
@@ -41,7 +64,7 @@ A repo's own conventions and `docs/style-guide.md` win over this skill. Read the
 - **Taskfile tasks:** use the standard names (`setup`, `fmt`, `lint`, `test`, `scan`, `check`), then `kebab-case` verbs for the rest.
 - **Git branches:** `type/short-kebab-description`, with the same types as Conventional Commits.
 
-## Choosing a name
+### Choosing a name
 
 1. State what the thing is or does in one plain sentence.
 2. Take the key noun or verb from it. That is the name.
@@ -49,7 +72,7 @@ A repo's own conventions and `docs/style-guide.md` win over this skill. Read the
 4. If it needs "and" or "or", split the thing.
 5. If no good name comes, the design is unclear. Fix that first.
 
-## Renaming
+### Renaming
 
 1. Find every usage: code, docs, tests, config, scripts, generated files, and strings that build the name dynamically.
 2. Use the language server or a structural tool where one exists, not a blind find-and-replace.
@@ -57,7 +80,7 @@ A repo's own conventions and `docs/style-guide.md` win over this skill. Read the
 4. For public APIs or user-facing flags and keys, keep the old name as a deprecated alias and say so in the changelog, or mark the commit as breaking.
 5. Run `task check` afterward.
 
-## Reviewing names
+### Reviewing names
 
 Flag a name when it:
 
