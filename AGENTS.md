@@ -79,6 +79,7 @@ mutate the actual machine.
 
 ## The Rust tools (`pkgs`)
 
+- Before drawing anything in a tool, read `pkgs/tuikit/docs/ui-design.md` (components, text and motion rules) and `usage-design.md`; the rules there are not repeated here.
 - Design lives in one place: colors, keys, menus, lists, prompts and previews come from
   `ui` and `pv`; don't restyle in a tool.
   Structure and drawing of an element (a file or tree row, a list, a pane) is the toolkit.s
