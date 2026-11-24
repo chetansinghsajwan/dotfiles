@@ -37,9 +37,15 @@
     '';
 in {
     programs.zellij = {
-        settings = {
-            show_startup_tips = false;
-        };
+        settings =
+            {
+                show_startup_tips = false;
+            }
+            # Selections go through wl-copy so they reach the Wayland clipboard (and `cb`) on Linux and
+            # WSLg, instead of the OSC 52 default that only reaches the terminal's own clipboard.
+            // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+                copy_command = "${pkgs.wl-clipboard}/bin/wl-copy";
+            };
 
         # enableBashIntegration = config.dotfiles.shell.program == "bash";
         # enableZshIntegration = config.dotfiles.shell.program == "zsh";
